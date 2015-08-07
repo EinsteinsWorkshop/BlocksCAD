@@ -1,0 +1,335 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+}
+#main {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99;
+    height: 100%;
+    width: 100%;
+    background: #ffffff; /* Old browsers */
+    overflow: hidden;
+}
+
+#blocklyDiv {
+    border: 10;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    outline: none;
+}
+
+#parametersdiv {
+	display: none;
+}
+#statusdiv {
+	display: none;
+}
+#languageMenu {
+	display:none;
+}
+
+
+/* style for resizable render pane */
+.ui-icon { width: 46px; height: 46px; background-image: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/images/ui-icons_222222_256x240.png)/*{iconsContent}*/; }
+.ui-resizable { position: absolute;}
+.ui-resizable-handle { position: absolute;font-size: 1px;z-index: 99999; display: block;}
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
+.ui-resizable-n { cursor: n-resize; height: 37px; width: 100%; top: -5px; left: 0px; }
+.ui-resizable-s { cursor: s-resize; height: 20px; width: 100%; bottom: -17px; left: 0px; }
+.ui-resizable-e { cursor: e-resize; width: 37px; right: -5px; top: 0px; height: 100%; }
+.ui-resizable-w { cursor: w-resize; width: 20px; left: -17px; top: 0px; height: 100%; }
+.ui-resizable-se { cursor: se-resize; width: 19px; height: 19px; right: 1px; bottom: 1px; }
+.ui-resizable-sw { cursor: sw-resize; width: 30px; height: 30px; left: -20px; bottom: -20px; }
+.ui-resizable-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
+.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
+.ui-icon-gripsmall-diagonal-se { background-position: -64px -224px; }
+
+ .ui-widget-content {
+    background: #cedc98;
+    border: 1px solid #DDDDDD;
+    color: #333333;
+ }
+
+.resizableDiv {
+	position: absolute;
+	z-index: 300;
+	top: 0px !important;
+	right:  12px;
+	border-style: solid solid ridge ridge;
+	border-width: 1px 1px 8px 8px;
+	border-color: #cccccc;
+    width: 30%;
+    height: 60%;
+}
+
+#renderDiv {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 60px;
+	overflow: hidden;
+}
+#renderPane {
+	position: absolute;
+	height: 60px;
+	width: 100%;
+	bottom: 0px;
+	border: 1px solid #000;
+	background-color: #fff;
+	overflow: auto;
+}
+#paneContainer {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+#renderButton, #abortButton {
+	position: absolute;
+	left: 5px;
+	top: 6px;
+	display: block;
+	width: 93px;
+	height: 46px;
+	margin: 0 auto;	
+}
+/*#abortButton {
+	position: absolute;
+	left: 15px;
+	top: 1px;
+
+	padding: 5px;
+	display: none;
+}*/
+#render-ongoing {
+	position: absolute;
+	left: 120px;
+	top: 15px;
+	display: none;
+	font-size: 18px;
+}
+#error-message {
+	position: absolute;
+	left: 104px;
+	top: 50%;
+	font-size: 14px;
+	overflow: auto;
+	transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+}
+.btn-over-blockly {
+	position: absolute;
+	top: -8px;
+	left: 40%;
+	z-index: 299;
+}
+.proj-input {
+	max-width: 30%;
+}
+.has-error {
+/*	border: 1px solid red; */
+}
+
+#viewMenu {
+	position: relative;
+	z-index:  500;
+
+}
+#viewReset {
+	position: relative;
+	z-index: 500;
+
+}
+#axesButton {
+	position:absolute;
+	bottom: 0px;
+	right: 20px;
+	z-index: 500;
+}
+
+ 
+.content {
+  margin: 0;
+  padding: 20px;
+  position: absolute;
+  top: 0px;
+  direction: ltr;
+  width: 100%;
+  height:100%;
+  overflow: auto;
+}
+
+
+/* override bootstrap css */
+
+#top-navigation-bar {
+    margin-bottom: 0;
+}
+.tab-content {
+	position: relative;
+}
+.tab-content>.tab-pane {
+   display: block;
+   visibility: hidden;
+}
+.tab-content>.active {
+  display: block;
+  visibility: visible;
+}
+
+.dropdown-toggle {
+	font-size: 16px;
+}
+
+.btn-big {
+	font-size: 16px;
+	font-weight: bold;
+	margin: 0px;
+	color: #666;
+	border: none;
+	background-color: transparent;
+	background-image: none;
+	outline: none;
+	background-repeat:no-repeat;
+	height: 50px;
+	border-radius: 0px;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	padding: 0px 12px;
+}
+
+.navbar-brand {
+	font-size: 20px;
+}
+
+.navbar-collapse.collapse {
+display: block!important;
+}
+
+.navbar-nav>li, .navbar-nav {
+float: left !important;
+}
+
+.navbar-right {
+margin-right: 0px !important;
+}
+
+.navbar-narrow {
+	min-height: 35px;
+	margin-bottom: 0px;
+	height: 35px !important;
+	line-height: 1;
+}
+
+.navbar-right {
+float: right!important;
+}
+
+.nav-pills>li.active>a {
+    background-color:#ededed;
+    color:#111;
+}
+
+.nav-pills>li.active>a:hover,
+.nav-pills>li.active>a:focus {
+    background-color:#ededed;
+    color:#111;
+}
+
+body .modal-md {
+	width: 70%;
+	left: 15%;
+}
+
+#projectView {
+	display:block;
+	position:absolute;
+	overflow-y: scroll;
+	height: 92%;
+	width:98%;
+	left:1%;
+}
+
+.proj-to-download {
+	font-weight: bold;
+}
+
+.proj-header {
+	margin: 8px;
+	padding: 4px;
+	font-size: 24px;
+}
+.table-striped>tbody>tr:nth-of-type(odd) {
+  background-color: #f6f6ff;
+}
+
+.vcenter {
+	vertical-align: top;
+	margin-top: 0;
+	margin-right: 5%;
+	float: right;
+}
+
+.form-error-message {
+	display: inline-block;
+	padding: 3px;
+	margin-left: 5px;
+	white-space: nowrap;
+	background-color: #b04444;
+	color: white;
+}
+.error-message {
+	display: table;
+	margin: 0 auto;
+	padding: 3px;
+	background-color: #b04444;
+	color: white;
+	text-align: left;
+	margin-top: 10px;
+}
+.form-error {
+	display: inline-block;
+	position: absolute;
+}
+.mycl {
+	display: inline-block;
+  float: left;
+  clear: left;
+  width: 30%;
+  text-align: left;
+}
+.reginput {
+  display: inline-block;
+  float: left;
+}
+.password {
+	-webkit-text-security:disc;
+	text-security:disc;
+}
+/* Sprited icons. */
+.icon21 {
+  height: 21px;
+  width: 21px;
+  background-image: url(../icons.png);
+}
+.trash {
+  background-position: 0px 0px;
+}
+
+/* scrollbar on long variable dropdown lists */
+.goog-menu-vertical {
+    overflow-y: scroll;
+    max-height: 350px;
+}

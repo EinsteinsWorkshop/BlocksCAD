@@ -1,0 +1,7 @@
+So if you have your html file myfile.html in a folder, say mydir, all you have to do is:
+
+cd /path/to/mydir-with-index.html-in-it
+python -m SimpleHTTPServer 9000
+Then point your browser to:
+
+http://localhost:9000/

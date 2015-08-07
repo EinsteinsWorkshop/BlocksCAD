@@ -1,0 +1,35 @@
+{
+  "name": "openscad-openjscad-translator",
+  "version": "0.0.7",
+  "description": "Translates OpenSCAD syntax (http://www.openscad.org/) into OpenJsCAD syntax (http://joostn.github.com/OpenJsCad/).",
+  "main": "src/OpenscadOpenjscadParser.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "requirejs": "~2.1.5",
+    "sylvester": "~0.0.21",
+    "underscore": "~1.4.4"
+  },
+  "devDependencies": {
+    "jison": "~0.3.12",
+    "test": "~0.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/garyhodgson/openscad-openjscad-translator"
+  },
+  "bugs": {
+    "url": "https://github.com/garyhodgson/openscad-openjscad-translator/issues"
+  },
+  "keywords": [
+    "openscad",
+    "openjscad"
+  ],
+  "author":{
+    "name": "Gary Hodgson",
+    "email": "contact@garyhodgson.com",
+    "url": "http://garyhodgson.com"
+  },
+  "license": "GPLv3"
+}
