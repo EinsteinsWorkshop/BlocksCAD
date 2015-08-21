@@ -100,7 +100,10 @@ Blockscad.init = function() {
   Blockscad.workspace = Blockly.inject(document.getElementById('blocklyDiv'),
       {
        media: 'blockly/media/',
-       rtl: rtl,
+       zoom: {enabled:true,
+              scaleSpeed: 1.1,
+              controls:true},
+       trashcan: false,
        toolbox: Blockscad.Toolbox.other});
 
   BSUtils.loadBlocks('');
