@@ -381,8 +381,11 @@ Blockly.BlockSvg.prototype.getHeightWidth = function() {
  * Set whether the block is collapsed or not.
  * @param {boolean} collapsed True if collapsed.
  */
-Blockly.BlockSvg.prototype.setCollapsed = function(collapsed) {
-  if (this.collapsed_ == collapsed) {
+
+// Added the force parameter so that BlocksCAD can force an updated comment
+// to change the text on a collapsed block.  This is used in STL import.
+Blockly.BlockSvg.prototype.setCollapsed = function(collapsed,force) {
+  if (this.collapsed_ == collapsed && !force) {
     return;
   }
   var renderList = [];
@@ -411,15 +414,25 @@ Blockly.BlockSvg.prototype.setCollapsed = function(collapsed) {
             comm = comm.substring(0,Blockly.COLLAPSE_CHARS - 3)+"...";
             text = comm;
           } else {
-            text = comm;
+            if (!force) text = comm;
             if (Blockly.COLLAPSE_CHARS - comm.length > 8) {
               if (comm.length > 0) {
-              text += " - ";
+              if (!force) text += " - ";
               }
               text += this.toString(Blockly.COLLAPSE_CHARS - comm.length);
+              // console.log('in collapse. this.toString is:',this.toString(Blockly.COLLAPSE_CHARS));
             }
           }
-    this.appendDummyInput(COLLAPSED_INPUT_NAME).appendField(text).init();
+    if (!force) this.appendDummyInput(COLLAPSED_INPUT_NAME).appendField(text,'COLLAPSE_TEXT').init();
+    else {
+      // remove the collapse_text field, and append a new one
+      var inp = this.getInput(COLLAPSED_INPUT_NAME);
+      inp.setVisible(true);
+      inp.removeField('COLLAPSE_TEXT');
+      inp.appendField(text,'COLLAPSE_TEXT').init();
+
+
+    }
   } else {
     this.removeInput(COLLAPSED_INPUT_NAME);
     // Clear any warnings inherited from enclosed blocks.

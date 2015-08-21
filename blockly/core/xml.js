@@ -30,6 +30,8 @@ goog.provide('Blockly.Xml');
 // goog.require('Blockly.Block');
 goog.require('goog.dom');
 
+// for Blockscad
+var Blockscad = Blockscad || {};
 
 /**
  * Encode a block tree as XML.
@@ -43,6 +45,12 @@ Blockly.Xml.workspaceToDom = function(workspace) {
   }
   var xml = goog.dom.createDom('xml');
   var blocks = workspace.getTopBlocks(true);
+
+  // For BlocksCAD: add version information
+  var element = goog.dom.createDom('version');
+  element.setAttribute('num', Blockscad.version);
+  xml.appendChild(element);
+
   for (var i = 0, block; block = blocks[i]; i++) {
     var element = Blockly.Xml.blockToDom_(block);
     var xy = block.getRelativeToSurfaceXY();
@@ -71,7 +79,8 @@ Blockly.Xml.blockToDom_ = function(block) {
     }
   }
   function fieldToDom(field) {
-    if (field.name && field.EDITABLE) {
+    // for BlocksCAD, I want to save un-editable fields in the xml for stl import.
+    if (field.name && (field.EDITABLE || field.name == 'STL_FILENAME' || field.name == 'STL_CONTENTS')) {
       var container = goog.dom.createDom('field', null, field.getValue());
       container.setAttribute('name', field.name);
       element.appendChild(container);
@@ -230,6 +239,9 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
   var childCount = xml.childNodes.length;
   for (var i = 0; i < childCount; i++) {
     var xmlChild = xml.childNodes[i];
+    if (xmlChild.nodeName.toLowerCase() == 'version') {
+      console.log("xmlChild read was: ", xmlChild.getAttribute('num'));
+    }
     if (xmlChild.nodeName.toLowerCase() == 'block') {
       var block = Blockly.Xml.domToBlock(workspace, xmlChild);
       var blockX = parseInt(xmlChild.getAttribute('x'), 10);

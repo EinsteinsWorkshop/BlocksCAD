@@ -1,17 +1,6 @@
 goog.require('Blockly.Blocks');
 //goog.require('Blockly.MutatorPlus');
 
-Blockly.Blocks['shape'] = {
-  init: function() {
-    this.setHelpUrl('http://www.example.com/');
-    this.appendDummyInput()
-        .appendField('Shape');
-    this.appendStatementInput('A');
-    this.setTooltip(''); 
-    this.setDeletable(false);
-    this.setEditable(false);
-  }
-};
 Blockly.Blocks['sphere'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
@@ -1321,6 +1310,45 @@ Blockly.Blocks['math_constant_bs'] = {
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'CONSTANT');
     this.setTooltip(Blockly.Msg.MATH_CONSTANT_TOOLTIP);
+  }
+};
+
+// I want a "primitive" block for stl import. 
+Blockly.Blocks['stl_import'] = {
+  init: function() {
+    this.category = 'PRIMITIVE_CSG'
+    this.appendDummyInput()
+        .appendField("STL Import");
+    this.appendDummyInput('')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField(new Blockly.FieldLabel(""),'STL_FILENAME');
+    this.appendDummyInput('')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField(new Blockly.FieldButton("Browse"),'STL_BUTTON');
+    this.appendDummyInput('C')
+        .appendField(new Blockly.FieldLabel(""),'STL_CONTENTS')
+        .setVisible(false);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true);
+    this.setColourHex(Blockly.HEX_3D_PRIMITIVE);
+    this.setTooltip('');
+    this.setWarningText('STL files are not saved with your blocks.');
+    this.setHelpUrl('http://www.example.com/');
+  },
+  onchange: function() {
+    if (!this.workspace) {
+      // Block has been deleted.
+      return;
+    }    
+    // if one of the value fields is missing, I want to pop up a warning.
+    var fn = this.getField('STL_FILENAME').getText();
+    var contents = this.getField('STL_CONTENTS').getText();
+    if (fn.length > 0) {
+      this.getField('STL_BUTTON').setVisible(false);
+      this.setCommentText(fn + '\ncenter: (' + Blockscad.csg_center[contents] + ')');
+    }
+    this.getField('STL_CONTENTS').setVisible(false);
+    // this.render();
   }
 };
 

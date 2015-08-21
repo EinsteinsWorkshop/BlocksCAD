@@ -9,10 +9,10 @@
   <title>BlocksCAD</title>
   <!-- compressed javascript files for non-debug stuff -->
 
-      <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
-      <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
+      <!--<script type="text/javascript" src="blockly/blockly_compressed.js"></script>
+      <script type="text/javascript" src="blockly/blocks_compressed.js"></script>-->
 
-  <!--  
+ 
   <script type="text/javascript" src="blockly/blockly_uncompressed.js"></script>
   <script type="text/javascript" src="blockly/blocks/colour.js"></script>
   <script type="text/javascript" src="blockly/blocks/geom_set_ops.js"></script>
@@ -25,36 +25,36 @@
   <script type="text/javascript" src="blockly/blocks/text.js"></script>
   <script type="text/javascript" src="blockly/blocks/variables.js"></script>
   
-  -->
+
   <script type="text/javascript" src="blockly/openscad_compressed.js"></script>
   <!-- eventually, the generated stuff should go in a different file.  But for now, lets include this: -->
   <!--<script type="text/javascript" src="generated/en.js"></script>-->
   <!--<script type"text/javascript" src="blockly/generators/openscad/extra.js"></script>-->
 
   
-<!--
+
   <script type="text/javascript" src="blockscad/utils.js"></script>
   <script type="text/javascript" src="blockscad/storage.js"></script>
   <script type="text/javascript" src="blockscad/FileSaver.js"></script>
   <script type="text/javascript" src="blockscad/deflate.js"></script>
 
   <script type="text/javascript" src="blockscad/blockscad.js"></script>
+  <script type="text/javascript" src="blockscad/stl.js"></script>
   <script type="text/javascript" src="blockscad/auth.js"></script> 
   <script type="text/javascript" src="blockscad/toolbox.js"></script>
-  <script src="blockscad/lightgl.js"></script>-->
+  <script src="blockscad/lightgl.js"></script>
 
-  <!-- OpenJSCAD and Blockscad stuff -->
-  <script type="text/javascript" src="blockscad/viewer_compressed.js"></script>
-  <!--<script type="text/javascript" src="blockscad/csg.js"></script>
+  <!-- viewer stuff -->
+  <!--<script type="text/javascript" src="blockscad/viewer_compressed.js"></script>-->
+  <script type="text/javascript" src="blockscad/csg.js"></script>
   <script type="text/javascript" src="blockscad/formats.js"></script>
-  <script type="text/javascript" src="blockscad/openscad.js"></script>
-  <script type="text/javascript" src="blockscad/openjscad.js"></script>-->
+  <script type="text/javascript" src="blockscad/viewer.js"></script>
   
-  <script src="blockscad/blockscad_compressed.js"></script>
+  <!--<script src="blockscad/blockscad_compressed.js"></script>-->
   
   <script src="blockscad/underscore.js"></script>
   <script src="blockscad/openscad-openjscad-translator.js"></script>
-  <!-- end OpenJSCAD stuff -->
+  <!-- end viewer stuff -->
 
 
   <!-- Jquery -->
@@ -74,17 +74,9 @@
         <![endif]-->
   <!-- blocksCAD's css -->
   <link rel="stylesheet" href="blockscad/style.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon"> 
 </head>
 <body>
-  <!--  This came from OpenJSCad.  We seem to need it. -->
-  <script type="text/javascript">
-  var version = '0.017 (2014/02/14)';
-  var me = document.location.toString().match(/^file:/) ? 'web-offline' : 'web-online'; // me: {cli, web-offline, web-online}
-  var browser = 'unknown';
-  if (navigator.userAgent.match(/(opera|chrome|safari|firefox|msie)/i))
-    browser = RegExp.$1.toLowerCase();
-  </script>
-
   <div id="main">
     <!-- start the html at the top: the navigation bar.  -->
     <nav class="navbar navbar-default" id="top-navigation-bar">
@@ -95,12 +87,28 @@
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Project<span class="caret"></span></a>
             <ul id="file-menu" class="dropdown-menu" role="menu">
+              <li><a href="#" class="new-project">New</a></li>
+              <li class="divider"></li>
+              <li><a href="#" id="saveLocal">Save Blocks to your Computer</a></li>
+              <li>
+                <input type="file" accept=".xml" id="loadLocal" style="visibility: hidden; width: 1px; height: 1px" />
+                <a href="#" onclick="document.getElementById('loadLocal').click(); return false">Load Blocks from your Computer</a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <input type="file" accept=".xml" id="importLocal" style="visibility: hidden; width: 1px; height: 1px" />
+                <a href="#" onclick="document.getElementById('importLocal').click(); return false">Import Blocks into Current Project</a>
+              </li>
+              <li>
+                <input type="file" accept=".stl" id="importStl" style="visibility: hidden; width: 1px; height: 1px" />
+                <a href="#" onclick="document.getElementById('importStl').click(); return false">Import STL into Current Project</a>
+              </li>
             </ul>
           </li>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help<span class="caret"></span></a>
             <ul id="help-menu" class="dropdown-menu" role="menu">
-              <li><a href="#">Action</a></li>
+              <li><a href="/docs/" target="_blank">Documentation</a></li>
               <li class="divider"></li>
               <li><a href="about.html" data-toggle="modal" data-target="#about-modal">About</a></li>
             </ul>
@@ -430,8 +438,7 @@
 
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
-  <!-- end of password recovery popup -->
+  </div><!-- /.modal --> <!-- end of password recovery popup -->
   <!-- password recovery email sent modal -->
   <div id="recover-email-sent" class="modal">
     <div class="modal-dialog modal-sm">
@@ -444,8 +451,7 @@
         </div>
       </div>
     </div>
-  </div>
-  <!-- end of password recovery email sent modal -->
+  </div> <!-- end of password recovery email sent modal -->
   <!--  delete confirm popup -->
   <div id="delete-confirm" class="modal">
     <div class="modal-dialog modal-sm" style="width:400px">
@@ -459,8 +465,7 @@
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-  </div>
-  <!-- end of delete-confirm popup -->
+  </div> <!-- end of delete-confirm popup -->
   <!--  online delete confirm popup -->
   <div id="online-delete-confirm" class="modal" data-backdrop="false">
     <div class="modal-dialog modal-sm" style="width:400px">
@@ -474,13 +479,82 @@
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-  </div>
-  <!-- end of online delete-confirm popup -->
+  </div> <!-- end of online delete-confirm popup -->
 
+  <!--  delete account confirm popup -->
+  <div id="delete-account-confirm" class="modal">
+    <div class="modal-dialog modal-sm" style="width:600px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4>Are you sure you want to delete your BlocksCAD account?</h4>
+        </div>
+        <div class="modal-footer">
+            <button id="delete-account-yes" class="button btn-lg btn-default primary pull-left" style="margin-left:10%" type="button" data-dismiss="modal" data-target="#delete-account-confirm">Yes - Next Step</button> 
+            <button class="button btn-default btn-lg primary" style="margin-right:10%" type="button" data-dismiss="modal" data-target="#delete-account-confirm">Keep My Account</button> 
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+  <!-- end of delete-confirm popup -->
+  <!--  delete account popup -->
+  <div id="delete-account-modal" class="modal">
+    <div class="modal-dialog modal-sm" style="width:600px">
+      <div class="modal-content">
+        <form id='delete-account-form' novalidate>
+          <fieldset>
+            <div class="modal-header">
+              <a href="#" data-dismiss="modal" data-target="#delete-account-modal" class="close">x
+              </a>
+              <h4>Delete My Account</h4>
+              <h3>In about 48 hours your account will be <b>permanently deleted.</b></h3>
+              <p>If you change your mind, just sign in to your account within the next 48 hours.</p>
+            </div>
+            <div class="modal-body">
+              <div class="form-group"> 
+                <label  for="password">Enter password to confirm:  </label>
+                <input type="password" id="del-acct-pw" name="password" autocomplete="off" class="password regform" maxlength="30"/>
+                <div class="form-error">
+                  <span class="password-error"></span>
+                </div>
+              </div>
+               <div class="buttons-right">
+                <button class="button primary btn-default btn-lg" type="submit">Delete Account and Sign Out</button> 
+              </div>
+            </div>
+            <div class="modal-footer">
+            <span class="footer-error" id="da-pw-error"></span>
+            </div>
+          </fieldset>
+        </form>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+  <!-- end of delete account popup -->
+  <!--  delete reactivate popup -->
+  <div id="delete-reactivate" class="modal">
+    <div class="modal-dialog modal-sm" style="width:500px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <a href="#" data-dismiss="modal" class="close">x
+          </a>
+          <h4><b>Your account will not be deleted</b></h4>
+        </div>
+        <div class="modal-body">
+          <p> Your account was scheduled for deletion but you logged in. Your account has been reactivated. 
+          If you didn’t request for your account to be deleted, you should <a href="#" data-toggle="modal" data-target="#change-password-modal" data-dismiss="modal" data-target="#delete-reactivate">change your password</a> to make sure your account is secure.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="button btn-default btn-lg primary" style="margin-right:10%" type="button" data-dismiss="modal" data-target="#delete-reactivate">Continue</button> 
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div>
+  <!-- end of delete reactivate popup -->
+  <!-- About popup -->
   <div id='about-modal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="about-modal" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content"/>
-<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      <div class="modal-content">
+      </div>
     </div>
   </div>
 

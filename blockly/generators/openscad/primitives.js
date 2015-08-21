@@ -400,6 +400,13 @@ Blockly.OpenSCAD['rotateextrudetwist'] = function(block) {
   return code;
 };
 
+Blockly.OpenSCAD['stl_import'] = function(block) {
+  var text_filename = block.getFieldValue('STL_FILENAME');
+  // TODO: Assemble JavaScript into code variable.
+  var code = 'import("' + text_filename + '");\n';
+  //var code = block.getFieldValue('STL_CONTENTS');
+  return code;
+};
 // hexTo(RGB) take a blockly color string '#00ff88' for example, including the quotes
 // and returns RGB values.  
 

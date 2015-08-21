@@ -203,9 +203,9 @@ define("Context", ["Globals", "openscad-parser-support"], function(Globals, Open
         "min":function(){
             return Math.min.apply(null, _.map(arguments, function(num){ return num ? num : Infinity; }));
         },
-        "pow":function(x) {
-            if (_.isUndefined(x)  || _.isNaN(x)){return undefined;}
-            return Math.pow(x);
+        "pow":function(x,y) {
+            if (_.isUndefined(x) || _.isNaN(x) || _.isUndefined(y) || _.isNaN(y)){return undefined;}
+            return Math.pow(x,y);
         },
         "ln":function(x) {
             if (_.isUndefined(x)  || _.isNaN(x)){return undefined;}

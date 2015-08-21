@@ -7,7 +7,7 @@
 
     "include": ["../tools/almond", "openscadOpenJscadParser"],
     "exclude": ["../lib/underscore"],
-    "out": "../openscad-openjscad-translator-new.js",
+    "out": "../blockscad/openscad-openjscad-translator.js",
     "wrap": {
         "startFile": "tools/start.frag",
         "endFile": "tools/end.frag"

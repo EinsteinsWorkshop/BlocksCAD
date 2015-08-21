@@ -26,79 +26,19 @@ Blockly.OpenSCAD.ORDER_DIVISION=5;Blockly.OpenSCAD.ORDER_MODULUS=5;Blockly.OpenS
 Blockly.OpenSCAD.ORDER_CONDITIONAL=15;Blockly.OpenSCAD.ORDER_ASSIGNMENT=16;Blockly.OpenSCAD.ORDER_COMMA=17;Blockly.OpenSCAD.ORDER_NONE=99;Blockly.OpenSCAD.INFINITE_LOOP_TRAP=null;
 Blockly.OpenSCAD.init=function(a){Blockly.OpenSCAD.definitions_=Object.create(null);Blockly.OpenSCAD.functionNames_=Object.create(null);Blockly.OpenSCAD.variableDB_?Blockly.OpenSCAD.variableDB_.reset():Blockly.OpenSCAD.variableDB_=new Blockly.Names(Blockly.OpenSCAD.RESERVED_WORDS_);Blockly.Variables.allVariables(a);Blockly.OpenSCAD.definitions_.variables=""};
 Blockly.OpenSCAD.finish=function(a){var b=[],c;for(c in Blockly.OpenSCAD.definitions_)b.push(Blockly.OpenSCAD.definitions_[c]);return"//!OpenSCAD\n\n"+b.join("\n")+"\n\n\n"+a};Blockly.OpenSCAD.scrubNakedValue=function(a){return a+";\n"};Blockly.OpenSCAD.quote_=function(a){a=a.replace(/\\/g,"\\\\").replace(/\n/g,"\\\n").replace(/'/g,"\\'");return"'"+a+"'"};
-Blockly.OpenSCAD.scrub_=function(a,b){if(null===b)return"";var c="";if(!a.outputConnection||!a.outputConnection.targetConnection){var d=a.getCommentText();d&&(c+=this.prefixLines(d,"// ")+"\n");for(var e=0;e<a.inputList.length;e++)a.inputList[e].type==Blockly.INPUT_VALUE&&(d=a.inputList[e].connection.targetBlock())&&(d=this.allNestedComments(d))&&(c+=this.prefixLines(d,"// "))}e=a.nextConnection&&a.nextConnection.targetBlock();e=this.blockToCode(e);return c+b+e};/*
-
- Visual Blocks Language
-
- Copyright 2012 Google Inc.
- https://blockly.googlecode.com/
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
-Blockly.OpenSCAD.colour={};Blockly.OpenSCAD.colour_picker=function(a){return["'"+a.getFieldValue("COLOUR")+"'",Blockly.OpenSCAD.ORDER_ATOMIC]};Blockly.OpenSCAD.colour_random=function(a){return[Blockly.OpenSCAD.provideFunction_("colour_random",["function "+Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_+"() {","  var num = Math.floor(Math.random() * Math.pow(2, 24));","  return '#' + ('00000' + num.toString(16)).substr(-6);","}"])+"()",Blockly.OpenSCAD.ORDER_FUNCTION_CALL]};
+Blockly.OpenSCAD.scrub_=function(a,b){if(null===b)return"";var c="";if(!a.outputConnection||!a.outputConnection.targetConnection){var d=a.getCommentText();d&&(c+=this.prefixLines(d,"// ")+"\n");for(var e=0;e<a.inputList.length;e++)a.inputList[e].type==Blockly.INPUT_VALUE&&(d=a.inputList[e].connection.targetBlock())&&(d=this.allNestedComments(d))&&(c+=this.prefixLines(d,"// "))}e=a.nextConnection&&a.nextConnection.targetBlock();e=this.blockToCode(e);return c+b+e};Blockly.OpenSCAD.colour={};Blockly.OpenSCAD.colour_picker=function(a){return["'"+a.getFieldValue("COLOUR")+"'",Blockly.OpenSCAD.ORDER_ATOMIC]};Blockly.OpenSCAD.colour_random=function(a){return[Blockly.OpenSCAD.provideFunction_("colour_random",["function "+Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_+"() {","  var num = Math.floor(Math.random() * Math.pow(2, 24));","  return '#' + ('00000' + num.toString(16)).substr(-6);","}"])+"()",Blockly.OpenSCAD.ORDER_FUNCTION_CALL]};
 Blockly.OpenSCAD.colour_rgb=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"RED",Blockly.OpenSCAD.ORDER_COMMA)||0,c=Blockly.OpenSCAD.valueToCode(a,"GREEN",Blockly.OpenSCAD.ORDER_COMMA)||0;a=Blockly.OpenSCAD.valueToCode(a,"BLUE",Blockly.OpenSCAD.ORDER_COMMA)||0;return[Blockly.OpenSCAD.provideFunction_("colour_rgb",["function "+Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_+"(r, g, b) {","  r = Math.max(Math.min(Number(r), 100), 0) * 2.55;","  g = Math.max(Math.min(Number(g), 100), 0) * 2.55;","  b = Math.max(Math.min(Number(b), 100), 0) * 2.55;",
 "  r = ('0' + (Math.round(r) || 0).toString(16)).slice(-2);","  g = ('0' + (Math.round(g) || 0).toString(16)).slice(-2);","  b = ('0' + (Math.round(b) || 0).toString(16)).slice(-2);","  return '#' + r + g + b;","}"])+"("+b+", "+c+", "+a+")",Blockly.OpenSCAD.ORDER_FUNCTION_CALL]};
 Blockly.OpenSCAD.colour_blend=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"COLOUR1",Blockly.OpenSCAD.ORDER_COMMA)||"'#000000'",c=Blockly.OpenSCAD.valueToCode(a,"COLOUR2",Blockly.OpenSCAD.ORDER_COMMA)||"'#000000'";a=Blockly.OpenSCAD.valueToCode(a,"RATIO",Blockly.OpenSCAD.ORDER_COMMA)||.5;return[Blockly.OpenSCAD.provideFunction_("colour_blend",["function "+Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_+"(c1, c2, ratio) {","  ratio = Math.max(Math.min(Number(ratio), 1), 0);","  var r1 = parseInt(c1.substring(1, 3), 16);",
 "  var g1 = parseInt(c1.substring(3, 5), 16);","  var b1 = parseInt(c1.substring(5, 7), 16);","  var r2 = parseInt(c2.substring(1, 3), 16);","  var g2 = parseInt(c2.substring(3, 5), 16);","  var b2 = parseInt(c2.substring(5, 7), 16);","  var r = Math.round(r1 * (1 - ratio) + r2 * ratio);","  var g = Math.round(g1 * (1 - ratio) + g2 * ratio);","  var b = Math.round(b1 * (1 - ratio) + b2 * ratio);","  r = ('0' + (r || 0).toString(16)).slice(-2);","  g = ('0' + (g || 0).toString(16)).slice(-2);","  b = ('0' + (b || 0).toString(16)).slice(-2);",
-"  return '#' + r + g + b;","}"])+"("+b+", "+c+", "+a+")",Blockly.OpenSCAD.ORDER_FUNCTION_CALL]};Blockly.OpenSCAD.rotateextrudetwist=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"FACES",Blockly.OpenSCAD.ORDER_ATOMIC),c=Blockly.OpenSCAD.valueToCode(a,"RAD",Blockly.OpenSCAD.ORDER_ATOMIC),d=Blockly.OpenSCAD.valueToCode(a,"TWIST",Blockly.OpenSCAD.ORDER_ATOMIC),e=Blockly.OpenSCAD.valueToCode(a,"TSTEPS",Blockly.OpenSCAD.ORDER_ATOMIC),f=Blockly.OpenSCAD.statementToCode(a,"A");""!=f&&(f+="\n");for(var g=0;g<=a.plusCount_;g++){var h=Blockly.OpenSCAD.statementToCode(a,"PLUS"+g);""!=h&&(f+=h+"\n")}b||
-Blockscad.missingFields.push(a.id);return"rotate_extrude($fn="+b+",radius="+c+",twist="+d+",tsteps="+e+"){\n"+f+"}"};
-Blockly.OpenSCAD.controls_for_chainhull=function(a){var b=Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("VAR"),Blockly.Variables.NAME_TYPE),c=Blockly.OpenSCAD.valueToCode(a,"FROM",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"0",d=Blockly.OpenSCAD.valueToCode(a,"TO",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"0",e=Blockly.OpenSCAD.valueToCode(a,"BY",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"1",f=Blockly.OpenSCAD.statementToCode(a,"DO"),g=new RegExp("([^a-z|A-Z])"+b+"(?![a-z|A-Z])","g");console.log("reg exp = ",
-g);g=f.replace(g,"$1"+("("+b+" + "+e+")"));console.log("branch = ",f);Blockly.OpenSCAD.INFINITE_LOOP_TRAP&&(f=Blockly.OpenSCAD.INFINITE_LOOP_TRAP.replace(/%1/g,"'"+a.id+"'")+f);return a="for ("+b+" = ["+c+" : abs("+e+") : "+d+" - "+e+"]"+(") {\n  hull() {\n"+f+"\n"+g+"\n  }\n}")};Blockly.OpenSCAD.geom_set_ops={};Blockly.OpenSCAD.union=function(a){var b=0,b=Blockly.OpenSCAD.statementToCode(a,"A");""!=b&&(b+="\n");for(var c="union(){\n"+b,b=0;b<=a.plusCount_;b++){var d=Blockly.OpenSCAD.statementToCode(a,"PLUS"+b);""!=d&&(c+=d+"\n")}return c+"}"};
+"  return '#' + r + g + b;","}"])+"("+b+", "+c+", "+a+")",Blockly.OpenSCAD.ORDER_FUNCTION_CALL]};Blockly.OpenSCAD.geom_set_ops={};Blockly.OpenSCAD.union=function(a){var b=0,b=Blockly.OpenSCAD.statementToCode(a,"A");""!=b&&(b+="\n");for(var c="union(){\n"+b,b=0;b<=a.plusCount_;b++){var d=Blockly.OpenSCAD.statementToCode(a,"PLUS"+b);""!=d&&(c+=d+"\n")}return c+"}"};
 Blockly.OpenSCAD.difference=function(a){var b=0,b=Blockly.OpenSCAD.statementToCode(a,"A");""!=b&&(b+="\n");for(var c="difference(){\n"+b,b=0;b<=a.minusCount_;b++){var d=Blockly.OpenSCAD.statementToCode(a,"MINUS"+b);""!=d&&(c+=d+"\n")}return c+"}"};Blockly.OpenSCAD.intersection=function(a){var b=0,b=Blockly.OpenSCAD.statementToCode(a,"A");""!=b&&(b+="\n");for(var c="intersection(){\n"+b,b=0;b<=a.withCount_;b++){var d=Blockly.OpenSCAD.statementToCode(a,"WITH"+b);""!=d&&(c+=d+"\n")}return c+"}"};
 Blockly.OpenSCAD.hull=function(a){var b=0,c="",b=Blockly.OpenSCAD.statementToCode(a,"A");""!=b&&(b+="\n");c+="hull(){\n"+b;for(b=0;b<=a.withCount_;b++){var d=Blockly.OpenSCAD.statementToCode(a,"WITH"+b);""!=d&&(c+=d+"\n")}return c+"}"};
-Blockly.OpenSCAD.chull=function(a){for(var b=0,c="",b=Blockly.OpenSCAD.statementToCode(a,"A"),c=c+"// chain hull\nunion() {\n",c=c+("  hull(){\n  "+b+"\n"),b=0;b<=a.withCount_-1;b++)var d=Blockly.OpenSCAD.statementToCode(a,"WITH"+b),c=c+("  "+d+"\n"),c=c+"  }\n",c=c+("  hull() {\n  "+d+"\n");a=Blockly.OpenSCAD.statementToCode(a,"WITH"+a.withCount_);c+="  "+a+"\n";return c+="  }\n}\n"};/*
-
- Visual Blocks Language
-
- Copyright 2012 Google Inc.
- https://blockly.googlecode.com/
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
-Blockly.OpenSCAD.logic={};Blockly.OpenSCAD.controls_if=function(a){for(var b=0,c=Blockly.OpenSCAD.valueToCode(a,"IF"+b,Blockly.OpenSCAD.ORDER_NONE)||"false",d=Blockly.OpenSCAD.statementToCode(a,"DO"+b),e="if ("+c+") {\n"+d+"}",b=1;b<=a.elseifCount_;b++)c=Blockly.OpenSCAD.valueToCode(a,"IF"+b,Blockly.OpenSCAD.ORDER_NONE)||"false",d=Blockly.OpenSCAD.statementToCode(a,"DO"+b),e+=" else if ("+c+") {\n"+d+"}";a.elseCount_&&(d=Blockly.OpenSCAD.statementToCode(a,"ELSE"),e+=" else {\n"+d+"}");return e+"\n"};
+Blockly.OpenSCAD.chull=function(a){for(var b=0,c="",b=Blockly.OpenSCAD.statementToCode(a,"A"),c=c+"// chain hull\nunion() {\n",c=c+("  hull(){\n  "+b+"\n"),b=0;b<=a.withCount_-1;b++)var d=Blockly.OpenSCAD.statementToCode(a,"WITH"+b),c=c+("  "+d+"\n"),c=c+"  }\n",c=c+("  hull() {\n  "+d+"\n");a=Blockly.OpenSCAD.statementToCode(a,"WITH"+a.withCount_);c+="  "+a+"\n";return c+="  }\n}\n"};Blockly.OpenSCAD.logic={};Blockly.OpenSCAD.controls_if=function(a){for(var b=0,c=Blockly.OpenSCAD.valueToCode(a,"IF"+b,Blockly.OpenSCAD.ORDER_NONE)||"false",d=Blockly.OpenSCAD.statementToCode(a,"DO"+b),e="if ("+c+") {\n"+d+"}",b=1;b<=a.elseifCount_;b++)c=Blockly.OpenSCAD.valueToCode(a,"IF"+b,Blockly.OpenSCAD.ORDER_NONE)||"false",d=Blockly.OpenSCAD.statementToCode(a,"DO"+b),e+=" else if ("+c+") {\n"+d+"}";a.elseCount_&&(d=Blockly.OpenSCAD.statementToCode(a,"ELSE"),e+=" else {\n"+d+"}");return e+"\n"};
 Blockly.OpenSCAD.logic_compare=function(a){var b={EQ:"==",NEQ:"!=",LT:"<",LTE:"<=",GT:">",GTE:">="}[a.getFieldValue("OP")],c="=="==b||"!="==b?Blockly.OpenSCAD.ORDER_EQUALITY:Blockly.OpenSCAD.ORDER_RELATIONAL,d=Blockly.OpenSCAD.valueToCode(a,"A",c)||"0";a=Blockly.OpenSCAD.valueToCode(a,"B",c)||"0";return[d+" "+b+" "+a,c]};
 Blockly.OpenSCAD.logic_operation=function(a){var b="AND"==a.getFieldValue("OP")?"&&":"||",c="&&"==b?Blockly.OpenSCAD.ORDER_LOGICAL_AND:Blockly.OpenSCAD.ORDER_LOGICAL_OR,d=Blockly.OpenSCAD.valueToCode(a,"A",c);a=Blockly.OpenSCAD.valueToCode(a,"B",c);if(d||a){var e="&&"==b?"true":"false";d||(d=e);a||(a=e)}else a=d="false";return[d+" "+b+" "+a,c]};Blockly.OpenSCAD.logic_negate=function(a){var b=Blockly.OpenSCAD.ORDER_LOGICAL_NOT;return["!"+(Blockly.OpenSCAD.valueToCode(a,"BOOL",b)||"true"),b]};
 Blockly.OpenSCAD.logic_boolean=function(a){return["TRUE"==a.getFieldValue("BOOL")?"1":"0",Blockly.OpenSCAD.ORDER_ATOMIC]};Blockly.OpenSCAD.logic_null=function(a){return["null",Blockly.OpenSCAD.ORDER_ATOMIC]};
-Blockly.OpenSCAD.logic_ternary=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"IF",Blockly.OpenSCAD.ORDER_CONDITIONAL)||"false",c=Blockly.OpenSCAD.valueToCode(a,"THEN",Blockly.OpenSCAD.ORDER_CONDITIONAL)||"null";a=Blockly.OpenSCAD.valueToCode(a,"ELSE",Blockly.OpenSCAD.ORDER_CONDITIONAL)||"null";return[b+" ? "+c+" : "+a,Blockly.OpenSCAD.ORDER_CONDITIONAL]};/*
-
- Visual Blocks Language
-
- Copyright 2012 Google Inc.
- https://blockly.googlecode.com/
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
-Blockly.OpenSCAD.loops={};
+Blockly.OpenSCAD.logic_ternary=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"IF",Blockly.OpenSCAD.ORDER_CONDITIONAL)||"false",c=Blockly.OpenSCAD.valueToCode(a,"THEN",Blockly.OpenSCAD.ORDER_CONDITIONAL)||"null";a=Blockly.OpenSCAD.valueToCode(a,"ELSE",Blockly.OpenSCAD.ORDER_CONDITIONAL)||"null";return[b+" ? "+c+" : "+a,Blockly.OpenSCAD.ORDER_CONDITIONAL]};Blockly.OpenSCAD.loops={};
 Blockly.OpenSCAD.controls_repeat_ext=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"TIMES",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"0",c=Blockly.OpenSCAD.statementToCode(a,"DO");Blockly.OpenSCAD.INFINITE_LOOP_TRAP&&(c=Blockly.OpenSCAD.INFINITE_LOOP_TRAP.replace(/%1/g,"'"+a.id+"'")+c);a="";var d=Blockly.OpenSCAD.variableDB_.getDistinctName("count",Blockly.Variables.NAME_TYPE),e=b-1;b.match(/^\w+$/)||Blockly.isNumber(b)||(e=Blockly.OpenSCAD.variableDB_.getDistinctName("repeat_end",Blockly.Variables.NAME_TYPE),
 a+="var "+e+" = "+b+";\n");return a+("for ("+d+" = [0 : "+e+"])  {\n"+c+"}\n")};
 Blockly.OpenSCAD.controls_for=function(a){var b=Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("VAR"),Blockly.Variables.NAME_TYPE),c=Blockly.OpenSCAD.valueToCode(a,"FROM",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"0",d=Blockly.OpenSCAD.valueToCode(a,"TO",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"0",e=Blockly.OpenSCAD.valueToCode(a,"BY",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"1",f=Blockly.OpenSCAD.statementToCode(a,"DO");Blockly.OpenSCAD.INFINITE_LOOP_TRAP&&(f=Blockly.OpenSCAD.INFINITE_LOOP_TRAP.replace(/%1/g,
@@ -147,47 +87,9 @@ Blockly.OpenSCAD.square=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"XVAL",
 Blockly.OpenSCAD.linearextrude=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"HEIGHT",Blockly.OpenSCAD.ORDER_ATOMIC),c=Blockly.OpenSCAD.valueToCode(a,"TWIST",Blockly.OpenSCAD.ORDER_ATOMIC),d=a.getFieldValue("CENTERDROPDOWN"),e=Blockly.OpenSCAD.statementToCode(a,"A");""!=e&&(e+="\n");for(var f=0;f<=a.plusCount_;f++){var g=Blockly.OpenSCAD.statementToCode(a,"PLUS"+f);""!=g&&(e+=g+"\n")}b&&c||Blockscad.missingFields.push(a.id);return"linear_extrude( height="+b+", twist="+c+", center="+d+"){\n"+e+
 "}"};Blockly.OpenSCAD.rotateextrude=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"FACES",Blockly.OpenSCAD.ORDER_ATOMIC),c=Blockly.OpenSCAD.statementToCode(a,"A");""!=c&&(c+="\n");for(var d=0;d<=a.plusCount_;d++){var e=Blockly.OpenSCAD.statementToCode(a,"PLUS"+d);""!=e&&(c+=e+"\n")}b||Blockscad.missingFields.push(a.id);return"rotate_extrude($fn="+b+"){\n"+c+"}"};
 Blockly.OpenSCAD.rotateextrudetwist=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"FACES",Blockly.OpenSCAD.ORDER_ATOMIC),c=Blockly.OpenSCAD.valueToCode(a,"RAD",Blockly.OpenSCAD.ORDER_ATOMIC),d=Blockly.OpenSCAD.valueToCode(a,"TWIST",Blockly.OpenSCAD.ORDER_ATOMIC),e=Blockly.OpenSCAD.valueToCode(a,"TSTEPS",Blockly.OpenSCAD.ORDER_ATOMIC),f=Blockly.OpenSCAD.statementToCode(a,"A");""!=f&&(f+="\n");for(var g=0;g<=a.plusCount_;g++){var h=Blockly.OpenSCAD.statementToCode(a,"PLUS"+g);""!=h&&(f+=h+"\n")}b||
-Blockscad.missingFields.push(a.id);return"rotate_extrude($fn="+b+",radius="+c+",twist="+d+",tsteps="+e+"){\n"+f+"}"};function hexToR(a){return Math.round(100*parseInt(a.substring(2,4),16)/255)/100}function hexToG(a){return Math.round(100*parseInt(a.substring(4,6),16)/255)/100}function hexToB(a){return Math.round(100*parseInt(a.substring(6,8),16)/255)/100};/*
-
- Visual Blocks Language
-
- Copyright 2012 Google Inc.
- https://blockly.googlecode.com/
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
-Blockly.OpenSCAD.procedures={};
+Blockscad.missingFields.push(a.id);return"rotate_extrude($fn="+b+",radius="+c+",twist="+d+",tsteps="+e+"){\n"+f+"}"};Blockly.OpenSCAD.stl_import=function(a){return'import("'+a.getFieldValue("STL_FILENAME")+'");\n'};function hexToR(a){return Math.round(100*parseInt(a.substring(2,4),16)/255)/100}function hexToG(a){return Math.round(100*parseInt(a.substring(4,6),16)/255)/100}function hexToB(a){return Math.round(100*parseInt(a.substring(6,8),16)/255)/100};Blockly.OpenSCAD.procedures={};
 Blockly.OpenSCAD.procedures_defreturn=function(a){for(var b=Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("NAME"),Blockly.Procedures.NAME_TYPE),c=Blockly.OpenSCAD.valueToCode(a,"RETURN",Blockly.OpenSCAD.ORDER_NONE)||"",c=c?c+";\n":"0;\n",d=[],e=0;e<a.arguments_.length;e++)d[e]=Blockly.OpenSCAD.variableDB_.getName(a.arguments_[e],Blockly.Variables.NAME_TYPE);c="function "+b+"("+d.join(", ")+") = "+c;c=Blockly.OpenSCAD.scrub_(a,c);Blockly.OpenSCAD.definitions_[b]=c;return null};
 Blockly.OpenSCAD.procedures_defnoreturn=function(a){var b=Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("NAME"),Blockly.Procedures.NAME_TYPE),c=Blockly.OpenSCAD.statementToCode(a,"STACK");Blockly.OpenSCAD.INFINITE_LOOP_TRAP&&(c=Blockly.OpenSCAD.INFINITE_LOOP_TRAP.replace(/%1/g,"'"+a.id+"'")+c);for(var d=[],e=0;e<a.arguments_.length;e++)d[e]=Blockly.OpenSCAD.variableDB_.getName(a.arguments_[e],Blockly.Variables.NAME_TYPE);c="module "+b+"("+d.join(", ")+") {\n"+c+"\n}";c=Blockly.OpenSCAD.scrub_(a,
 c);Blockly.OpenSCAD.definitions_[b]=c;return null};Blockly.OpenSCAD.procedures_callreturn=function(a){for(var b=Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("NAME"),Blockly.Procedures.NAME_TYPE),c=[],d=0;d<a.arguments_.length;d++)c[d]=Blockly.OpenSCAD.valueToCode(a,"ARG"+d,Blockly.OpenSCAD.ORDER_COMMA)||"null";return[b+"("+c.join(", ")+")",Blockly.OpenSCAD.ORDER_FUNCTION_CALL]};
 Blockly.OpenSCAD.procedures_callnoreturn=function(a){for(var b=Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("NAME"),Blockly.Procedures.NAME_TYPE),c=[],d=0;d<a.arguments_.length;d++)c[d]=Blockly.OpenSCAD.valueToCode(a,"ARG"+d,Blockly.OpenSCAD.ORDER_COMMA)||"null";return b+"("+c.join(", ")+");"};
-Blockly.OpenSCAD.procedures_ifreturn=function(a){var b="if ("+(Blockly.OpenSCAD.valueToCode(a,"CONDITION",Blockly.OpenSCAD.ORDER_NONE)||"false")+") {\n";a.hasReturnValue_?(a=Blockly.OpenSCAD.valueToCode(a,"VALUE",Blockly.OpenSCAD.ORDER_NONE)||"null",b+="  return "+a+";\n"):b+="  return;\n";return b+"}\n"};/*
-
- Visual Blocks Language
-
- Copyright 2012 Google Inc.
- https://blockly.googlecode.com/
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
-Blockly.OpenSCAD.variables={};Blockly.OpenSCAD.variables_get=function(a){return[Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("VAR"),Blockly.Variables.NAME_TYPE),Blockly.OpenSCAD.ORDER_ATOMIC]};Blockly.OpenSCAD.variables_set=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"VALUE",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"0";return Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("VAR"),Blockly.Variables.NAME_TYPE)+" = "+b+";\n"};
+Blockly.OpenSCAD.procedures_ifreturn=function(a){var b="if ("+(Blockly.OpenSCAD.valueToCode(a,"CONDITION",Blockly.OpenSCAD.ORDER_NONE)||"false")+") {\n";a.hasReturnValue_?(a=Blockly.OpenSCAD.valueToCode(a,"VALUE",Blockly.OpenSCAD.ORDER_NONE)||"null",b+="  return "+a+";\n"):b+="  return;\n";return b+"}\n"};Blockly.OpenSCAD.variables={};Blockly.OpenSCAD.variables_get=function(a){return[Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("VAR"),Blockly.Variables.NAME_TYPE),Blockly.OpenSCAD.ORDER_ATOMIC]};Blockly.OpenSCAD.variables_set=function(a){var b=Blockly.OpenSCAD.valueToCode(a,"VALUE",Blockly.OpenSCAD.ORDER_ASSIGNMENT)||"0";return Blockly.OpenSCAD.variableDB_.getName(a.getFieldValue("VAR"),Blockly.Variables.NAME_TYPE)+" = "+b+";\n"};

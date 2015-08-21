@@ -55,7 +55,7 @@ class Gen_compressed(threading.Thread):
       ]
 
     # Read in all the source files.
-    filenames = ['auth.js','storage.js','utils.js','blockscad.js', 'FileSaver.js', 'lightgl.js','toolbox.js','deflate.js']
+    filenames = ['auth.js','storage.js','utils.js','blockscad.js', 'FileSaver.js', 'lightgl.js','toolbox.js','deflate.js', 'stl.js']
     for filename in filenames:
       f = open(filename)
       print filename
@@ -78,7 +78,7 @@ class Gen_compressed(threading.Thread):
       ]
 
     # Read in all the source files.
-    filenames = ['openjscad.js', 'csg.js', 'formats.js']
+    filenames = ['viewer.js', 'csg.js', 'formats.js']
     for filename in filenames:
       f = open(filename)
       print filename

@@ -363,6 +363,7 @@ Blockscad.Toolbox.catOther = '<category name="Advanced">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="stl_import"></block>' +
     '</category>' +
     '<category name="Variables" custom="VARIABLE"></category>' +
     '<category name="Modules" custom="PROCEDURE"></category>' +

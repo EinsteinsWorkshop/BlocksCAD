@@ -201,7 +201,7 @@ Blockly.Css.CONTENT = [
 
   '.blocklyBacklight>.blocklyPath {',  /* added for BlocksCAD */
   '  stroke: #f00;',
-  '  stroke-width: 6px;',
+  '  stroke-width: 4px;',
   '}',
 
   '.blocklyBacklight>.blocklyPathLight {', /* added for BlocksCAD */
@@ -242,6 +242,12 @@ Blockly.Css.CONTENT = [
   '  fill: #fff;',
   '  font-family: sans-serif;',
   '  font-size: 11pt;',
+  '}',
+  '.blocklyButton {',
+  '  cursor: default;',
+  '  fill: #fff;',
+  '  border: 1px solid #000;',
+  '  font-size:12pt;',
   '}',
 
   '.blocklyNonEditableText>text {',
