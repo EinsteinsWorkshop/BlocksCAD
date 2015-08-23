@@ -20,6 +20,8 @@ define("OpenjscadSolidFactory", ["Context", "Globals",  "PrimitiveModules", "Tra
                 return new PrimitiveModules.Square();
             case "polygon":
                 return new PrimitiveModules.Polygon();
+            case "text":
+                return new PrimitiveModules.Font();
             case "union":
                 return new CSGModule(this, "union");
             case "difference":

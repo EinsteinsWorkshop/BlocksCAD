@@ -401,7 +401,147 @@ $( "#target" ).click(function() {
   // set up handler for saving blocks locally
   $('#file-menu').on('click', '#saveLocal', Blockscad.saveBlocksLocal);
 
+  Blockscad.fonts = {};
+  // let's preload the fonts we need and load them into variables.
+  opentype.load('/fonts/LiberationSerif-Regular.ttf', function(err, font) {
+    if (err) {
+        console.log('Could not load font: ' + err);
+    } else {
+        // Use your font here.
+        Blockscad.fonts[font.familyName] = font;
+        console.log(font.familyName);
+
+    }
+  });
+  opentype.load('/fonts/nimbus-sans-l_regular.ttf', function(err, font) {
+    if (err) {
+        console.log('Could not load font: ' + err);
+    } else {
+        // Use your font here.
+        Blockscad.fonts[font.familyName] = font;
+        console.log(font);
+
+    }
+  });
+
 }; // end Blockscad.init()
+
+// attempt to take font/glyph path and make a set of points.
+// I'm going to crib from openScad for this one!
+// later those points will be sent to CAG.fromPoints().
+Blockscad.pathToPoints = function(path,resolution) {
+  // there may be lots of shapes in the letters, but I am going to make 
+  // it all one polygon with lots of paths.
+
+  var points = [];
+  var paths = []
+  var new_path = [];
+  var fn = 2;
+
+  if (resolution > 2) fn = resolution; 
+
+  console.log("res, fn:", resolution, fn);
+
+  if (path && path.commands && path.commands.length > 0) {
+    // hopefully got a legal path
+    var point_index = 0;
+    var prev = [];
+    for (var i = 0; i < path.commands.length; i++) {
+      switch(path.commands[i].type) {
+        case 'M':
+          //console.log("M");
+          // log the old path
+          if (new_path.length) {
+            paths.push(new_path);
+          }
+          new_path = [];
+          // load up the new point
+          points.push([path.commands[i].x,-1 * path.commands[i].y])
+          new_path.push(point_index++);
+          prev = [path.commands[i].x,-1 * path.commands[i].y];
+          break;
+        case 'L':
+          //console.log("L");
+          // load up the new point
+          points.push([path.commands[i].x,-1 * path.commands[i].y])
+          new_path.push(point_index++);
+          prev = [path.commands[i].x,-1 * path.commands[i].y];
+          break;
+        case 'C':
+
+          // Cubic Bezier curve
+          // void DrawingCallback::curve_to(Vector2d c1, Vector2d c2, Vector2d to)
+          // {
+          //   for (unsigned long idx = 1;idx <= fn;idx++) {
+          //     const double a = idx * (1.0 / (double)fn);
+          //     add_vertex(pen * pow(1-a, 3) + 
+          //                c1 * 3 * pow(1-a, 2) * a + 
+          //                c2 * 3 * pow(1-a, 1) * pow(a, 2) + 
+          //                to * pow(a, 3));
+          //   }
+          //   pen = to;
+          // } 
+          console.log("C");
+          var to = [path.commands[i].x,-1 * path.commands[i].y]; 
+          var c1 = [path.commands[i].x1,-1 * path.commands[i].y1];
+          var c2 = [path.commands[i].x2,-1 * path.commands[i].y2];
+
+          for (var k=1;k<fn;k++) {
+            var a = k / fn;
+            var nx = prev[0] * Math.pow(1-a,3) + 
+                     c1[0] * 3 * Math.pow(1-a,2) * a +
+                     c2[0] * 3 * Math.pow(1-a,1) * a * a +
+                     to[0] * Math.pow(a,3); 
+            var nx = prev[1] * Math.pow(1-a,3) + 
+                     c1[1] * 3 * Math.pow(1-a,2) * a +
+                     c2[1] * 3 * Math.pow(1-a,1) * a * a +
+                     to[1] * Math.pow(a,3); 
+            // load up this new point
+            points.push([nx,ny]);
+            new_path.push(point_index++);
+          }
+
+          prev = to;
+
+          break;
+        case 'Q':
+          // Quadratic Bezier curve
+
+          // console.log("Q:",path.commands[i]);
+          var to = [path.commands[i].x,-1 * path.commands[i].y]; 
+          var c1 = [path.commands[i].x1,-1 * path.commands[i].y1];
+          for (var k=1;k<fn;k++) {
+            var a = k / fn; 
+            var nx = prev[0] * Math.pow(1-a,2) + 
+                     c1[0] * 2 * Math.pow(1-a,1) * a +
+                     to[0] * Math.pow(a,2); 
+            var ny = prev[1] * Math.pow(1-a,2) + 
+                     c1[1] * 2 * Math.pow(1-a,1) * a +
+                     to[1] * Math.pow(a,2); 
+            // load up this new point
+            points.push([nx,ny]);
+            new_path.push(point_index++);
+          }
+
+          prev = to;
+
+          break;
+        case 'Z':
+          //console.log("Z");
+          // log the old path
+          if (new_path.length) {
+            paths.push(new_path);
+            new_path = [];
+          }
+          break;
+
+      }
+    }
+  }
+  else console.log("in pathToPoints, problem with path:",path);
+  return [points,paths];
+
+}
 
 // Load Blockly's language strings.
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
@@ -630,7 +770,7 @@ Blockscad.doRender = function() {
   try {
    $('#renderButton').html('working'); 
    // console.log("code was: ",code);
-  window.setTimeout(function (){ code = openscadOpenJscadParser.parse(code) }, 0);
+   window.setTimeout(function (){ code = openscadOpenJscadParser.parse(code) }, 0);
    //code = openscadOpenJscadParser.parse(code);
    //console.log("code is now:",code);
   }
@@ -641,7 +781,11 @@ Blockscad.doRender = function() {
     code_good = false;
   }
   if (code_good) {
-    window.setTimeout(function () { gProcessor.setBlockscad(code) }, 0);
+    window.setTimeout(function () 
+      { gProcessor.setBlockscad(code); 
+        // console.log("code is now",code); 
+      }, 0);
+
     // TO-DO - make sure the rendering actually worked?
   }
   else {

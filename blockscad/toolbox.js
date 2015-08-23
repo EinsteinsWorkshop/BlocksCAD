@@ -275,6 +275,7 @@ Blockscad.Toolbox.catOther = '<category name="Advanced">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="bs_text"></block>' +
       '<block type="rotateextrudetwist">' +
         '<value name="RAD">' +
           '<block type="math_number">' +

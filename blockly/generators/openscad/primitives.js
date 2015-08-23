@@ -407,6 +407,26 @@ Blockly.OpenSCAD['stl_import'] = function(block) {
   //var code = block.getFieldValue('STL_CONTENTS');
   return code;
 };
+
+Blockly.OpenSCAD['bs_text'] = function(block) {
+  var this_text = block.getFieldValue('TEXT');
+  var this_font = block.getFieldValue('FONT');
+  switch (this_font) {
+    case 'LIB_SER':
+      this_font = 'Liberation Serif';
+      break;
+    case 'NIMBUS_SANS':
+      this_font = 'Nimbus Sans L';
+      break;
+    default:
+      this_font = 'Liberation Serif';
+      break;
+  }
+  var size = block.getFieldValue('SIZE');
+  var code = 'text("' + this_text + '", font = "' + this_font +
+             '", size = ' + size + ');\n';
+  return code;
+}
 // hexTo(RGB) take a blockly color string '#00ff88' for example, including the quotes
 // and returns RGB values.  
 
