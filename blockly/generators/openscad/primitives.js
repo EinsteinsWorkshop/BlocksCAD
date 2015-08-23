@@ -4,6 +4,7 @@ goog.provide('Blockly.OpenSCAD.primitives');
 
 goog.require('Blockly.OpenSCAD');
 
+
 Blockly.OpenSCAD['sphere'] = function(block) {
   var value_rad = Blockly.OpenSCAD.valueToCode(block, 'RAD', Blockly.OpenSCAD.ORDER_ATOMIC);
 
@@ -410,19 +411,11 @@ Blockly.OpenSCAD['stl_import'] = function(block) {
 
 Blockly.OpenSCAD['bs_text'] = function(block) {
   var this_text = block.getFieldValue('TEXT');
-  var this_font = block.getFieldValue('FONT');
-  switch (this_font) {
-    case 'LIB_SER':
-      this_font = 'Liberation Serif';
-      break;
-    case 'NIMBUS_SANS':
-      this_font = 'Nimbus Sans L';
-      break;
-    default:
-      this_font = 'Liberation Serif';
-      break;
-  }
+  var this_font = Blockscad.fontName[parseInt(block.getFieldValue('FONT'))];
   var size = block.getFieldValue('SIZE');
+
+  // escape any quote characters in this_text before passing it to the openscad parser
+  this_text = this_text.replace(/\"/g,"\\\"");
   var code = 'text("' + this_text + '", font = "' + this_font +
              '", size = ' + size + ');\n';
   return code;

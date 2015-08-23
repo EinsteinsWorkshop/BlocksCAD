@@ -1360,20 +1360,22 @@ Blockly.Blocks['bs_text'] = {
    * @this Blockly.Block
    */
   init: function() {
-    var CONSTANTS =
-        [['Liberation Serif', 'LIB_SER'],
-         ['Nimbus Sans', 'NIMBUS_SANS']];
+    // load up the font names and positions
+    var CONSTANTS = [];
+    for (var i=0; i<Blockscad.fontName.length; i++) {
+        CONSTANTS.push([Blockscad.fontName[i],i.toString()]);
+    }
     this.category = 'PRIMITIVE_CAG'
-    this.appendDummyInput()
-        .appendField("Text");
+    // this.appendDummyInput()
+    //     .appendField("Text");
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendDummyInput()
         .appendField(this.newQuote_(true))
-        .appendField(new Blockly.FieldTextInput(''), 'TEXT')
+        .appendField(new Blockly.FieldTextInput('hello'), 'TEXT')
         .appendField(this.newQuote_(false));
     this.appendDummyInput()
         .appendField("Size")
-        .appendField(new Blockly.FieldTextInput('20',
+        .appendField(new Blockly.FieldTextInput('10',
           Blockly.FieldTextInput.numberValidator), 'SIZE'); 
     this.appendDummyInput()
         .appendField("Font:")
@@ -1381,8 +1383,7 @@ Blockly.Blocks['bs_text'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
     this.setColourHex(Blockly.HEX_2D_PRIMITIVE);
-    this.setTooltip("arglebargle");
-
+    this.setTooltip("This is not a tooltip.");
   },
   /**
    * Create an image of an open or closed quote.

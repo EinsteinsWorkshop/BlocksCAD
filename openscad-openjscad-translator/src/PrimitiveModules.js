@@ -148,50 +148,44 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         var size = Context.contextVariableLookup(context,"size","20");
         var font = Context.contextVariableLookup(context,"font","");
 
-        var dummy_size = Math.ceil(size / 10);
+        var dummy_size = Math.ceil(size / 6);
 
         var resolution = Context.get_fragments_from_r(dummy_size, context);
 
-
-          // let's play with fonts just to see what happens here.
         if (Blockscad.fonts[font]) {
-              // Use your font here.
-              // console.log('found a font:',Blockscad.fonts['Liberation Serif']);
-              var path = Blockscad.fonts[font].getPath(str,0,0,size);
-              // console.log('got a path:',path);
-              var stuff = Blockscad.pathToPoints(path,resolution);
-              var points = stuff[0];
-              var paths = stuff[1];
-              // console.log('got points and paths:',points,paths);
-              var result = cheatingPolygon(points,paths);
-              return result;
- 
+            // Use your font here.
+            var path = Blockscad.fonts[font].getPath(str,0,0,size);
+            var stuff = Blockscad.pathToPoints(path,resolution);
+            var points = stuff[0];
+            var paths = stuff[1];
+            var result = fontPolygon(points,paths);
+            return result;
         }
         else console.log("in parser.  font not loaded:",font);
         return '';
     }
-    function cheatingPolygon(points,paths){
+    function fontPolygon(points,paths){
         var pointsMap = [];
         function formatPoints (points){
             return _.map(points, function(x){return _.template("[<%=x%>]", {x:x})});
         }
-
+        if (!points.length) {
+            // fail silently. No paths (either no characters or missing chars in the font)
+            return '';
+        }
         if (_.isEmpty(paths)){
             return _.template('CAG.fromPoints([<%=points%>])', {points:formatPoints(points)});
         }
 
-        // I cannot assume that I have a "first" path and the rest are holes.  
-        // I will go through each path and determine the winding, putting them on
-        // "solids" or "holes" arrays.  Then all "solids" will be unioned, 
+        // I will go through each path and determine the winding (clockwise or anti), 
+        // sorting them to "solids" and "holes" arrays. All "solids" will be unioned, 
         // then all holes subtracted.
 
         if (paths.length > 1){
             var lines = "";
             var holes = [];
             var solids = [];
-
-
-            // use winding direction to determine solids vs. holes.
+            // use winding direction (right hand rule) to determine solids vs. holes.
             for (var i=0; i<paths.length; i++) {
                 var totarea = 0;
                 for (var j=0; j < paths[i].length; j++) {
@@ -209,7 +203,6 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
                     holes.push(paths[i]);
                 else solids.push(paths[i]);
             }
-
             // now union all the solids
             _.each(_.first(solids), function(x) {
                 pointsMap.push(points[x]);
@@ -225,8 +218,6 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
                 });
                 lines += _.template('.union([(new CSG.Path2D([<%=points%>],true)).innerToCAG()])', {points:formatPoints(pointsMap)});   
             });
-
-
             // now cut out all the holes.
             var kill = [];
             if (holes.length) {
@@ -241,32 +232,13 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
                 });
                 lines += kill.join(',') + "])";
             }
-
-            // _.each(_.first(paths), function(x) {
-            //     pointsMap.push(points[x]);
-            // });
-            // lines += _.template('(new CSG.Path2D([<%=points%>],true)).innerToCAG().union([', {points:formatPoints(pointsMap)});
-            
-            // var holes = [];
-            
-            // _.each(_.rest(paths), function(shape) {
-            //     pointsMap = [];
-            //     _.each(shape, function(x) {
-            //         pointsMap.push(points[x]);
-            //     });
-            //     holes.push(_.template('(new CSG.Path2D([<%=points%>],true)).innerToCAG()', {points:formatPoints(pointsMap)}));   
-            // });
-
-            // lines += holes.join(',') + "])";
-
              return lines;
-
         } else {
             _.each(paths[0], function(x) {
                 pointsMap.push(points[x]);
             });
             return _.template('(new CSG.Path2D([<%=points%>],true)).innerToCAG()', {points:formatPoints(pointsMap)});
-        }   
+      }   
     }
 
     function Polygon(a){

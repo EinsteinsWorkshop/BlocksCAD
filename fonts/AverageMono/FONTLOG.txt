@@ -1,0 +1,5 @@
+AverageMono is Copyright 2013 Richard Alexander Hall
+
+AverageMono is an average of thirteen different fonts which are all derivatives of the public domain "Courier" typeface. Or, rather, a subset of the Western Latin characters in it, minus punctuation, are thus. Everything else is imported wholesale from the GNU FreeMono typeface.
+
+It is released under the GNU General Public License, which permits reusing or creating derivative works of this typeface for any purpose, provided that a copy of the full text of the GNU General Public License is provided with every redistribution or derivative work.
