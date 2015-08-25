@@ -28,15 +28,21 @@ Blockscad.fonts = {};
 
 
 // List and location of fonts to load into BlocksCAD
-Blockscad.fontList = ['/fonts/liberation/LiberationSerif-Regular.ttf',
-                      '/fonts/nimbus/nimbus-sans-l_regular.ttf',
+Blockscad.fontList = ['/fonts/liberation/LiberationSerif-Bold.ttf',
+                      '/fonts/Roboto/Roboto-Bold.ttf',
+                      '/fonts/nimbus/nimbus-sans-l_bold.ttf',
                       '/fonts/AverageMono/AverageMonoSimp.ttf',
+                      '/fonts/Open_Sans/OpenSans-ExtraBold.ttf',
+                      '/fonts/Chewy/Chewy.ttf',
                       '/fonts/bangers/bangers.ttf'];
 
 // display names for fonts, used in font block (also used to key fonts object)
 Blockscad.fontName = ['Liberation Serif',
+                      'Roboto',
                       'Nimbus Sans',
                       'Average Mono',
+                      'Open Sans',
+                      'Chewy',
                       'Bangers']; 
 
 
@@ -53,8 +59,26 @@ Blockscad.loadFont = function(index) {
       console.log('Could not load font: ', font + ":" + err);
     } else {
       Blockscad.fonts[Blockscad.fontName[index]] = font;
+      return font; // if I do this, can I use this in synchronous code?
     }
   });
+}
+
+Blockscad.loadFontThenRender = function(i,code) {
+  try {
+    opentype.load(Blockscad.fontList[Blockscad.loadTheseFonts[i]], function(err, font) {
+      if (err) {
+        console.log('Could not load font: ', font + ":" + err);
+      } else {
+        Blockscad.fonts[Blockscad.fontName[Blockscad.loadTheseFonts[i]]] = font; // save the loaded fonts
+        Blockscad.numloaded++;
+        if (Blockscad.numloaded == Blockscad.loadTheseFonts.length) Blockscad.renderCode(code);       
+      }
+    });    
+  }
+  catch(err) {
+    console.log("network error loading font");
+  }
 }
 
 
@@ -73,6 +97,8 @@ Blockscad.pathToPoints = function(path,resolution) {
   var fn = 2;   // default resolution in case resolution is not >= 2
 
   if (resolution > 2) fn = resolution; 
+
+  if (fn > 10) fn = 10;  // cap the resolution for performance
 
   // console.log(path.commands);
 
@@ -109,7 +135,7 @@ Blockscad.pathToPoints = function(path,resolution) {
           var c2 = [path.commands[i].x2, -1 * path.commands[i].y2];
 
           // approximate the curve with fn points
-          for (var k=1;k<fn;k++) {
+          for (var k=1;k<=fn;k++) {
             var a = k / fn;
             var nx = prev[0] * Math.pow(1-a,3) + 
                      c1[0] * 3 * Math.pow(1-a,2) * a +
@@ -132,7 +158,7 @@ Blockscad.pathToPoints = function(path,resolution) {
           // the previous point prev[x,y], and current point to[x,y]
           var to = [path.commands[i].x, -1 * path.commands[i].y]; 
           var c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
-          for (var k=1;k<fn;k++) {
+          for (var k=1;k<=fn;k++) {
             var a = k / fn; 
             var nx = prev[0] * Math.pow(1-a,2) + 
                      c1[0] * 2 * Math.pow(1-a,1) * a +
@@ -162,4 +188,14 @@ Blockscad.pathToPoints = function(path,resolution) {
   if (points.length < 3) points = [];
   return [points,paths];
 
+}
+
+Blockscad.whichFonts = function(code) {
+  var loadThisIndex = [];
+  for (var i = 0; i < Blockscad.fontList.length; i++) {
+    if (code.indexOf(Blockscad.fontName[i]) > -1)
+      if (!Blockscad.fonts[Blockscad.fontName[i]])
+        loadThisIndex.push(i);
+  }
+  return loadThisIndex;
 }

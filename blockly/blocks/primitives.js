@@ -1366,17 +1366,25 @@ Blockly.Blocks['bs_text'] = {
         CONSTANTS.push([Blockscad.fontName[i],i.toString()]);
     }
     this.category = 'PRIMITIVE_CAG'
-    // this.appendDummyInput()
-    //     .appendField("Text");
+    this.appendDummyInput()
+        .appendField("Text");
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendDummyInput()
-        .appendField(this.newQuote_(true))
-        .appendField(new Blockly.FieldTextInput('hello'), 'TEXT')
-        .appendField(this.newQuote_(false));
-    this.appendDummyInput()
+        // .appendField(this.newQuote_(true))
+        .appendField(new Blockly.FieldTextInput('hello'), 'TEXT');
+        // .appendField(this.newQuote_(false));
+    // this.appendDummyInput()
+    //     .appendField("Size")
+    //     .appendField(new Blockly.FieldTextInput('10',
+    //       Blockly.FieldTextInput.numberValidator), 'SIZE'); 
+    this.appendValueInput("SIZE")
+        .setCheck("Number")
         .appendField("Size")
-        .appendField(new Blockly.FieldTextInput('10',
-          Blockly.FieldTextInput.numberValidator), 'SIZE'); 
+        .setAlign(Blockly.ALIGN_RIGHT);
+    // this.appendValueInput('SIZE')
+    //     .setCheck('Number')
+    //     .appendField('Size')
+    //     .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
         .appendField("Font:")
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
@@ -1384,6 +1392,12 @@ Blockly.Blocks['bs_text'] = {
     this.setPreviousStatement(true, 'CAG');
     this.setColourHex(Blockly.HEX_2D_PRIMITIVE);
     this.setTooltip("This is not a tooltip.");
+    // this.appendDummyInput()
+    // .appendField("B")
+    //     .appendField(new Blockly.FieldCheckbox("FALSE"), 'BOLD');
+    // this.appendDummyInput()
+    //     .appendField("I")
+    //     .appendField(new Blockly.FieldCheckbox("FALSE"), 'ITALIC');
   },
   /**
    * Create an image of an open or closed quote.

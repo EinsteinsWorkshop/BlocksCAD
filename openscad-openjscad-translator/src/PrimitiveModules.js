@@ -148,7 +148,7 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         var size = Context.contextVariableLookup(context,"size","20");
         var font = Context.contextVariableLookup(context,"font","");
 
-        var dummy_size = Math.ceil(size / 6);
+        var dummy_size = Math.ceil(size / 10);
 
         var resolution = Context.get_fragments_from_r(dummy_size, context);
 
