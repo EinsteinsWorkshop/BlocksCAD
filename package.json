@@ -1,0 +1,30 @@
+{
+  "name": "blockscad",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "node_modules/.bin/jshint blockly blockscad",
+    "build-standalone": "node_modules/.bin/nwbuild -p linux,osx,win .",
+    "clean-standalone": "rm -rf node_modules build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/einsteinsworkshop/blockscad.git"
+  },
+  "author": "",
+  "window": {
+    "toolbar": false,
+    "width": 1000,
+    "height": 700
+  },
+  "license": "GPL",
+  "devDependencies": {
+    "jshint": "^2.8.0",
+    "nw-builder": "^2.0.2"
+  },
+  "jshintConfig": {
+    "strict": false
+  }
+}

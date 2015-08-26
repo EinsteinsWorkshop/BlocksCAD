@@ -1,0 +1,11 @@
+First, make sure you have nodejs and npm installed.
+
+Then, from within the root directory of blockscad, install the necessary nodejs dev stuff by running the command
+ npm -d install
+Next, build standalone binaries by running
+ npm run-script build-standalone
+
+the resulting binaries are in the newly-created build directory.
+
+TODO: edit package.json so that nwbuild only includes the necessary files.
+
