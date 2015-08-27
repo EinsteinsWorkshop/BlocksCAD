@@ -412,7 +412,7 @@ $( "#target" ).click(function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
-      Blockscad.Toolbox.setCatColors();
+      Blockscad.Toolbox.setCatColorsSimp();
     }
   });
   $('#advancedToolbox').on('click', function() {

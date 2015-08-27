@@ -17,13 +17,28 @@ Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFOR
 
 //Blockly.catHues = [0,36,72,108,144,180,216,252,288,324];
 // Blockly.catHex = ["#005CB8","#47B5FF","#509B50","#53CF29","#C3782D","#A089D1","#E6813E","#FFB445","#D147FF","#5C00B8"]; // HIDEOUS!!!
-Blockscad.Toolbox.catHex = ['#006205','#209303','#26549E','#7450E2','#0186E2','#BF6920','#612485','#727272','#8C7149','#900355']; // Better - JY one.
-Blockscad.Toolbox.simpCatHex = ['#006205','#209303','#26549E','#7450E2','#0186E2','#BF6920','#612485','#727272','#8C7149','#900355']; // Better - JY one.
+Blockscad.Toolbox.catHex = ['#006205',  // 3D
+                            '#209303',  // 2D
+                            '#26549E',  // Transform
+                            '#7450E2',  // Set Ops
+                            '#0186E2',  // Math
+                            '#BF6920',  // Logic
+                            '#612485',  // Loops
+                            '#727272',  // Advanced
+                            '#8C7149',  // Variables
+                            '#900355']; // Modules
 
+Blockscad.Toolbox.simpCatHex = ['#006205',  // 3D
+                            // '#209303',  // 2D
+                            '#26549E',  // Transform
+                            '#7450E2',  // Set Ops
+                            '#0186E2',  // Math
+                            '#BF6920',  // Logic
+                            '#612485',  // Loops
+                            '#727272',  // Advanced
+                            '#8C7149',  // Variables
+                            '#900355']; // Modules
 
-// for (var i = 0; i < Blockly.allcats.length; i++) {
-//   Blockly[Blockly.allcats[i]] = Blockly.catHues[i];
-// }
 
 for (var i = 0; i < Blockscad.Toolbox.allcats.length; i++) {
   Blockscad.Toolbox[Blockscad.Toolbox.allcats[i]] = Blockscad.Toolbox.catHex[i];
@@ -504,7 +519,7 @@ Blockscad.Toolbox.adv += Blockscad.Toolbox.catOther;
 
 Blockscad.Toolbox.sim = '<xml id="toolbox" style="display: none">';
 Blockscad.Toolbox.sim += Blockscad.Toolbox.cat_3D;
-Blockscad.Toolbox.sim += Blockscad.Toolbox.cat2D;
+// Blockscad.Toolbox.sim += Blockscad.Toolbox.cat2D;
 Blockscad.Toolbox.sim += Blockscad.Toolbox.catTransform_sim;
 Blockscad.Toolbox.sim += Blockscad.Toolbox.catSetOps_sim;
 Blockscad.Toolbox.sim += Blockscad.Toolbox.catMathLogic_sim;
