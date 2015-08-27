@@ -29,7 +29,9 @@ goog.provide('Blockly.Blocks.texts');
 goog.require('Blockly.Blocks');
 
 
-Blockly.Blocks.texts.HUE = Blockly.HEX_LOGIC;
+Blockscad.Toolbox = Blockscad.Toolbox || {};
+
+Blockly.Blocks.texts.HUE = Blockscad.Toolbox.HEX_LOGIC;
 
 Blockly.Blocks['text'] = {
   /**

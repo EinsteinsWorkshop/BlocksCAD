@@ -65,6 +65,7 @@ Blockscad.init = function() {
   Blockscad.csg_filename = {}; // holds any converted stl file names
   Blockscad.csg_center = [0,0,0];
 
+
   var container = document.getElementById('main');
   var onresize = function(e) {
     var bBox = BSUtils.getBBox_(container);
@@ -105,7 +106,10 @@ Blockscad.init = function() {
               scaleSpeed: 1.1,
               controls:true},
        trashcan: false,
-       toolbox: Blockscad.Toolbox.other});
+       toolbox: Blockscad.Toolbox.adv});
+
+  // color the initial toolbox
+  Blockscad.Toolbox.setCatColors();
 
   BSUtils.loadBlocks('');
 
@@ -402,6 +406,24 @@ $( "#target" ).click(function() {
   // set up handler for saving blocks locally
   $('#file-menu').on('click', '#saveLocal', Blockscad.saveBlocksLocal);
 
+  // toolbox toggle handlers
+  $('#simpleToolbox').on('click', function() {
+    console.log("switching to simple toolbox");
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.catIDs = [];
+      Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
+      Blockscad.Toolbox.setCatColors();
+    }
+  });
+  $('#advancedToolbox').on('click', function() {
+    console.log("switching to advanced toolbox");
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.catIDs = [];
+      Blockscad.workspace.updateToolbox(Blockscad.Toolbox.adv);
+      Blockscad.Toolbox.setCatColors();
+    }
+
+  });
 
 
 

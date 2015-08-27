@@ -141,11 +141,11 @@ Blockly.Toolbox.prototype.init = function() {
   this.populate_(workspace.options.languageTree);
   tree.render(this.HtmlDiv);
     // for BLOCKSCAD: populate the css for category colors
-  for (var i = 1; i < Blockly.allcats.length + 1; i++) {
-    var catcolor = Blockly.catHex[i - 1];
-    // console.log(catcolor.toString());
-    $( "#\\:"+i.toString(16) ).css('background-color', catcolor);
-   }
+  // for (var i = 1; i < Blockscad.Toolbox.allcats.length + 1; i++) {
+  //   var catcolor = Blockscad.Toolbox.catHex[i - 1];
+  //   // console.log(catcolor.toString());
+  //   $( "#\\:"+i.toString(16) ).css('background-color', catcolor);
+  // }
   this.position();
 };
 
@@ -222,6 +222,8 @@ Blockly.Toolbox.prototype.populate_ = function(newTree) {
             }
             childOut.setExpanded(true);
           }
+          // for BLOCKSCAD: populate the list of category ids for css
+          Blockscad.Toolbox.catIDs.push(childOut.id_);
           break;
         case 'SEP':
           treeOut.add(new Blockly.Toolbox.TreeSeparator());
