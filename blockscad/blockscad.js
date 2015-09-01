@@ -56,6 +56,7 @@ Blockscad.drawAxes = 1;       // start with axes drawn
  * Initialize Blockly.  Called on page load.
  */
 Blockscad.init = function() {
+  'use strict';
   Blockscad.initLanguage();
 
 
@@ -123,7 +124,7 @@ Blockscad.init = function() {
           var h = $( window ).height();
           // resize the viewer
           if (gProcessor) {
-            var h = gProcessor.viewerdiv.offsetHeight;
+            h = gProcessor.viewerdiv.offsetHeight;
             var w = gProcessor.viewerdiv.offsetWidth;
             gProcessor.viewer.rendered_resize(w,h);
           }
@@ -160,7 +161,7 @@ Blockscad.init = function() {
   $( '#axesButton' ).click(function() {
     // toggle whether or not we draw the axes, then redraw
     Blockscad.drawAxes = (Blockscad.drawAxes + 1) % 2;
-    $( '#axesButton' ).toggleClass("btn-pushed")
+    $( '#axesButton' ).toggleClass("btn-pushed");
     gProcessor.viewer.onDraw();
   });
 
@@ -240,7 +241,7 @@ $( "#target" ).click(function() {
         Blockly.fireUiEvent(window, 'resize');
 
         Blockscad.clearStlBlocks();
-      }
+      };
       r.readAsText(f);
 
       // in order that we can read this filename again, I'll clear out the current filename
@@ -337,7 +338,7 @@ $( "#target" ).click(function() {
           newblock.render();
         }
 
-      }
+      };
       r.readAsBinaryString(f);
       // in order that we can read this filename again, I'll clear out the current filename
       $("#importStl")[0].value = '';
@@ -350,10 +351,10 @@ $( "#target" ).click(function() {
     } else { 
       alert("Failed to load file");
     }
-  }
-  $('#file-menu').on('change', '#loadLocal', function(e) { readSingleFile(e, true)});
-  $('#file-menu').on('change', '#importLocal', function(e) { readSingleFile(e, false)});
-  $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e)});
+  };
+  $('#file-menu').on('change', '#loadLocal', function(e) { readSingleFile(e, true);});
+  $('#file-menu').on('change', '#importLocal', function(e) { readSingleFile(e, false);});
+  $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
 //End FileSaver.js stuff
 
 
@@ -459,7 +460,7 @@ Blockscad.clearStlBlocks = function() {
       
     }
   }
-}
+};
 
 // Start a new project (save old project to account if logged in, clear blocks, clear rendered view)
 Blockscad.newProject = function() {
@@ -481,10 +482,9 @@ Blockscad.newProject = function() {
 
   // if the user was on the code tab, switch them to the blocks tab.
   $('#displayBlocks').click();
-}
+};
 
 Blockscad.clearProject = function() {
-
   if (!Blockscad.offline) {
     // now I should make the new project.
     Blockscad.Auth.currentProject = '';
@@ -505,7 +505,7 @@ Blockscad.clearProject = function() {
   $('#project-name').val('Untitled');
   $('#projectView').hide();
   $('#editView').show();
-}
+};
 
 
 
@@ -513,6 +513,7 @@ Blockscad.clearProject = function() {
  * Discard all blocks from the workspace.
  */
 Blockscad.discard = function() {
+  'use strict';
   var count = Blockly.mainWorkspace.getAllBlocks().length;
   if (count < 2 ||
       window.confirm("Delete all " + count + " blocks?")) {
@@ -529,7 +530,7 @@ Blockscad.resetView = function() {
       gProcessor.viewer.viewReset();
     }
   } 
-}
+};
 
 // check for if there are both 2D and 3D shapes to be rendered
 Blockscad.mixes2and3D = function() {
@@ -567,13 +568,13 @@ Blockscad.mixes2and3D = function() {
       if (topBlocks[i].type == 'controls_if') hasUnknown++;
     }
   }
-  if (hasShape && !(hasCSG + hasCAG + hasUnknown)) {
+  if (hasShape && !(hasCSG + hasCAG + hasUnknown) ) {
     // assign types needs to be called here.  
     // console.log("assignTypes needed - why?");
     Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
   }
   return [(hasCSG && hasCAG), hasShape];
-}
+};
 
 Blockscad.doRender = function() {
   // First, lets clear any old error messages.
@@ -588,7 +589,7 @@ Blockscad.doRender = function() {
 
   var mixes = Blockscad.mixes2and3D();
 
-  if (mixes[1] == 0) { // doesn't have any CSG or CAG shapes at all!
+  if (mixes[1] === 0) { // doesn't have any CSG or CAG shapes at all!
     $( '#error-message' ).html("Error: Nothing to Render");
     $( '#error-message' ).addClass("has-error");
     // HACK: file load is too slow - if user tries to render during file load
@@ -597,18 +598,11 @@ Blockscad.doRender = function() {
     return;
   }
 
-
-
-
   if (mixes[0]) {    // has both 2D and 3D shapes
     $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
     $( '#error-message' ).addClass("has-error");
     return;
   }
-
-
-
-
 
   Blockscad.missingFields = [];
   Blockscad.illegalValue = [];
@@ -646,8 +640,6 @@ Blockscad.doRender = function() {
         }
     }
     gotErr = true;
-
-
   }
   if (gotErr) {
     var errText = '';
@@ -677,14 +669,14 @@ Blockscad.doRender = function() {
   else {
     Blockscad.renderCode(code);
   }
-}
+};
  
 Blockscad.renderCode = function(code) {
   var csgcode = '';
   var code_good = true;
     try {
    // console.log("code was: ",code);
-   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code) }, 0);
+   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); }, 0);
    //code = openscadOpenJscadParser.parse(code);
    //console.log("code is now:",code);
   }
@@ -704,7 +696,7 @@ Blockscad.renderCode = function(code) {
     $('#renderButton').html('Render'); 
 
   }
-}
+};
 
 // Blockscad.isRealChange is called from Blockscad.workspaceChanged to see if
 // the changes should count as "undoable" or should be ignored.
@@ -753,7 +745,7 @@ Blockscad.isRealChange = function() {
     // this is the "block deleted" condition
     Blockscad.undo.fieldChanging = 0;
     // were all the blocks deleted?
-    if (Blockscad.undo.blockList.length == 0) {
+    if (Blockscad.undo.blockList.length === 0) {
       // All blocks were deleted.  An undo would have to restore current.xml here.
     }
     else {
@@ -769,7 +761,7 @@ Blockscad.isRealChange = function() {
     // A block has been added here.  Get the new block.  If it has a category,
     // send it to assignBlockTypes.  (might want to get parent too for undo?)
     Blockscad.undo.fieldChanging = 0;
-    if (Blockscad.undo.oldBlockList.length == 0) {
+    if (Blockscad.undo.oldBlockList.length === 0) {
       // We just refreshed, loaded
       Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
  //     console.log("whole workspace refreshed");
@@ -846,7 +838,7 @@ Blockscad.isRealChange = function() {
   }
 
   return false;
-}// end Blockscad.isRealChange()
+};// end Blockscad.isRealChange()
 
 Blockscad.workspaceChanged = function () {
 
@@ -883,9 +875,9 @@ Blockscad.workspaceChanged = function () {
       // I need to reassign block types to ALL BLOCKS afterwards (grr)
       Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
     }
-    if (Blockscad.undo.just_did_undo == 0) {
+    if (Blockscad.undo.just_did_undo === 0) {
       // push Blockscad.current_xml onto undo stack
-      if (Blockscad.undo.current_xml != null) {
+      if (Blockscad.undo.current_xml !== null) {
         Blockscad.undo.undoStack.push(Blockscad.undo.current_xml);
       }
       // refill current_xml with the new, changed, xml state
@@ -928,7 +920,7 @@ Blockscad.workspaceChanged = function () {
   else {
     $('#redoButton').prop('disabled', true);  
   }
-} // end workspaceChanged()
+}; // end workspaceChanged()
 Blockscad.getExtraRootBlock = function(old,current) {
   //console.log("starting getExtraRootBlock");
   var gotOne = 0;
@@ -973,7 +965,7 @@ Blockscad.getExtraRootBlock = function(old,current) {
   }
   // console.log("getExtraRootBlock failed!");
   return 0;  // this should never happen
-} // end getExtraRootBlock()
+}; // end getExtraRootBlock()
 
 // this get block from id function searches a given list of blocks, 
 // instead of the blocks in the main workspace.  Needed for typing.
@@ -1022,7 +1014,7 @@ Blockscad.onUndo = function() {
 
 
   }
-} // end onUndo()
+}; // end onUndo()
 
 Blockscad.onRedo = function() {
   //console.log("Redo button activated!\n");
@@ -1040,7 +1032,7 @@ Blockscad.onRedo = function() {
     Blockscad.undo.just_did_undo = 1;
     //console.log("just_did_undo = 1");
   }
-} // end onRedo()
+}; // end onRedo()
 
 // disable any math or logic or variable blocks sitting around onthe workspace.
 Blockscad.checkMathOrphans = function() {
@@ -1057,7 +1049,7 @@ Blockscad.checkMathOrphans = function() {
       topBlocks[i].setDisabled(true);
     }
   }
-} // end checkMathOrphans()
+}; // end checkMathOrphans()
 
 // enable any disabled math blocks in an enabled parent.
 // sometimes we'll be sent a parent block, and need to check its children.
@@ -1077,13 +1069,13 @@ Blockscad.enableMathBlocks = function(block) {
       }
     }
   }
-}
+};
 
 Blockscad.aCallerBlock = function(block, callers) {
   for (var i = 0; i < callers.length; i++)
     if (block == callers[i]) return true;
   return false;
-} // end Blockscad.aCallerBlock
+}; // end Blockscad.aCallerBlock
 
 // have a single block, and want to find out what type it's stack makes it?
 // This is for procedure call block typing.
@@ -1117,7 +1109,7 @@ Blockscad.findBlockType = function(block, callers) {
     return('CAG');
   }
   else return('EITHER');
-}
+};
 
 // is this block attached to an actual primitive (2D or 3D)?  Needed for missing fields calc.
 // if the block has a disabled parent, it won't be rendered and doesn't count.
@@ -1131,7 +1123,7 @@ Blockscad.stackIsShape = function(block) {
       return true;
   }
   return false;
-}
+};
 
 // Blockscad.assignBlockTypes
 // input: array of blocks whose trees need typing
@@ -1182,7 +1174,7 @@ Blockscad.assignBlockTypes = function(blocks) {
     //console.log("in assignBlockTypes(foundCSG,foundCAG)",foundCSG,foundCAG);
     //console.log("blockStack",blockStack);
   }
-}
+};
 Blockscad.hasExtrudeParent = function(block) {
   do {
     if (block.category == 'EXTRUDE')
@@ -1190,7 +1182,7 @@ Blockscad.hasExtrudeParent = function(block) {
     block = block.parentBlock_;
   } while (block);
   return false;
-}
+};
 
 
 // -- BEGIN OPENJSCAD STUFF --
@@ -1273,4 +1265,4 @@ Blockscad.saveBlocksLocal = function() {
   else {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
   }
-}
+};
