@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "node_modules/.bin/jshint blockly blockscad",
-    "build-standalone": "node_modules/.bin/nwbuild -p linux,osx,win .",
+    "build-standalone": "node_modules/.bin/nwbuild -v 0.12.1 -p linux,osx,win .",
     "clean-standalone": "rm -rf node_modules build"
   },
   "repository": {
