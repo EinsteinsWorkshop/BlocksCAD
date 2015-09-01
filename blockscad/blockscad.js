@@ -29,7 +29,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.0.1-rc1";
+Blockscad.version = "1.0.1";
 
 Blockscad.offline = true;
 
@@ -57,6 +57,7 @@ Blockscad.drawAxes = 1;       // start with axes drawn
  */
 Blockscad.init = function() {
   Blockscad.initLanguage();
+
 
   var rtl = BSUtils.isRtl();
   Blockscad.missingFields = [];  // variable to see if any blocks are missing fields
@@ -401,7 +402,12 @@ $( "#target" ).click(function() {
   // set up handler for saving blocks locally
   $('#file-menu').on('click', '#saveLocal', Blockscad.saveBlocksLocal);
 
+
+
+
 }; // end Blockscad.init()
+
+
 
 // Load Blockly's language strings.
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
@@ -420,9 +426,9 @@ Blockscad.clearStlBlocks = function() {
       var browse_button = blocks[i].getField('STL_BUTTON');
       blocks[i].getField('STL_CONTENTS').setText('');
       blocks[i].getField('STL_FILENAME').setText('');
-      var currentCommentText = blocks[i].getCommentText();
-      currentCommentText = 'RELOAD: ' + currentCommentText;
-      blocks[i].setCommentText(currentCommentText);
+      var cText = blocks[i].getCommentText();
+      if (!cText.match(/^RELOAD/)) cText = 'RELOAD: ' + cText;
+      blocks[i].setCommentText(cText);
       browse_button.setText('Reload');
 
       blocks[i].backlight();
@@ -571,7 +577,7 @@ Blockscad.mixes2and3D = function() {
 
 Blockscad.doRender = function() {
   // First, lets clear any old error messages.
-  $( '#error-message' ).text("");
+  $( '#error-message' ).html("");
   $( '#error-message' ).removeClass("has-error");
 
   // if there are objects to render, I'm going to want to disable the render button!
@@ -583,7 +589,7 @@ Blockscad.doRender = function() {
   var mixes = Blockscad.mixes2and3D();
 
   if (mixes[1] == 0) { // doesn't have any CSG or CAG shapes at all!
-    $( '#error-message' ).text("Error: Nothing to Render");
+    $( '#error-message' ).html("Error: Nothing to Render");
     $( '#error-message' ).addClass("has-error");
     // HACK: file load is too slow - if user tries to render during file load
     // they get the "no objects to render" message.  Enable the render button.
@@ -595,7 +601,7 @@ Blockscad.doRender = function() {
 
 
   if (mixes[0]) {    // has both 2D and 3D shapes
-    $( '#error-message' ).text("Error: both 2D and 3D objects are present.  There can be only one.");
+    $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
     $( '#error-message' ).addClass("has-error");
     return;
   }
@@ -605,7 +611,9 @@ Blockscad.doRender = function() {
 
 
   Blockscad.missingFields = [];
+  Blockscad.illegalValue = [];
   var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace);
+  var gotErr = false;
 
   if (Blockscad.missingFields.length > 0) {
     // highlight the missing blocks, set up/display the correct error message
@@ -620,43 +628,83 @@ Blockscad.doRender = function() {
           others[j].unselect();
           others[j].backlight();  
         }
+        gotErr = true;
     }
-    $( '#error-message' ).text("ERROR: " + Blockscad.missingFields.length + 
-                            " blocks have empty fields.");
+  }
+  if (Blockscad.illegalValue.length > 0) {
+    // highlight the missing blocks, set up/display the correct error message
+    for (var i = 0; i < Blockscad.illegalValue.length; i++) {
+      var blk = Blockly.mainWorkspace.getBlockById(Blockscad.illegalValue[i]);
+      blk.unselect();
+      blk.backlight();
+      // if block is in a collapsed parent, highlight collapsed parent too
+      var others = blk.collapsedParents();
+      if (others)
+        for (var j=0; j < others.length; j++) { 
+          others[j].unselect();
+          others[j].backlight();  
+        }
+    }
+    gotErr = true;
+
+
+  }
+  if (gotErr) {
+    var errText = '';
+      if (Blockscad.missingFields.length) 
+        errText += "ERROR: " + Blockscad.missingFields.length + " blocks are missing fields.";
+      if (Blockscad.missingFields.length && Blockscad.illegalValue.length) 
+        errText += "<br>";
+      if (Blockscad.illegalValue.length)
+        errText += "ERROR: " + Blockscad.illegalValue.length + " blocks have an illegal negative or zero value";
+
+    $( '#error-message' ).html(errText);
     $( '#error-message' ).addClass("has-error");
     return;
   }
+  Blockscad.loadTheseFonts = Blockscad.whichFonts(code);
+  // console.log(loadThese);
+  $('#renderButton').html('working'); 
+
+  if (Blockscad.loadTheseFonts.length > 0) {
+    console.log("I need to load " + Blockscad.loadTheseFonts.length + " fonts.");
+    Blockscad.numloaded = 0;
+    for (var i = 0; i < Blockscad.loadTheseFonts.length; i++) {
+      Blockscad.loadFontThenRender(i,code);
+    }
+
+  }
+  else {
+    Blockscad.renderCode(code);
+  }
+}
+ 
+Blockscad.renderCode = function(code) {
+  var csgcode = '';
   var code_good = true;
-  try {
-   $('#renderButton').html('working'); 
+    try {
    // console.log("code was: ",code);
-  window.setTimeout(function (){ code = openscadOpenJscadParser.parse(code) }, 0);
+   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code) }, 0);
    //code = openscadOpenJscadParser.parse(code);
    //console.log("code is now:",code);
   }
   catch(err) {
     // console.log("caught parsing error");
-    $( '#error-message' ).text(err);
+    $( '#error-message' ).html(err);
     $( '#error-message' ).addClass("has-error");
     code_good = false;
   }
   if (code_good) {
-    window.setTimeout(function () { gProcessor.setBlockscad(code) }, 0);
-    // TO-DO - make sure the rendering actually worked?
+    window.setTimeout(function () 
+      { gProcessor.setBlockscad(csgcode); 
+        // console.log("code is now",code); 
+      }, 0);
   }
   else {
     $('#renderButton').html('Render'); 
 
   }
-
-
-  // turns out rendering is asynchronus.  
-  //I should go to the end of the render (in openjscad.js) and turn this stuff off.
- // if (!(Blockscad.selected == 'render')) {
- //     gProcessor.disableItems();
- // }
 }
- 
 
 // Blockscad.isRealChange is called from Blockscad.workspaceChanged to see if
 // the changes should count as "undoable" or should be ignored.

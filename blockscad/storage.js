@@ -101,9 +101,9 @@ BlocklyStorage.restoreBlocks = function() {
             console.log("couldn't find the stuff in localStorage");
             blocks[i].getField('STL_CONTENTS').setText('');
             blocks[i].getField('STL_FILENAME').setText('');
-            var currentCommentText = blocks[i].getCommentText();
-            currentCommentText = 'RELOAD: ' + currentCommentText;
-            blocks[i].setCommentText(currentCommentText);
+            var cText = blocks[i].getCommentText();
+            if (!cText.match(/^RELOAD/)) cText = 'RELOAD: ' + cText;
+            blocks[i].setCommentText(cText);
             browse_button.setText('Reload');
 
             blocks[i].backlight();

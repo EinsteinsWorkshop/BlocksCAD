@@ -275,6 +275,13 @@ Blockscad.Toolbox.catOther = '<category name="Advanced">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="bs_text">' + 
+        '<value name="SIZE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' + 
+      '</block>' +
       '<block type="rotateextrudetwist">' +
         '<value name="RAD">' +
           '<block type="math_number">' +
