@@ -52,7 +52,7 @@ Blockscad.loadFonts = function() {
   for (var i = 0; i < Blockscad.fontList.length; i++) {
     Blockscad.loadFont(i);
   }
-}
+};
 Blockscad.loadFont = function(index) {
   opentype.load(Blockscad.fontList[index], function(err, font) {
     if (err) {
@@ -62,7 +62,7 @@ Blockscad.loadFont = function(index) {
       return font; // if I do this, can I use this in synchronous code?
     }
   });
-}
+};
 
 Blockscad.loadFontThenRender = function(i,code) {
   try {
@@ -79,7 +79,7 @@ Blockscad.loadFontThenRender = function(i,code) {
   catch(err) {
     console.log("network error loading font");
   }
-}
+};
 
 
 // pathToPoints() takes a Path object created by opentype.js
@@ -92,9 +92,10 @@ Blockscad.loadFontThenRender = function(i,code) {
 Blockscad.pathToPoints = function(path,resolution) {
 
   var points = [];
-  var paths = []
+  var paths = [];
   var new_path = [];
   var fn = 2;   // default resolution in case resolution is not >= 2
+  var to, c1,c2,nx,ny,a; //for curve approximation
 
   if (resolution > 2) fn = resolution; 
 
@@ -115,13 +116,13 @@ Blockscad.pathToPoints = function(path,resolution) {
           }
           new_path = [];
           // load up the new point
-          points.push([path.commands[i].x, -1 * path.commands[i].y])
+          points.push([path.commands[i].x, -1 * path.commands[i].y]);
           new_path.push(point_index++);
           prev = [path.commands[i].x, -1 * path.commands[i].y];
           break;
         case 'L':
           // load up the new point
-          points.push([path.commands[i].x, -1 * path.commands[i].y])
+          points.push([path.commands[i].x, -1 * path.commands[i].y]);
           new_path.push(point_index++);
           prev = [path.commands[i].x, -1 * path.commands[i].y];
           break;
@@ -130,18 +131,18 @@ Blockscad.pathToPoints = function(path,resolution) {
           // Cubic Bezier curve
           // uses two control points c1(x1,y1) and c2(x2,y2)
           // the previous point prev[x,y], and current point to[x,y]
-          var to = [path.commands[i].x, -1 * path.commands[i].y]; 
-          var c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
-          var c2 = [path.commands[i].x2, -1 * path.commands[i].y2];
+          to = [path.commands[i].x, -1 * path.commands[i].y]; 
+          c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
+          c2 = [path.commands[i].x2, -1 * path.commands[i].y2];
 
           // approximate the curve with fn points
           for (var k=1;k<=fn;k++) {
-            var a = k / fn;
-            var nx = prev[0] * Math.pow(1-a,3) + 
+            a = k / fn;
+            nx = prev[0] * Math.pow(1-a,3) + 
                      c1[0] * 3 * Math.pow(1-a,2) * a +
                      c2[0] * 3 * Math.pow(1-a,1) * a * a +
                      to[0] * Math.pow(a,3); 
-            var nx = prev[1] * Math.pow(1-a,3) + 
+            nx = prev[1] * Math.pow(1-a,3) + 
                      c1[1] * 3 * Math.pow(1-a,2) * a +
                      c2[1] * 3 * Math.pow(1-a,1) * a * a +
                      to[1] * Math.pow(a,3); 
@@ -156,14 +157,14 @@ Blockscad.pathToPoints = function(path,resolution) {
           // Quadratic Bezier curve
           // uses one control point c1[x1,y1]
           // the previous point prev[x,y], and current point to[x,y]
-          var to = [path.commands[i].x, -1 * path.commands[i].y]; 
-          var c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
+          to = [path.commands[i].x, -1 * path.commands[i].y]; 
+          c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
           for (var k=1;k<=fn;k++) {
-            var a = k / fn; 
-            var nx = prev[0] * Math.pow(1-a,2) + 
+            a = k / fn; 
+            nx = prev[0] * Math.pow(1-a,2) + 
                      c1[0] * 2 * Math.pow(1-a,1) * a +
                      to[0] * Math.pow(a,2); 
-            var ny = prev[1] * Math.pow(1-a,2) + 
+            ny = prev[1] * Math.pow(1-a,2) + 
                      c1[1] * 2 * Math.pow(1-a,1) * a +
                      to[1] * Math.pow(a,2); 
             // load up this new point
@@ -188,7 +189,7 @@ Blockscad.pathToPoints = function(path,resolution) {
   if (points.length < 3) points = [];
   return [points,paths];
 
-}
+};
 
 Blockscad.whichFonts = function(code) {
   var loadThisIndex = [];
@@ -198,4 +199,4 @@ Blockscad.whichFonts = function(code) {
         loadThisIndex.push(i);
   }
   return loadThisIndex;
-}
+};

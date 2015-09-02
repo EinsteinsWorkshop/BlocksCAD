@@ -451,9 +451,9 @@ Blockscad.Viewer.prototype = {
       //console.log("plate is:",plate);
       var plate = 200;
       if(this.plate) {
-         gl.color(.8,.8,.8,.5); // -- minor grid
+         gl.color(0.8,0.8,0.8,0.5); // -- minor grid
          for(var x=-plate/2; x<=plate/2; x++) {
-            if(x%10 && x!=0) {
+            if(x%10 && x!==0) {
                gl.vertex(-plate/2, x, 0);
                gl.vertex(plate/2, x, 0);
                gl.vertex(x, -plate/2, 0);
@@ -468,9 +468,9 @@ Blockscad.Viewer.prototype = {
                }
             }
          }
-         gl.color(.5,.5,.5,.5); // -- major grid
+         gl.color(0.5,0.5,0.5,0.5); // -- major grid
          for(var x=10; x<=plate/2; x+=10) {
-            if(x!=0) {
+            if(x!==0) {
               gl.vertex(-plate/2, x, 0);
               gl.vertex(plate/2, x, 0);
               gl.vertex(x, -plate/2, 0);
@@ -592,7 +592,7 @@ Blockscad.Viewer.csgToMeshes = function(initial_csg) {
   var numpolygons = polygons.length;
   for(var j = 0; j < numpolygons; j++) {
     var polygon = polygons[j];
-    var color = [1,.5,1,1];      // -- default color
+    var color = [1,0.5,1,1];      // -- default color
 
     if(polygon.shared && polygon.shared.color) {
       color = polygon.shared.color;
@@ -602,7 +602,7 @@ Blockscad.Viewer.csgToMeshes = function(initial_csg) {
     }
 
 	if (color.length < 4)
-		color.push(1.); //opaque
+		color.push(1.0); //opaque
 
     var indices = polygon.vertices.map(function(vertex) {
       var vertextag = vertex.getTag();
@@ -769,12 +769,12 @@ Blockscad.parseBlockscadScriptASync = function(script, options, callback) {
   var baseurl = document.location.href.replace(/\?.*$/, '');
   baseurl = baseurl.replace(/#.*$/,'');        // remove remote URL 
   var blockscadurl = baseurl;
-  if (options['BlockscadPath'] != null) {
+  if (options['BlockscadPath'] !== null) {
     blockscadurl = Blockscad.makeAbsoluteUrl( options['BlockscadPath'], baseurl );
   }
         
   var libraries = [];
-  if (options['libraries'] != null) {
+  if (options['libraries'] !== null) {
     libraries = options['libraries'];
   }
   for(var i in gMemFs) {            // let's test all files and check syntax before we do anything
@@ -1076,7 +1076,7 @@ Blockscad.Processor.prototype = {
     this.setCurrentObject(new CSG());
     this.hasValidCurrentObject = false;
     // console.log('trying to hid stl_buttons');
-    $('#stl_buttons').hide()
+    $('#stl_buttons').hide();
     this.enableItems();
   },
   

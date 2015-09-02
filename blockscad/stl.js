@@ -184,7 +184,7 @@ function importAsciiSTL(stl,fn) {
       continue;
     }
   }
-  var center = [Math.round(maxV[0] - (maxV[0]-minV[0])/2),Math.round(maxV[1] - (maxV[1]-minV[1])/2),Math.round(maxV[2] - (maxV[2]-minV[2])/2)]
+  var center = [Math.round(maxV[0] - (maxV[0]-minV[0])/2),Math.round(maxV[1] - (maxV[1]-minV[1])/2),Math.round(maxV[2] - (maxV[2]-minV[2])/2)];
   src += vt2csg(vertices);
   return [src,center];
 }
@@ -298,7 +298,7 @@ _decodeFloat: function(precisionBits, exponentBits){
 
    //shl fix: Henri Torgemane ~1996 (compressed by Jonas Raoni)
    _shl: function (a, b){
-    for (++b; --b; a = ((a %= 0x7fffffff + 1) & 0x40000000) == 0x40000000 ? a * 2 : (a - 0x40000000) * 2 + 0x7fffffff + 1){};
+    for (++b; --b; a = ((a %= 0x7fffffff + 1) & 0x40000000) == 0x40000000 ? a * 2 : (a - 0x40000000) * 2 + 0x7fffffff + 1){}
       return a;
   },
 
