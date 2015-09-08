@@ -27,9 +27,10 @@
 goog.provide('Blockly.Blocks.lists');
 
 goog.require('Blockly.Blocks');
+Blockscad.Toolbox = Blockscad.Toolbox || {};
 
 
-Blockly.Blocks.lists.HUE = Blockly.HEX_LOGIC;
+Blockly.Blocks.lists.HUE = Blockscad.Toolbox.HEX_LOGIC;
 
 Blockly.Blocks['lists_create_empty'] = {
   /**
