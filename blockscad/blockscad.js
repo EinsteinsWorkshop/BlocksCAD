@@ -24,6 +24,7 @@
 // create Blockscad namespace
 var Blockscad = Blockscad || {};
 Blockscad.Toolbox = Blockscad.Toolbox || {};
+Blockscad.Auth = Blockscad.Auth || {};    // cloud accounts plugin
 BlocklyStorage = BlocklyStorage || {};
 //var OpenJsCad = OpenJsCad || {};
 var Blockly = Blockly || {};

@@ -30,14 +30,34 @@ Blockly.OpenSCAD['cylinder'] = function(block) {
     Blockscad.missingFields.push(block.id);
     // illegal field value?
     // console.log(block);
-  if (value_rad1 && value_rad1 <= 0) 
-    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
-  if (value_rad2 && value_rad2 <= 0) 
-    Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+  if (value_rad1 && value_rad1 <= 0) {
+    if (value_rad2 && value_rad2 <= 0) {
+      Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+      Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+    }
+  }
   if (value_height && value_height <= 0) 
     Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
 
   var code = 'cylinder(' + 'r1=' + value_rad1 + ', r2=' + value_rad2 + ', h=' + value_height +', center=' + dropdown_center + ');';
+  return code;
+};
+
+Blockly.OpenSCAD['simple_cylinder'] = function(block) {
+  var value_rad1 = Blockly.OpenSCAD.valueToCode(block, 'RAD1', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value_height = Blockly.OpenSCAD.valueToCode(block, 'HEIGHT', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var dropdown_center = block.getFieldValue('CENTERDROPDOWN');
+    // missing fields?
+  if (!value_rad1 || !value_height)
+    Blockscad.missingFields.push(block.id);
+    // illegal field value?
+    // console.log(block);
+  if (value_rad1 && value_rad1 <= 0) 
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  if (value_height && value_height <= 0) 
+    Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
+
+  var code = 'cylinder(' + 'r=' + value_rad1 + ', h=' + value_height +', center=' + dropdown_center + ');';
   return code;
 };
 

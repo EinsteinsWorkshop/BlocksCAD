@@ -35,10 +35,10 @@ Blockly.Blocks['cylinder'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockly.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Cylinder   ');
+        .appendField('Cone   ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
-        .appendField('radius1')
+        .appendField('radius')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('RAD2')
         .setCheck('Number')
@@ -52,21 +52,31 @@ Blockly.Blocks['cylinder'] = {
         .appendField(new Blockly.FieldDropdown([['not centered', 'false'], ['centered', 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a cylinder with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
+    this.setTooltip('Creates a  with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
   }//,
-  // onchange: function() {
-  //   if (!this.workspace) {
-  //     // Block has been deleted.
-  //     return;
-  //   }
-  //   // if one of the value fields is missing, I want to pop up a warning.
-  //   var val1 = this.getInput("RAD1").connection;
-  //   var val2 = this.getInput("RAD2").connection;
-  //   var val3 = this.getInput("HEIGHT").connection;
-  //   if (val1.targetConnection && val2.targetConnection && val3.targetConnection)
-  //     this.setWarningText(null);
-  //   else this.setWarningText("Cylinder needs all paramaters to have number values");
-  // } 
+};
+
+Blockly.Blocks['simple_cylinder'] = {
+  init: function() {
+    this.category = 'PRIMITIVE_CSG'
+    this.setHelpUrl('http://www.example.com/');
+    this.setColourHex(Blockly.HEX_3D_PRIMITIVE);
+    this.appendDummyInput()
+        .appendField('Cylinder   ');
+    this.appendValueInput('RAD1')
+        .setCheck('Number')    
+        .appendField('radius1')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('HEIGHT')
+        .setCheck('Number')
+        .appendField('height')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldDropdown([['not centered', 'false'], ['centered', 'true']]), 'CENTERDROPDOWN');
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, 'CSG');
+    this.setTooltip('Creates a cylinder with a specified radius and height.  It may optionally be centered at the origin.');
+  }//,
 };
 
 Blockly.Blocks['cube'] = {

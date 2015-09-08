@@ -16,6 +16,18 @@ Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="simple_cylinder">' +
+        '<value name="RAD1">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' +
+         '<value name="HEIGHT">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
       '<block type="cylinder">' +
         '<value name="RAD1">' +
           '<block type="math_number">' +
