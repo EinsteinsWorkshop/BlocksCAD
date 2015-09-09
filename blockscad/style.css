@@ -333,3 +333,52 @@ body .modal-md {
     overflow-y: scroll;
     max-height: 350px;
 }
+
+/* added to make submenus work with bootstrap 3 */
+.dropdown-menu>li
+{	position:relative;
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+	cursor:pointer;
+}
+.dropdown-menu .sub-menu {
+    left: 100%;
+    position: absolute;
+    top: 0;
+    display:none;
+    margin-top: -1px;
+	border-top-left-radius:0;
+	border-bottom-left-radius:0;
+	border-left-color:#fff;
+	box-shadow:none;
+}
+.right-caret:after
+ {	content:"";
+    border-bottom: 5px solid transparent;
+    border-top: 5px solid transparent;
+    border-left: 5px solid gray;
+    display: inline-block;
+    height: 0;
+    opacity: 0.8;
+    vertical-align: middle;
+    width: 0;
+	margin-left:5px;
+	margin-bottom:2px;
+}
+.left-caret:after
+{	content:"";
+    border-bottom: 5px solid transparent;
+    border-top: 5px solid transparent;
+    border-right: 5px solid gray;
+    display: inline-block;
+    height: 0;
+    opacity: 0.8;
+    vertical-align: middle;
+    width: 0;
+	margin-left:5px;
+	margin-bottom:2px;
+}

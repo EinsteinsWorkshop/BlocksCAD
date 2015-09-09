@@ -68,7 +68,7 @@
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
   <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
-  
+
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -109,11 +109,23 @@
             </ul>
           </li>
           <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Options<span class="caret"></span></a>
+            <ul id="options-menu" class="dropdown-menu" role="menu">
+              <li><a href="#" id="simpleToolbox">Simple Toolbox</a></li>
+              <li><a href="#" id="advancedToolbox">Advanced Toolbox</a></li>
+              <li>
+                <a class="trigger right-caret">Block Color Scheme</a>
+                <ul class="dropdown-menu sub-menu">
+                  <li><a href="#" id="colors_one">Dark</a></li>
+                  <li><a href="#" id="colors_two">Light</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help<span class="caret"></span></a>
             <ul id="help-menu" class="dropdown-menu" role="menu">
               <li><a href="/docs/" target="_blank">Documentation</a></li>
-              <li><a href="#" id="simpleToolbox">Simple Toolbox</a></li>
-              <li><a href="#" id="advancedToolbox">Advanced Toolbox</a></li>
               <li class="divider"></li>
               <li><a href="#" data-toggle="modal" data-target="#about-modal">About</a></li>
             </ul>

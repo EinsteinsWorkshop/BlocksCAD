@@ -378,6 +378,7 @@ Blockly.WorkspaceSvg.prototype.setVisible = function(isVisible) {
  * Render all blocks in workspace.
  */
 Blockly.WorkspaceSvg.prototype.render = function() {
+  console.log("rendering workspace");
   var renderList = this.getAllBlocks();
   for (var i = 0, block; block = renderList[i]; i++) {
     if (!block.getChildren().length) {

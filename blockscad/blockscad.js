@@ -109,6 +109,8 @@ Blockscad.init = function() {
        trashcan: false,
        toolbox: Blockscad.Toolbox.adv});
 
+  // set the initial color scheme
+  Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
   // color the initial toolbox
   Blockscad.Toolbox.setCatColors();
 
@@ -415,7 +417,7 @@ $( "#target" ).click(function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
-      Blockscad.Toolbox.setCatColorsSimp();
+      Blockscad.Toolbox.setCatColors(Blockscad.Toolbox.colorScheme['one']);
     }
   });
   $('#advancedToolbox').on('click', function() {
@@ -423,13 +425,47 @@ $( "#target" ).click(function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.adv);
-      Blockscad.Toolbox.setCatColors();
+      Blockscad.Toolbox.setCatColors(Blockscad.Toolbox.colorScheme['one']);
     }
 
   });
+  $('#colors_one').on('click', function() {
+    console.log("switching block color scheme");
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
+      Blockscad.Toolbox.setCatColors();
+      Blockscad.workspace.clear();
+      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+    }
 
-
-
+  });
+  $('#colors_two').on('click', function() {
+    console.log("switching block color scheme");
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['two']);
+      Blockscad.Toolbox.setCatColors();
+      Blockscad.workspace.clear();
+      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+    }
+  });
+  // to get sub-menus to work with bootstrap 3 navbar
+  $(function(){
+    $(".dropdown-menu > li > a.trigger").on("click",function(e){
+      var current=$(this).next();
+      var grandparent=$(this).parent().parent();
+      if($(this).hasClass('left-caret')||$(this).hasClass('right-caret'))
+        $(this).toggleClass('right-caret left-caret');
+      grandparent.find('.left-caret').not(this).toggleClass('right-caret left-caret');
+      grandparent.find(".sub-menu:visible").not(current).hide();
+      current.toggle();
+      e.stopPropagation();
+    });
+    $(".dropdown-menu > li > a:not(.trigger)").on("click",function(){
+      var root=$(this).closest('.dropdown');
+      root.find('.left-caret').toggleClass('right-caret left-caret');
+      root.find('.sub-menu:visible').hide();
+    });
+  });
 }; // end Blockscad.init()
 
 
@@ -752,6 +788,7 @@ Blockscad.isRealChange = function() {
   var addedBlockPos = null;
   var deletedBlockParent = null;
   var addedBlockParent = null;
+  var real_change = false;
 
   // console.log("in isRealChange with current",Blockscad.undo.blockList);
   // console.log("old at RealChange",Blockscad.undo.oldBlockList);
@@ -764,8 +801,9 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
-    if (Blockscad.undo.blockList[i].getParent())
+    if (Blockscad.undo.blockList[i].getParent()) {
       Blockscad.undo.parentIds[i] = Blockscad.undo.blockList[i].getParent().id;
+    }
     else Blockscad.undo.parentIds[i] = null;
     if (Blockscad.undo.blockList[i].category) {
       if (Blockscad.undo.blockList[i].category == 'UNKNOWN') {
@@ -832,11 +870,11 @@ Blockscad.isRealChange = function() {
           // determine if we had a "plug" or an "unplug" event, and 
           // send either one or two stacks to get types evaluated.
           // Note:  one event can be both a "plug" and an "unplug" event.
-          //console.log("plug or unplug - send block myid",myid);
+          // console.log("plug or unplug - send block myid",myid);
           Blockscad.assignBlockTypes([Blockscad.undo.blockList[i]]);
           for (var k = 0, blk; blk = Blockscad.undo.blockList[k]; k++) {
             if (blk.id == Blockscad.undo.oldParentIds[j]) {
-              //console.log("unplugged parent exists with id",blk.id);
+              // console.log("unplugged parent exists with id",blk.id);
               Blockscad.assignBlockTypes([Blockscad.undo.blockList[k]]);
               Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
               break;
@@ -857,7 +895,8 @@ Blockscad.isRealChange = function() {
         if (Blockscad.undo.isDisabled[i] != Blockscad.undo.oldDisabled[j]) {
           // some block has changed from disabled to enabled, or vice-versa.  Mark this
           // as an undoable change.
-          return true;
+          // don't return from here though - I might need to enable/disable more math blocks.
+          real_change = true;
         }
       }
 
@@ -870,7 +909,7 @@ Blockscad.isRealChange = function() {
       return true;
     }
   }
-
+  if (real_change) return true;
   return false;
 };// end Blockscad.isRealChange()
 
@@ -883,6 +922,11 @@ Blockscad.workspaceChanged = function () {
   //console.log("here's the current blocks in the workspace:",Blockscad.undo.blockList); 
 
   Blockscad.undo.yesthis = Blockscad.isRealChange();
+
+  // console.log("ids:",Blockscad.undo.blockIds);
+  // console.log("oldids:",Blockscad.undo.oldBlockIds);
+  // console.log("pars:",Blockscad.undo.parentIds);
+  // console.log("oldp:",Blockscad.undo.oldParentIds);
 
   //   Update all the change compare vars. for the next go round.
   Blockscad.undo.blockCount = Blockscad.undo.blockList.length;
@@ -1034,7 +1078,7 @@ Blockscad.onUndo = function() {
     Blockly.mainWorkspace.clear();
     //console.log("loading workspace");
 
-    Blockly.Xml.domToWorkspace(Blockly.getMainWorkspace(), Blockscad.undo.current_xml);
+    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
     //console.log("rendering workspace");
     // trigger re-render
     Blockly.mainWorkspace.render();
@@ -1060,7 +1104,8 @@ Blockscad.onRedo = function() {
     Blockscad.undo.current_xml = Blockscad.undo.redoStack.pop();
     // set workspace xml to current xml (do I need to clear it first?)
     Blockly.mainWorkspace.clear();
-    Blockly.Xml.domToWorkspace(Blockly.getMainWorkspace(), Blockscad.undo.current_xml);
+    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+
     // trigger re-render
     Blockly.mainWorkspace.render();
     Blockscad.undo.just_did_undo = 1;
@@ -1088,6 +1133,7 @@ Blockscad.checkMathOrphans = function() {
 // enable any disabled math blocks in an enabled parent.
 // sometimes we'll be sent a parent block, and need to check its children.
 Blockscad.enableMathBlocks = function(block) {
+  // console.log("in enableMathBlocksc");
   var blockStack = block.getDescendants();
   for (var i = 0; i < blockStack.length; i++) {
     if (blockStack[i].disabled) {
