@@ -3,7 +3,7 @@ FEATURES TO ADD AND FIX AND STUFF
 [ ]clean up the repository (there's lots of unused stuff still laying around)
 [ ]icons for operations (unions, translates, etc)
 [ ]fix safari download STL problem
-[ ]touchscreen-friendly resize
+[x]touchscreen-friendly resize
 [ ]add blocks to library (and get block from library, and library implementation)
 [ ]project sharing
 [ ]STEP/IGES support
@@ -11,7 +11,7 @@ FEATURES TO ADD AND FIX AND STUFF
 [ ]aria stuff
 [ ]Implement openscad children()
 [ ]Storing color as a variable
-[ ]Text (and strings)
+[x]Text (and strings)
 [ ]Draft
 [ ]Minkowski Sum
 [ ]Switch to three.js
@@ -19,4 +19,4 @@ FEATURES TO ADD AND FIX AND STUFF
 [ ]Internationalization support (bring back from blockly)
 [ ]Simplified mode (elementary-friendly, hiding distracting fancy stuff)
 [ ]SVG/DXF import
-[ ]STL import
+[x]STL import
