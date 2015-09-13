@@ -48,7 +48,7 @@ Blockscad.Toolbox.simpCatHex = [];
 
 // set default color scheme
 Blockscad.Toolbox.setColorScheme = function(color_scheme) {
-  console.log(color_scheme);
+  // console.log(color_scheme);
   for (var i = 0; i < Blockscad.Toolbox.allcats.length; i++) {
     Blockscad.Toolbox[Blockscad.Toolbox.allcats[i]] = color_scheme[i];
     Blockscad.Toolbox.catHex[i] = color_scheme[i];
@@ -69,10 +69,10 @@ Blockscad.Toolbox.setCatColors = function() {
 
   } else {
     for (var i=0; i < Blockscad.Toolbox.catIDs.length; i++) {
-      console.log("trying to find element:  ",Blockscad.Toolbox.catIDs[i]);
+      // console.log("trying to find element:  ",Blockscad.Toolbox.catIDs[i]);
       var element = document.getElementById(Blockscad.Toolbox.catIDs[i]);
       element.style.background = Blockscad.Toolbox.catHex[i];
-      console.log("toolbox element is:",element);
+      // console.log("toolbox element is:",element);
     }
   }
 }
