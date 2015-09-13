@@ -1,7 +1,17 @@
-BlockSCAD - Copyright 2014-2015 H3XL, Inc
+BlocksCAD - Copyright 2014-2015 H3XL, Inc
 BlocksCAD is a trademark of H3XL, Inc.
 
 Released under GPLv3, incorporating a number of BSD, MIT, and Apache-licensed works. Contributions to those works released under their respective licences, unless otherwise indicated.
+
+BlocksCAD must be run on a webserver for the text block to work, rather than being run on the local filesystem.  If you have Python installed, you can use their simpleHTTPserver:
+
+cd /path/to/mydir-with-index.html-in-it
+python -m SimpleHTTPServer 9000
+Then point your browser to:
+
+http://localhost:9000/
+
+
 
 Developed with the sponsorship of the Defense Advanced Research Projects Agency (DARPA) and delivered to the U.S. Government with Unlimited Rights as defined in DFARS 252.227-7013. Approved for Public Release, Distribution Unlimited.
 
