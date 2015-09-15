@@ -1142,7 +1142,7 @@ Blockscad.Processor.prototype = {
           if(err)
           {
           console.log("error in proc" + err);
-          alert(err);
+          // alert(err);
           // console.log("script was:",this.script;
             that.setError(err);
           }

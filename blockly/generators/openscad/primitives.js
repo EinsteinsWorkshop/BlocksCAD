@@ -504,6 +504,11 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
              '", size = ' + value_size + ');\n';
   return code;
 }
+
+Blockly.OpenSCAD['text'] = function(block) {
+  var code = block.getFieldValue('TEXT');
+  return [code,Blockly.OpenSCAD.ORDER_ATOMIC];
+}
 // hexTo(RGB) take a blockly color string '#00ff88' for example, including the quotes
 // and returns RGB values.  
 

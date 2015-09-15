@@ -57,7 +57,7 @@ Blockscad.Toolbox.setColorScheme = function(color_scheme) {
     Blockscad.Toolbox.catHex[i] = color_scheme[i];
   }
 
-  console.log(Blockscad.Toolbox);
+  // console.log(Blockscad.Toolbox);
 }
 
 Blockscad.Toolbox.setCatColors = function() {
@@ -83,6 +83,23 @@ Blockscad.Toolbox.setCatColors = function() {
 Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
       '<block type="sphere">' +
         '<value name="RAD">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
+      '<block type="cube">' +
+        '<value name="XVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="YVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="ZVAL">' +
           '<block type="math_number">' +
             '<field name="NUM">10</field>' +
           '</block>' +
@@ -117,23 +134,6 @@ Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
           '</block>' +
         '</value>' +
       '</block>' +
-      '<block type="cube">' +
-        '<value name="XVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="YVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="ZVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
       '<block type="torus">' +
         '<value name="RAD1">' +
           '<block type="math_number">' +
@@ -152,7 +152,7 @@ Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
         '</value>' +
         '<value name="FACES">' +
           '<block type="math_number">' +
-            '<field name="NUM">3</field>' +
+            '<field name="NUM">16</field>' +
           '</block>' +
         '</value>' +
       '</block>' +
@@ -264,6 +264,45 @@ Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
         '<value name="FACES">' +
           '<block type="math_number">' +
             '<field name="NUM">5</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
+      '<block type="fancyrotate">' +
+        '<value name="AVAL">' +
+          '<block type="math_angle">' +
+            '<field name="NUM">0</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="XVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">0</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="YVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">0</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="ZVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">0</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
+      '<block type="fancymirror">' +
+        '<value name="XVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="YVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="ZVAL">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
           '</block>' +
         '</value>' +
       '</block>' +
@@ -419,28 +458,32 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
           '</block>' +
         '</value>' +
       '</block>' +
-      '<block type="controls_for_chainhull">' +
-        '<value name="FROM">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block> ' +
-        '</value>' +
-        '<value name="TO">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="BY">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
+      // '<block type="controls_for_chainhull">' +
+      //   '<value name="FROM">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block> ' +
+      //   '</value>' +
+      //   '<value name="TO">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">10</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="BY">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      // '</block>' +
     '</category>';
 
 Blockscad.Toolbox.catOther = '<category name="Text">' +
-
+      '<block type="text"></block>' +
       '<block type="bs_text">' + 
+        '<value name="TEXT">' + 
+          '<block type="text">' +
+          '</block>' +
+        '</value>' +
         '<value name="SIZE">' +
           '<block type="math_number">' +
             '<field name="NUM">10</field>' +
@@ -496,46 +539,8 @@ Blockscad.Toolbox.catOther = '<category name="Text">' +
       //     '</block>' +
       //   '</value>' +
       // '</block>' +
-      '<block type="fancyrotate">' +
-        '<value name="AVAL">' +
-          '<block type="math_angle">' +
-            '<field name="NUM">0</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="XVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">0</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="YVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">0</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="ZVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">0</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
-      '<block type="fancymirror">' +
-        '<value name="XVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="YVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="ZVAL">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
-      '<block type="stl_import"></block>' +
+
+      // '<block type="stl_import"></block>' +
     '</category>' +
     '<category name="Variables" custom="VARIABLE"></category>' +
     '<category name="Modules" custom="PROCEDURE"></category>' +

@@ -50,7 +50,7 @@ Blockly.ZoomControls.prototype.WIDTH_ = 32;
  * @type {number}
  * @private
  */
-Blockly.ZoomControls.prototype.HEIGHT_ = 110;
+Blockly.ZoomControls.prototype.HEIGHT_ = 30;
 
 /**
  * Distance between zoom controls and bottom edge of workspace.

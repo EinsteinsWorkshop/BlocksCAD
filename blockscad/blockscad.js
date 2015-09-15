@@ -415,7 +415,7 @@ Blockscad.init = function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
-      Blockscad.Toolbox.setCatColors(Blockscad.Toolbox.colorScheme['one']);
+      Blockscad.Toolbox.setCatColors();
     }
   });
   $('#advancedToolbox').on('click', function() {
@@ -423,7 +423,7 @@ Blockscad.init = function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.adv);
-      Blockscad.Toolbox.setCatColors(Blockscad.Toolbox.colorScheme['one']);
+      Blockscad.Toolbox.setCatColors();
     }
 
   });
