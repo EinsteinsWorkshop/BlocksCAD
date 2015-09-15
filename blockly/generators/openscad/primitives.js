@@ -485,7 +485,8 @@ Blockly.OpenSCAD['stl_import'] = function(block) {
 };
 
 Blockly.OpenSCAD['bs_text'] = function(block) {
-  var this_text = block.getFieldValue('TEXT');
+  // var this_text = block.getFieldValue('TEXT');
+  var this_text = Blockly.OpenSCAD.valueToCode(block,'TEXT', Blockly.OpenSCAD.ORDER_ATOMIC);
   var this_font = Blockscad.fontName[parseInt(block.getFieldValue('FONT'))];
   var value_size = Blockly.OpenSCAD.valueToCode(block,'SIZE', Blockly.OpenSCAD.ORDER_ATOMIC);
 

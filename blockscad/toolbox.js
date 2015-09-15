@@ -11,8 +11,11 @@ Blockscad.Toolbox.catIDs = [];
 
 
 // shall I set some hues?
+// Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
+//                 'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_ADVANCED',
+//                 'HEX_VARIABLE','HEX_PROCEDURE'];
 Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
-                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_ADVANCED',
+                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_TEXT',
                 'HEX_VARIABLE','HEX_PROCEDURE'];
 
 Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,5,6,7];
@@ -27,7 +30,7 @@ Blockscad.Toolbox.colorScheme['one'] =
         '#0186E2',  // Math
         '#BF6920',  // Logic
         '#612485',  // Loops
-        '#727272',  // Advanced
+        '#727272',  // Advanced (or Text)
         '#8C7149',  // Variables
         '#900355']; // Modules
 
@@ -39,7 +42,7 @@ Blockscad.Toolbox.colorScheme['two'] =
         '#ba9969',  // Math
         '#afaf13',  // Logic
         '#a66658',  // Loops
-        '#d761bf',  // Advanced
+        '#d761bf',  // Advanced (or Text)
         '#999999',  // Variables
         '#900355']; // Modules
 
@@ -128,6 +131,28 @@ Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
         '<value name="ZVAL">' +
           '<block type="math_number">' +
             '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
+      '<block type="torus">' +
+        '<value name="RAD1">' +
+          '<block type="math_number">' +
+            '<field name="NUM">4</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="RAD2">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="SIDES">' +
+          '<block type="math_number">' +
+            '<field name="NUM">8</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="FACES">' +
+          '<block type="math_number">' +
+            '<field name="NUM">3</field>' +
           '</block>' +
         '</value>' +
       '</block>' +
@@ -413,29 +438,8 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
       '</block>' +
     '</category>';
 
-Blockscad.Toolbox.catOther = '<category name="Advanced">' +
-      '<block type="torus">' +
-        '<value name="RAD1">' +
-          '<block type="math_number">' +
-            '<field name="NUM">4</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="RAD2">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="SIDES">' +
-          '<block type="math_number">' +
-            '<field name="NUM">8</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="FACES">' +
-          '<block type="math_number">' +
-            '<field name="NUM">3</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
+Blockscad.Toolbox.catOther = '<category name="Text">' +
+
       '<block type="bs_text">' + 
         '<value name="SIZE">' +
           '<block type="math_number">' +
@@ -443,28 +447,28 @@ Blockscad.Toolbox.catOther = '<category name="Advanced">' +
           '</block>' +
         '</value>' + 
       '</block>' +
-      '<block type="rotateextrudetwist">' +
-        '<value name="RAD">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="FACES">' +
-          '<block type="math_number">' +
-            '<field name="NUM">5</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="TWIST">' +
-          '<block type="math_number">' +
-            '<field name="NUM">360</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="TSTEPS">' +
-          '<block type="math_number">' +
-            '<field name="NUM">180</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
+      // '<block type="rotateextrudetwist">' +
+      //   '<value name="RAD">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">10</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="FACES">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">5</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="TWIST">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">360</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="TSTEPS">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">180</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      // '</block>' +
       // '<block type="twistytorus">' +
       //   '<value name="RAD1">' +
       //     '<block type="math_number">' +

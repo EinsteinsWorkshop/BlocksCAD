@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.0.0";
 
-Blockscad.offline = false;
+Blockscad.offline = true;
 
 // -- BEGIN OPENJSCAD STUFF --
 

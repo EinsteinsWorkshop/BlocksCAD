@@ -1376,27 +1376,27 @@ Blockly.Blocks['bs_text'] = {
         CONSTANTS.push([Blockscad.fontName[i],i.toString()]);
     }
     this.category = 'PRIMITIVE_CAG'
-    this.appendDummyInput()
-        .appendField("Text");
-    this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
-    this.appendDummyInput()
-        // .appendField(this.newQuote_(true))
-        .appendField(new Blockly.FieldTextInput('hello'), 'TEXT');
-        // .appendField(this.newQuote_(false));
     // this.appendDummyInput()
-    //     .appendField("Size")
-    //     .appendField(new Blockly.FieldTextInput('10',
-    //       Blockly.FieldTextInput.numberValidator), 'SIZE'); 
+    //     .appendField("Text  ");
+    this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
+    this.appendValueInput('TEXT')
+        .appendField("Text  ")
+        .setCheck('String')
+        .setAlign(Blockly.ALIGN_RIGHT);
+        // .appendField(this.newQuote_(true))
+        // .appendField(new Blockly.FieldTextInput('hello'), 'TEXT');
+        // .appendField(this.newQuote_(false));
+
     this.appendValueInput("SIZE")
         .setCheck("Number")
-        .appendField("Size")
+        .appendField(" Size")
         .setAlign(Blockly.ALIGN_RIGHT);
     // this.appendValueInput('SIZE')
     //     .setCheck('Number')
     //     .appendField('Size')
     //     .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField("Font:")
+        .appendField(" Font")
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
