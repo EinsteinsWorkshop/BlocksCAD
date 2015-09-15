@@ -997,7 +997,7 @@ Blockscad.Processor.prototype = {
     viewerdiv.style.top = '0px';
     viewerdiv.style.position = 'absolute';
     viewerdiv.style.zIndex = '1';
-    viewerdiv.style.backgroundColor = "rgb(200,200,200)";
+    viewerdiv.style.backgroundColor = "rgb(255,255,255)";
     this.containerdiv.appendChild(viewerdiv);
     this.viewerdiv = viewerdiv;
     try {

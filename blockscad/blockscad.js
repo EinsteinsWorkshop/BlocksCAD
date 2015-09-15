@@ -30,7 +30,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.0.0";
+Blockscad.version = "1.0.1";
 
 Blockscad.offline = true;
 
@@ -191,10 +191,8 @@ Blockscad.init = function() {
   // set up the delete-confirm button's function.
   $('#throw-it-away').click(Blockscad.clearProject);
 
-$( "#target" ).click(function() {
-  alert( "Handler for .click() called." );
-});
-
+  // handle the project->new menu option
+  $('#main').on('click', '.new-project', Blockscad.newProject);
 
 //FileSaver.js stuff
   // Loading a blocks xml file
@@ -551,7 +549,7 @@ Blockscad.clearProject = function() {
     Blockscad.Auth.currentProject = '';
     Blockscad.Auth.currentProjectKey = '';
   }
-  Blockly.mainWorkspace.clear();
+  Blockscad.workspace.clear();
   gProcessor.clearViewer();  
   Blockscad.workspaceChanged();
 
