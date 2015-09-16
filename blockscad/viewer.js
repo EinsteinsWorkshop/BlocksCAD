@@ -150,7 +150,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
       _this.touch.lastX = 0;
       _this.touch.lastY = 0;
       _this.touch.scale = 0;
-    });*/
+    });
 
   gl.onmousemove = function(e) {
     _this.onMouseMove(e);
