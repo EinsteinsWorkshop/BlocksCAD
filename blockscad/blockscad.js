@@ -415,7 +415,7 @@ Blockscad.init = function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
-      Blockscad.Toolbox.setCatColors(Blockscad.Toolbox.colorScheme['one']);
+      Blockscad.Toolbox.setCatColors();
     }
   });
   $('#advancedToolbox').on('click', function() {
@@ -423,7 +423,7 @@ Blockscad.init = function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.adv);
-      Blockscad.Toolbox.setCatColors(Blockscad.Toolbox.colorScheme['one']);
+      Blockscad.Toolbox.setCatColors();
     }
 
   });
@@ -863,7 +863,7 @@ Blockscad.isRealChange = function() {
         found_it = 1;
 
         if (Blockscad.undo.parentIds[i] != Blockscad.undo.oldParentIds[j]) {
-          Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
+          // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
 
           // determine if we had a "plug" or an "unplug" event, and 
           // send either one or two stacks to get types evaluated.
@@ -874,7 +874,7 @@ Blockscad.isRealChange = function() {
             if (blk.id == Blockscad.undo.oldParentIds[j]) {
               // console.log("unplugged parent exists with id",blk.id);
               Blockscad.assignBlockTypes([Blockscad.undo.blockList[k]]);
-              Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
+              // Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
               break;
             }
           }
@@ -937,7 +937,7 @@ Blockscad.workspaceChanged = function () {
 //  Blockscad.undo.oldBlockList = Blockscad.undo.blockList;
  // console.log("do I have children?",Blockscad.undo.oldBlockList);
 
-  Blockscad.checkMathOrphans();
+  //Blockscad.checkMathOrphans();
 
   if (Blockscad.undo.yesthis) {
     //console.log("yesthis");
@@ -1112,42 +1112,42 @@ Blockscad.onRedo = function() {
 }; // end onRedo()
 
 // disable any math or logic or variable blocks sitting around onthe workspace.
-Blockscad.checkMathOrphans = function() {
-  var topBlocks = [];
-  topBlocks = Blockly.mainWorkspace.getTopBlocks();
+// Blockscad.checkMathOrphans = function() {
+//   var topBlocks = [];
+//   topBlocks = Blockly.mainWorkspace.getTopBlocks();
 
-  for (var i = 0; i < topBlocks.length; i++) {
-    // my current block topBlocks[i]
-    // is a top block a math or logic or variable block?  Disable it.
-    //console.log(topBlocks[i].type);
-    if ((topBlocks[i].type.lastIndexOf('math') != -1) ||
-      (topBlocks[i].type.lastIndexOf('variables_get') != -1) ||
-      (topBlocks[i].type.lastIndexOf('logic') != -1)) {
-      topBlocks[i].setDisabled(true);
-    }
-  }
-}; // end checkMathOrphans()
+//   for (var i = 0; i < topBlocks.length; i++) {
+//     // my current block topBlocks[i]
+//     // is a top block a math or logic or variable block?  Disable it.
+//     //console.log(topBlocks[i].type);
+//     if ((topBlocks[i].type.lastIndexOf('math') != -1) ||
+//       (topBlocks[i].type.lastIndexOf('variables_get') != -1) ||
+//       (topBlocks[i].type.lastIndexOf('logic') != -1)) {
+//       topBlocks[i].setDisabled(true);
+//     }
+//   }
+// }; // end checkMathOrphans()
 
 // enable any disabled math blocks in an enabled parent.
 // sometimes we'll be sent a parent block, and need to check its children.
-Blockscad.enableMathBlocks = function(block) {
-  // console.log("in enableMathBlocksc");
-  var blockStack = block.getDescendants();
-  for (var i = 0; i < blockStack.length; i++) {
-    if (blockStack[i].disabled) {
-      if ((blockStack[i].type.lastIndexOf('math') != -1) ||
-         (blockStack[i].type.lastIndexOf('variables_get') != -1) ||
-         (blockStack[i].type.lastIndexOf('logic') != -1)) {
-        var par;
-        if (par = blockStack[i].getParent()) {
-          //console.log("enabling children",children);
-          if (!par.disabled)  
-              blockStack[i].setDisabled(false);
-        }
-      }
-    }
-  }
-};
+// Blockscad.enableMathBlocks = function(block) {
+//   // console.log("in enableMathBlocksc");
+//   var blockStack = block.getDescendants();
+//   for (var i = 0; i < blockStack.length; i++) {
+//     if (blockStack[i].disabled) {
+//       if ((blockStack[i].type.lastIndexOf('math') != -1) ||
+//          (blockStack[i].type.lastIndexOf('variables_get') != -1) ||
+//          (blockStack[i].type.lastIndexOf('logic') != -1)) {
+//         var par;
+//         if (par = blockStack[i].getParent()) {
+//           //console.log("enabling children",children);
+//           if (!par.disabled)  
+//               blockStack[i].setDisabled(false);
+//         }
+//       }
+//     }
+//   }
+// };
 
 Blockscad.aCallerBlock = function(block, callers) {
   for (var i = 0; i < callers.length; i++)

@@ -31,7 +31,7 @@ goog.require('Blockly.Blocks');
 
 Blockscad.Toolbox = Blockscad.Toolbox || {};
 
-Blockly.Blocks.texts.HUE = Blockscad.Toolbox.HEX_LOGIC;
+Blockly.Blocks.texts.HUE = Blockscad.Toolbox.HEX_TEXT;
 
 Blockly.Blocks['text'] = {
   /**
@@ -40,10 +40,10 @@ Blockly.Blocks['text'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
-    this.setColourHex(Blockly.Blocks.texts.HUE);
+    this.setColourHex(Blockscad.Toolbox.HEX_TEXT);
     this.appendDummyInput()
         .appendField(this.newQuote_(true))
-        .appendField(new Blockly.FieldTextInput(''), 'TEXT')
+        .appendField(new Blockly.FieldTextInput('hello'), 'TEXT')
         .appendField(this.newQuote_(false));
     this.setOutput(true, 'String');
     this.setTooltip(Blockly.Msg.TEXT_TEXT_TOOLTIP);
@@ -61,7 +61,7 @@ Blockly.Blocks['text'] = {
     } else {
       var file = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAKCAQAAAAqJXdxAAAAn0lEQVQI1z3OMa5BURSF4f/cQhAKjUQhuQmFNwGJEUi0RKN5rU7FHKhpjEH3TEMtkdBSCY1EIv8r7nFX9e29V7EBAOvu7RPjwmWGH/VuF8CyN9/OAdvqIXYLvtRaNjx9mMTDyo+NjAN1HNcl9ZQ5oQMM3dgDUqDo1l8DzvwmtZN7mnD+PkmLa+4mhrxVA9fRowBWmVBhFy5gYEjKMfz9AylsaRRgGzvZAAAAAElFTkSuQmCC';
     }
-    return new Blockly.FieldImage(file, 12, 12, '"');
+    return new Blockly.FieldImage(file, 10, 10, '"');
   }
 };
 

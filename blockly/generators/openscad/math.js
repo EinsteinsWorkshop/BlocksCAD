@@ -7,13 +7,17 @@ goog.require('Blockly.OpenSCAD');
 Blockly.OpenSCAD['math_number'] = function(block) {
   // Numeric value.
   var code = parseFloat(block.getFieldValue('NUM'));
-  return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
 };
 
 Blockly.OpenSCAD['math_angle'] = function(block) {
   // Numeric value.
   var code = parseFloat(block.getFieldValue('NUM'));
-  return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
 };
 
 Blockly.OpenSCAD['math_arithmetic'] = function(block) {
@@ -34,10 +38,15 @@ Blockly.OpenSCAD['math_arithmetic'] = function(block) {
   //Power in OpenSCAD uses a special case since it has no operator.
   if (!operator) {
     code = 'pow(' + argument0 + ', ' + argument1 + ')';
-    return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+    if (block.getParent())
+      return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+    else return ['//' + code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
   }
   code = argument0 + operator + argument1;
-  return [code, order];
+
+  if (block.getParent())
+    return [code, order];
+  else return ['//' + code, order];
 };
 
 
@@ -55,7 +64,9 @@ Blockly.OpenSCAD['math_single'] = function(block) {
       arg = ' ' + arg;
     }
     code = '-' + arg;
-    return [code, Blockly.OpenSCAD.ORDER_UNARY_NEGATION];
+    if (block.getParent())
+      return [code, Blockly.OpenSCAD.ORDER_UNARY_NEGATION];
+    else return ['//' + code, Blockly.OpenSCAD.ORDER_UNARY_NEGATION];
   }
   if (operator == 'SIN' || operator == 'COS' || operator == 'TAN') {
     arg = Blockly.OpenSCAD.valueToCode(block, 'NUM',
@@ -102,7 +113,9 @@ Blockly.OpenSCAD['math_single'] = function(block) {
       break;
   }
   if (code) {
-    return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+    if (block.getParent())
+      return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+    else return ['//' + code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];  
   }
   // Second, handle cases which generate values that may need parentheses
   // wrapping the code.
@@ -122,7 +135,9 @@ Blockly.OpenSCAD['math_single'] = function(block) {
     default:
       throw 'Unknown math operator: ' + operator;
   }
-  return [code, Blockly.OpenSCAD.ORDER_DIVISION];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_DIVISION];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_DIVISION];
 };
 
 Blockly.OpenSCAD['math_constant_bs'] = function(block) {
@@ -134,7 +149,9 @@ Blockly.OpenSCAD['math_constant_bs'] = function(block) {
     SQRT2: ['sqrt(2)', Blockly.OpenSCAD.ORDER_MEMBER],
     SQRT1_2: ['sqrt(1/2)', Blockly.OpenSCAD.ORDER_MEMBER]
   };
-  return CONSTANTS[block.getFieldValue('CONSTANT')];
+  if (block.getParent())
+    return CONSTANTS[block.getFieldValue('CONSTANT')];
+  else return '//' + CONSTANTS[block.getFieldValue('CONSTANT')];
 };
 
 // This is just for backwards compatibility!
@@ -147,7 +164,9 @@ Blockly.OpenSCAD['math_constant'] = function(block) {
     SQRT2: ['sqrt(2)', Blockly.OpenSCAD.ORDER_MEMBER],
     SQRT1_2: ['sqrt(1/2)', Blockly.OpenSCAD.ORDER_MEMBER]
   };
-  return CONSTANTS[block.getFieldValue('CONSTANT')];
+  if (block.getParent())
+    return CONSTANTS[block.getFieldValue('CONSTANT')];
+  else return '//' + CONSTANTS[block.getFieldValue('CONSTANT')];
 };
 
 Blockly.OpenSCAD['math_number_property'] = function(block) {
@@ -206,7 +225,9 @@ Blockly.OpenSCAD['math_number_property'] = function(block) {
       code = number_to_check + ' % ' + divisor + ' == 0';
       break;
   }
-  return [code, Blockly.OpenSCAD.ORDER_EQUALITY];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_EQUALITY];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_EQUALITY];
 };
 
 Blockly.OpenSCAD['math_change'] = function(block) {
@@ -353,7 +374,9 @@ Blockly.OpenSCAD['math_on_list'] = function(block) {
     default:
       throw 'Unknown operator: ' + func;
   }
-  return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
 };
 
 Blockly.OpenSCAD['math_modulo'] = function(block) {
@@ -363,7 +386,9 @@ Blockly.OpenSCAD['math_modulo'] = function(block) {
   var argument1 = Blockly.OpenSCAD.valueToCode(block, 'DIVISOR',
       Blockly.OpenSCAD.ORDER_MODULUS) || '0';
   var code = argument0 + ' % ' + argument1;
-  return [code, Blockly.OpenSCAD.ORDER_MODULUS];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_MODULUS];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_MODULUS];
 };
 
 Blockly.OpenSCAD['math_constrain'] = function(block) {
@@ -377,7 +402,9 @@ Blockly.OpenSCAD['math_constrain'] = function(block) {
       Blockly.OpenSCAD.ORDER_COMMA) || 'Infinity';
   var code = 'min(max(' + argument0 + ', ' + argument1 + '), ' +
       argument2 + ')';
-  return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
 };
 
 Blockly.OpenSCAD['math_random_int'] = function(block) {
@@ -401,13 +428,17 @@ Blockly.OpenSCAD['math_random_int'] = function(block) {
   var code = functionName + '(' + argument0 + ', ' + argument1 + ')';
 */
   var code = 'round(rands(' + argument0 + ',' + argument1 + ',1)[0])';
-  return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
 };
 
 Blockly.OpenSCAD['math_random_float'] = function(block) {
   // Random fraction between 0 and 1.
   var code = 'rands(0,1,1)[0]';
-  return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_FUNCTION_CALL];
 };
 
 

@@ -485,7 +485,8 @@ Blockly.OpenSCAD['stl_import'] = function(block) {
 };
 
 Blockly.OpenSCAD['bs_text'] = function(block) {
-  var this_text = block.getFieldValue('TEXT');
+  // var this_text = block.getFieldValue('TEXT');
+  var this_text = Blockly.OpenSCAD.valueToCode(block,'TEXT', Blockly.OpenSCAD.ORDER_ATOMIC);
   var this_font = Blockscad.fontName[parseInt(block.getFieldValue('FONT'))];
   var value_size = Blockly.OpenSCAD.valueToCode(block,'SIZE', Blockly.OpenSCAD.ORDER_ATOMIC);
 
@@ -502,6 +503,14 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
   var code = 'text("' + this_text + '", font = "' + this_font +
              '", size = ' + value_size + ');\n';
   return code;
+}
+
+Blockly.OpenSCAD['text'] = function(block) {
+  var code = block.getFieldValue('TEXT');
+  if (!block.getParent())
+    return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else
+    return [code,Blockly.OpenSCAD.ORDER_ATOMIC];
 }
 // hexTo(RGB) take a blockly color string '#00ff88' for example, including the quotes
 // and returns RGB values.  

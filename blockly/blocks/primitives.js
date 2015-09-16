@@ -35,10 +35,10 @@ Blockly.Blocks['cylinder'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Cone  ');
+        .appendField('Cone/Cylinder  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
-        .appendField('radius')
+        .appendField('radius1')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('RAD2')
         .setCheck('Number')
@@ -65,7 +65,7 @@ Blockly.Blocks['simple_cylinder'] = {
         .appendField('Cylinder  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
-        .appendField('radius1')
+        .appendField('radius')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('HEIGHT')
         .setCheck('Number')
@@ -1376,27 +1376,27 @@ Blockly.Blocks['bs_text'] = {
         CONSTANTS.push([Blockscad.fontName[i],i.toString()]);
     }
     this.category = 'PRIMITIVE_CAG'
-    this.appendDummyInput()
-        .appendField("Text");
-    this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
-    this.appendDummyInput()
-        // .appendField(this.newQuote_(true))
-        .appendField(new Blockly.FieldTextInput('hello'), 'TEXT');
-        // .appendField(this.newQuote_(false));
     // this.appendDummyInput()
-    //     .appendField("Size")
-    //     .appendField(new Blockly.FieldTextInput('10',
-    //       Blockly.FieldTextInput.numberValidator), 'SIZE'); 
+    //     .appendField("Text  ");
+    this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
+    this.appendValueInput('TEXT')
+        .appendField("Text  ")
+        .setCheck('String')
+        .setAlign(Blockly.ALIGN_RIGHT);
+        // .appendField(this.newQuote_(true))
+        // .appendField(new Blockly.FieldTextInput('hello'), 'TEXT');
+        // .appendField(this.newQuote_(false));
+
     this.appendValueInput("SIZE")
         .setCheck("Number")
-        .appendField("Size")
+        .appendField(" Size")
         .setAlign(Blockly.ALIGN_RIGHT);
     // this.appendValueInput('SIZE')
     //     .setCheck('Number')
     //     .appendField('Size')
     //     .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField("Font:")
+        .appendField(" Font")
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
