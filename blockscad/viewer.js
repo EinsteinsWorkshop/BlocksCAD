@@ -150,7 +150,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
       _this.touch.lastX = 0;
       _this.touch.lastY = 0;
       _this.touch.scale = 0;
-    });
+    });*/
 
   gl.onmousemove = function(e) {
     _this.onMouseMove(e);
@@ -314,11 +314,11 @@ Blockscad.Viewer.prototype = {
          b = e.which;
       }
       e.preventDefault();
-      if(e.altKey||b==3) {                     // ROTATE X,Y (ALT or right mouse button)
+      if(e.altKey) {                     // ROTATE X,Y (ALT or right mouse button)
         this.angleY += e.deltaX;
         this.angleX += e.deltaY;
         //this.angleX = Math.max(-180, Math.min(180, this.angleX));
-      } else if(e.shiftKey||b==2) {            // PAN  (SHIFT or middle mouse button)
+      } else if(e.shiftKey||b==2||b==3) {            // PAN  (SHIFT or middle mouse button)
         var factor = 5e-3;
         this.viewpointX += factor * e.deltaX * this.viewpointZ;
         this.viewpointY -= factor * e.deltaY * this.viewpointZ;
