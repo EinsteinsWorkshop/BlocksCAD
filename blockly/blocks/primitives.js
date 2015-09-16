@@ -35,7 +35,7 @@ Blockly.Blocks['cylinder'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Cylinder  ');
+        .appendField('Cone/Cylinder  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
         .appendField('radius1')
@@ -62,7 +62,7 @@ Blockly.Blocks['simple_cylinder'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Simple Cylinder  ');
+        .appendField('Cylinder  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
         .appendField('radius')

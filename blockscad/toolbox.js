@@ -105,6 +105,7 @@ Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      // '<sep></sep>' + 
       '<block type="simple_cylinder">' +
         '<value name="RAD1">' +
           '<block type="math_number">' +
