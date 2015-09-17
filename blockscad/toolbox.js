@@ -546,6 +546,9 @@ Blockscad.Toolbox.catOther = '<category name="Text">' +
     '<category name="Variables" custom="VARIABLE"></category>' +
     '<category name="Modules" custom="PROCEDURE"></category>' +
   '</xml>'; 
+
+Blockscad.Toolbox.catOther_sim = '</xml>';
+
 Blockscad.Toolbox.adv =  '<xml id="toolbox" style="display: none">';
 Blockscad.Toolbox.adv += Blockscad.Toolbox.cat_3D;
 Blockscad.Toolbox.adv += Blockscad.Toolbox.cat2D;
@@ -562,4 +565,4 @@ Blockscad.Toolbox.sim += Blockscad.Toolbox.catTransform_sim;
 Blockscad.Toolbox.sim += Blockscad.Toolbox.catSetOps_sim;
 Blockscad.Toolbox.sim += Blockscad.Toolbox.catMathLogic_sim;
 //Blockscad.Toolbox.sim += Blockscad.Toolbox.catLoops_sim;
-//Blockscad.Toolbox.sim += Blockscad.Toolbox.catOther_sim;
+Blockscad.Toolbox.sim += Blockscad.Toolbox.catOther_sim;
