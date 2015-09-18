@@ -39,7 +39,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     this.myType_ = ['CSG','CAG'];       // for blocksCAD
     this.backlightBlocks = [];            // for blocksCAD
     this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFNORETURN_HELPURL);
-    this.setColourHex(Blockly.HEX_PROCEDURE);
+    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
     var name = Blockly.Procedures.findLegalName(
         Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE, this);
     var nameField = new Blockly.FieldTextInput(name,
@@ -466,7 +466,7 @@ Blockly.Blocks['procedures_defreturn'] = {
     this.category = 'PROCEDURE'; // for blockscad
     this.myType_ = null;       // for blocksCAD
 
-    this.setColourHex(Blockly.HEX_PROCEDURE);
+    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
     var name = Blockly.Procedures.findLegalName(
         Blockly.Msg.PROCEDURES_DEFRETURN_PROCEDURE, this);
     var nameField = new Blockly.FieldTextInput(name,
@@ -580,7 +580,7 @@ Blockly.Blocks['procedures_mutatorcontainer'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockly.HEX_PROCEDURE);
+    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput()
         .appendField(Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE);
     this.appendStatementInput('STACK');
@@ -598,7 +598,7 @@ Blockly.Blocks['procedures_mutatorarg'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockly.HEX_PROCEDURE);
+    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput()
         .appendField(Blockly.Msg.PROCEDURES_MUTATORARG_TITLE)
         .appendField(new Blockly.FieldTextInput('x', this.validator_), 'NAME');
@@ -630,7 +630,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
   init: function() {
     this.category = 'UNKNOWN';     // for blocksCAD
     this.setHelpUrl(Blockly.Msg.PROCEDURES_CALLNORETURN_HELPURL);
-    this.setColourHex(Blockly.HEX_PROCEDURE);
+    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput('TOPROW')
         .appendField(Blockly.Msg.PROCEDURES_CALLNORETURN_CALL)
         .appendField('', 'NAME');
@@ -902,7 +902,7 @@ Blockly.Blocks['procedures_callreturn'] = {
   init: function() {
     this.category = 'UNKNOWN';  // for blockscad - jayod
     this.setHelpUrl(Blockly.Msg.PROCEDURES_CALLRETURN_HELPURL);
-    this.setColourHex(Blockly.HEX_PROCEDURE);
+    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput('TOPROW')
         .appendField(Blockly.Msg.PROCEDURES_CALLRETURN_CALL)
         .appendField('', 'NAME');

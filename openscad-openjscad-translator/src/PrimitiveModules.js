@@ -137,6 +137,110 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         return _.template('CAG.rectangle({center: [<%=centerPoint%>], radius: [<%=radius%>]})', {centerPoint:centerPoint, radius:radius});
     };
 
+    function Font(a) {
+        PrimitiveModule.call(this,a);
+    }
+
+    Font.prototype.evaluate = function(parentContext, inst){
+        // requires opentype.js!
+        var context = Context.newContext(parentContext, ["str","size","font"],[], inst);
+        var str = Context.contextVariableLookup(context,"str","");
+        var size = Context.contextVariableLookup(context,"size","20");
+        var font = Context.contextVariableLookup(context,"font","");
+
+        var dummy_size = Math.ceil(size / 10);
+
+        var resolution = Context.get_fragments_from_r(dummy_size, context);
+
+        if (Blockscad.fonts[font]) {
+            // Use your font here.
+            var path = Blockscad.fonts[font].getPath(str,0,0,size);
+            var stuff = Blockscad.pathToPoints(path,resolution);
+            var points = stuff[0];
+            var paths = stuff[1];
+            var result = fontPolygon(points,paths);
+            return result;
+        }
+        else console.log("in parser.  font not loaded:",font);
+        return '';
+    }
+    function fontPolygon(points,paths){
+        var pointsMap = [];
+        function formatPoints (points){
+            return _.map(points, function(x){return _.template("[<%=x%>]", {x:x})});
+        }
+        if (!points.length) {
+            // fail silently. No paths (either no characters or missing chars in the font)
+            return '';
+        }
+        if (_.isEmpty(paths)){
+            return _.template('CAG.fromPoints([<%=points%>])', {points:formatPoints(points)});
+        }
+
+        // I will go through each path and determine the winding (clockwise or anti), 
+        // sorting them to "solids" and "holes" arrays. All "solids" will be unioned, 
+        // then all holes subtracted.
+
+        if (paths.length > 1){
+            var lines = "";
+            var holes = [];
+            var solids = [];
+            // use winding direction (right hand rule) to determine solids vs. holes.
+            for (var i=0; i<paths.length; i++) {
+                var totarea = 0;
+                for (var j=0; j < paths[i].length; j++) {
+                    var last = paths[i].length - 1;
+                    if (j==0) {
+                        totarea += (points[paths[i][j]][0] - points[paths[i][last]][0]) 
+                        * (points[paths[i][j]][1] + points[paths[i][last]][1]);
+                    }
+                    else {
+                        totarea += (points[paths[i][j]][0] - points[paths[i][j-1]][0]) 
+                        * (points[paths[i][j]][1] + points[paths[i][j-1]][1]);
+                    }
+                }
+                if (totarea < 0)
+                    holes.push(paths[i]);
+                else solids.push(paths[i]);
+            }
+            // now union all the solids
+            _.each(_.first(solids), function(x) {
+                pointsMap.push(points[x]);
+            });
+            lines += _.template('(new CSG.Path2D([<%=points%>],true)).innerToCAG()', {points:formatPoints(pointsMap)});
+            
+            var others = [];
+
+            _.each(_.rest(solids), function(shape) {
+                pointsMap = [];
+                _.each(shape, function(x) {
+                    pointsMap.push(points[x]);
+                });
+                lines += _.template('.union([(new CSG.Path2D([<%=points%>],true)).innerToCAG()])', {points:formatPoints(pointsMap)});   
+            });
+            // now cut out all the holes.
+            var kill = [];
+            if (holes.length) {
+                lines += '.subtract([';
+
+                _.each(holes, function(shape) {
+                    pointsMap = [];
+                    _.each(shape, function(x) {
+                        pointsMap.push(points[x]);
+                    });
+                    kill.push(_.template('(new CSG.Path2D([<%=points%>],true)).innerToCAG()', {points:formatPoints(pointsMap)}));   
+                });
+                lines += kill.join(',') + "])";
+            }
+             return lines;
+        } else {
+            _.each(paths[0], function(x) {
+                pointsMap.push(points[x]);
+            });
+            return _.template('(new CSG.Path2D([<%=points%>],true)).innerToCAG()', {points:formatPoints(pointsMap)});
+      }   
+    }
+
     function Polygon(a){
         PrimitiveModule.call(this, a);
     };
@@ -147,6 +251,7 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         var points = Context.contextVariableLookup(context, "points", []);
         var paths = Context.contextVariableLookup(context, "paths", []);
         var pointsMap = [];
+        console.log("in Polygon eval code");
 
         function formatPoints (points){
             return _.map(points, function(x){return _.template("[<%=x%>]", {x:x})});
@@ -191,22 +296,28 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
     };
 
     Polyhedron.prototype.evaluate = function(parentContext, inst){
-        var context = Context.newContext(parentContext, ["points", "triangles", "convexity"], [], inst);
+        var context = Context.newContext(parentContext, ["points", "faces", "convexity"], [], inst);
+
+        // JY - triangles has been deprecated for "faces", which can have more than three vertices if they are in the same plane.
+        // this code assumes each face is a triangle. This should be true for all STL files, but wouldn't be true for some imported
+        // .scad files, if we ever tried to do that.
 
         var points = Context.contextVariableLookup(context, "points", []);
-        var triangles = Context.contextVariableLookup(context, "triangles", []);
+        var faces = Context.contextVariableLookup(context, "faces", []);
         
         var polygons=[];
 
-        _.each(triangles, function(triangle) {
+        _.each(faces, function(face) {
             polygons.push(
                 _.template("new CSG.Polygon([new CSG.Vertex(new CSG.Vector3D([<%=vec1%>])),new CSG.Vertex(new CSG.Vector3D([<%=vec2%>])),new CSG.Vertex(new CSG.Vector3D([<%=vec3%>]))])", 
-                    {vec1:points[triangle[2]],
-                    vec2:points[triangle[1]],
-                    vec3:points[triangle[0]]}));
+                    {vec1:points[face[2]],
+                    vec2:points[face[1]],
+                    vec3:points[face[0]]}));
         });
 
-        return _.template("CSG.fromPolygons([<%=polygons%>])", {polygons:polygons});   
+        var blah = _.template("CSG.fromPolygons([<%=polygons%>])", {polygons:polygons});  
+        //console.log('from Polyhedron: ',blah); 
+        return blah;   
     };
 
 
@@ -218,7 +329,8 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
     	Circle: Circle,
     	Square: Square,
     	Polygon: Polygon,
-    	Polyhedron: Polyhedron
+    	Polyhedron: Polyhedron,
+        Font: Font
     }
 
 });

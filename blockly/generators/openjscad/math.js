@@ -26,11 +26,14 @@ Blockly.OpenJSCAD['math_arithmetic'] = function(block) {
   var argument1 = Blockly.OpenJSCAD.valueToCode(block, 'B', order) || '0';
   var code;
   //Power in OpenJSCAD uses a special case since it has no operator.
+  console.log("operator is: ", operator);
   if (!operator) {
+    console.log("got this far. args: ", argument0, argument1);
     code = 'pow(' + argument0 + ', ' + argument1 + ')';
     return [code, Blockly.OpenJSCAD.ORDER_FUNCTION_CALL];
   }
   code = argument0 + operator + argument1;
+  console.log('code is:', code);
   return [code, order];
 };
 

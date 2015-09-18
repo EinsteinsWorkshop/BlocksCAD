@@ -244,7 +244,7 @@ Blockly.Trashcan.prototype.position = function() {
  * @return {goog.math.Rect} Rectangle in which to delete.
  */
 Blockly.Trashcan.prototype.getRect = function() {
-  var trashXY = Blockly.getSvgXY_(this.svgGroup_);
+  var trashXY = Blockly.getSvgXY_(this.svgGroup_, this.workspace_);
   return new goog.math.Rect(
       trashXY.x - this.MARGIN_HOTSPOT_,
       trashXY.y - this.MARGIN_HOTSPOT_,
@@ -275,8 +275,8 @@ Blockly.Trashcan.prototype.animateLid_ = function() {
   this.lidOpen_ = goog.math.clamp(this.lidOpen_, 0, 1);
   var lidAngle = this.lidOpen_ * 45;
   this.svgLid_.setAttribute('transform', 'rotate(' +
-      (this.workspace_.RTL ? -lidAngle : lidAngle) + ', ' +
-      (this.workspace_.RTL ? 4 : this.WIDTH_ - 4) + ', ' +
+      (this.workspace_.RTL ? -lidAngle : lidAngle) + ',' +
+      (this.workspace_.RTL ? 4 : this.WIDTH_ - 4) + ',' +
       (this.LID_HEIGHT_ - 2) + ')');
   var opacity = goog.math.lerp(0.4, 0.8, this.lidOpen_);
   this.svgGroup_.style.opacity = opacity;

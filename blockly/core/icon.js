@@ -157,6 +157,10 @@ Blockly.Icon.prototype.isVisible = function() {
  * @private
  */
 Blockly.Icon.prototype.iconClick_ = function(e) {
+  if (Blockly.dragMode_ == 2) {
+    // Drag operation is concluding.  Don't open the editor.
+    return;
+  }
   if (!this.block_.isInFlyout && !Blockly.isRightButton(e)) {
     this.setVisible(!this.isVisible());
   }
@@ -192,7 +196,7 @@ Blockly.Icon.prototype.renderIcon = function(cursorX) {
     cursorX -= width;
   }
   this.iconGroup_.setAttribute('transform',
-      'translate(' + cursorX + ', ' + TOP_MARGIN + ')');
+      'translate(' + cursorX + ',' + TOP_MARGIN + ')');
   this.computeIconLocation();
   if (this.block_.RTL) {
     cursorX -= Blockly.BlockSvg.SEP_SPACE_X;

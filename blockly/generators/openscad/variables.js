@@ -33,7 +33,10 @@ Blockly.OpenSCAD['variables_get'] = function(block) {
   // Variable getter.
   var code = Blockly.OpenSCAD.variableDB_.getName(block.getFieldValue('VAR'),
       Blockly.Variables.NAME_TYPE);
-  return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  var commented_code = '//' + code;
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else return [commented_code, Blockly.OpenSCAD.ORDER_ATOMIC];
 };
 
 Blockly.OpenSCAD['variables_set'] = function(block) {

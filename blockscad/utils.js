@@ -122,8 +122,9 @@ BSUtils.init = function() {
 
   // Sort languages alphabetically.
   var languages = [];
+  var lang;
   for (var i = 0; i < BSUtils.LANGUAGES.length; i++) {
-    var lang = BSUtils.LANGUAGES[i];
+    lang = BSUtils.LANGUAGES[i];
     languages.push([BSUtils.LANGUAGE_NAME[lang], lang]);
   }
   var comp = function(a, b) {
@@ -138,7 +139,7 @@ BSUtils.init = function() {
   languageMenu.options.length = 0;
   for (var i = 0; i < languages.length; i++) {
     var tuple = languages[i];
-    var lang = tuple[tuple.length - 1];
+    lang = tuple[tuple.length - 1];
     var option = new Option(tuple[0], lang);
     if (lang == BSUtils.LANG) {
       option.selected = true;

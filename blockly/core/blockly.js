@@ -75,23 +75,6 @@ Blockly.HSV_SATURATION = 0.85;
  */
 Blockly.HSV_VALUE = 0.65;
 
-// shall I set some hues?
-Blockly.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
-                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_ADVANCED',
-                'HEX_VARIABLE','HEX_PROCEDURE'];
-
-//Blockly.catHues = [0,36,72,108,144,180,216,252,288,324];
-// Blockly.catHex = ["#005CB8","#47B5FF","#509B50","#53CF29","#C3782D","#A089D1","#E6813E","#FFB445","#D147FF","#5C00B8"]; // HIDEOUS!!!
-Blockly.catHex = ['#006205','#209303','#26549E','#7450E2','#0186E2','#BF6920','#612485','#727272','#8C7149','#900355']; // Better - JY one.
-
-
-// for (var i = 0; i < Blockly.allcats.length; i++) {
-//   Blockly[Blockly.allcats[i]] = Blockly.catHues[i];
-// }
-
-for (var i = 0; i < Blockly.allcats.length; i++) {
-  Blockly[Blockly.allcats[i]] = Blockly.catHex[i];
-}
 
 
 
@@ -99,8 +82,8 @@ for (var i = 0; i < Blockly.allcats.length; i++) {
  * Sprited icons and images.
  */
 Blockly.SPRITE = {
-  width: 64,
-  height: 92,
+  width: 96,
+  height: 124,
   url: 'sprites.png'
 };
 
@@ -349,10 +332,9 @@ Blockly.onMouseMove_ = function(e) {
 
     // Move the scrollbars and the page will scroll automatically.
     workspace.scrollbar.set(-x - metrics.contentLeft,
-                                        -y - metrics.contentTop);
+                            -y - metrics.contentTop);
     // Cancel the long-press if the drag has moved too far.
-    var dr = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    if (dr > Blockly.DRAG_RADIUS) {
+    if (Math.sqrt(dx * dx + dy * dy) > Blockly.DRAG_RADIUS) {
       Blockly.longStop_();
     }
     e.stopPropagation();
@@ -528,23 +510,22 @@ Blockly.getMainWorkspaceMetrics_ = function() {
     // Firefox has trouble with hidden elements (Bug 528969).
     return null;
   }
+  // Fix scale.
+  var contentWidth = blockBox.width * this.scale;
+  var contentHeight = blockBox.height * this.scale;
+  var contentX = blockBox.x * this.scale;
+  var contentY = blockBox.y * this.scale;
   if (this.scrollbar) {
     // Add a border around the content that is at least half a screenful wide.
     // Ensure border is wide enough that blocks can scroll over entire screen.
-    var MARGIN = 5;
-    var leftScroll = this.RTL ?
-        Blockly.Scrollbar.scrollbarThickness : 0;
-    var rightScroll = this.RTL ?
-        0 : Blockly.Scrollbar.scrollbarThickness;
-    var leftEdge = Math.min(blockBox.x - viewWidth / 2,
-        blockBox.x + blockBox.width - viewWidth - leftScroll + MARGIN);
-    var rightEdge = Math.max(blockBox.x + blockBox.width + viewWidth / 2,
-        blockBox.x + viewWidth + rightScroll - MARGIN);
-    var topEdge = Math.min(blockBox.y - viewHeight / 2,
-        blockBox.y + blockBox.height - viewHeight + MARGIN);
-    var bottomEdge = Math.max(blockBox.y + blockBox.height + viewHeight / 2,
-        blockBox.y + viewHeight + Blockly.Scrollbar.scrollbarThickness -
-        MARGIN);
+    var leftEdge = Math.min(contentX - viewWidth / 2,
+                            contentX + contentWidth - viewWidth);
+    var rightEdge = Math.max(contentX + contentWidth + viewWidth / 2,
+                             contentX + viewWidth);
+    var topEdge = Math.min(contentY - viewHeight / 2,
+                           contentY + contentHeight - viewHeight);
+    var bottomEdge = Math.max(contentY + contentHeight + viewHeight / 2,
+                              contentY + viewHeight);
   } else {
     var leftEdge = blockBox.x;
     var rightEdge = leftEdge + blockBox.width;

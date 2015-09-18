@@ -4,12 +4,17 @@ goog.provide('Blockly.OpenSCAD.primitives');
 
 goog.require('Blockly.OpenSCAD');
 
+
 Blockly.OpenSCAD['sphere'] = function(block) {
   var value_rad = Blockly.OpenSCAD.valueToCode(block, 'RAD', Blockly.OpenSCAD.ORDER_ATOMIC);
 
     // missing fields?
   if (!value_rad)
     Blockscad.missingFields.push(block.id);
+  // illegal field value?
+  if (value_rad && value_rad <= 0) {
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  }
 
   var code = 'sphere(' + 'r=' + value_rad + ');';
   return code;
@@ -23,7 +28,36 @@ Blockly.OpenSCAD['cylinder'] = function(block) {
     // missing fields?
   if (!value_rad1 || !value_rad2 || !value_height)
     Blockscad.missingFields.push(block.id);
+    // illegal field value?
+    // console.log(block);
+  if (value_rad1 && value_rad1 <= 0) {
+    if (value_rad2 && value_rad2 <= 0) {
+      Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+      Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+    }
+  }
+  if (value_height && value_height <= 0) 
+    Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
+
   var code = 'cylinder(' + 'r1=' + value_rad1 + ', r2=' + value_rad2 + ', h=' + value_height +', center=' + dropdown_center + ');';
+  return code;
+};
+
+Blockly.OpenSCAD['simple_cylinder'] = function(block) {
+  var value_rad1 = Blockly.OpenSCAD.valueToCode(block, 'RAD1', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value_height = Blockly.OpenSCAD.valueToCode(block, 'HEIGHT', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var dropdown_center = block.getFieldValue('CENTERDROPDOWN');
+    // missing fields?
+  if (!value_rad1 || !value_height)
+    Blockscad.missingFields.push(block.id);
+    // illegal field value?
+    // console.log(block);
+  if (value_rad1 && value_rad1 <= 0) 
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  if (value_height && value_height <= 0) 
+    Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
+
+  var code = 'cylinder(' + 'r=' + value_rad1 + ', h=' + value_height +', center=' + dropdown_center + ');';
   return code;
 };
 
@@ -35,6 +69,15 @@ Blockly.OpenSCAD['cube'] = function(block) {
    // missing fields?
   if (!value_xval || !value_yval || !value_zval)
     Blockscad.missingFields.push(block.id); 
+    // illegal field value?
+     // console.log(block);
+  if (value_xval && value_xval <= 0) 
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  if (value_yval && value_yval <= 0) 
+    Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+  if (value_zval && value_zval <= 0) 
+    Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
+
   var code = 'cube([' + value_xval + ', ' + value_yval + ', ' + value_zval + '], center=' + dropdown_center + ');';
   return code;
 };
@@ -48,7 +91,12 @@ Blockly.OpenSCAD['torus'] = function(block) {
   // missing fields?
   if (!value_rad1 || !value_rad2 || !value_sides || !value_faces)
     Blockscad.missingFields.push(block.id);
-
+    // illegal field value?
+     // console.log(block);
+  if (value_rad1 && value_rad1 <= 0) 
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  if (value_rad2 && value_rad2 <= 0) 
+    Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
   // minimum number of sides and faces that makes sense is 3 (triangle!)
   if (value_sides<3) value_sides = 3;
   if (value_faces<3) value_faces = 3;
@@ -70,6 +118,12 @@ Blockly.OpenSCAD['twistytorus'] = function(block) {
   // missing twist is okay - it will just have 0 twist.
   if (!value_rad1 || !value_rad2 || !value_sides || !value_faces)
     Blockscad.missingFields.push(block.id);
+      // illegal field value?
+     // console.log(block);
+  if (value_rad1 && value_rad1 <= 0) 
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  if (value_rad2 && value_rad2 <= 0) 
+    Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
 
   // minimum number of sides and faces that makes sense is 3 (triangle!)
   if (value_sides<3) value_sides = 3;
@@ -168,10 +222,10 @@ Blockly.OpenSCAD['$fn'] = function(block) {
     var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
     if (statements_b != '') statements_a += statements_b + '\n';
   }  
-  var value_sides = Blockly.OpenSCAD.valueToCode(block, 'SIDES',Blockly.OpenSCAD.ORDER_ATOMIC);
-  // missing fields?
-    if (!value_sides)
-      Blockscad.missingFields.push(block.id); 
+
+  var value_sides = Math.floor(Blockly.OpenSCAD.valueToCode(block, 'SIDES',Blockly.OpenSCAD.ORDER_ATOMIC));
+  if (value_sides < 3) value_sides = 3;
+
 
   var code = 'assign($fn=' + value_sides + '){\n' + statements_a + '}';
   return code;
@@ -320,6 +374,10 @@ Blockly.OpenSCAD['circle'] = function(block) {
   // missing fields?
   if (!value_rad)
     Blockscad.missingFields.push(block.id);  
+  // illegal field value?
+  if (value_rad && value_rad <= 0) {
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  }
   var code = 'circle(' + 'r=' + value_rad + ');';
   return code;
 };
@@ -331,6 +389,13 @@ Blockly.OpenSCAD['square'] = function(block) {
   // missing fields?
   if (!value_xval || !value_yval)
     Blockscad.missingFields.push(block.id); 
+  // illegal field value?
+  if (value_xval && value_xval <= 0) {
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  }
+  if (value_yval && value_yval <= 0) {
+    Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+  }
   var code = 'square([' + value_xval + ', ' + value_yval + '], center=' + dropdown_center + ');';
   return code;
 };
@@ -359,6 +424,10 @@ Blockly.OpenSCAD['linearextrude'] = function(block) {
   // missing fields?
   if ((!value_height || !value_twist))
     Blockscad.missingFields.push(block.id); 
+  // illegal field value?
+  if (value_height && value_height <= 0) {
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  }
 
   var code = 'linear_extrude( height=' + value_height + ', twist=' + value_twist + ', center=' + dropdown_center + '){\n' + statements_a + '}';
   return code;
@@ -392,14 +461,57 @@ Blockly.OpenSCAD['rotateextrudetwist'] = function(block) {
     if (statements_b != '') statements_a += statements_b + '\n';
   } 
   // missing fields?
-  if (!value_faces)
+  // console.log(block);
+  if (!value_faces || !value_r)
     Blockscad.missingFields.push(block.id); 
-
+  // illegal field value?
+  if (value_r && value_r < 0) {
+       // console.log(block.inputList[1].connection.targetBlock());
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+  }
+  if (value_faces && value_faces < 3) value_faces = 3;
+  
   var code = 'rotate_extrude($fn=' + value_faces + ',radius=' + value_r + ',twist=' + 
              value_twist + ',tsteps=' + value_tsteps + '){\n' + statements_a + '}';
   return code;
 };
 
+Blockly.OpenSCAD['stl_import'] = function(block) {
+  var text_filename = block.getFieldValue('STL_FILENAME');
+  // TODO: Assemble JavaScript into code variable.
+  var code = 'import("' + text_filename + '");\n';
+  //var code = block.getFieldValue('STL_CONTENTS');
+  return code;
+};
+
+Blockly.OpenSCAD['bs_text'] = function(block) {
+  // var this_text = block.getFieldValue('TEXT');
+  var this_text = Blockly.OpenSCAD.valueToCode(block,'TEXT', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var this_font = Blockscad.fontName[parseInt(block.getFieldValue('FONT'))];
+  var value_size = Blockly.OpenSCAD.valueToCode(block,'SIZE', Blockly.OpenSCAD.ORDER_ATOMIC);
+
+  // escape any quote characters in this_text before passing it to the openscad parser
+  this_text = this_text.replace(/\"/g,"\\\"");
+  this_text = this_text.replace(/\\/g,"\\\\");
+  // missing fields?
+  if (!value_size)
+    Blockscad.missingFields.push(block.id); 
+  // illegal field value?
+  if (value_size && value_size <= 0) {
+    Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+  }
+  var code = 'text("' + this_text + '", font = "' + this_font +
+             '", size = ' + value_size + ');\n';
+  return code;
+}
+
+Blockly.OpenSCAD['text'] = function(block) {
+  var code = block.getFieldValue('TEXT');
+  if (!block.getParent())
+    return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else
+    return [code,Blockly.OpenSCAD.ORDER_ATOMIC];
+}
 // hexTo(RGB) take a blockly color string '#00ff88' for example, including the quotes
 // and returns RGB values.  
 
