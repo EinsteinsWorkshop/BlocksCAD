@@ -75,23 +75,6 @@ Blockly.HSV_SATURATION = 0.85;
  */
 Blockly.HSV_VALUE = 0.65;
 
-// shall I set some hues?
-Blockly.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
-                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_ADVANCED',
-                'HEX_VARIABLE','HEX_PROCEDURE'];
-
-//Blockly.catHues = [0,36,72,108,144,180,216,252,288,324];
-// Blockly.catHex = ["#005CB8","#47B5FF","#509B50","#53CF29","#C3782D","#A089D1","#E6813E","#FFB445","#D147FF","#5C00B8"]; // HIDEOUS!!!
-Blockly.catHex = ['#006205','#209303','#26549E','#7450E2','#0186E2','#BF6920','#612485','#727272','#8C7149','#900355']; // Better - JY one.
-
-
-// for (var i = 0; i < Blockly.allcats.length; i++) {
-//   Blockly[Blockly.allcats[i]] = Blockly.catHues[i];
-// }
-
-for (var i = 0; i < Blockly.allcats.length; i++) {
-  Blockly[Blockly.allcats[i]] = Blockly.catHex[i];
-}
 
 
 

@@ -451,9 +451,9 @@ Blockscad.Viewer.prototype = {
       //console.log("plate is:",plate);
       var plate = 200;
       if(this.plate) {
-         gl.color(.8,.8,.8,.5); // -- minor grid
+         gl.color(0.8,0.8,0.8,0.5); // -- minor grid
          for(var x=-plate/2; x<=plate/2; x++) {
-            if(x%10 && x!=0) {
+            if(x%10 && x!==0) {
                gl.vertex(-plate/2, x, 0);
                gl.vertex(plate/2, x, 0);
                gl.vertex(x, -plate/2, 0);
@@ -468,9 +468,9 @@ Blockscad.Viewer.prototype = {
                }
             }
          }
-         gl.color(.5,.5,.5,.5); // -- major grid
+         gl.color(0.5,0.5,0.5,0.5); // -- major grid
          for(var x=10; x<=plate/2; x+=10) {
-            if(x!=0) {
+            if(x!==0) {
               gl.vertex(-plate/2, x, 0);
               gl.vertex(plate/2, x, 0);
               gl.vertex(x, -plate/2, 0);
@@ -592,7 +592,7 @@ Blockscad.Viewer.csgToMeshes = function(initial_csg) {
   var numpolygons = polygons.length;
   for(var j = 0; j < numpolygons; j++) {
     var polygon = polygons[j];
-    var color = [1,.5,1,1];      // -- default color
+    var color = [1,0.5,1,1];      // -- default color
 
     if(polygon.shared && polygon.shared.color) {
       color = polygon.shared.color;
@@ -602,7 +602,7 @@ Blockscad.Viewer.csgToMeshes = function(initial_csg) {
     }
 
 	if (color.length < 4)
-		color.push(1.); //opaque
+		color.push(1.0); //opaque
 
     var indices = polygon.vertices.map(function(vertex) {
       var vertextag = vertex.getTag();
@@ -648,6 +648,7 @@ Blockscad.Viewer.csgToMeshes = function(initial_csg) {
 // this is a bit of a hack; doesn't properly supports urls that start with '/'
 // but does handle relative urls containing ../
 Blockscad.makeAbsoluteUrl = function(url, baseurl) {
+  // console.log("in makeAbsoluteUrl: ",url + "    " + baseurl);
   if(!url.match(/^[a-z]+\:/i)) {
     var basecomps = baseurl.split("/");
     if(basecomps.length > 0) {
@@ -759,24 +760,20 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 };
 
 // callback: should be function(error, csg)
-Blockscad.parseBlockscadScriptASync = function(script, options, callback) {
+Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
     //"blockscad/viewer_compressed.js"
       "blockscad/csg.js",
       "blockscad/viewer.js"
   ];
 
+  // console.log("in parseBlockscadScriptASync");
   var baseurl = document.location.href.replace(/\?.*$/, '');
   baseurl = baseurl.replace(/#.*$/,'');        // remove remote URL 
   var blockscadurl = baseurl;
-  if (options['BlockscadPath'] != null) {
-    blockscadurl = Blockscad.makeAbsoluteUrl( options['BlockscadPath'], baseurl );
-  }
-        
+
   var libraries = [];
-  if (options['libraries'] != null) {
-    libraries = options['libraries'];
-  }
+
   for(var i in gMemFs) {            // let's test all files and check syntax before we do anything
     var src = gMemFs[i].source+"\nfunction include() { }\n";
     var f;
@@ -784,6 +781,7 @@ Blockscad.parseBlockscadScriptASync = function(script, options, callback) {
        f = new Function(src);
     } catch(e) {
       this.setError(i+": "+e.message);
+      console.log(e.message);
     }
   }
   var workerscript = "//ASYNC\n";
@@ -810,6 +808,7 @@ Blockscad.parseBlockscadScriptASync = function(script, options, callback) {
   }
   workerscript += "\n\n\n\n//// The following code was added by OpenJsCad + OpenJSCAD.org:\n";
 
+
   workerscript += "var _csg_baselibraries=" + JSON.stringify(baselibraries)+";\n";
   workerscript += "var _csg_libraries=" + JSON.stringify(libraries)+";\n";
   workerscript += "var _csg_blockscadurl=" + JSON.stringify(blockscadurl)+";\n";
@@ -822,6 +821,7 @@ Blockscad.parseBlockscadScriptASync = function(script, options, callback) {
   workerscript += "self.addEventListener('message', function(e) {if(e.data && e.data.cmd == 'render'){";
   workerscript += "  Blockscad.runMainInWorker();";
   workerscript += "}},false);\n";
+
 
 // trying to get include() somewhere: 
 // 1) XHR fails: not allowed in blobs
@@ -859,8 +859,8 @@ Blockscad.parseBlockscadScriptASync = function(script, options, callback) {
   }
   //workerscript += "function includePath(p) { _includePath = p; }\n";
   var blobURL = Blockscad.textToBlobUrl(workerscript);
-  //console.log("blobURL",blobURL);
-  // console.log("workerscript",workerscript);
+  // console.log("blobURL",blobURL);
+   // console.log("workerscript",workerscript);
   
   if(!window.Worker) throw new Error("Your browser doesn't support Web Workers. Please try the Chrome or Firefox browser instead.");
   var worker = new Worker(blobURL);
@@ -949,7 +949,6 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.script = null;
   this.hasError = false;
   this.debugging = false;
-  this.options = {};
   this.createElements();
 };
 
@@ -998,7 +997,7 @@ Blockscad.Processor.prototype = {
     viewerdiv.style.top = '0px';
     viewerdiv.style.position = 'absolute';
     viewerdiv.style.zIndex = '1';
-    viewerdiv.style.backgroundColor = "rgb(200,200,200)";
+    viewerdiv.style.backgroundColor = "rgb(255,255,255)";
     this.containerdiv.appendChild(viewerdiv);
     this.viewerdiv = viewerdiv;
     try {
@@ -1076,7 +1075,7 @@ Blockscad.Processor.prototype = {
     this.setCurrentObject(new CSG());
     this.hasValidCurrentObject = false;
     // console.log('trying to hid stl_buttons');
-    $('#stl_buttons').hide()
+    $('#stl_buttons').hide();
     this.enableItems();
   },
   
@@ -1098,17 +1097,7 @@ Blockscad.Processor.prototype = {
     this.ongoingrender.style.display = this.processing? "block":"none";
   },
 
-  setBlockscadPath: function(path) {
-    this.options[ 'BlockscadPath' ] = path;
-  },
-
-  addLibrary: function(lib) {
-    if( this.options[ 'libraries' ] == null ) {
-      this.options[ 'libraries' ] = [];
-    }
-    this.options[ 'libraries' ].push( lib );
-  },
-  
+ 
   setError: function(txt) {
     this.hasError = (txt != "");
     $( "#error-message" ).text(txt);
@@ -1147,13 +1136,14 @@ Blockscad.Processor.prototype = {
       try
       {
 //          console.log("trying async compute");
-          this.worker = Blockscad.parseBlockscadScriptASync(this.script, this.options, function(err, obj) {
+          this.worker = Blockscad.parseBlockscadScriptASync(this.script, function(err, obj) {
           that.processing = false;
           that.worker = null;
           if(err)
           {
-//           console.log("error in proc" + err);
-//           alert(err);
+          console.log("error in proc" + err);
+          // alert(err);
+          // console.log("script was:",this.script;
             that.setError(err);
           }
           else
@@ -1169,6 +1159,7 @@ Blockscad.Processor.prototype = {
       catch(e)
       {
         console.log("async failed, try sync compute, error: "+e.message);
+        // console.log("script was:",this.script);
         useSync = true;
       }
     }

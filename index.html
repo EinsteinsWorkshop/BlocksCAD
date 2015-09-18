@@ -9,10 +9,19 @@
   <title>BlocksCAD</title>
   <!-- compressed javascript files for non-debug stuff -->
 
-      <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
-      <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
+      <!--<script type="text/javascript" src="blockly/blockly_compressed.js"></script>
+      <script type="text/javascript" src="blockly/blocks_compressed.js"></script>-->
 
-<!-- 
+  <!-- Jquery -->
+  <script src="jquery/jquery-1.11.3.js"></script>
+  <script src="jquery/jquery-ui.min.js"></script> 
+  <script src="jquery/jquery.hammer.js"></script>
+  <script src="jquery/jquery.ui.touch-punch.min.js"></script>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
+  <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
+ 
   <script type="text/javascript" src="blockly/blockly_uncompressed.js"></script>
   <script type="text/javascript" src="blockly/blocks/colour.js"></script>
   <script type="text/javascript" src="blockly/blocks/geom_set_ops.js"></script>
@@ -24,15 +33,14 @@
   <script type="text/javascript" src="blockly/blocks/procedures.js"></script>
   <script type="text/javascript" src="blockly/blocks/text.js"></script>
   <script type="text/javascript" src="blockly/blocks/variables.js"></script>
-  -->
+  
 
   <script type="text/javascript" src="blockly/openscad_compressed.js"></script>
   <!-- eventually, the generated stuff should go in a different file.  But for now, lets include this: -->
   <!--<script type="text/javascript" src="generated/en.js"></script>-->
   <!--<script type"text/javascript" src="blockly/generators/openscad/extra.js"></script>-->
 
-  
-<!--
+
   <script type="text/javascript" src="blockscad/utils.js"></script>
   <script type="text/javascript" src="blockscad/storage.js"></script>
   <script type="text/javascript" src="blockscad/FileSaver.js"></script>
@@ -40,19 +48,21 @@
 
   <script type="text/javascript" src="blockscad/blockscad.js"></script>
   <script type="text/javascript" src="blockscad/stl.js"></script>
-  <script type="text/javascript" src="blockscad/auth.js"></script> 
   <script type="text/javascript" src="blockscad/toolbox.js"></script>
   <script type="text/javascript" src="blockscad/text.js"></script>
   <script src="blockscad/lightgl.js"></script>
--->
 
+
+  <!--
+  <script type="text/javascript" src="backend_compressed.js"></script> 
+  -->
   <!-- viewer stuff -->
-  <script type="text/javascript" src="blockscad/viewer_compressed.js"></script>
-<!--  <script type="text/javascript" src="blockscad/csg.js"></script>
+  <!--<script type="text/javascript" src="blockscad/viewer_compressed.js"></script>-->
+  <script type="text/javascript" src="blockscad/csg.js"></script>
   <script type="text/javascript" src="blockscad/formats.js"></script>
   <script type="text/javascript" src="blockscad/viewer.js"></script>
-  -->
-  <script src="blockscad/blockscad_compressed.js"></script>
+  
+  <!--<script src="blockscad/blockscad_compressed.js"></script>-->
   
   <script src="blockscad/underscore.js"></script>
   <script src="blockscad/openscad-openjscad-translator.js"></script>
@@ -61,15 +71,6 @@
   <!-- font manip library -->
   <script src="opentype/dist/opentype.min.js"></script>
 
-  <!-- Jquery -->
-  <script src="jquery/jquery-1.11.3.js"></script>
-  <script src="jquery/jquery-ui.min.js"></script> 
-  <script src="jquery/jquery.hammer.js"></script>
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
-  <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
-  
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -110,9 +111,23 @@
             </ul>
           </li>
           <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Options<span class="caret"></span></a>
+            <ul id="options-menu" class="dropdown-menu" role="menu">
+              <li><a href="#" id="simpleToolbox">Simple Toolbox</a></li>
+              <li><a href="#" id="advancedToolbox">Advanced Toolbox</a></li>
+              <li>
+                <a class="trigger right-caret">Block Color Scheme</a>
+                <ul class="dropdown-menu sub-menu">
+                  <li><a href="#" id="colors_one">Classic</a></li>
+                  <li><a href="#" id="colors_two">Pale</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help<span class="caret"></span></a>
             <ul id="help-menu" class="dropdown-menu" role="menu">
-              <li><a href="docs/index.html" target="_blank">Documentation</a></li>
+              <li><a href="/docs/" target="_blank">Documentation</a></li>
               <li class="divider"></li>
               <li><a href="#" data-toggle="modal" data-target="#about-modal">About</a></li>
             </ul>
@@ -324,7 +339,7 @@
               <p id="current-email">Current Email is: </p>
               <div class="form-group"> 
                 <label class="control-label mycl" for="email">New Email</label>
-                <input type="text" id="new-email" name="new-email" autocomplete="off" class="email regform"/>
+                <input type="text" id="new-email" name="new-email" autocomplete="off" class="email regform" size="30"/>
                 <div class="form-error">
                   <span class="email-error"></span>
                 </div> 
@@ -569,7 +584,7 @@
         <br>
         <p>Want to help? <a href="https://github.com/EinsteinsWorkshop/BlocksCAD">Get involved!</a></p>
         <p>Have feedback? <a href="mailto://blockscad@einsteinsworkshop.com">blockscad@einsteinsworkshop.com</a>
-          <p><small><small>Developed with the sponsorship of the Defense Advanced Research Projects Agency (DARPA) and delivered to the U.S. Government with Unlimited Rights as defined in DFARS 252.227-7013.<br>Approved for Public Release, Distribution Unlimited.<br>Created by Matthew Minuti. Copyright and Trademark 2014-2015 H3XL, Inc.</small></small>
+          <p><small><small>Developed with the sponsorship of the Defense Advanced Research Projects Agency (DARPA) and delivered to the U.S. Government with Unlimited Rights as defined in DFARS 252.227-7013.<br>Approved for Public Release, Distribution Unlimited.<br>Created by Katy Hamilton, J. Yoder, and Matthew Minuti. Copyright and Trademark 2014-2015 H3XL, Inc.</small></small>
           </p>
       </div>
     </div>

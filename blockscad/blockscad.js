@@ -24,6 +24,7 @@
 // create Blockscad namespace
 var Blockscad = Blockscad || {};
 Blockscad.Toolbox = Blockscad.Toolbox || {};
+Blockscad.Auth = Blockscad.Auth || {};    // cloud accounts plugin
 BlocklyStorage = BlocklyStorage || {};
 //var OpenJsCad = OpenJsCad || {};
 var Blockly = Blockly || {};
@@ -56,7 +57,6 @@ Blockscad.drawAxes = 1;       // start with axes drawn
  * Initialize Blockly.  Called on page load.
  */
 Blockscad.init = function() {
-  'use strict';
   Blockscad.initLanguage();
 
 
@@ -65,6 +65,7 @@ Blockscad.init = function() {
   Blockscad.csg_commands = {}; // holds any converted stl file contents
   Blockscad.csg_filename = {}; // holds any converted stl file names
   Blockscad.csg_center = [0,0,0];
+
 
   var container = document.getElementById('main');
   var onresize = function(e) {
@@ -106,7 +107,14 @@ Blockscad.init = function() {
               scaleSpeed: 1.1,
               controls:true},
        trashcan: false,
-       toolbox: Blockscad.Toolbox.other});
+       toolbox: Blockscad.Toolbox.adv});
+
+  // set the initial color scheme
+  Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
+  // color the initial toolbox
+  Blockscad.Toolbox.setCatColors();
+  // hide "switch to advanced toolbox" because that's where we'll start
+  $('#advancedToolbox').hide();
 
   BSUtils.loadBlocks('');
 
@@ -185,10 +193,8 @@ Blockscad.init = function() {
   // set up the delete-confirm button's function.
   $('#throw-it-away').click(Blockscad.clearProject);
 
-$( "#target" ).click(function() {
-  alert( "Handler for .click() called." );
-});
-
+  // handle the project->new menu option
+  $('#main').on('click', '.new-project', Blockscad.newProject);
 
 //FileSaver.js stuff
   // Loading a blocks xml file
@@ -204,10 +210,11 @@ $( "#target" ).click(function() {
     //console.log("in readSingleFile.  f is ", f);
 
     if (f) {
+      var proj_name;
 
       if (replaceOld) {
         // use the name of the loaded file to fill the "file loading" and "project name" boxes.
-        var proj_name = f.name.substr(0,f.name.lastIndexOf('(')) || f.name;
+        proj_name = f.name.substr(0,f.name.lastIndexOf('(')) || f.name;
         proj_name = proj_name.substr(0,f.name.lastIndexOf('.')) || proj_name;
 
         // trim any whitespace from the beginning or end of the project name
@@ -309,10 +316,11 @@ $( "#target" ).click(function() {
 
         Blockscad.csg_center[proj_name_use] = center;
         // I've got a file here.  What should I do with it?
+        var bt_input;
         if (Blockscad.currentInterestingBlock) {
           // console.log('the current block is:', Blockscad.currentInterestingBlock);
           var fn_input = Blockscad.currentInterestingBlock.getField('STL_FILENAME');
-          var bt_input = Blockscad.currentInterestingBlock.getField('STL_BUTTON');
+          bt_input = Blockscad.currentInterestingBlock.getField('STL_BUTTON');
           var ct_input = Blockscad.currentInterestingBlock.getField('STL_CONTENTS');
           fn_input.setText(f.name);
           fn_input.setVisible(true);
@@ -332,7 +340,7 @@ $( "#target" ).click(function() {
           //console.log("xml is:",xml);
           var stuff = Blockly.Xml.textToDom(xml);
           var newblock = Blockly.Xml.domToBlock(Blockscad.workspace, stuff.firstChild);
-          var bt_input = newblock.getField('STL_BUTTON');
+          bt_input = newblock.getField('STL_BUTTON');
           bt_input.setVisible(false);
           newblock.setCommentText(f.name + '\ncenter:(' + center + ')');
           newblock.render();
@@ -403,9 +411,65 @@ $( "#target" ).click(function() {
   // set up handler for saving blocks locally
   $('#file-menu').on('click', '#saveLocal', Blockscad.saveBlocksLocal);
 
+  // toolbox toggle handlers
+  $('#simpleToolbox').on('click', function() {
+    console.log("switching to simple toolbox");
+    $('#simpleToolbox').hide();
+    $('#advancedToolbox').show();
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.catIDs = [];
+      Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
+      Blockscad.Toolbox.setCatColors();
+    }
+  });
+  $('#advancedToolbox').on('click', function() {
+    console.log("switching to advanced toolbox");
+    $('#advancedToolbox').hide();
+    $('#simpleToolbox').show();
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.catIDs = [];
+      Blockscad.workspace.updateToolbox(Blockscad.Toolbox.adv);
+      Blockscad.Toolbox.setCatColors();
+    }
 
+  });
+  $('#colors_one').on('click', function() {
+    console.log("switching block color scheme");
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
+      Blockscad.Toolbox.setCatColors();
+      Blockscad.workspace.clear();
+      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+    }
 
-
+  });
+  $('#colors_two').on('click', function() {
+    console.log("switching block color scheme");
+    if (Blockscad.workspace) {
+      Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['two']);
+      Blockscad.Toolbox.setCatColors();
+      Blockscad.workspace.clear();
+      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+    }
+  });
+  // to get sub-menus to work with bootstrap 3 navbar
+  $(function(){
+    $(".dropdown-menu > li > a.trigger").on("click",function(e){
+      var current=$(this).next();
+      var grandparent=$(this).parent().parent();
+      if($(this).hasClass('left-caret')||$(this).hasClass('right-caret'))
+        $(this).toggleClass('right-caret left-caret');
+      grandparent.find('.left-caret').not(this).toggleClass('right-caret left-caret');
+      grandparent.find(".sub-menu:visible").not(current).hide();
+      current.toggle();
+      e.stopPropagation();
+    });
+    $(".dropdown-menu > li > a:not(.trigger)").on("click",function(){
+      var root=$(this).closest('.dropdown');
+      root.find('.left-caret').toggleClass('right-caret left-caret');
+      root.find('.sub-menu:visible').hide();
+    });
+  });
 }; // end Blockscad.init()
 
 
@@ -420,6 +484,7 @@ window.addEventListener('load', Blockscad.init);
 Blockscad.clearStlBlocks = function() { 
   // clear out any stl blocks.
   var blocks = Blockscad.workspace.getAllBlocks();
+  var num_to_load = 0;
   for (var i = 0; i < blocks.length; i++){
     if (blocks[i].type == 'stl_import') {
       // var csg_key = blocks[i].getField('STL_CONTENTS').getText();
@@ -457,7 +522,9 @@ Blockscad.clearStlBlocks = function() {
         collapsedParent.setCollapsed(true,true);
       } 
       blocks[i].render();
-      
+
+      // Add warning to render pane: Hey, you have a file import block that needs reloading!
+      $( '#error-message' ).html("Warning: re-load your STL file block");
     }
   }
 };
@@ -485,12 +552,13 @@ Blockscad.newProject = function() {
 };
 
 Blockscad.clearProject = function() {
+
   if (!Blockscad.offline) {
     // now I should make the new project.
     Blockscad.Auth.currentProject = '';
     Blockscad.Auth.currentProjectKey = '';
   }
-  Blockly.mainWorkspace.clear();
+  Blockscad.workspace.clear();
   gProcessor.clearViewer();  
   Blockscad.workspaceChanged();
 
@@ -513,7 +581,6 @@ Blockscad.clearProject = function() {
  * Discard all blocks from the workspace.
  */
 Blockscad.discard = function() {
-  'use strict';
   var count = Blockly.mainWorkspace.getAllBlocks().length;
   if (count < 2 ||
       window.confirm("Delete all " + count + " blocks?")) {
@@ -545,21 +612,21 @@ Blockscad.mixes2and3D = function() {
     if (Blockscad.stackIsShape(topBlocks[i])) { 
       hasShape = 1;
       var cat = topBlocks[i].category;
-
+      var mytype;
       if (cat == 'PRIMITIVE_CSG') hasCSG++;
       if (cat == 'PRIMITIVE_CAG') hasCAG++;
       if (cat == 'TRANSFORM' || cat == 'SET_OP') {
-        var mytype = topBlocks[i].getInput('A').connection.check_;
+        mytype = topBlocks[i].getInput('A').connection.check_;
         if (mytype.length == 1 && mytype[0] == 'CSG') hasCSG++;
         if (mytype.length == 1 && mytype[0] == 'CAG') hasCAG++;
       }  
       if (cat == 'LOOP') {
-        var mytype = topBlocks[i].getInput('DO').connection.check_;
+        mytype = topBlocks[i].getInput('DO').connection.check_;
         if (mytype.length == 1 && mytype[0] == 'CSG') hasCSG++;
         if (mytype.length == 1 && mytype[0] == 'CAG') hasCAG++;
       }
       if (cat == 'PROCEDURE') {
-        var mytype = topBlocks[i].myType_;
+        mytype = topBlocks[i].myType_;
         if (mytype && mytype == 'CSG') hasCSG++;
         if (mytype && mytype == 'CAG') hasCAG++;
       }
@@ -568,7 +635,7 @@ Blockscad.mixes2and3D = function() {
       if (topBlocks[i].type == 'controls_if') hasUnknown++;
     }
   }
-  if (hasShape && !(hasCSG + hasCAG + hasUnknown) ) {
+  if (hasShape && !(hasCSG + hasCAG + hasUnknown)) {
     // assign types needs to be called here.  
     // console.log("assignTypes needed - why?");
     Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
@@ -598,25 +665,33 @@ Blockscad.doRender = function() {
     return;
   }
 
+
+
+
   if (mixes[0]) {    // has both 2D and 3D shapes
     $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
     $( '#error-message' ).addClass("has-error");
     return;
   }
 
+
+
+
+
   Blockscad.missingFields = [];
   Blockscad.illegalValue = [];
   var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace);
   var gotErr = false;
+  var others, blk;
 
   if (Blockscad.missingFields.length > 0) {
     // highlight the missing blocks, set up/display the correct error message
     for (var i = 0; i < Blockscad.missingFields.length; i++) {
-      var blk = Blockly.mainWorkspace.getBlockById(Blockscad.missingFields[i]);
+      blk = Blockly.mainWorkspace.getBlockById(Blockscad.missingFields[i]);
       blk.unselect();
       blk.backlight();
       // if block is in a collapsed parent, highlight collapsed parent too
-      var others = blk.collapsedParents();
+      others = blk.collapsedParents();
       if (others)
         for (var j=0; j < others.length; j++) { 
           others[j].unselect();
@@ -628,11 +703,11 @@ Blockscad.doRender = function() {
   if (Blockscad.illegalValue.length > 0) {
     // highlight the missing blocks, set up/display the correct error message
     for (var i = 0; i < Blockscad.illegalValue.length; i++) {
-      var blk = Blockly.mainWorkspace.getBlockById(Blockscad.illegalValue[i]);
+      blk = Blockly.mainWorkspace.getBlockById(Blockscad.illegalValue[i]);
       blk.unselect();
       blk.backlight();
       // if block is in a collapsed parent, highlight collapsed parent too
-      var others = blk.collapsedParents();
+      others = blk.collapsedParents();
       if (others)
         for (var j=0; j < others.length; j++) { 
           others[j].unselect();
@@ -640,6 +715,8 @@ Blockscad.doRender = function() {
         }
     }
     gotErr = true;
+
+
   }
   if (gotErr) {
     var errText = '';
@@ -718,6 +795,7 @@ Blockscad.isRealChange = function() {
   var addedBlockPos = null;
   var deletedBlockParent = null;
   var addedBlockParent = null;
+  var real_change = false;
 
   // console.log("in isRealChange with current",Blockscad.undo.blockList);
   // console.log("old at RealChange",Blockscad.undo.oldBlockList);
@@ -730,8 +808,9 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
-    if (Blockscad.undo.blockList[i].getParent())
+    if (Blockscad.undo.blockList[i].getParent()) {
       Blockscad.undo.parentIds[i] = Blockscad.undo.blockList[i].getParent().id;
+    }
     else Blockscad.undo.parentIds[i] = null;
     if (Blockscad.undo.blockList[i].category) {
       if (Blockscad.undo.blockList[i].category == 'UNKNOWN') {
@@ -793,18 +872,18 @@ Blockscad.isRealChange = function() {
         found_it = 1;
 
         if (Blockscad.undo.parentIds[i] != Blockscad.undo.oldParentIds[j]) {
-          Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
+          // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
 
           // determine if we had a "plug" or an "unplug" event, and 
           // send either one or two stacks to get types evaluated.
           // Note:  one event can be both a "plug" and an "unplug" event.
-          //console.log("plug or unplug - send block myid",myid);
+          // console.log("plug or unplug - send block myid",myid);
           Blockscad.assignBlockTypes([Blockscad.undo.blockList[i]]);
           for (var k = 0, blk; blk = Blockscad.undo.blockList[k]; k++) {
             if (blk.id == Blockscad.undo.oldParentIds[j]) {
-              //console.log("unplugged parent exists with id",blk.id);
+              // console.log("unplugged parent exists with id",blk.id);
               Blockscad.assignBlockTypes([Blockscad.undo.blockList[k]]);
-              Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
+              // Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
               break;
             }
           }
@@ -823,7 +902,8 @@ Blockscad.isRealChange = function() {
         if (Blockscad.undo.isDisabled[i] != Blockscad.undo.oldDisabled[j]) {
           // some block has changed from disabled to enabled, or vice-versa.  Mark this
           // as an undoable change.
-          return true;
+          // don't return from here though - I might need to enable/disable more math blocks.
+          real_change = true;
         }
       }
 
@@ -836,7 +916,7 @@ Blockscad.isRealChange = function() {
       return true;
     }
   }
-
+  if (real_change) return true;
   return false;
 };// end Blockscad.isRealChange()
 
@@ -850,6 +930,11 @@ Blockscad.workspaceChanged = function () {
 
   Blockscad.undo.yesthis = Blockscad.isRealChange();
 
+  // console.log("ids:",Blockscad.undo.blockIds);
+  // console.log("oldids:",Blockscad.undo.oldBlockIds);
+  // console.log("pars:",Blockscad.undo.parentIds);
+  // console.log("oldp:",Blockscad.undo.oldParentIds);
+
   //   Update all the change compare vars. for the next go round.
   Blockscad.undo.blockCount = Blockscad.undo.blockList.length;
   Blockscad.undo.oldBlockIds = Blockscad.undo.blockIds;
@@ -861,7 +946,7 @@ Blockscad.workspaceChanged = function () {
 //  Blockscad.undo.oldBlockList = Blockscad.undo.blockList;
  // console.log("do I have children?",Blockscad.undo.oldBlockList);
 
-  Blockscad.checkMathOrphans();
+  //Blockscad.checkMathOrphans();
 
   if (Blockscad.undo.yesthis) {
     //console.log("yesthis");
@@ -965,7 +1050,7 @@ Blockscad.getExtraRootBlock = function(old,current) {
   }
   // console.log("getExtraRootBlock failed!");
   return 0;  // this should never happen
-}; // end getExtraRootBlock()
+};
 
 // this get block from id function searches a given list of blocks, 
 // instead of the blocks in the main workspace.  Needed for typing.
@@ -1000,7 +1085,7 @@ Blockscad.onUndo = function() {
     Blockly.mainWorkspace.clear();
     //console.log("loading workspace");
 
-    Blockly.Xml.domToWorkspace(Blockly.getMainWorkspace(), Blockscad.undo.current_xml);
+    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
     //console.log("rendering workspace");
     // trigger re-render
     Blockly.mainWorkspace.render();
@@ -1026,7 +1111,8 @@ Blockscad.onRedo = function() {
     Blockscad.undo.current_xml = Blockscad.undo.redoStack.pop();
     // set workspace xml to current xml (do I need to clear it first?)
     Blockly.mainWorkspace.clear();
-    Blockly.Xml.domToWorkspace(Blockly.getMainWorkspace(), Blockscad.undo.current_xml);
+    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+
     // trigger re-render
     Blockly.mainWorkspace.render();
     Blockscad.undo.just_did_undo = 1;
@@ -1035,41 +1121,42 @@ Blockscad.onRedo = function() {
 }; // end onRedo()
 
 // disable any math or logic or variable blocks sitting around onthe workspace.
-Blockscad.checkMathOrphans = function() {
-  var topBlocks = [];
-  topBlocks = Blockly.mainWorkspace.getTopBlocks();
+// Blockscad.checkMathOrphans = function() {
+//   var topBlocks = [];
+//   topBlocks = Blockly.mainWorkspace.getTopBlocks();
 
-  for (var i = 0; i < topBlocks.length; i++) {
-    // my current block topBlocks[i]
-    // is a top block a math or logic or variable block?  Disable it.
-    //console.log(topBlocks[i].type);
-    if ((topBlocks[i].type.lastIndexOf('math') != -1) ||
-      (topBlocks[i].type.lastIndexOf('variables_get') != -1) ||
-      (topBlocks[i].type.lastIndexOf('logic') != -1)) {
-      topBlocks[i].setDisabled(true);
-    }
-  }
-}; // end checkMathOrphans()
+//   for (var i = 0; i < topBlocks.length; i++) {
+//     // my current block topBlocks[i]
+//     // is a top block a math or logic or variable block?  Disable it.
+//     //console.log(topBlocks[i].type);
+//     if ((topBlocks[i].type.lastIndexOf('math') != -1) ||
+//       (topBlocks[i].type.lastIndexOf('variables_get') != -1) ||
+//       (topBlocks[i].type.lastIndexOf('logic') != -1)) {
+//       topBlocks[i].setDisabled(true);
+//     }
+//   }
+// }; // end checkMathOrphans()
 
 // enable any disabled math blocks in an enabled parent.
 // sometimes we'll be sent a parent block, and need to check its children.
-Blockscad.enableMathBlocks = function(block) {
-  var blockStack = block.getDescendants();
-  for (var i = 0; i < blockStack.length; i++) {
-    if (blockStack[i].disabled) {
-      if ((blockStack[i].type.lastIndexOf('math') != -1) ||
-         (blockStack[i].type.lastIndexOf('variables_get') != -1) ||
-         (blockStack[i].type.lastIndexOf('logic') != -1)) {
-        var par;
-        if (par = blockStack[i].getParent()) {
-          //console.log("enabling children",children);
-          if (!par.disabled)  
-              blockStack[i].setDisabled(false);
-        }
-      }
-    }
-  }
-};
+// Blockscad.enableMathBlocks = function(block) {
+//   // console.log("in enableMathBlocksc");
+//   var blockStack = block.getDescendants();
+//   for (var i = 0; i < blockStack.length; i++) {
+//     if (blockStack[i].disabled) {
+//       if ((blockStack[i].type.lastIndexOf('math') != -1) ||
+//          (blockStack[i].type.lastIndexOf('variables_get') != -1) ||
+//          (blockStack[i].type.lastIndexOf('logic') != -1)) {
+//         var par;
+//         if (par = blockStack[i].getParent()) {
+//           //console.log("enabling children",children);
+//           if (!par.disabled)  
+//               blockStack[i].setDisabled(false);
+//         }
+//       }
+//     }
+//   }
+// };
 
 Blockscad.aCallerBlock = function(block, callers) {
   for (var i = 0; i < callers.length; i++)
@@ -1210,7 +1297,8 @@ Blockscad.initLanguage = function() {
 
   // Sort languages alphabetically.
   var languages = [];
-  for (var lang in BSUtils.LANGUAGE_NAME) {
+  var lang;
+  for (lang in BSUtils.LANGUAGE_NAME) {
     languages.push([BSUtils.LANGUAGE_NAME[lang], lang]);
   }
   var comp = function(a, b) {
@@ -1225,7 +1313,7 @@ Blockscad.initLanguage = function() {
   languageMenu.options.length = 0;
   for (var i = 0; i < languages.length; i++) {
     var tuple = languages[i];
-    var lang = tuple[tuple.length - 1];
+    lang = tuple[tuple.length - 1];
     var option = new Option(tuple[0], lang);
     if (lang == BSUtils.LANG) {
       option.selected = true;

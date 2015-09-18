@@ -38,7 +38,7 @@ Blockly.Blocks['controls_repeat'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.CONTROLS_REPEAT_HELPURL);
-    this.setColourHex(Blockly.HEX_LOOP);
+    this.setColourHex(Blockscad.Toolbox.HEX_LOOP);
     this.appendDummyInput()
         .appendField(Blockly.Msg.CONTROLS_REPEAT_TITLE_REPEAT)
         .appendField(new Blockly.FieldTextInput('10',
@@ -59,7 +59,7 @@ Blockly.Blocks['controls_repeat_ext'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.CONTROLS_REPEAT_HELPURL);
-    this.setColourHex(Blockly.HEX_LOOP);
+    this.setColourHex(Blockscad.Toolbox.HEX_LOOP);
     this.interpolateMsg(Blockly.Msg.CONTROLS_REPEAT_TITLE,
                         ['TIMES', 'Number', Blockly.ALIGN_RIGHT],
                         Blockly.ALIGN_RIGHT);
@@ -82,7 +82,7 @@ Blockly.Blocks['controls_whileUntil'] = {
         [[Blockly.Msg.CONTROLS_WHILEUNTIL_OPERATOR_WHILE, 'WHILE'],
          [Blockly.Msg.CONTROLS_WHILEUNTIL_OPERATOR_UNTIL, 'UNTIL']];
     this.setHelpUrl(Blockly.Msg.CONTROLS_WHILEUNTIL_HELPURL);
-    this.setColourHex(Blockly.HEX_LOOP);
+    this.setColourHex(Blockscad.Toolbox.HEX_LOOP);
     this.appendValueInput('BOOL')
         .setCheck('Boolean')
         .appendField(new Blockly.FieldDropdown(OPERATORS), 'MODE');
@@ -112,7 +112,7 @@ Blockly.Blocks['controls_for'] = {
   init: function() {
     this.category = 'LOOP';     // for Blockscad typing - jayod
     this.setHelpUrl(Blockly.Msg.CONTROLS_FOR_HELPURL);
-    this.setColourHex(Blockly.HEX_LOOP);
+    this.setColourHex(Blockscad.Toolbox.HEX_LOOP);
     this.appendDummyInput()
         .appendField(Blockly.Msg.CONTROLS_FOR_INPUT_WITH)
         .appendField(new Blockly.FieldVariable(null), 'VAR');
@@ -191,7 +191,7 @@ Blockly.Blocks['controls_for_chainhull'] = {
   init: function() {
     this.category = 'LOOP';     // for Blockscad typing - jayod
     this.setHelpUrl(Blockly.Msg.CONTROLS_FOR_HELPURL);
-    this.setColourHex(Blockly.HEX_LOOP);
+    this.setColourHex(Blockscad.Toolbox.HEX_LOOP);
     this.appendDummyInput()
         .appendField("Chain Hull: ")
         .appendField(Blockly.Msg.CONTROLS_FOR_INPUT_WITH)
@@ -268,7 +268,7 @@ Blockly.Blocks['controls_forEach'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.CONTROLS_FOREACH_HELPURL);
-    this.setColourHex(Blockly.HEX_LOOP);
+    this.setColourHex(Blockscad.Toolbox.HEX_LOOP);
     this.appendValueInput('LIST')
         .setCheck('Array')
         .appendField(Blockly.Msg.CONTROLS_FOREACH_INPUT_ITEM)
@@ -323,7 +323,7 @@ Blockly.Blocks['controls_flow_statements'] = {
         [[Blockly.Msg.CONTROLS_FLOW_STATEMENTS_OPERATOR_BREAK, 'BREAK'],
          [Blockly.Msg.CONTROLS_FLOW_STATEMENTS_OPERATOR_CONTINUE, 'CONTINUE']];
     this.setHelpUrl(Blockly.Msg.CONTROLS_FLOW_STATEMENTS_HELPURL);
-    this.setColourHex(Blockly.HEX_LOOP);
+    this.setColourHex(Blockscad.Toolbox.HEX_LOOP);
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown(OPERATORS), 'FLOW');
     this.setPreviousStatement(true);

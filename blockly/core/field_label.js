@@ -169,7 +169,6 @@ Blockly.FieldButton.prototype.setText = function(text) {
   Blockly.Field.prototype.setText.call(this, text);
 };
 
-
 /**
  * Show the inline free-text editor on top of the text.
  * @param {boolean=} opt_quietInput True if editor should be created without
@@ -177,13 +176,10 @@ Blockly.FieldButton.prototype.setText = function(text) {
  * @private
  */
 Blockly.FieldButton.prototype.showEditor_ = function(opt_quietInput) {
-  console.log("editor activated");
+  // console.log("editor activated");
   Blockscad.currentInterestingBlock = this.sourceBlock_;
   $('#importStl').click();
 };
-
-
-
 
 /**
  * Close the editor, save the results, and dispose of the editable
