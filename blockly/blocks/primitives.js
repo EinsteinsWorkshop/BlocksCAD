@@ -47,13 +47,19 @@ Blockly.Blocks['cylinder'] = {
       this.appendDummyInput()
           .setAlign(Blockly.ALIGN_RIGHT)
           .appendField(new Blockly.FieldImage("lock_icon.png", 15, 15, "*"))
-          .appendField(new Blockly.FieldCheckbox("FALSE"), "LOCKED");
+          .appendField(new Blockly.FieldCheckbox("FALSE", function(newState) {
+            if (newState) console.log("I'm checked");
+            else console.log("I'm not checked");
+          }), "LOCKED");
     }
     else {
       this.appendDummyInput()
           .setAlign(Blockly.ALIGN_RIGHT)
           .appendField(new Blockly.FieldImage("lock_icon.png", 15, 15, "*"))
-          .appendField(new Blockly.FieldCheckbox("TRUE"), "LOCKED");      
+          .appendField(new Blockly.FieldCheckbox("TRUE", function(newState) {
+            if (newState) console.log("I'm checked");
+            else console.log("I'm not checked");
+          }), "LOCKED");     
     }
     this.appendValueInput('RAD2')
         .setCheck('Number')

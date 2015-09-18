@@ -39,9 +39,13 @@ goog.require('Blockly.Field');
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldCheckbox = function(state, opt_changeHandler) {
+Blockly.FieldCheckbox = function(state, opt_changeHandler,img1,img2) {
   Blockly.FieldCheckbox.superClass_.constructor.call(this, '');
-
+  // do I have two images?
+  if (img1 && img2) {
+    this.img1 = img1;
+    this.img2 = img2;
+  }
   this.setChangeHandler(opt_changeHandler);
   // Set the initial state.
   this.setValue(state);
@@ -65,11 +69,33 @@ Blockly.FieldCheckbox.prototype.init = function(block) {
   Blockly.FieldCheckbox.superClass_.init.call(this, block);
   // The checkbox doesn't use the inherited text element.
   // Instead it uses a custom checkmark element that is either visible or not.
-  this.checkElement_ = Blockly.createSvgElement('text',
-      {'class': 'blocklyText', 'x': -3}, this.fieldGroup_);
-  var textNode = document.createTextNode('\u2713');
-  this.checkElement_.appendChild(textNode);
-  this.checkElement_.style.display = this.state_ ? 'block' : 'none';
+  if (this.img1 && this.img2) {
+    this.checkElement_ = Blockly.createSvgElement('text',
+        {'class': 'blocklyText', 'x': -3}, this.fieldGroup_);
+    var textNode = document.createTextNode('\u2713');
+    this.checkElement_.appendChild(textNode);
+    this.checkElement_.style.display = this.state_ ? 'block' : 'none';
+  }
+  else {
+    // code from field_image 
+    var offsetY = 6 - Blockly.BlockSvg.FIELD_HEIGHT;
+    this.fieldGroup_ = Blockly.createSvgElement('g', {}, null);
+    this.imageElement_ = Blockly.createSvgElement('image',
+        {'height': 15 + 'px',
+         'width': 15 + 'px',
+         'y': offsetY}, this.fieldGroup_);
+    this.setValue(this.img1);
+    if (goog.userAgent.GECKO) {
+      // Due to a Firefox bug which eats mouse events on image elements,
+      // a transparent rectangle needs to be placed on top of the image.
+      this.rectElement_ = Blockly.createSvgElement('rect',
+          {'height': 15 + 'px',
+           'width': 15 + 'px',
+           'y': offsetY,
+           'fill-opacity': 0}, this.fieldGroup_);
+    }
+    block.getSvgRoot().appendChild(this.fieldGroup_);
+  }
 };
 
 /**
@@ -82,6 +108,7 @@ Blockly.FieldCheckbox.prototype.getValue = function() {
 
 /**
  * Set the checkbox to be checked if strBool is 'TRUE', unchecks otherwise.
+ * Can also toggle between two images if they exist.
  * @param {string} strBool New state.
  */
 Blockly.FieldCheckbox.prototype.setValue = function(strBool) {
@@ -90,6 +117,10 @@ Blockly.FieldCheckbox.prototype.setValue = function(strBool) {
     this.state_ = newState;
     if (this.checkElement_) {
       this.checkElement_.style.display = newState ? 'block' : 'none';
+    }
+    else if (this.imageElement_) {
+      this.imageElement_.setAttributeNS('http://www.w3.org/1999/xlink',
+          'xlink:href', newState ? this.img1 : this.img2);
     }
     if (this.sourceBlock_ && this.sourceBlock_.rendered) {
       this.sourceBlock_.workspace.fireChangeEvent();
