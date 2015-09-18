@@ -197,7 +197,7 @@ Blockly.Msg.MATH_CONSTANT_TOOLTIP = "Mathematische Konstanten wie: π (3.141…)
 Blockly.Msg.MATH_CONSTRAIN_HELPURL = "https://en.wikipedia.org/wiki/Clamping_%28graphics%29";
 Blockly.Msg.MATH_CONSTRAIN_TITLE = "begrenzen %1 von %2 bis %3";
 Blockly.Msg.MATH_CONSTRAIN_TOOLTIP = "Begrenzt den Wertebereich mittels von / bis Werte. (inklusiv)";
-Blockly.Msg.MATH_DIVISION_SYMBOL = "Ã·";  // untranslated
+Blockly.Msg.MATH_DIVISION_SYMBOL = "÷";  // untranslated
 Blockly.Msg.MATH_IS_DIVISIBLE_BY = "ist teilbar durch";
 Blockly.Msg.MATH_IS_EVEN = "ist gerade";
 Blockly.Msg.MATH_IS_NEGATIVE = "ist negativ";
@@ -209,7 +209,7 @@ Blockly.Msg.MATH_IS_WHOLE = "ganze Zahl";
 Blockly.Msg.MATH_MODULO_HELPURL = "https://de.wikipedia.org/wiki/Modulo";
 Blockly.Msg.MATH_MODULO_TITLE = "Rest von %1 ÷ %2";
 Blockly.Msg.MATH_MODULO_TOOLTIP = "Der Rest nach einer Division.";
-Blockly.Msg.MATH_MULTIPLICATION_SYMBOL = "Ã—";  // untranslated
+Blockly.Msg.MATH_MULTIPLICATION_SYMBOL = "×";  // untranslated
 Blockly.Msg.MATH_NUMBER_HELPURL = "https://de.wikipedia.org/wiki/Zahl";
 Blockly.Msg.MATH_NUMBER_TOOLTIP = "Eine Zahl.";
 Blockly.Msg.MATH_ONLIST_HELPURL = "http://www.sysplus.ch/einstieg.php?links=menu&seite=4125&grad=Crash&prog=Excel";
