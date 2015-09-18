@@ -91,6 +91,7 @@ Blockly.FieldTextInput.prototype.setText = function(text) {
       text = validated;
     }
   }
+
   Blockly.Field.prototype.setText.call(this, text);
 };
 

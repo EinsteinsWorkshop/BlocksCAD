@@ -248,7 +248,7 @@ Blockly.Field.prototype.getText = function() {
  * Set the text in this field.  Trigger a rerender of the source block.
  * @param {*} text New text.
  */
-Blockly.Field.prototype.setText = function(text) {
+Blockly.Field.prototype.setText = function(text,skipUndo) {
   if (text === null) {
     // No change if null.
     return;
@@ -265,6 +265,7 @@ Blockly.Field.prototype.setText = function(text) {
     this.sourceBlock_.render();
     this.sourceBlock_.bumpNeighbours_();
     this.sourceBlock_.workspace.fireChangeEvent();
+    if (skipUndo && skipUndo == true)
     this.sourceBlock_.workspace.fireUndoEvent(); // undo event for BlocksCAD - jayod
   }
 };
@@ -316,8 +317,8 @@ Blockly.Field.prototype.getValue = function() {
  * the language-neutral values.  Subclasses (such as dropdown) may define this.
  * @param {string} text New text.
  */
-Blockly.Field.prototype.setValue = function(text) {
-  this.setText(text);
+Blockly.Field.prototype.setValue = function(text,skipUndo) {
+  this.setText(text,skipUndo);
 };
 
 /**

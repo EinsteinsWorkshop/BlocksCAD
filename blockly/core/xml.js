@@ -233,14 +233,19 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
   if (workspace.RTL) {
     width = workspace.getWidth();
   }
+  // FOR BLOCKSCAD: set version of input file to null
+  Blockscad.inputVersion = null;
   // Safari 7.1.3 is known to provide node lists with extra references to
   // children beyond the lists' length.  Trust the length, do not use the
   // looping pattern of checking the index for an object.
   var childCount = xml.childNodes.length;
   for (var i = 0; i < childCount; i++) {
     var xmlChild = xml.childNodes[i];
+    // Read in Blockscad file version information.
     if (xmlChild.nodeName.toLowerCase() == 'version') {
-      console.log("xmlChild read was: ", xmlChild.getAttribute('num'));
+      // console.log("xmlChild read was: ", xmlChild.getAttribute('num'));
+      Blockscad.inputVersion = xmlChild.getAttribute('num');
+      // console.log("inputVersion is:",Blockscad.inputVersion);
     }
     if (xmlChild.nodeName.toLowerCase() == 'block') {
       var block = Blockly.Xml.domToBlock(workspace, xmlChild);
@@ -251,6 +256,9 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
       }
     }
   }
+  // Set blockscad version back to current tool version
+  Blockscad.inputVersion = Blockscad.version;
+  // console.log("resetting inputversion to current: ",Blockscad.inputVersion);
 };
 
 /**

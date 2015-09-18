@@ -2,6 +2,13 @@ So if you have your html file myfile.html in a folder, say mydir, all you have t
 
 cd /path/to/mydir-with-index.html-in-it
 python -m SimpleHTTPServer 9000
+
+if you have node.js installed, an ever better server is:
+
+cd /path/to/mydir-with-index.html-in-it
+http-server -p 9000
+
+
 Then point your browser to:
 
 http://localhost:9000/

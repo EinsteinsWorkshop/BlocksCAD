@@ -30,7 +30,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.0.1";
+Blockscad.version = "1.0.2";
 
 Blockscad.offline = true;
 
@@ -59,6 +59,9 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 Blockscad.init = function() {
   Blockscad.initLanguage();
 
+
+  // version of input files/projects
+  Blockscad.inputVersion = Blockscad.version;
 
   var rtl = BSUtils.isRtl();
   Blockscad.missingFields = [];  // variable to see if any blocks are missing fields
