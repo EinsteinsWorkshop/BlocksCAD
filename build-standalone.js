@@ -6,7 +6,8 @@ var nw = new NwBuilder({
 //    files: ['blockly/*compressed.js', 'blockscad/*compressed.js', 'blockscad/style.css', 'bootstrap/**', 'docs/**', 'fonts/**', 'imgs/**', 'jquery/**', 'opentype/**', 'credits.html', 'favicon.ico', 'icons.png', 'index.html', 'package.json', 'privacy.html', 'TOS.html' ], // real way to do it
     platforms: ['osx', 'win', 'linux'],
 //    version: '0.12.1'
-    version: '0.12.3'
+    version: '0.12.3',
+    winIco: 'icon128.ico'
 });
 
 //Log stuff you want
