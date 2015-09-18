@@ -113,6 +113,8 @@ Blockscad.init = function() {
   Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
   // color the initial toolbox
   Blockscad.Toolbox.setCatColors();
+  // hide "switch to advanced toolbox" because that's where we'll start
+  $('#advancedToolbox').hide();
 
   BSUtils.loadBlocks('');
 
@@ -412,6 +414,8 @@ Blockscad.init = function() {
   // toolbox toggle handlers
   $('#simpleToolbox').on('click', function() {
     console.log("switching to simple toolbox");
+    $('#simpleToolbox').hide();
+    $('#advancedToolbox').show();
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
@@ -420,6 +424,8 @@ Blockscad.init = function() {
   });
   $('#advancedToolbox').on('click', function() {
     console.log("switching to advanced toolbox");
+    $('#advancedToolbox').hide();
+    $('#simpleToolbox').show();
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.adv);
@@ -478,6 +484,7 @@ window.addEventListener('load', Blockscad.init);
 Blockscad.clearStlBlocks = function() { 
   // clear out any stl blocks.
   var blocks = Blockscad.workspace.getAllBlocks();
+  var num_to_load = 0;
   for (var i = 0; i < blocks.length; i++){
     if (blocks[i].type == 'stl_import') {
       // var csg_key = blocks[i].getField('STL_CONTENTS').getText();
@@ -515,7 +522,9 @@ Blockscad.clearStlBlocks = function() {
         collapsedParent.setCollapsed(true,true);
       } 
       blocks[i].render();
-      
+
+      // Add warning to render pane: Hey, you have a file import block that needs reloading!
+      $( '#error-message' ).html("Warning: re-load your STL file block");
     }
   }
 };

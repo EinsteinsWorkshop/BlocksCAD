@@ -35,11 +35,15 @@ Blockly.Blocks['cylinder'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Cone/Cylinder  ');
+        .appendField('Cylinder  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
         .appendField('radius1')
         .setAlign(Blockly.ALIGN_RIGHT);
+    // this.appendDummyInput()
+    //     .setAlign(Blockly.ALIGN_RIGHT)
+    //     .appendField(new Blockly.FieldImage("lock_icon.png", 15, 15, "*"))
+    //     .appendField(new Blockly.FieldCheckbox("TRUE"), "LOCKED");
     this.appendValueInput('RAD2')
         .setCheck('Number')
         .appendField('radius2')
@@ -56,6 +60,7 @@ Blockly.Blocks['cylinder'] = {
   }//,
 };
 
+// planning not to use this.
 Blockly.Blocks['simple_cylinder'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
@@ -1085,11 +1090,11 @@ Blockly.Blocks['linearextrude'] = {
         .appendField('Linear Extrude   ');
     this.appendValueInput('HEIGHT')
         .setCheck('Number')
-        .appendField('Height')
+        .appendField('height')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('TWIST')
         .setCheck('Number')
-        .appendField('Twist')
+        .appendField('twist')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown([['is not centered', 'false'], ['is centered', 'true']]), 'CENTERDROPDOWN')
@@ -1156,7 +1161,7 @@ Blockly.Blocks['rotateextrude'] = {
         .appendField('Rotate Extrude   ');
     this.appendValueInput('FACES')
         .setCheck('Number')
-        .appendField('Sides')
+        .appendField('sides')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendStatementInput('A')
         .setCheck('CAG');
@@ -1389,14 +1394,14 @@ Blockly.Blocks['bs_text'] = {
 
     this.appendValueInput("SIZE")
         .setCheck("Number")
-        .appendField(" Size")
+        .appendField(" size")
         .setAlign(Blockly.ALIGN_RIGHT);
     // this.appendValueInput('SIZE')
     //     .setCheck('Number')
     //     .appendField('Size')
     //     .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField(" Font")
+        .appendField(" font")
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
