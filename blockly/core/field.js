@@ -264,9 +264,11 @@ Blockly.Field.prototype.setText = function(text,skipUndo) {
   if (this.sourceBlock_ && this.sourceBlock_.rendered) {
     this.sourceBlock_.render();
     this.sourceBlock_.bumpNeighbours_();
-    this.sourceBlock_.workspace.fireChangeEvent();
-    if (skipUndo && skipUndo == true)
-    this.sourceBlock_.workspace.fireUndoEvent(); // undo event for BlocksCAD - jayod
+    if (!skipUndo) {
+      console.log("in setText - not supposed to skip undo");
+      this.sourceBlock_.workspace.fireChangeEvent();
+      this.sourceBlock_.workspace.fireUndoEvent(); // undo event for BlocksCAD - jayod
+    }
   }
 };
 

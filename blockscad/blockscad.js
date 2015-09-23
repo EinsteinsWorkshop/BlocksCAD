@@ -30,22 +30,19 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.0.2";
+Blockscad.version = "1.1.2";
 
 Blockscad.offline = true;
 
 // -- BEGIN OPENJSCAD STUFF --
 
-var gCurrentFile = null;
 var gProcessor = null;
-var editor = null;
 
-var gCurrentFiles = [];       // linear array, contains files (to read)
-var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
-var gMemFsCount = 0;          // async reading: count of already read files
-var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
-var gMemFsChanged = 0;        // how many files have changed
-var gRootFs = [];             // root(s) of folders 
+// var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
+// var gMemFsCount = 0;          // async reading: count of already read files
+// var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
+// var gMemFsChanged = 0;        // how many files have changed
+// var gRootFs = [];             // root(s) of folders 
 
 var _includePath = './';
 // -- END OPENJSCAD STUFF --
@@ -926,7 +923,7 @@ Blockscad.isRealChange = function() {
 Blockscad.workspaceChanged = function () {
 
   Blockscad.undo.yesthis = 0;  // I don't know if this is a real change yet.
-  //console.log("workspace has changed\n");
+  console.log("workspace has changed from Undo calls\n");
   // important - check to see if the change is one we want to make undoable!
   Blockscad.undo.blockList = Blockly.mainWorkspace.getAllBlocks();
   //console.log("here's the current blocks in the workspace:",Blockscad.undo.blockList); 
@@ -1277,15 +1274,15 @@ Blockscad.hasExtrudeParent = function(block) {
 
 // -- BEGIN OPENJSCAD STUFF --
 
-function putSourceInEditor(src,fn) {
-   editor.setValue(src); 
-   editor.clearSelection();
-   editor.navigateFileStart();
+// function putSourceInEditor(src,fn) {
+//    editor.setValue(src); 
+//    editor.clearSelection();
+//    editor.navigateFileStart();
 
-   previousFilename = fn;
-   previousScript = src;
-   gPreviousModificationTime = "";
-}
+//    previousFilename = fn;
+//    previousScript = src;
+//    gPreviousModificationTime = "";
+// }
 
 /**
  * Initialize the page language.

@@ -31,7 +31,10 @@ Blockly.Blocks['sphere'] = {
 
 Blockly.Blocks['cylinder'] = {
   init: function() {
-    this.category = 'PRIMITIVE_CSG'
+    this.category = 'PRIMITIVE_CSG';
+    this.prevR1 = null;
+    this.prevR2 = null;
+    this.pRatio = null;
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
@@ -40,32 +43,24 @@ Blockly.Blocks['cylinder'] = {
         .setCheck('Number')    
         .appendField('radius1')
         .setAlign(Blockly.ALIGN_RIGHT);
-    this.prevR1 = null;
     // handle backwards compatibility for cylinders created before locking.
     if (Blockscad.inputVersion == null || Blockscad.inputVersion == "1.0.0"
-        || Blockscad.inputVersion == "1.0.1") {
+        || Blockscad.inputVersion == "1.0.1" || Blockscad.inputVersion == "1.1.0") {
       this.appendDummyInput()
           .setAlign(Blockly.ALIGN_RIGHT)
-          .appendField(new Blockly.FieldImage("lock_icon.png", 15, 15, "*"))
-          .appendField(new Blockly.FieldCheckbox("FALSE", function(newState) {
-            if (newState) console.log("I'm checked");
-            else console.log("I'm not checked");
-          }), "LOCKED");
+          .appendField(new Blockly.FieldCheckbox("FALSE", null,
+            "imgs/lock_icon.png","imgs/unlock_icon.png"), "LOCKED");
     }
     else {
       this.appendDummyInput()
           .setAlign(Blockly.ALIGN_RIGHT)
-          .appendField(new Blockly.FieldImage("lock_icon.png", 15, 15, "*"))
-          .appendField(new Blockly.FieldCheckbox("TRUE", function(newState) {
-            if (newState) console.log("I'm checked");
-            else console.log("I'm not checked");
-          }), "LOCKED");     
+          .appendField(new Blockly.FieldCheckbox("TRUE", null,
+            "imgs/lock_icon.png","imgs/unlock_icon.png"), "LOCKED") ;    
     }
     this.appendValueInput('RAD2')
         .setCheck('Number')
         .appendField('radius2')
         .setAlign(Blockly.ALIGN_RIGHT);
-    this.prevR2 = null;
     this.appendValueInput('HEIGHT')
         .setCheck('Number')
         .appendField('height')
@@ -77,31 +72,130 @@ Blockly.Blocks['cylinder'] = {
     this.setTooltip('Creates a  with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
   },
   onchange: function() {
+    console.log("calling cylinder onchange()");
     if (!this.workspace) {
       // Block has been deleted.
       return;
     }
     var locked = this.getField("LOCKED").getValue();
+    var made_change = false;
 
     var R1 = null;
     var R2 = null;
-    if (this.getInput('RAD1').connection.targetConnection) 
+    // get the values (if any) attached to the two radius inputs.
+    if (this.getInput('RAD1').connection.targetConnection &&
+        this.getInput('RAD1').connection.targetConnection.sourceBlock_.type == "math_number") 
       R1 = this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
-    if (this.getInput('RAD2').connection.targetConnection)
+    if (this.getInput('RAD2').connection.targetConnection &&
+        this.getInput('RAD2').connection.targetConnection.sourceBlock_.type == "math_number")
       R2 = this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
-    if (locked == 'TRUE' && R1 && R2) {
-      if (R1 != this.prevR1) { 
-        this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R1,true);
-      }
-      else if (R2 != this.prevR2) { 
-        this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R2,true);
-      }
-      // if you set locking on two different radii, do you want them to both take the value of R1?
-      // else if (R1 != R2) this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R1);
+    
+    console.log("pRatio:" + this.pRatio + "  R1:" + R1 + " R2:" + R2 + " pR1:" + this.prevR1 + " pR2:" + this.prevR2);
+    // start diagnosing a change
+    if (this.prevR1 == null && this.prevR2 == null) {
+      // both previous blocks are null.  This should only happen on brand new or reloaded blocks.
+      // there should be a workspace change that will trigger this code before
+      // anyone tries to type into the field.
+      console.log("initializing cylinder lock previous states");
+      this.prevR1 = R1;
+      this.prevR2 = R2;
+      this.pRatio = R1 / R2;
+      return;
     }
-    if (R1) this.prevR1 = R1;
-    if (R2) this.prevR2 = R2;
+    if (locked == 'FALSE') {
+      // the blocks aren't locked.  Just update pR1 and pR2 and return.
+      console.log("cylinder is not locked");
+      this.prevR1 = R1;
+      this.prevR2 = R2;
+      return;
+    }
+    // past here, we know that locking is turned on and at least one block has a pState.
+    if (R1 == null || R2 == null) {
+      // at least one of the blocks is null.  no locking necessary, but update pStates.
+      this.prevR1 = R1;
+      this.prevR2 = R2;
+      return;
+    }
 
+    // I have two blocks!  Was the change that a new block was pulled in?
+
+    if (this.prevR1 == null && R1) {
+      // R1 has a new block.  Give it the value in block 2.  This counts as a change?
+      this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R2,true); 
+      this.prevR1 = R2;
+      made_change = true;
+    }
+    else if (this.prevR2 == null && R2) {
+      // R2 has a new block.  Give it the value in block 1.  This counts as a change?
+      this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R1,true); 
+      this.prevR2 = R1;
+      made_change = true;
+    }
+    // I don't care about zeroes if using pRatio?
+    // else if (R1 == 0 || R2 == 0 || this.prevR1 == 0 || this.prevR2 == 0) {
+    //   // one of the blocks is 0.  don't force a change, just update the pStates.
+    //   console.log("at least one block has a 0 value!");
+    //   this.prevR1 = R1;
+    //   this.prevR2 = R2;
+    // }
+    else if (R1 != this.prevR1) { 
+      if (this.pRatio != null) {
+        var newValue = Math.round(100 * R1 / this.pRatio) / 100;
+        this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(newValue,true);
+        this.prevR2 = R1 / this.pRatio ;
+        this.prevR1 = R1;
+        made_change = true;
+        console.log("making a change to 2");
+      }
+      else  {
+        // do nothing.
+        this.prevR1 = R1;
+        this.prevR2 = R2;
+      }
+    }
+
+    else if (R2 != this.prevR2) { 
+      if (this.pRatio != null) {
+        var newValue = Math.round(100 * R2 * this.pRatio) / 100;
+        this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').setValue(newValue,true);
+        this.prevR1 = R2 * this.pRatio;
+        this.prevR2 = R2;
+        made_change = true;
+        console.log("making a change to 1");
+      }
+      else {
+        this.prevR1 = R1;
+        this.prevR2 = R2;
+      }
+    }
+
+
+    // I've just caused a change.  Signal the workspace.
+    if (made_change) {
+      Blockscad.workspace.fireChangeEvent();
+    }
+  },
+  onEditorClose: function() {
+    console.log("calling cylinder onEditorClose()");
+    var R1 = null;
+    var R2 = null;
+    // get the values (if any) attached to the two radius inputs.
+    if (this.getInput('RAD1').connection.targetConnection &&
+        this.getInput('RAD1').connection.targetConnection.sourceBlock_.type == "math_number") 
+      R1 = this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+    if (this.getInput('RAD2').connection.targetConnection &&
+        this.getInput('RAD2').connection.targetConnection.sourceBlock_.type == "math_number")
+      R2 = this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+    
+    if (R1 == R2) 
+      this.pRatio = 1;
+    else if (R1 != 0 && R2 != 0)
+      this.pRatio = R1 / R2;
+    else {
+      // one of R1 or R2 is zero.  Have a special ratio for that.
+      this.pRatio = null;
+    }
+    console.log("pRatio:" + this.pRatio + "  R1:" + R1 + " R2:" + R2 + " pR1:" + this.prevR1 + " pR2:" + this.prevR2);
 
   }  
 };

@@ -65,7 +65,9 @@ Blockly.OpenSCAD['logic_compare'] = function(block) {
   var argument0 = Blockly.OpenSCAD.valueToCode(block, 'A', order) || '0';
   var argument1 = Blockly.OpenSCAD.valueToCode(block, 'B', order) || '0';
   var code = argument0 + ' ' + operator + ' ' + argument1;
-  return [code, order];
+  if (block.getParent())
+    return [code, order];
+  else return ['//' + code, order];
 };
 
 Blockly.OpenSCAD['logic_operation'] = function(block) {
@@ -90,7 +92,9 @@ Blockly.OpenSCAD['logic_operation'] = function(block) {
     }
   }
   var code = argument0 + ' ' + operator + ' ' + argument1;
-  return [code, order];
+  if (block.getParent())
+    return [code, order];
+  else return ['//' + code, order];
 };
 
 Blockly.OpenSCAD['logic_negate'] = function(block) {
@@ -99,18 +103,25 @@ Blockly.OpenSCAD['logic_negate'] = function(block) {
   var argument0 = Blockly.OpenSCAD.valueToCode(block, 'BOOL', order) ||
       'true';
   var code = '!' + argument0;
-  return [code, order];
+  if (block.getParent())
+    return [code, order];
+  else return ['//' + code, order];
 };
 
 Blockly.OpenSCAD['logic_boolean'] = function(block) {
   // Boolean values true and false.
   var code = (block.getFieldValue('BOOL') == 'TRUE') ? '1' : '0';
-  return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
 };
 
 Blockly.OpenSCAD['logic_null'] = function(block) {
   // Null data type.
-  return ['null', Blockly.OpenSCAD.ORDER_ATOMIC];
+  var code = 'null';
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
 };
 
 Blockly.OpenSCAD['logic_ternary'] = function(block) {
@@ -122,6 +133,8 @@ Blockly.OpenSCAD['logic_ternary'] = function(block) {
   var value_else = Blockly.OpenSCAD.valueToCode(block, 'ELSE',
       Blockly.OpenSCAD.ORDER_CONDITIONAL) || 'null';
   var code = value_if + ' ? ' + value_then + ' : ' + value_else
-  return [code, Blockly.OpenSCAD.ORDER_CONDITIONAL];
+  if (block.getParent())
+    return [code, Blockly.OpenSCAD.ORDER_CONDITIONAL];
+  else return ['//' + code, Blockly.OpenSCAD.ORDER_CONDITIONAL];
 };
 

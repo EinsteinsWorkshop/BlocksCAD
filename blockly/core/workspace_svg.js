@@ -464,6 +464,18 @@ Blockly.WorkspaceSvg.prototype.fireUndoEvent = function() {
     Blockly.fireUiEvent(this.svgBlockCanvas_, 'blocklyWorkspaceUndo');
   }
 };
+
+/**
+ * Added for BlocksCAD - jayod
+ * Fire an "I closed a texteditor" event.  The locking cylinder can pick it up
+ * and change the ratio of the radii then.
+ */
+Blockly.WorkspaceSvg.prototype.fireEditorEvent = function() {
+  if (this.rendered && this.svgBlockCanvas_) {
+    Blockly.fireUiEvent(this.svgBlockCanvas_, 'blocklyWorkspaceEditor');
+  }
+};
+
 /**
  * Paste the provided block onto the workspace.
  * @param {!Element} xmlBlock XML block element.
