@@ -35,6 +35,8 @@ Blockly.Blocks['cylinder'] = {
     this.prevR1 = null;
     this.prevR2 = null;
     this.pRatio = null;
+    this.pR1id = null;
+    this.pR2id = null;
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
@@ -82,24 +84,27 @@ Blockly.Blocks['cylinder'] = {
 
     var R1 = null;
     var R2 = null;
+    var R1id = null;
+    var R2id = null;
     // get the values (if any) attached to the two radius inputs.
     if (this.getInput('RAD1').connection.targetConnection &&
-        this.getInput('RAD1').connection.targetConnection.sourceBlock_.type == "math_number") 
+        this.getInput('RAD1').connection.targetConnection.sourceBlock_.type == "math_number") { 
       R1 = this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+      R1id = this.getInput('RAD1').connection.targetConnection.sourceBlock_.id;
+    }
     if (this.getInput('RAD2').connection.targetConnection &&
-        this.getInput('RAD2').connection.targetConnection.sourceBlock_.type == "math_number")
+        this.getInput('RAD2').connection.targetConnection.sourceBlock_.type == "math_number") {
       R2 = this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+      R2id = this.getInput('RAD2').connection.targetConnection.sourceBlock_.id;
+    }
     
     console.log("pRatio:" + this.pRatio + "  R1:" + R1 + " R2:" + R2 + " pR1:" + this.prevR1 + " pR2:" + this.prevR2);
     // start diagnosing a change
     if (this.prevR1 == null && this.prevR2 == null) {
-      // both previous blocks are null.  This should only happen on brand new or reloaded blocks.
-      // there should be a workspace change that will trigger this code before
-      // anyone tries to type into the field.
-      console.log("initializing cylinder lock previous states");
+      // both previous blocks are null.  
       this.prevR1 = R1;
       this.prevR2 = R2;
-      this.pRatio = R1 / R2;
+      this.updateRatio(R1,R2,R1id,R2id);
       return;
     }
     if (locked == 'FALSE') {
@@ -107,6 +112,7 @@ Blockly.Blocks['cylinder'] = {
       console.log("cylinder is not locked");
       this.prevR1 = R1;
       this.prevR2 = R2;
+      this.updateRatio(R1,R2,R1id,R2id);
       return;
     }
     // past here, we know that locking is turned on and at least one block has a pState.
@@ -114,6 +120,7 @@ Blockly.Blocks['cylinder'] = {
       // at least one of the blocks is null.  no locking necessary, but update pStates.
       this.prevR1 = R1;
       this.prevR2 = R2;
+      this.updateRatio(R1,R2,R1id,R2id);
       return;
     }
 
@@ -121,15 +128,24 @@ Blockly.Blocks['cylinder'] = {
 
     if (this.prevR1 == null && R1) {
       // R1 has a new block.  Give it the value in block 2.  This counts as a change?
-      this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R2,true); 
-      this.prevR1 = R2;
-      made_change = true;
+      // I changed my mind.  Don't update the value, but if the two blocks have different values,
+      // UNLOCK the lock.  Can I do that?
+      // also, update the ratio.
+      //this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R2,true); 
+      this.prevR1 = R1;
+      this.updateRatio(R1,R2,R1id,R2id);
+      if (R1 != R2)
+        this.getField('LOCKED').setValue("FALSE");
+      //made_change = true;
     }
     else if (this.prevR2 == null && R2) {
       // R2 has a new block.  Give it the value in block 1.  This counts as a change?
-      this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R1,true); 
-      this.prevR2 = R1;
-      made_change = true;
+      //this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R1,true); 
+      this.prevR2 = R2;
+      this.updateRatio(R1,R2,R1id,R2id);
+      if (R1 != R2)
+        this.getField('LOCKED').setValue("FALSE");      
+      //made_change = true;
     }
     // I don't care about zeroes if using pRatio?
     // else if (R1 == 0 || R2 == 0 || this.prevR1 == 0 || this.prevR2 == 0) {
@@ -139,10 +155,21 @@ Blockly.Blocks['cylinder'] = {
     //   this.prevR2 = R2;
     // }
     else if (R1 != this.prevR1) { 
-      if (this.pRatio != null) {
+      // finally, I have two number blocks! One has a change! They are supposed to be locked!
+      // however, if one of the blocks has changed id, can I detect that?
+      if (R1id != this.pR1id) {
+        console.log("ids for R1 don't match - block swap?", R1id, this.pR1id);
+        // since I'm swapping blocks, I'll not change the numbers.
+        // however, if the numbers don't match, unlock the blocks.
+        this.prevR1 = R1;
+        this.updateRatio(R1,R2,R1id,R2id);
+        if (R1 != R2)
+          this.getField('LOCKED').setValue("FALSE");
+      }
+      else if (this.pRatio != null && !isNaN(R1) && isFinite(R1)) {
         var newValue = Math.round(100 * R1 / this.pRatio) / 100;
         this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(newValue,true);
-        this.prevR2 = R1 / this.pRatio ;
+        this.prevR2 = newValue;
         this.prevR1 = R1;
         made_change = true;
         console.log("making a change to 2");
@@ -155,10 +182,21 @@ Blockly.Blocks['cylinder'] = {
     }
 
     else if (R2 != this.prevR2) { 
-      if (this.pRatio != null) {
+      // finally, I have two number blocks! One has a change! They are supposed to be locked!
+      // however, if one of the blocks has changed id, can I detect that?
+      if (R2id != this.pR2id) {
+        console.log("ids for R2 don't match - block swap?");
+        // since I'm swapping blocks, I'll not change the numbers.
+        // however, if the numbers don't match, unlock the blocks.
+        this.prevR2 = R2;
+        this.updateRatio(R1,R2,R1id,R2id);
+        if (R1 != R2)
+          this.getField('LOCKED').setValue("FALSE");
+      }
+      else if (this.pRatio != null && !isNaN(R2) && isFinite(R2)) {
         var newValue = Math.round(100 * R2 * this.pRatio) / 100;
         this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').setValue(newValue,true);
-        this.prevR1 = R2 * this.pRatio;
+        this.prevR1 = newValue;
         this.prevR2 = R2;
         made_change = true;
         console.log("making a change to 1");
@@ -179,24 +217,36 @@ Blockly.Blocks['cylinder'] = {
     console.log("calling cylinder onEditorClose()");
     var R1 = null;
     var R2 = null;
-    // get the values (if any) attached to the two radius inputs.
+
     if (this.getInput('RAD1').connection.targetConnection &&
-        this.getInput('RAD1').connection.targetConnection.sourceBlock_.type == "math_number") 
+        this.getInput('RAD1').connection.targetConnection.sourceBlock_.type == "math_number") { 
       R1 = this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+      R1id = this.getInput('RAD1').connection.targetConnection.sourceBlock_.id;
+    }
     if (this.getInput('RAD2').connection.targetConnection &&
-        this.getInput('RAD2').connection.targetConnection.sourceBlock_.type == "math_number")
+        this.getInput('RAD2').connection.targetConnection.sourceBlock_.type == "math_number") {
       R2 = this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+      R2id = this.getInput('RAD2').connection.targetConnection.sourceBlock_.id;
+    }    
+    this.updateRatio(R1,R2,R1id,R2id);
     
-    if (R1 == R2) 
+  },
+  updateRatio: function(R1,R2,R1id,R2id) {
+    this.pR1id = R1id;
+    this.pR2id = R2id;
+    if (R1 == null || R2 == null)   // one of the blocks is missing (or is a variable).
+      this.pRatio = null;
+    else if (R1 == R2) 
       this.pRatio = 1;
     else if (R1 != 0 && R2 != 0)
       this.pRatio = R1 / R2;
-    else {
+    else 
       // one of R1 or R2 is zero.  Have a special ratio for that.
       this.pRatio = null;
-    }
+    
+    console.log("changing pRatio");
     console.log("pRatio:" + this.pRatio + "  R1:" + R1 + " R2:" + R2 + " pR1:" + this.prevR1 + " pR2:" + this.prevR2);
-
+    console.log("reset block ids:", this.pR1id, this.pR2id);
   }  
 };
 

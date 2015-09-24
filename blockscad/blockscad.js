@@ -923,7 +923,7 @@ Blockscad.isRealChange = function() {
 Blockscad.workspaceChanged = function () {
 
   Blockscad.undo.yesthis = 0;  // I don't know if this is a real change yet.
-  console.log("workspace has changed from Undo calls\n");
+  //console.log("workspace has changed\n");
   // important - check to see if the change is one we want to make undoable!
   Blockscad.undo.blockList = Blockly.mainWorkspace.getAllBlocks();
   //console.log("here's the current blocks in the workspace:",Blockscad.undo.blockList); 

@@ -33,11 +33,11 @@ Blockly.OpenSCAD['cylinder'] = function(block) {
   if (value_rad1 && value_rad1 <= 0) {
     if (value_rad2 && value_rad2 <= 0) {
       Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
-      Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+      Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
     }
   }
   if (value_height && value_height <= 0) 
-    Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
+    Blockscad.illegalValue.push(block.inputList[4].connection.targetBlock().id);
 
   var code = 'cylinder(' + 'r1=' + value_rad1 + ', r2=' + value_rad2 + ', h=' + value_height +', center=' + dropdown_center + ');';
   return code;
