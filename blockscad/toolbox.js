@@ -14,11 +14,21 @@ Blockscad.Toolbox.catIDs = [];
 // Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
 //                 'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_ADVANCED',
 //                 'HEX_VARIABLE','HEX_PROCEDURE'];
+
+
+// Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
+//                 'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_TEXT',
+//                 'HEX_VARIABLE','HEX_PROCEDURE'];
+
+// for standalone, remove text category
 Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
-                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_TEXT',
+                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP',
                 'HEX_VARIABLE','HEX_PROCEDURE'];
 
-Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,8,9];
+// Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,8,9];
+
+// for standalone (no text category)
+Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,7,8];
 
 
 Blockscad.Toolbox.colorScheme = {};
@@ -30,7 +40,7 @@ Blockscad.Toolbox.colorScheme['one'] =  // classic
         '#0186E2',  // Math
         '#BF6920',  // Logic
         '#612485',  // Loops
-        '#727272',  // Advanced (or Text)
+        // '#727272',  // Advanced (or Text)
         '#8C7149',  // Variables
         '#900355']; // Modules
 
@@ -42,7 +52,7 @@ Blockscad.Toolbox.colorScheme['two'] =  // pale
         '#ba9969',  // Math
         '#afaf13',  // Logic
         '#a66658',  // Loops
-        '#d761bf',  // Advanced (or Text)
+        // '#d761bf',  // Advanced (or Text)
         '#999999',  // Variables
         '#b02375']; // Modules
 
@@ -603,7 +613,8 @@ Blockscad.Toolbox.adv += Blockscad.Toolbox.catTransform;
 Blockscad.Toolbox.adv += Blockscad.Toolbox.catSetOps;
 Blockscad.Toolbox.adv += Blockscad.Toolbox.catMathLogic;
 Blockscad.Toolbox.adv += Blockscad.Toolbox.catLoops;
-Blockscad.Toolbox.adv += Blockscad.Toolbox.catOther;
+// Blockscad.Toolbox.adv += Blockscad.Toolbox.catOther; // for not standalone, include the text category
+Blockscad.Toolbox.adv += Blockscad.Toolbox.catOther_sim; // for standalone, take out text
 
 Blockscad.Toolbox.sim = '<xml id="toolbox" style="display: none">';
 Blockscad.Toolbox.sim += Blockscad.Toolbox.cat_3D_sim;

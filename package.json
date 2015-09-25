@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "node_modules/.bin/jshint blockly blockscad",
-    "build-standalone": "nodejs build-standalone.js",
+    "build-standalone": "node build-standalone.js",
     "clean-standalone": "rm -rf node_modules build"
   },
   "repository": {
@@ -21,8 +21,9 @@
   "window": {
     "toolbar": false,
     "title": "BlocksCAD",
-    "width": "700",
-    "height": "600"
+    "width": 1100,
+    "height": 700,
+    "icon": "ewicon.png"
   },
   "license": "GPL-3.0+",
   "devDependencies": {

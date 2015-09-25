@@ -1,16 +1,18 @@
 var NwBuilder = require('nw-builder');
 var nw = new NwBuilder({
-//    files: ['**',  '!cache/**', '!build/**'], // get everything except the nwbuild stuff
+   // files: ['**',  '!cache/**', '!build/**'], // get everything except the nwbuild stuff
 //    files: ['**'], // get everything
 //    files: ['**', '!closure-library/**', '!_soy/**', '!node_modules/**', '!openscad-openjscad-translator/**', '!cache/**', '!build/**'], // use the glob format
-    files: ['blockly/*compressed.js', 'blockscad/*compressed.js', 'blockscad/style.css', 'bootstrap/**', 'docs/**', 'fonts/**', 'imgs/**', 'jquery/**', 'opentype/**', 'favicon.ico', 'icons.png', 'index.html', 'package.json', 'privacy.html', 'TOS.html', 'icon128.ico', 'icon128.png', 'fonts/**', 'blockly/media/**', 'blockscad/csg.js', 'blockscad/formats.js', 'blockscad/viewer.js' ], // real way to do it
-    platforms: ['osx', 'win', 'linux'],
+    // files: ['blockly/*_compressed.js', 'blockscad/*compressed.js', 'blockscad/style.css', 'bootstrap/**', 'docs/**', 'fonts/**', 'imgs/**', 'jquery/**', 'opentype/**', 'favicon.ico', 'icons.png', 'index.html', 'package.json', 'privacy.html', 'TOS.html', 'icon128.ico', 'icon128.png', 'fonts/**', 'blockly/media/**', 'blockscad/underscore.js' ,'blockscad/openscad-openjscad-translator.js'], // real way to do it
+    files: ['blockly/blockly_compressed.js','blockly/blocks_compressed.js','jquery/jquery-1.11.3.min.js', 'jquery/jquery-ui.min.js','jquery/jquery.hammer.js', 'jquery/jquery.ui.touch-punch.min.js', 'bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css', 'bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css', 'bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js', 'blockly/openscad_compressed.js', 'blockscad/viewer_compressed.js', 'blockscad/blockscad_compressed.js', 'blockscad/underscore.js', 'blockscad/openscad-openjscad-translator.js', 'blockscad/style.css', 'favicon.ico', 'ewicon.png', 'imgs/**', 'docs/**', 'icon128.ico', 'icon128.png', 'blockly/media/**', 'index.html', 'package.json', 'blockly/msg/messages.js', 'blockly/msg/js/en.js', 'blockly/msg/json/en.json', 'TOS.html', 'privacy.html', 'gpl-3.0-standalone.html'],
+    platforms: ['win'],
+    // platforms: ['osx', 'win', 'linux'],
 //    version: '0.12.1'
     version: '0.12.3',
-    winIco: 'icon128.ico',
-    window: {
-      icon: 'icon128.png'
-   }
+    winIco: 'favicon.ico',
+   //  window: {
+   //    icon: 'favicon.ico'
+   // }
 });
 
 //Log stuff you want

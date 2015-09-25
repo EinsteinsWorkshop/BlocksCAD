@@ -683,7 +683,7 @@ Blockscad.isChrome = function() {
 // and post a message to the calling thread when finished
 Blockscad.runMainInWorker = function() {
   try {
-    if(typeof(main) != 'function') throw new Error('Your file should contain a function main() which returns a CSG solid or a CAG area.');
+    if(typeof(main) != 'function') throw new Error('Your file should contain a function main() which returns a CSG solid or a CAG area.' + main);
   
     var result = main();
     if( (typeof(result) != "object") || ((!(result instanceof CSG)) && (!(result instanceof CAG)))) {
@@ -762,9 +762,9 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 // callback: should be function(error, csg)
 Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
-    //"blockscad/viewer_compressed.js"
-      "blockscad/csg.js",
-      "blockscad/viewer.js"
+    "blockscad/viewer_compressed.js"
+      // "blockscad/csg.js",
+      // "blockscad/viewer.js"
   ];
 
   // console.log("in parseBlockscadScriptASync");
@@ -859,8 +859,8 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   }
   //workerscript += "function includePath(p) { _includePath = p; }\n";
   var blobURL = Blockscad.textToBlobUrl(workerscript);
-  // console.log("blobURL",blobURL);
-   // console.log("workerscript",workerscript);
+  console.log("blobURL",blobURL);
+   console.log("workerscript",workerscript);
   
   if(!window.Worker) throw new Error("Your browser doesn't support Web Workers. Please try the Chrome or Firefox browser instead.");
   var worker = new Worker(blobURL);
