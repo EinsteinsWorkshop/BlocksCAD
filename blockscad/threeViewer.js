@@ -1,187 +1,62 @@
-// viewer.js
-// was openjscad.js, originally written by Joost Nieuwenhuijse (MIT License)
-//   few adjustments by Rene K. Mueller <spiritdude@gmail.com> for OpenJSCAD.org
-// more adjustments by J. Yoder for BlocksCAD
-//
-
-
+// threeViewer.js
+// based on openjscad.js, (written by Joost Nieuwenhuijse (MIT License) with adjustments by Rene K. Mueller <spiritdude@gmail.com> for OpenJSCAD.org) and  viewer.js  by J. Yoder for BlocksCAD
+// ThreeViewer.js is viewer that uses three.js as WebGL library, adapted  for BlocksCAD by Juan Blanco Segleau under MIT License 
 var Blockscad =  Blockscad || {};
 var CSG = CSG || {};
 var CAG = CAG || {};
-/**
- * A viewer is a WebGL canvas that lets the user view a mesh. The user can tumble it around by dragging the mouse.
- * @constructor
- * @param {string} containerelement - selector of the doom element wich will contain the viewer
- * @param {int} width - width of the viewer
- * @param {int} height - width of the viewer
- * @param {int} initialdepth - ??
- */
+
+// A viewer is a WebGL canvas that lets the user view a mesh. The user can
+// tumble it around by dragging the mouse.
 
 Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
-  var gl = GL.create();
-  this.gl = gl;
-  this.angleX = -60;
-  this.angleY = 0;
-  this.angleZ = -45;
-  this.viewpointX = 0;
-  this.viewpointY = -5;
-  this.viewpointZ = initialdepth;
-
-  this.touch = {
-    lastX: 0,
-    lastY: 0,
-    scale: 0,
-    ctrl: 0,
-    shiftTimer: null,
-    shiftControl: null,
-    cur: null //current state
+  var scene = new THREE.Scene();
+  this.scene=scene;
+  var camera = new THREE.PerspectiveCamera( 45, width/height, 1, 10000 );
+  this.camera=camera;
+  this.camera.position.set( 50, -50, 50 );
+  this.camera.up.set( 0, 0, 1 );
+  this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  this.renderer=renderer;
+  this.renderer.setClearColor( 0xEDEDED, 1.0 );
+  this.renderer.shadowMap.enabled = true;
+  this.renderer.shadowMapSoft = false;
+  this.renderer.shadowCameraNear = 1;
+  this.renderer.shadowCameraFar = this.camera.far;
+  this.renderer.shadowCameraFov = 45;
+  this.renderer.shadowMapBias = 0.0039;
+  this.renderer.shadowMapDarkness = 0.5;
+  this.renderer.shadowMapWidth = 1024;
+  this.renderer.shadowMapHeight = 1024;
+  this.renderer.setSize( width, height );
+  var controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
+  this.controls=controls;
+  this.controls.enableDamping = true;
+  this.controls.dampingFactor = 0.5;
+  this.controls.enableZoom = true;
+  var light = new THREE.DirectionalLight(0xffffff, 1);
+  this.light=light;
+  this.light.castShadow = true;
+  this.light.position.copy( this.camera.position );
+  this.scene.add(this.light);
+  this.axes = this.buildAxes( 1000 );
+  this.GridPlane = this.buildGridPlane(500);
+  this.scene.add(this.axes);
+  this.scene.add(this.GridPlane);
+  $(containerelement).append(this.renderer.domElement);
+  var this_viewer =this;
+  //render loop
+  var render = function () {
+    requestAnimationFrame( render );
+    this_viewer.controls.update();
+    this_viewer.light.position.copy(this_viewer.camera.position );
+    this_viewer.renderer.render(this_viewer.scene, this_viewer.camera);
   };
-
-
-  // Draw triangle lines:
-  this.drawLines = false;
-  // Set to true so lines don't use the depth buffer
-  this.lineOverlay = false;
-
-  // Set up the viewport
-  gl.canvas.width = width;
-  gl.canvas.height = height;
-  gl.viewport(0, 0, width, height);
-  gl.matrixMode(gl.PROJECTION);
-  gl.loadIdentity();
-  // console.log("am I getting this new code?");
-  gl.perspective(45, width / height, 0.5, 3000);
-  gl.matrixMode(gl.MODELVIEW);
-
-  // Set up WebGL state
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.clearColor(0.93, 0.93, 0.93, 1);
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.CULL_FACE);
-  gl.polygonOffset(1, 1);
-
-  // Black shader for wireframe
-  this.blackShader = new GL.Shader('' +
-    'void main() {' +
-      'gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;' +
-    '}', '' +
-    'void main() {' +
-      'gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);' +
-    '}');
-
-  // Shader with diffuse and specular lighting
-  this.lightingShader = new GL.Shader('' +
-      'varying vec3 color;' +
-      'varying float alpha;' +
-      'varying vec3 normal;' +
-      'varying vec3 light;' +
-      'void main() {' +
-        'const vec3 lightDir = vec3(1.0, 2.0, 3.0) / 3.741657386773941;' +
-        'light = lightDir;' +
-        'color = gl_Color.rgb;' +
-        'alpha = gl_Color.a;' +
-        'normal = gl_NormalMatrix * gl_Normal;' +
-        'gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;' +
-      '}',
-      'varying vec3 color;' +
-      'varying float alpha;' +
-      'varying vec3 normal;' +
-      'varying vec3 light;' +
-      'void main() {' +
-        'vec3 n = normalize(normal);' +
-        'float diffuse = max(0.0, dot(light, n));' +
-        'float specular = pow(max(0.0, -reflect(light, n).z), 10.0) * sqrt(diffuse);' +
-        'gl_FragColor = vec4(mix(color * (0.3 + 0.7 * diffuse), vec3(1.0), specular), alpha);' +
-      '}');
-
-  var _this=this;
-
-  var shiftControl = $('<div class="shift-scene"><div class="arrow arrow-left" />' +
-    '<div class="arrow arrow-right" />' +
-    '<div class="arrow arrow-top" />' +
-    '<div class="arrow arrow-bottom" /></div>' );
-  this.touch.shiftControl = shiftControl;
-
-  $(containerelement).append(gl.canvas)
-    .append(shiftControl)
-    .hammer({//touch screen control
-      drag_lock_to_axis: true
-    }).on("transform", function(e){
-      if (e.gesture.touches.length >= 2) {
-          _this.clearShift();
-          _this.onTransform(e);
-          e.preventDefault();
-      }
-    }).on("touch", function(e) {
-      if (e.gesture.pointerType != 'touch'){
-        e.preventDefault();
-        return;
-      }
-
-      if (e.gesture.touches.length == 1) {
-          var point = e.gesture.center;
-          _this.touch.shiftTimer = setTimeout(function(){
-              shiftControl.addClass('active').css({
-                  left: point.pageX + 'px',
-                  top: point.pageY + 'px'
-              });
-              _this.touch.shiftTimer = null;
-              _this.touch.cur = 'shifting';
-        }, 500);
-      } else {
-        _this.clearShift();
-      }
-    }).on("drag", function(e) {
-      if (e.gesture.pointerType != 'touch') {
-        e.preventDefault();
-        return;
-      }
-
-      if (!_this.touch.cur || _this.touch.cur == 'dragging') {
-          _this.clearShift();
-          _this.onPanTilt(e);
-      } else if (_this.touch.cur == 'shifting') {
-          _this.onShift(e);
-      }
-    }).on("touchend", function(e) {
-        _this.clearShift();
-        if (_this.touch.cur) {
-            shiftControl.removeClass('active shift-horizontal shift-vertical');
-        }
-    }).on("transformend dragstart dragend", function(e) {
-      if ((e.type == 'transformend' && _this.touch.cur == 'transforming') || 
-          (e.type == 'dragend' && _this.touch.cur == 'shifting') ||
-          (e.type == 'dragend' && _this.touch.cur == 'dragging'))
-        _this.touch.cur = null;
-      _this.touch.lastX = 0;
-      _this.touch.lastY = 0;
-      _this.touch.scale = 0;
-    });
-
-  gl.onmousemove = function(e) {
-    _this.onMouseMove(e);
-  };
-  gl.ondraw = function() {
-    _this.onDraw();
-  };
-  gl.onmousewheel = function(e) {
-    var wheelDelta = 0;    
-    if (e.wheelDelta) {
-      wheelDelta = e.wheelDelta;
-    } else if (e.detail) {
-      // for firefox, see http://stackoverflow.com/questions/8886281/event-wheeldelta-returns-undefined
-      wheelDelta = e.detail * -40;     
-    }
-    if(wheelDelta) {
-      var factor = Math.pow(1.003, -wheelDelta);
-      var coeff = _this.getZoom();
-      coeff *= factor;
-      _this.setZoom(coeff);
-    }
-  };
-
-  this.clear();
+  render();
+  
 };
+
+
 
 Blockscad.Viewer.prototype = {
   setCsg: function(csg) {
@@ -191,23 +66,16 @@ Blockscad.Viewer.prototype = {
     // } else {
     //    this.meshes = OpenJsCad.Viewer.csgToMeshes(csg);
     // }
-      this.meshes = Blockscad.Viewer.csgToMeshes(csg);
-      this.onDraw();
+      this.scene.remove(  this.scene.getObjectByName("threeMesh"));//remove old Mesh if exist.
+      this.threeMesh = Blockscad.Viewer.csgToThreeMesh(csg);
+      this.threeMesh.name="threeMesh";
+      this.scene.add(this.threeMesh);
   },
 
-  rendered_resize: function(width, height) {
-
-    this.gl.canvas.width = width;
-    this.gl.canvas.height = height;
-
-    this.gl.viewport(0, 0, width, height);
-    this.gl.matrixMode(this.gl.PROJECTION);
-    this.gl.loadIdentity();
-    this.gl.perspective(45, width / height, 0.1, 3000);
-    this.gl.matrixMode(this.gl.MODELVIEW);
-
-    this.onDraw();
-//    console.log("end of rendered_resize");
+  rendered_resize: function(width, height) { 
+      this.renderer.setSize( width, height );
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
 
   },
 
@@ -215,78 +83,42 @@ Blockscad.Viewer.prototype = {
     var whichView = document.getElementById("viewMenu");
 
     if (whichView.value == "top") {
-      // top
-      this.angleX = 0;
-      this.angleY = 0;
-      this.angleZ = 0;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
+      this.camera.position.set( 0, 0, 50 );
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+
     }
     else if (whichView.value == "front") {
-      // front
-      this.angleX = -90;
-      this.angleY = 0;
-      this.angleZ = 0;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
+      this.camera.position.set( 0, -50, 0 );
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
     }
     else if (whichView.value == "left") {    
-      // left??
-      this.angleX = -90;
-      this.angleY = 0;
-      this.angleZ = 90;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
+      this.camera.position.set( -50, 0, 0 );
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+
+   
     }
     else if (whichView.value == "right") {
-      // right??
-      this.angleX = -90;
-      this.angleY = 0;
-      this.angleZ = -90;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
+      this.camera.position.set( 50, 0, 0 );
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+   
     }
     else if (whichView.value == "bottom") {
-      // bottom
-      this.angleX = 180;
-      this.angleY = 0;
-      this.angleZ = 0;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
+      this.camera.position.set( 0, 0, -50 );
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+
+
     }
     else if (whichView.value == "back") {    
-      // back
-      this.angleX = -90;
-      this.angleY = 0;
-      this.angleZ = 180;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
+      this.camera.position.set( 0, 50, 0 );
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+ 
     }
     else if (whichView.value == "diagonal") {
-      // diagonal
-      this.angleX = -60;
-      this.angleY = 0;
-      this.angleZ = -45;
-      this.viewpointX = 0;
-      this.viewpointY = -5;
-      this.viewpointZ = 100;
+      this.camera.position.set( 50, -50, 50 );
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
     }
-
-    this.onDraw();
+ 
   },
-
-  clear: function() {
-    // empty mesh list:
-    this.meshes = []; 
-    this.onDraw();    
-  },
-
   supported: function() {
     return !!this.gl;
   },
@@ -297,48 +129,11 @@ Blockscad.Viewer.prototype = {
   plate: true,                   // render plate
 
   setZoom: function(coeff) { //0...1
-    coeff=Math.max(coeff, 0);
-    coeff=Math.min(coeff, 1);
-    this.viewpointZ = this.ZOOM_MIN + coeff * (this.ZOOM_MAX - this.ZOOM_MIN);
-    if(this.onZoomChanged) {
-      this.onZoomChanged();
-    }
-    this.onDraw();
+        //zoom y esas cosas, uso orbit control
   },
 
   getZoom: function() {
-    var coeff = (this.viewpointZ-this.ZOOM_MIN) / (this.ZOOM_MAX - this.ZOOM_MIN);
-    //console.log("zoom is: ",this.viewpointZ);
-    return coeff;
-  },
-  
-  onMouseMove: function(e) {
-    if (e.dragging) {
-      //console.log(e.which,e.button);
-      var b = e.button;
-      if(e.which) {                            // RANT: not even the mouse buttons are coherent among the brand (chrome,firefox,etc)
-         b = e.which;
-      }
-      e.preventDefault();
-      if(e.altKey||b==3) {                     // ROTATE X,Y (ALT or right mouse button)
-        this.angleY += e.deltaX;
-        this.angleX += e.deltaY;
-        //this.angleX = Math.max(-180, Math.min(180, this.angleX));
-      } else if(e.shiftKey||b==2) {            // PAN  (SHIFT or middle mouse button)
-        var factor = 5e-3;
-        this.viewpointX += factor * e.deltaX * this.viewpointZ;
-        this.viewpointY -= factor * e.deltaY * this.viewpointZ;
-      } else if(e.ctrlKey) {                   // ZOOM IN/OU
-         var factor = Math.pow(1.006, e.deltaX+e.deltaY);
-         var coeff = this.getZoom();
-         coeff *= factor;
-         this.setZoom(coeff);
-      } else {                                 // ROTATE X,Z  left mouse button
-        this.angleZ += e.deltaX;
-        this.angleX += e.deltaY;
-      }
-      this.onDraw();
-    }
+       //zoom y esas cosas, uso orbit control
   },
   clearShift: function() {
       if(this.touch.shiftTimer) {
@@ -348,6 +143,7 @@ Blockscad.Viewer.prototype = {
       return this;
   },
   //pan & tilt with one finger
+  // no se si esto sea necesario usando three orbit control
   onPanTilt: function(e) {
     this.touch.cur = 'dragging';
     var delta = 0;
@@ -407,252 +203,111 @@ Blockscad.Viewer.prototype = {
       return this;
   },
   onDraw: function(e) {
-    var gl = this.gl;
-    gl.makeCurrent();
-
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.loadIdentity();
-    gl.translate(this.viewpointX, this.viewpointY, -this.viewpointZ);
-    gl.rotate(this.angleX, 1, 0, 0);
-    gl.rotate(this.angleY, 0, 1, 0);
-    gl.rotate(this.angleZ, 0, 0, 1);
-
-    gl.enable(gl.BLEND);
-    //gl.disable(gl.DEPTH_TEST);
-    if (!this.lineOverlay) gl.enable(gl.POLYGON_OFFSET_FILL);
-
-    // don't send empty meshes to WebGL - check for length of vertices array - JY
-    for (var i = 0; i < this.meshes.length; i++) {
-      var mesh = this.meshes[i];
-      if (mesh.vertices.length > 0) {
-        this.lightingShader.draw(mesh, gl.TRIANGLES);
-      }
-    }
-    if (!this.lineOverlay) gl.disable(gl.POLYGON_OFFSET_FILL);
-    gl.disable(gl.BLEND);
-    //gl.enable(gl.DEPTH_TEST);
-
-    if(this.drawLines) {
-      if (this.lineOverlay) gl.disable(gl.DEPTH_TEST);
-      gl.enable(gl.BLEND);
-      for (var i = 0; i < this.meshes.length; i++) {
-        var mesh = this.meshes[i];
-        if (mesh.vertices.length > 0) {
-          this.blackShader.draw(mesh, gl.LINES);
-        }
-      }
-      gl.disable(gl.BLEND);
-      if (this.lineOverlay) gl.enable(gl.DEPTH_TEST);
-    }
-    //EDW: axes
-    // Jennie - I don't draw major or minor gridlines on X or Y axis, because they
-    // cover up the colored axis lines drawn later.  That's the x!=0 part.
-    if (Blockscad.drawAxes) {
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.begin(gl.LINES);
-      // can I have the plate change size based on your zoom level?
-      // var plate = Math.ceil(this.viewpointZ * 1.1);
-      // if (plate%2) plate++;
-      //console.log("plate is:",plate);
-      var plate = 200;
-      if(this.plate) {
-         gl.color(0.8,0.8,0.8,0.5); // -- minor grid
-         for(var x=-plate/2; x<=plate/2; x++) {
-            if(x%10 && x!==0) {
-               gl.vertex(-plate/2, x, 0);
-               gl.vertex(plate/2, x, 0);
-               gl.vertex(x, -plate/2, 0);
-               gl.vertex(x, plate/2, 0);
-
-               // hashmarks on z-axis
-               if (x < plate/2.8 && x > -plate/2.8) {
-                 gl.vertex(-0.5, 0, x);
-                 gl.vertex(0.5, 0, x);
-                 gl.vertex(0, -0.50, x);
-                 gl.vertex(0, 0.50, x); 
-               }
-            }
-         }
-         gl.color(0.5,0.5,0.5,0.5); // -- major grid
-         for(var x=10; x<=plate/2; x+=10) {
-            if(x!==0) {
-              gl.vertex(-plate/2, x, 0);
-              gl.vertex(plate/2, x, 0);
-              gl.vertex(x, -plate/2, 0);
-              gl.vertex(x, plate/2, 0);
-              gl.vertex(-plate/2, -x, 0);
-              gl.vertex(plate/2, -x, 0);
-              gl.vertex(-x, -plate/2, 0);
-              gl.vertex(-x, plate/2, 0);
-
-              // hashmarks on z-axis
-              if (x < plate/2.8 ) {
-                gl.vertex(-1, 0, x);
-                gl.vertex(1, 0, x);
-                gl.vertex(0, -1, x);
-                gl.vertex(0, 1, x);
-                gl.vertex(-1, 0, -x);
-                gl.vertex(1, 0, -x);
-                gl.vertex(0, -1, -x);
-                gl.vertex(0, 1, -x);
-              }
-          }
-         }
-      }
-
-      // JY - set alpha for axes color to 1 to make the colors more obvious, and changed colors.
-      if(1) {
-         //X - red
-
-   
-        gl.color(1, 0, 0, 1); //positive direction
-        gl.vertex(0, 0, 0);
-        gl.vertex(plate/2, 0, 0);
-
-         // I'd like to try making the negative direction dashed
-        for (var i=-plate/2; i < 0; i++) {
-          if (i%2) {
-            gl.vertex(i,0,0);
-            gl.vertex(i+1,0,0);
-          }
-        }
-
-         //Y - green
-
-        gl.color(0, 0.7, 0, 1); //positive direction
-        gl.vertex(0, 0, 0);
-        gl.vertex(0, plate/2, 0);
-
-        for (var i=-plate/2; i < 0; i++) { // negative direction is dashed
-          if (i%2) {
-            gl.vertex(0,i,0);
-            gl.vertex(0,i+1,0);
-          }
-        }
   
-        gl.color(0.1, 0.1, 0.4, 1); //positive direction
-        gl.vertex(0, 0, 0);
-        gl.vertex(0, 0, plate/2.8);
+    if (Blockscad.drawAxes) {
+      //dibuja o elimina ejes y el plano cuadriculado
 
-        for (var i=Math.floor(-plate/2.8); i < 0; i++) { // negative direction is dashed
-          if (i%2) {
-            gl.vertex(0,0,i);
-            gl.vertex(0,0,i+1);
-          }
-        }        
-      }
-
-      if(1) {
-        //can I draw in an x just by drawing lines?  Text is hard.  - JY
-        gl.color(0,0,0,1);  // black?
-        gl.vertex(plate/2 + 1*plate/160,-1*plate/160,0);
-        gl.vertex(plate/2 + 3*plate/160,1*plate/160,0);
-        
-        gl.vertex(plate/2+1*plate/160,1*plate/160,0);
-        gl.vertex(plate/2+3*plate/160,-1*plate/160,0);
-
-        // drawing in a "y" - JY
-        gl.vertex(-1*plate/160,plate/2 + 4*plate/160,0);
-        gl.vertex(0,plate/2+3*plate/160,0);
-        
-        gl.vertex(0,plate/2+3*plate/160,0);
-        gl.vertex(1*plate/160,plate/2+4*plate/160,0);
-        
-        gl.vertex(0,plate/2+1*plate/160,0);
-        gl.vertex(0,plate/2+3*plate/160,0);
-
-        // why not a "z" - JY
-        gl.vertex(-1*plate/160,0,plate/2.8+3*plate/160);
-        gl.vertex(1*plate/160,0,plate/2.8+3*plate/160);
-
-        gl.vertex(-1*plate/160,0,plate/2.8+1*plate/160);
-        gl.vertex(1*plate/160,0,plate/2.8+1*plate/160);
-
-        gl.vertex(-1*plate/160,0,plate/2.8+1*plate/160);
-        gl.vertex(1*plate/160,0,plate/2.8+3*plate/160);
-
-      }
-      gl.end();
-      gl.disable(gl.BLEND);
-      // GL.Mesh.plane({ detailX: 20, detailY: 40 });
     }
+  },
+  toggleAxes:function(e) {
+  if (this.scene.getObjectByName("axes")&&this.scene.getObjectByName("GridPlane")) {
+      this.scene.remove(  this.scene.getObjectByName("axes"));//remove axes
+      this.scene.remove(  this.scene.getObjectByName("GridPlane"));//remove grid plane
+    }else{
+      this.scene.add(this.axes);
+      this.scene.add(this.GridPlane);
+    }
+  },
+  buildLine: function( src, dst, colorHex, dashed, lineWidth  ){
+    var geom = new THREE.Geometry(),mat;
+    if(dashed) {
+      mat = new THREE.LineDashedMaterial({ linewidth: lineWidth, color: colorHex, dashSize: 1, gapSize: 1 });
+    }else {
+      mat = new THREE.LineBasicMaterial({ linewidth: lineWidth, color: colorHex });
+    }
+    geom.vertices.push( src.clone() );
+    geom.vertices.push( dst.clone() );
+    geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
+    var axis = new THREE.Line( geom, mat, THREE.LineSegments );
+    return axis;
+  },
+  buildAxes: function( length ){
+    var axes = new THREE.Object3D();
+    axes.name ="axes";
+    axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false,1)); // +X
+    axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( -length, 0, 0 ), 0xFF0000, true,1)); // -X
+    axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false,1)); // +Y
+    axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, -length, 0 ), 0x00FF00, true,1)); // -Y
+    axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false,1)); // +Z
+    axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, -length ), 0x0000FF, true,1)); // -Z
+    return axes;
+  },
+  buildGridPlane: function(size){
+    var GridPlane = new THREE.Object3D();
+    GridPlane.name="GridPlane";
+    size=size/2;
+    for(var x=-size; x<0; x++) {
+      GridPlane.add(this.buildLine( new THREE.Vector3( x, -size, 0 ), new THREE.Vector3( x, size, 0 ), 0xDDDDDD, false,1 ));
+      GridPlane.add(this.buildLine( new THREE.Vector3( -size, x, 0 ), new THREE.Vector3( size, x, 0 ), 0xDDDDDD, false,1 ));
+    }
+    for(var x=1; x<=size; x++) {
+      GridPlane.add(this.buildLine( new THREE.Vector3( x, -size, 0 ), new THREE.Vector3( x, size, 0 ), 0xDDDDDD, false,1 ));
+      GridPlane.add(this.buildLine( new THREE.Vector3( -size, x, 0 ), new THREE.Vector3( size, x, 0 ), 0xDDDDDD, false,1 ));
+    }
+    for(var x=-size; x<0; x+=10) {
+      GridPlane.add(this.buildLine( new THREE.Vector3( x, -size, 0 ), new THREE.Vector3( x, size, 0 ), 0xC4C4C4, false,1 ));
+      GridPlane.add(this.buildLine( new THREE.Vector3( -size, x, 0 ), new THREE.Vector3( size, x, 0 ), 0xC4C4C4, false,1 ));
+    }
+    for(var x=10; x<=size; x+=10) {
+      GridPlane.add(this.buildLine( new THREE.Vector3( x, -size, 0 ), new THREE.Vector3( x, size, 0 ), 0xC4C4C4, false,1 ));
+      GridPlane.add(this.buildLine( new THREE.Vector3( -size, x, 0 ), new THREE.Vector3( size, x, 0 ), 0xC4C4C4, false,1 ));
+    }
+    return GridPlane;
   }
 };
 
-// Convert from CSG solid to an array of GL.Mesh objects
-// limiting the number of vertices per mesh to less than 2^16
+Blockscad.Viewer.getGeometryVertice= function( threeGeometry, vertice_position ){
+  threeGeometry.vertices.push( new THREE.Vector3( vertice_position.x, vertice_position.y, vertice_position.z ) );
+  return threeGeometry.vertices.length - 1;
+}
+
+Blockscad.Viewer.csgToThreeMesh = function( csg_model ) {
+  var csg = csg_model.canonicalized();
+  var i, j, vertices, face,
+  three_geometry = new THREE.Geometry( ),
+  polygons = csg.toPolygons( );
+  if ( !CSG ) {
+    throw 'CSG library not loaded. Please get a copy from https://github.com/evanw/csg.js';
+  }
+  for ( i = 0; i < polygons.length; i++ ) {
+    vertices = []; 
+    for ( j = 0; j < polygons[i].vertices.length; j++ ) {
+      vertices.push( Blockscad.Viewer.getGeometryVertice( three_geometry, polygons[i].vertices[j].pos ) );
+    }
+    if ( vertices[0] === vertices[vertices.length - 1] ) {
+      vertices.pop( );//si el ultimo es igual que el primero borra el ultimo
+    }		
+    for (var j = 2; j < vertices.length; j++) {
+      face = new THREE.Face3( vertices[0], vertices[j-1], vertices[j], new THREE.Vector3( ).copy( polygons[i].plane.normal ) );
+      three_geometry.faces.push( face );
+      three_geometry.faceVertexUvs[0].push( [new THREE.Vector2(0, 0),new THREE.Vector2(0, 1),new THREE.Vector2(1, 0)]);
+    }
+  }
+  three_geometry.computeBoundingBox();
+  var material = new THREE.MeshPhongMaterial( { color: 0xF880F8, 
+    //specular: 0x0f0f0f,
+    shininess: 50}  );
+  var three_mesh = new THREE.Mesh( three_geometry, material );
+  return three_mesh;
+}
+
+
 Blockscad.Viewer.csgToMeshes = function(initial_csg) {
   var csg = initial_csg.canonicalized();
-  var mesh = new GL.Mesh({ normals: true, colors: true });
+  var mesh;
   var meshes = [ mesh ];
-  var vertexTag2Index = {};
-  var vertices = [];
-  var colors = [];
-  var triangles = [];
-  // set to true if we want to use interpolated vertex normals
-  // this creates nice round spheres but does not represent the shape of
-  // the actual model
-  var smoothlighting = false;
-  var polygons = csg.toPolygons();
-  var numpolygons = polygons.length;
-  for(var j = 0; j < numpolygons; j++) {
-    var polygon = polygons[j];
-    var color = [1,0.5,1,1];      // -- default color
-
-    if(polygon.shared && polygon.shared.color) {
-      color = polygon.shared.color;
-    }
-    if(polygon.color) {
-      color = polygon.color;
-    }
-
-	if (color.length < 4)
-		color.push(1.0); //opaque
-
-    var indices = polygon.vertices.map(function(vertex) {
-      var vertextag = vertex.getTag();
-      var vertexindex;
-      if(smoothlighting && (vertextag in vertexTag2Index)) {
-        vertexindex = vertexTag2Index[vertextag];
-      } else {
-        vertexindex = vertices.length;
-        vertexTag2Index[vertextag] = vertexindex;
-        vertices.push([vertex.pos.x, vertex.pos.y, vertex.pos.z]);
-        colors.push(color);
-      }
-      return vertexindex;
-    });
-    for (var i = 2; i < indices.length; i++) {
-      triangles.push([indices[0], indices[i - 1], indices[i]]);
-    }
-    // if too many vertices, start a new mesh;
-    if (vertices.length > 65000) {
-      // finalize the old mesh	
-      mesh.triangles = triangles;
-      mesh.vertices = vertices;
-      mesh.colors = colors;
-      mesh.computeWireframe();
-      mesh.computeNormals();
-      // start a new mesh
-      mesh = new GL.Mesh({ normals: true, colors: true });
-      triangles = [];
-      colors = [];
-      vertices = [];
-      meshes.push(mesh);	
-    }
-  }
-  // finalize last mesh
-  mesh.triangles = triangles;
-  mesh.vertices = vertices;
-  mesh.colors = colors;
-  mesh.computeWireframe();
-  mesh.computeNormals();
   return meshes;
 };
-
-// this is a bit of a hack; doesn't properly supports urls that start with '/'
-// but does handle relative urls containing ../
 Blockscad.makeAbsoluteUrl = function(url, baseurl) {
   // console.log("in makeAbsoluteUrl: ",url + "    " + baseurl);
   if(!url.match(/^[a-z]+\:/i)) {
@@ -681,91 +336,7 @@ Blockscad.makeAbsoluteUrl = function(url, baseurl) {
   return url;
 };
 
-Blockscad.isChrome = function() {
-  return (navigator.userAgent.search("Chrome") >= 0);
-};
 
-// This is called from within the web worker. Execute the main() function of the supplied script
-// and post a message to the calling thread when finished
-Blockscad.runMainInWorker = function() {
-  try {
-    if(typeof(main) != 'function') throw new Error('Your file should contain a function main() which returns a CSG solid or a CAG area.');
-  
-    var result = main();
-    if( (typeof(result) != "object") || ((!(result instanceof CSG)) && (!(result instanceof CAG)))) {
-      throw new Error("Nothing to Render!");
-    }
-    else if(result.length) {                   // main() return an array, we consider it a bunch of CSG not intersecting
-       var o = result[0];
-       if(o instanceof CAG) {
-          o = o.extrude({offset: [0,0,0.1]});
-       }
-       for(var i=1; i<result.length; i++) {
-          var c = result[i];
-          if(c instanceof CAG) {
-             c = c.extrude({offset: [0,0,0.1]});
-          }
-          o = o.unionForNonIntersecting(c);
-       }
-       result = o;
-    } 
-    var result_compact = result.toCompactBinary();   
-    result = null; // not needed anymore
-    self.postMessage({cmd: 'rendered', result: result_compact});
-  }
-  catch(e) {
-    var errtxt = e.toString();
-    self.postMessage({cmd: 'error', err: errtxt});
-  }
-};
-
-Blockscad.parseBlockscadScriptSync = function(script, debugging) {
-  var workerscript = "//SYNC\n";
-  workerscript += "_includePath = "+JSON.stringify(_includePath)+";\n";
-  workerscript += script;
-  // workerscript += "var me = " + JSON.stringify(me) + ";\n";
-  workerscript += "return main();";  
-// trying to get include() somewhere:
-// 1) XHR works for SYNC <---
-// 2) importScripts() does not work in SYNC
-// 3) _csg_libraries.push(fn) provides only 1 level include()
-
-  workerscript += "function include(fn) {" +
-  "if(0) {" +
-    "_csg_libraries.push(fn);" +
-  "} else if(0) {" +
-    "var url = _includePath!=='undefined'?_includePath:'./';" +
-    "var index = url.indexOf('index.html');" +
-    "if(index!=-1) {" +
-       "url = url.substring(0,index);" +
-    "}" +
-  	 "importScripts(url+fn);" +
-  "} else {" +
-   "console.log('SYNC checking gMemFs for '+fn);" +
-   "if(gMemFs[fn]) {" +
-      "console.log('found locally & eval:',gMemFs[fn].name);" +
-      "eval(gMemFs[fn].source); return;" +
-   "}" +
-   "var xhr = new XMLHttpRequest();" +
-   "xhr.open('GET',_includePath+fn,false);" +
-   "console.log('include:'+_includePath+fn);" +
-   "xhr.onload = function() {" +
-      "var src = this.responseText;" +
-      "eval(src);" +
-   "};" +
-   "xhr.onerror = function() {" +
-   "};" +
-   "xhr.send();" +
-  "}" +
-"}";
-
-  var f = new Function(workerscript);
-  
-  return f();                     // execute the actual code
-
-};
-
-// callback: should be function(error, csg)
 Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
     //"blockscad/viewer_compressed.js"
@@ -955,8 +526,9 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.script = null;
   this.hasError = false;
   this.debugging = false;
-  this.createElements();
+  this.createElements(); //crear esta funcion
 };
+
 
 Blockscad.Processor.convertToSolid = function(obj) {
 
@@ -1302,7 +874,7 @@ Blockscad.Processor.prototype = {
     var blob = this.currentObjectToBlob();
     var ext = this.selectedFormatInfo().extension;
 
-    // I want the user to be able to enter a filename for the stl download - JY
+   // I want the user to be able to enter a filename for the stl download - JY
    // pull a filename entered by the user
    var filename = $('#project-name').val();
    // don't save without a filename.  Name isn't checked for quality.
@@ -1312,5 +884,5 @@ Blockscad.Processor.prototype = {
    else {
      alert("Could not save" , this.selectedFormatInfo().displayName ," file.  Please give your project a name, then try again.");
    }
-  },
+  }
 };
