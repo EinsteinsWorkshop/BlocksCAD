@@ -91,7 +91,6 @@ The vertex normal has been removed since it complicates retesselation. It's not 
 for solid CAD anyway.
 
 */
-
 (function(module) {
 
     var _CSGDEBUG = false;
@@ -374,10 +373,14 @@ for solid CAD anyway.
 
             // make a list of all unique vertices
             var vertexmap = {};
+            console.log("polygons going into hull");
             csgs.map( function(csg) {
+                console.log("new csg");
                 csg.reTesselated().polygons.map( function(polygon) {
+                    console.log("new polygon");
                     polygon.vertices.map( function(vertex) {
                         vertexmap[vertex.getTag()] = vertex;
+                        console.log(vertex.pos);
                     });
                 });         
             });
@@ -385,13 +388,12 @@ for solid CAD anyway.
             var result = [];
             for (var tag in vertexmap) {
                 if (vertexmap.hasOwnProperty(tag)) {
-                    vertexmap[tag].pos._x += (Math.random()-0.5)/1000;
-                    vertexmap[tag].pos._y += (Math.random()-0.5)/1000;
-                    vertexmap[tag].pos._z += (Math.random()-0.5)/1000;
+                    // vertexmap[tag].pos._x += (Math.random()-0.5)/1000;
+                    // vertexmap[tag].pos._y += (Math.random()-0.5)/1000;
+                    // vertexmap[tag].pos._z += (Math.random()-0.5)/1000;
                     result.push(vertexmap[tag].pos);
                 }
             }
-            //console.log(result);
             return result;
         };
         
@@ -561,6 +563,7 @@ for solid CAD anyway.
             }
         };
 
+        // start of hull code
         var top_guy = this;
         var other_csgs = csg;
         var csgs = [];
@@ -582,6 +585,40 @@ for solid CAD anyway.
         var points = getPoints(csgs);
         findMaxMin(points);
 
+        // console.log("points in hull:",points);
+        // var qh_points = [];
+        // var thispoint = points[1];
+        // console.log(thispoint);
+        // for (var p = 0; p < points.length; p++) {
+        //     var np = [points[p]._x,points[p]._y,points[p]._z];
+        //     qh_points.push(np);
+        //     console.log(np);
+
+        //   // qhull test stuff
+        // }
+        // console.log(qh_points);
+        // var donepoints = executeQHull(qh_points);
+        // console.log(donepoints);
+
+        // var faces2 = [];
+        // for (var f = 0; f < donepoints.length; f++) {
+        //    // console.log(points[donepoints[f][1]]);
+        //    var face = new Triangle3D(points[donepoints[f][0]], points[donepoints[f][1]], points[donepoints[f][2]]); 
+        //    faces2.push(face);
+        //    console.log("face:",points[donepoints[f][0]], points[donepoints[f][1]], points[donepoints[f][2]])
+        // }
+        // console.log(faces2);
+        // var polygons = [];
+        // faces2.map( function(face) {
+        //     if ( face ) {
+        //         polygons.push(face.getPolygon());
+        //         console.log(face.getPolygon().vertices);
+        //     }
+        // });
+
+        // from original hull (not qhull)
+
+        // points = getPoints(csgs);
         var halfSpace = new HalfSpace(points[0], points[1]);
         // log("points[0]: " + points[0]);
         // log("points[1]: " + points[1]);
@@ -657,13 +694,16 @@ for solid CAD anyway.
                 faces.push(triangle);
             }
         }
-        var polygons = [];
+        // var polygons = [];
+        polygons = [];
+        console.log("final polygons:");
         faces.map( function(face) {
             if ( face ) {
                 polygons.push(face.getPolygon());
+                console.log(face.getPolygon().vertices[0].pos, face.getPolygon().vertices[1].pos, face.getPolygon().vertices[2].pos);
             }
         });
-        return CSG.fromPolygons(polygons);
+         return CSG.fromPolygons(polygons);
     },
      // end hull3d
 

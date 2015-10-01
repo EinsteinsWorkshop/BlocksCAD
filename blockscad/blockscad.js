@@ -470,6 +470,8 @@ Blockscad.init = function() {
       root.find('.sub-menu:visible').hide();
     });
   });
+
+
 }; // end Blockscad.init()
 
 

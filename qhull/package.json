@@ -1,0 +1,35 @@
+{
+  "name": "qhull-js",
+  "version": "0.0.1",
+  "description": "A port of qhull to JavaScript",
+  "main": "qhull.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "bit-twiddle": "~0.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/qhull-js.git"
+  },
+  "keywords": [
+    "qhull",
+    "convex",
+    "hull",
+    "javascript",
+    "delaunay",
+    "voronoi",
+    "triangulation",
+    "computational",
+    "geometry"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "9c4bc81a2c1876b9a3386d512ac8c336a1878f3f"
+}

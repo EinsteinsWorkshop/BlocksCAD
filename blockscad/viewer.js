@@ -764,7 +764,8 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
     //"blockscad/viewer_compressed.js"
       "blockscad/csg.js",
-      "blockscad/viewer.js"
+      "blockscad/viewer.js",
+      "qhull/qhull.js"
   ];
 
   // console.log("in parseBlockscadScriptASync");
