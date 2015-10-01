@@ -56,8 +56,6 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   
 };
 
-
-
 Blockscad.Viewer.prototype = {
   setCsg: function(csg) {
     // if(0&&csg.length) {                            // preparing multiple CSG's (not union-ed), not yet working
@@ -123,92 +121,8 @@ Blockscad.Viewer.prototype = {
     return !!this.gl;
   },
 
-  ZOOM_MAX: 1500,
-  ZOOM_MIN: 5,
-  onZoomChanged: null,
-  plate: true,                   // render plate
 
-  setZoom: function(coeff) { //0...1
-        //zoom y esas cosas, uso orbit control
-  },
-
-  getZoom: function() {
-       //zoom y esas cosas, uso orbit control
-  },
-  clearShift: function() {
-      if(this.touch.shiftTimer) {
-          clearTimeout(this.touch.shiftTimer);
-          this.touch.shiftTimer = null;
-      }
-      return this;
-  },
-  //pan & tilt with one finger
-  // no se si esto sea necesario usando three orbit control
-  onPanTilt: function(e) {
-    this.touch.cur = 'dragging';
-    var delta = 0;
-    if (this.touch.lastY && (e.gesture.direction == 'up' || e.gesture.direction == 'down')) {
-        //tilt
-        delta = e.gesture.deltaY - this.touch.lastY;
-        this.angleX += delta;
-    } else if (this.touch.lastX && (e.gesture.direction == 'left' || e.gesture.direction == 'right')) {
-        //pan
-        delta = e.gesture.deltaX - this.touch.lastX;
-        this.angleZ += delta;
-    }
-    if (delta)
-      this.onDraw();
-    this.touch.lastX = e.gesture.deltaX;
-    this.touch.lastY = e.gesture.deltaY;
-  },
-  //shift after 0.5s touch&hold
-  onShift: function(e) {
-    this.touch.cur = 'shifting';
-    var factor = 5e-3;
-    var delta = 0;
-
-    if (this.touch.lastY && (e.gesture.direction == 'up' || e.gesture.direction == 'down')) {
-        this.touch.shiftControl
-          .removeClass('shift-horizontal')
-          .addClass('shift-vertical')
-          .css('top', e.gesture.center.pageY + 'px');
-        delta = e.gesture.deltaY - this.touch.lastY;
-        this.viewpointY -= factor * delta * this.viewpointZ;
-        this.angleX += delta;
-    } 
-    if (this.touch.lastX && (e.gesture.direction == 'left' || e.gesture.direction == 'right')) {
-        this.touch.shiftControl
-          .removeClass('shift-vertical')
-          .addClass('shift-horizontal')
-          .css('left', e.gesture.center.pageX + 'px');
-        delta = e.gesture.deltaX - this.touch.lastX;
-        this.viewpointX += factor * delta * this.viewpointZ;
-        this.angleZ += delta;
-    }
-    if (delta)
-      this.onDraw();
-    this.touch.lastX = e.gesture.deltaX;
-    this.touch.lastY = e.gesture.deltaY;
-  },
-  //zooming
-  onTransform: function(e) {
-      this.touch.cur = 'transforming';
-      if (this.touch.scale) {
-        var factor = 1 / (1 + e.gesture.scale - this.touch.scale);
-        var coeff = this.getZoom();
-        coeff *= factor;
-        this.setZoom( coeff);
-      }
-      this.touch.scale = e.gesture.scale;
-      return this;
-  },
-  onDraw: function(e) {
-  
-    if (Blockscad.drawAxes) {
-      //dibuja o elimina ejes y el plano cuadriculado
-
-    }
-  },
+ 
   toggleAxes:function(e) {
   if (this.scene.getObjectByName("axes")&&this.scene.getObjectByName("GridPlane")) {
       this.scene.remove(  this.scene.getObjectByName("axes"));//remove axes
@@ -300,14 +214,6 @@ Blockscad.Viewer.csgToThreeMesh = function( csg_model ) {
   var three_mesh = new THREE.Mesh( three_geometry, material );
   return three_mesh;
 }
-
-
-Blockscad.Viewer.csgToMeshes = function(initial_csg) {
-  var csg = initial_csg.canonicalized();
-  var mesh;
-  var meshes = [ mesh ];
-  return meshes;
-};
 Blockscad.makeAbsoluteUrl = function(url, baseurl) {
   // console.log("in makeAbsoluteUrl: ",url + "    " + baseurl);
   if(!url.match(/^[a-z]+\:/i)) {
