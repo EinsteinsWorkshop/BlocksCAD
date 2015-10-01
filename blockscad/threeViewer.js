@@ -39,7 +39,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   this.light.castShadow = true;
   this.light.position.copy( this.camera.position );
   this.scene.add(this.light);
-  this.axes = this.buildAxes( 1000 );
+  this.axes = this.buildAxes( 500 );
   this.GridPlane = this.buildGridPlane(500);
   this.scene.add(this.axes);
   this.scene.add(this.GridPlane);
@@ -146,6 +146,7 @@ Blockscad.Viewer.prototype = {
     return axis;
   },
   buildAxes: function( length ){
+    length=length/2;
     var axes = new THREE.Object3D();
     axes.name ="axes";
     axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false,1)); // +X
@@ -154,6 +155,20 @@ Blockscad.Viewer.prototype = {
     axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, -length, 0 ), 0x00FF00, true,1)); // -Y
     axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false,1)); // +Z
     axes.add( this.buildLine( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, -length ), 0x0000FF, true,1)); // -Z
+
+    //draw X character
+     axes.add(this.buildLine( new THREE.Vector3( -5+length+5, -5, 0 ), new THREE.Vector3(5+length+5, 5, 0 ), 0x000000, false,1));
+     axes.add(this.buildLine( new THREE.Vector3( 5+length+5, -5, 0 ), new THREE.Vector3(-5+length+5, 5, 0 ), 0x000000, false,1));
+
+    //draw Y character
+    axes.add(this.buildLine( new THREE.Vector3( 0, 0+length, 0 ), new THREE.Vector3(0, 5+length, 0 ), 0x000000, false,1));
+    axes.add(this.buildLine( new THREE.Vector3( 0, 5+length, 0 ), new THREE.Vector3(5, 10+length, 0 ), 0x000000, false,1));
+    axes.add(this.buildLine( new THREE.Vector3( 0, 5+length, 0 ), new THREE.Vector3(-5, 10+length, 0 ), 0x000000, false,1));
+    //draw Z character
+    axes.add(this.buildLine( new THREE.Vector3( -5, 0, 0+length+5), new THREE.Vector3(5, 0, 0 +length+5), 0x000000, false,1));
+    axes.add(this.buildLine( new THREE.Vector3( -5, 0, 0+length +5), new THREE.Vector3(5, 0,10 +length+5), 0x000000, false,1));
+    axes.add(this.buildLine( new THREE.Vector3( 5, 0, 10+length +5), new THREE.Vector3(-5, 0, 10+length+5), 0x000000, false,1));
+ 
     return axes;
   },
   buildGridPlane: function(size){
@@ -167,18 +182,30 @@ Blockscad.Viewer.prototype = {
     for(var x=1; x<=size; x++) {
       GridPlane.add(this.buildLine( new THREE.Vector3( x, -size, 0 ), new THREE.Vector3( x, size, 0 ), 0xDDDDDD, false,1 ));
       GridPlane.add(this.buildLine( new THREE.Vector3( -size, x, 0 ), new THREE.Vector3( size, x, 0 ), 0xDDDDDD, false,1 ));
+      //draw hashmarks on z axis
+      GridPlane.add(this.buildLine( new THREE.Vector3( -0.5, -0.5, x ), new THREE.Vector3( 0.5, 0.5, x ), 0xDDDDDD, false,1 ));
+      GridPlane.add(this.buildLine( new THREE.Vector3(  0.5, -0.5, x ), new THREE.Vector3( -0.5, 0.5, x ), 0xDDDDDD, false,1 ));
     }
     for(var x=-size; x<0; x+=10) {
       GridPlane.add(this.buildLine( new THREE.Vector3( x, -size, 0 ), new THREE.Vector3( x, size, 0 ), 0xC4C4C4, false,1 ));
       GridPlane.add(this.buildLine( new THREE.Vector3( -size, x, 0 ), new THREE.Vector3( size, x, 0 ), 0xC4C4C4, false,1 ));
+      //draw mayor hashmarks on -z axis
+      GridPlane.add(this.buildLine( new THREE.Vector3( -1, -1, x ), new THREE.Vector3( 1, 1, x ), 0xC4C4C4, false,1 ));
+      GridPlane.add(this.buildLine( new THREE.Vector3(  1, -1, x ), new THREE.Vector3( -1, 1, x ), 0xC4C4C4, false,1 ));
+
     }
     for(var x=10; x<=size; x+=10) {
       GridPlane.add(this.buildLine( new THREE.Vector3( x, -size, 0 ), new THREE.Vector3( x, size, 0 ), 0xC4C4C4, false,1 ));
       GridPlane.add(this.buildLine( new THREE.Vector3( -size, x, 0 ), new THREE.Vector3( size, x, 0 ), 0xC4C4C4, false,1 ));
+      //draw mayor hashmarks on z axis
+      GridPlane.add(this.buildLine( new THREE.Vector3( -1, -1, x ), new THREE.Vector3( 1, 1, x ), 0xC4C4C4, false,1 ));
+      GridPlane.add(this.buildLine( new THREE.Vector3(  1, -1, x ), new THREE.Vector3( -1, 1, x ), 0xC4C4C4, false,1 ));
+
     }
     return GridPlane;
   }
 };
+
 
 Blockscad.Viewer.getGeometryVertice= function( threeGeometry, vertice_position ){
   threeGeometry.vertices.push( new THREE.Vector3( vertice_position.x, vertice_position.y, vertice_position.z ) );
