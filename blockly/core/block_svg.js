@@ -109,6 +109,12 @@ Blockly.BlockSvg.prototype.initSvg = function() {
     this.onchangeWrapper_ = Blockly.bindEvent_(this.workspace.getCanvas(),
         'blocklyWorkspaceChange', this, this.onchange);
   }
+
+  // Bind a texteditor close change function, if it exists.
+  if (goog.isFunction(this.onEditorClose) && !this.eventsInit_) {
+    this.onUndochangeWrapper_ = Blockly.bindEvent_(this.workspace.getCanvas(),
+        'blocklyWorkspaceEditor', this, this.onEditorClose);
+  }
   this.eventsInit_ = true;
 
   if (!this.getSvgRoot().parentNode) {
@@ -1150,6 +1156,11 @@ Blockly.BlockSvg.prototype.dispose = function(healStack, animate,
   if (this.onchangeWrapper_) {
     Blockly.unbindEvent_(this.onchangeWrapper_);
     this.onchangeWrapper_ = null;
+  }
+  // for BLOCKSCAD!  locking cylinder
+  if (this.onUndochangeWrapper_) {
+    Blockly.unbindEvent_(this.onUndochangeWrapper_);
+    this.onUndochangeWrapper_ = null;
   }
   // If this block is being dragged, unlink the mouse events.
   if (Blockly.selected == this) {

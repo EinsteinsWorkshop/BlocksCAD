@@ -30,22 +30,19 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.0.1";
+Blockscad.version = "1.1.2";
 
 Blockscad.offline = true;
 
 // -- BEGIN OPENJSCAD STUFF --
 
-var gCurrentFile = null;
 var gProcessor = null;
-var editor = null;
 
-var gCurrentFiles = [];       // linear array, contains files (to read)
-var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
-var gMemFsCount = 0;          // async reading: count of already read files
-var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
-var gMemFsChanged = 0;        // how many files have changed
-var gRootFs = [];             // root(s) of folders 
+// var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
+// var gMemFsCount = 0;          // async reading: count of already read files
+// var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
+// var gMemFsChanged = 0;        // how many files have changed
+// var gRootFs = [];             // root(s) of folders 
 
 var _includePath = './';
 // -- END OPENJSCAD STUFF --
@@ -59,6 +56,9 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 Blockscad.init = function() {
   Blockscad.initLanguage();
 
+
+  // version of input files/projects
+  Blockscad.inputVersion = Blockscad.version;
 
   var rtl = BSUtils.isRtl();
   Blockscad.missingFields = [];  // variable to see if any blocks are missing fields
@@ -895,6 +895,7 @@ Blockscad.isRealChange = function() {
           $('#renderButton').prop('disabled', false); 
           if (Blockscad.undo.fieldChanging != myid) {
             Blockscad.undo.fieldChanging = myid;
+            // console.log("triggering field-change addition to undo stack");
             return true; // found a real change - a field is changing!
           }
           else return false; // this event should be ignored by undo.
@@ -1274,15 +1275,15 @@ Blockscad.hasExtrudeParent = function(block) {
 
 // -- BEGIN OPENJSCAD STUFF --
 
-function putSourceInEditor(src,fn) {
-   editor.setValue(src); 
-   editor.clearSelection();
-   editor.navigateFileStart();
+// function putSourceInEditor(src,fn) {
+//    editor.setValue(src); 
+//    editor.clearSelection();
+//    editor.navigateFileStart();
 
-   previousFilename = fn;
-   previousScript = src;
-   gPreviousModificationTime = "";
-}
+//    previousFilename = fn;
+//    previousScript = src;
+//    gPreviousModificationTime = "";
+// }
 
 /**
  * Initialize the page language.

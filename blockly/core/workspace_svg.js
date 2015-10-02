@@ -378,7 +378,6 @@ Blockly.WorkspaceSvg.prototype.setVisible = function(isVisible) {
  * Render all blocks in workspace.
  */
 Blockly.WorkspaceSvg.prototype.render = function() {
-  console.log("rendering workspace");
   var renderList = this.getAllBlocks();
   for (var i = 0, block; block = renderList[i]; i++) {
     if (!block.getChildren().length) {
@@ -465,6 +464,18 @@ Blockly.WorkspaceSvg.prototype.fireUndoEvent = function() {
     Blockly.fireUiEvent(this.svgBlockCanvas_, 'blocklyWorkspaceUndo');
   }
 };
+
+/**
+ * Added for BlocksCAD - jayod
+ * Fire an "I closed a texteditor" event.  The locking cylinder can pick it up
+ * and change the ratio of the radii then.
+ */
+Blockly.WorkspaceSvg.prototype.fireEditorEvent = function() {
+  if (this.rendered && this.svgBlockCanvas_) {
+    Blockly.fireUiEvent(this.svgBlockCanvas_, 'blocklyWorkspaceEditor');
+  }
+};
+
 /**
  * Paste the provided block onto the workspace.
  * @param {!Element} xmlBlock XML block element.

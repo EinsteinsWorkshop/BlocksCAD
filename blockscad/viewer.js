@@ -735,11 +735,11 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
     "}" +
   	 "importScripts(url+fn);" +
   "} else {" +
-   "console.log('SYNC checking gMemFs for '+fn);" +
-   "if(gMemFs[fn]) {" +
-      "console.log('found locally & eval:',gMemFs[fn].name);" +
-      "eval(gMemFs[fn].source); return;" +
-   "}" +
+   // "console.log('SYNC checking gMemFs for '+fn);" +
+   // "if(gMemFs[fn]) {" +
+   //    "console.log('found locally & eval:',gMemFs[fn].name);" +
+   //    "eval(gMemFs[fn].source); return;" +
+   // "}" +
    "var xhr = new XMLHttpRequest();" +
    "xhr.open('GET',_includePath+fn,false);" +
    "console.log('include:'+_includePath+fn);" +
@@ -774,38 +774,38 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
 
   var libraries = [];
 
-  for(var i in gMemFs) {            // let's test all files and check syntax before we do anything
-    var src = gMemFs[i].source+"\nfunction include() { }\n";
-    var f;
-    try {
-       f = new Function(src);
-    } catch(e) {
-      this.setError(i+": "+e.message);
-      console.log(e.message);
-    }
-  }
+  // for(var i in gMemFs) {            // let's test all files and check syntax before we do anything
+  //   var src = gMemFs[i].source+"\nfunction include() { }\n";
+  //   var f;
+  //   try {
+  //      f = new Function(src);
+  //   } catch(e) {
+  //     this.setError(i+": "+e.message);
+  //     console.log(e.message);
+  //   }
+  // }
   var workerscript = "//ASYNC\n";
   // workerscript += "var me = " + JSON.stringify(me) + ";\n";
   workerscript += "var _csg_baseurl=" + JSON.stringify(baseurl)+";\n";        // -- we need it early for include()
-  workerscript += "var _includePath=" + JSON.stringify(_includePath)+";\n";    //        ''            ''
-  workerscript += "var gMemFs = [];\n";
+  // workerscript += "var _includePath=" + JSON.stringify(_includePath)+";\n";    //        ''            ''
+  // workerscript += "var gMemFs = [];\n";
   var ignoreInclude = false;
   var mainFile;
-  for(var fn in gMemFs) {
-     workerscript += "// "+gMemFs[fn].name+":\n";
-     //workerscript += gMemFs[i].source+"\n";
-     if(!mainFile) 
-        mainFile = fn;
-     if(fn=='main.jscad'||fn.match(/\/main.jscad$/)) 
-        mainFile = fn;
-     workerscript += "gMemFs[\""+gMemFs[fn].name+"\"] = "+JSON.stringify(gMemFs[fn].source)+";\n";
-     ignoreInclude = true;
-  }
-  if(ignoreInclude) {
-     workerscript += "eval(gMemFs['"+mainFile+"']);\n";
-  } else {
+  // for(var fn in gMemFs) {
+  //    workerscript += "// "+gMemFs[fn].name+":\n";
+  //    //workerscript += gMemFs[i].source+"\n";
+  //    if(!mainFile) 
+  //       mainFile = fn;
+  //    if(fn=='main.jscad'||fn.match(/\/main.jscad$/)) 
+  //       mainFile = fn;
+  //    workerscript += "gMemFs[\""+gMemFs[fn].name+"\"] = "+JSON.stringify(gMemFs[fn].source)+";\n";
+  //    ignoreInclude = true;
+  // }
+  // if(ignoreInclude) {
+  //    // workerscript += "eval(gMemFs['"+mainFile+"']);\n";
+  // } else {
      workerscript += script;
-  }
+  // }
   workerscript += "\n\n\n\n//// The following code was added by OpenJsCad + OpenJSCAD.org:\n";
 
 
@@ -828,35 +828,35 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
 // 2) importScripts() works for ASYNC <----
 // 3) _csg_libraries.push(fn) provides only 1 level include()
 
-  if(!ignoreInclude) {
-     workerscript += "function include(fn) {" +
-  "if(0) {" +
-    "_csg_libraries.push(fn);" +
-  "} else if(1) {" +
-   "if(gMemFs[fn]) {" +
-      "eval(gMemFs[fn]); return;" +
-   "}" +
-    "var url = _csg_baseurl+_includePath;" +
-    "var index = url.indexOf('index.html');" +
-    "if(index!=-1) {" +
-       "url = url.substring(0,index);" +
-    "}" +
-  	 "importScripts(url+fn);" +
-  "} else {" +
-   "var xhr = new XMLHttpRequest();" +
-   "xhr.open('GET', _includePath+fn, true);" +
-   "xhr.onload = function() {" +
-      "return eval(this.responseText);" +
-   "};" +
-   "xhr.onerror = function() {" +
-   "};" +
-   "xhr.send();" +
-  "}" +
-"}";
-  } else {
-     //workerscript += "function include() {}\n";
-     workerscript += "function include(fn) { eval(gMemFs[fn]); }\n";
-  }
+//   if(!ignoreInclude) {
+//      workerscript += "function include(fn) {" +
+//   "if(0) {" +
+//     "_csg_libraries.push(fn);" +
+//   "} else if(1) {" +
+//    "if(gMemFs[fn]) {" +
+//       "eval(gMemFs[fn]); return;" +
+//    "}" +
+//     "var url = _csg_baseurl+_includePath;" +
+//     "var index = url.indexOf('index.html');" +
+//     "if(index!=-1) {" +
+//        "url = url.substring(0,index);" +
+//     "}" +
+//   	 "importScripts(url+fn);" +
+//   "} else {" +
+//    "var xhr = new XMLHttpRequest();" +
+//    "xhr.open('GET', _includePath+fn, true);" +
+//    "xhr.onload = function() {" +
+//       "return eval(this.responseText);" +
+//    "};" +
+//    "xhr.onerror = function() {" +
+//    "};" +
+//    "xhr.send();" +
+//   "}" +
+// "}";
+//   } else {
+//      //workerscript += "function include() {}\n";
+//      workerscript += "function include(fn) { eval(gMemFs[fn]); }\n";
+//   }
   //workerscript += "function includePath(p) { _includePath = p; }\n";
   var blobURL = Blockscad.textToBlobUrl(workerscript);
   // console.log("blobURL",blobURL);
