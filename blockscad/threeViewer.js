@@ -81,37 +81,44 @@ Blockscad.Viewer.prototype = {
     var whichView = document.getElementById("viewMenu");
 
     if (whichView.value == "top") {
+      this.controls.reset();
       this.camera.position.set( 0, 0, 50 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
     }
     else if (whichView.value == "front") {
+      this.controls.reset();
       this.camera.position.set( 0, -50, 0 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
     }
     else if (whichView.value == "left") {    
+      this.controls.reset();
       this.camera.position.set( -50, 0, 0 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
    
     }
     else if (whichView.value == "right") {
+      this.controls.reset();
       this.camera.position.set( 50, 0, 0 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
    
     }
     else if (whichView.value == "bottom") {
+      this.controls.reset();
       this.camera.position.set( 0, 0, -50 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
 
     }
-    else if (whichView.value == "back") {    
+    else if (whichView.value == "back") {   
+      this.controls.reset(); 
       this.camera.position.set( 0, 50, 0 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
  
     }
     else if (whichView.value == "diagonal") {
+      this.controls.reset();
       this.camera.position.set( 50, -50, 50 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
     }
