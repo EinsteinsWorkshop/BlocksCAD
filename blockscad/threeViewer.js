@@ -40,8 +40,8 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   this.light.castShadow = true;
   this.light.position.copy( this.camera.position );
   this.scene.add(this.light);
-  this.axes = this.buildAxes( 500 );
-  this.GridPlane = this.buildGridPlane(500);
+  this.axes = this.buildAxes( 200 );
+  this.GridPlane = this.buildGridPlane(200);
   this.scene.add(this.axes);
   this.scene.add(this.GridPlane);
   $(containerelement).append(this.renderer.domElement);
