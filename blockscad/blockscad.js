@@ -30,11 +30,8 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-<<<<<<< HEAD
 Blockscad.version = "1.1.2";
-=======
-Blockscad.version = "1.1.0";
->>>>>>> e7bc1d5e0bc263a28330659122a11cb3e4963441
+
 
 Blockscad.offline = true;
 
