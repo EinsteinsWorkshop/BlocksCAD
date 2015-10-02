@@ -34,6 +34,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   this.controls.enableDamping = true;
   this.controls.dampingFactor = 0.5;
   this.controls.enableZoom = true;
+  this.controls.zoomSpeed = 3;
   var light = new THREE.DirectionalLight(0xffffff, 1);
   this.light=light;
   this.light.castShadow = true;
