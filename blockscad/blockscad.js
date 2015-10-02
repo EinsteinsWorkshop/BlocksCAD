@@ -895,6 +895,7 @@ Blockscad.isRealChange = function() {
           $('#renderButton').prop('disabled', false); 
           if (Blockscad.undo.fieldChanging != myid) {
             Blockscad.undo.fieldChanging = myid;
+            // console.log("triggering field-change addition to undo stack");
             return true; // found a real change - a field is changing!
           }
           else return false; // this event should be ignored by undo.

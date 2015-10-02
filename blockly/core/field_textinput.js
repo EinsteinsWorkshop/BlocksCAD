@@ -78,7 +78,9 @@ Blockly.FieldTextInput.prototype.dispose = function() {
  * @param {?string} text New text.
  * @override
  */
-Blockly.FieldTextInput.prototype.setText = function(text) {
+// skipUndo is used by BlocksCAD for cylinder locking, so that 
+// when the block changes its own value it doesn't create an undo loop
+Blockly.FieldTextInput.prototype.setText = function(text,skipUndo) {
   if (text === null) {
     // No change if null.
     return;
@@ -92,7 +94,7 @@ Blockly.FieldTextInput.prototype.setText = function(text) {
     }
   }
 
-  Blockly.Field.prototype.setText.call(this, text);
+  Blockly.Field.prototype.setText.call(this, text, skipUndo);
 };
 
 /**

@@ -248,6 +248,9 @@ Blockly.Field.prototype.getText = function() {
  * Set the text in this field.  Trigger a rerender of the source block.
  * @param {*} text New text.
  */
+
+// skipUndo parameter is used by blockscad for locking cylinder so that
+// the automatic updating of the second field does'nt break undo.
 Blockly.Field.prototype.setText = function(text,skipUndo) {
   if (text === null) {
     // No change if null.
@@ -264,11 +267,13 @@ Blockly.Field.prototype.setText = function(text,skipUndo) {
   if (this.sourceBlock_ && this.sourceBlock_.rendered) {
     this.sourceBlock_.render();
     this.sourceBlock_.bumpNeighbours_();
+    // for BlocksCAD
     if (!skipUndo) {
-      console.log("in setText - not supposed to skip undo");
-      this.sourceBlock_.workspace.fireChangeEvent();
+      // console.log("in setText: sending undo and change events");
       this.sourceBlock_.workspace.fireUndoEvent(); // undo event for BlocksCAD - jayod
     }
+    // else console.log("in setText: skipping undo and change events");
+    this.sourceBlock_.workspace.fireChangeEvent();
   }
 };
 
