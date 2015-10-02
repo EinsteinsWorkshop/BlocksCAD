@@ -47,7 +47,8 @@ Blockly.Blocks['cylinder'] = {
         .setAlign(Blockly.ALIGN_RIGHT);
     // handle backwards compatibility for cylinders created before locking.
     if (Blockscad.inputVersion == null || Blockscad.inputVersion == "1.0.0"
-        || Blockscad.inputVersion == "1.0.1" || Blockscad.inputVersion == "1.1.0") {
+        || Blockscad.inputVersion == "1.0.1" || Blockscad.inputVersion == "1.1.0" ||
+         Blockscad.inputVersion == "1.1.1") {
       this.appendDummyInput()
           .setAlign(Blockly.ALIGN_RIGHT)
           .appendField(new Blockly.FieldCheckbox("FALSE", null,
