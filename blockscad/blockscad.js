@@ -170,7 +170,7 @@ Blockscad.init = function() {
     // toggle whether or not we draw the axes, then redraw
     Blockscad.drawAxes = (Blockscad.drawAxes + 1) % 2;
     $( '#axesButton' ).toggleClass("btn-pushed");
-    gProcessor.viewer.onDraw();
+    gProcessor.viewer.toggleAxes();
   });
 
   // can I bind a click to a tab?
