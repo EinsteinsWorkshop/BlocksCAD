@@ -365,25 +365,38 @@ for solid CAD anyway.
 
         // hull3d
     hull: function(csg) {
+        console.log("hull called");
+
+        function uniqBy(a, key) {
+            var seen = {};
+            return a.filter(function(item) {
+                var k = key(item);
+                return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+            })
+        }
         
         var getPoints = function(csgs) {
             if ( !Array.isArray(csgs) ) {
                 csgs = [csgs];
             }
 
+            console.log("starting getPoints");
             // make a list of all unique vertices
             var vertexmap = {};
-            console.log("polygons going into hull");
+            var vertex_array = [];
+            // console.log("polygons going into hull");
             csgs.map( function(csg) {
-                console.log("new csg");
+                // console.log("new csg");
                 csg.reTesselated().polygons.map( function(polygon) {
-                    console.log("new polygon");
+                    // console.log("new polygon");
                     polygon.vertices.map( function(vertex) {
                         vertexmap[vertex.getTag()] = vertex;
-                        console.log(vertex.pos);
+                        // console.log(vertex.pos);
+                        vertex_array.push([vertex.pos._x,vertex.pos._y,vertex.pos._z]);
                     });
                 });         
             });
+
 
             var result = [];
             for (var tag in vertexmap) {
@@ -394,7 +407,16 @@ for solid CAD anyway.
                     result.push(vertexmap[tag].pos);
                 }
             }
-            return result;
+            console.log("ending getPoints");
+            // console.log("vertex array",vertex_array);
+            console.log("starting to calculate unique vertices");
+            var uniq_vertices = uniqBy(result, JSON.stringify);
+            // console.log("unique vertices");
+            // for (var i = 0; i < uniq_vertices.length; i++) {
+            //     console.log(uniq_vertices[i]);
+            // }
+            console.log("finished calculating unique vertices");
+            return uniq_vertices;
         };
         
         var HalfSpace = function(a, b, c) {
@@ -583,126 +605,145 @@ for solid CAD anyway.
         }
         
         var points = getPoints(csgs);
-        findMaxMin(points);
+        // findMaxMin(points);
 
-        // console.log("points in hull:",points);
-        // var qh_points = [];
-        // var thispoint = points[1];
-        // console.log(thispoint);
-        // for (var p = 0; p < points.length; p++) {
-        //     var np = [points[p]._x,points[p]._y,points[p]._z];
-        //     qh_points.push(np);
-        //     console.log(np);
+        // console.log("points in hull:");
+        var qh_points = [];
+        var thispoint = points[1];
+        // console.log("this many points to hull:", points.length);
+        for (var p = 0; p < points.length; p++) {
+            var np = [points[p]._x,points[p]._y,points[p]._z];
+            qh_points.push(np);
+            // console.log(p, " , ",np);
+
+          // qhull test stuff
+        }
+        console.log("created ",points.length," points that qhull can use");
+        // console.log(qh_points);
+        var donepoints = executeQHull(qh_points);
+        // console.log("here are the facets returned by qhull (index into points)");
+        // for (var p = 0; p < donepoints.length; p++) {
+        //     // console.log(p, " , ", donepoints[p]);
 
         //   // qhull test stuff
         // }
-        // console.log(qh_points);
-        // var donepoints = executeQHull(qh_points);
-        // console.log(donepoints);
+        console.log("qhull returned the output");
+        // console.log("donepoints is:",donepoints);
 
-        // var faces2 = [];
-        // for (var f = 0; f < donepoints.length; f++) {
-        //    // console.log(points[donepoints[f][1]]);
-        //    var face = new Triangle3D(points[donepoints[f][0]], points[donepoints[f][1]], points[donepoints[f][2]]); 
-        //    faces2.push(face);
-        //    console.log("face:",points[donepoints[f][0]], points[donepoints[f][1]], points[donepoints[f][2]])
-        // }
+        var faces2 = [];
+        for (var f = 0; f < donepoints.length; f++) {
+            // console.log(points[donepoints[f][1]]);
+            if (points[donepoints[f][0]] && points[donepoints[f][1]] && points[donepoints[f][2]]) {
+            var face = new Triangle3D(points[donepoints[f][0]], points[donepoints[f][2]], points[donepoints[f][1]]); 
+
+            faces2.push(face);
+            }
+            else  {
+                console.log("donepoints had a bad face at ",f);
+                console.log(points[donepoints[f][0]], points[donepoints[f][1]], points[donepoints[f][2]])
+            }
+           // console.log("face: ", donepoints[f][0], donepoints[f][2], donepoints[f][1])
+           // console.log("face:",points[donepoints[f][0]], points[donepoints[f][1]], points[donepoints[f][2]])
+        }
+        console.log("qhull made ",donepoints.length," faces");
+        // console.log("made faces");
         // console.log(faces2);
-        // var polygons = [];
-        // faces2.map( function(face) {
-        //     if ( face ) {
-        //         polygons.push(face.getPolygon());
-        //         console.log(face.getPolygon().vertices);
-        //     }
-        // });
+        var polygons = [];
+        faces2.map( function(face) {
+            if ( face ) {
+                polygons.push(face.getPolygon());
+                // console.log(face.getPolygon().vertices[0].pos, face.getPolygon().vertices[1].pos, face.getPolygon().vertices[2].pos);
+                // console.log(face.getPolygon().vertices);
+            }
+        });
 
         // from original hull (not qhull)
 
-        // points = getPoints(csgs);
-        var halfSpace = new HalfSpace(points[0], points[1]);
-        // log("points[0]: " + points[0]);
-        // log("points[1]: " + points[1]);
-        // log("halfSpace.normal: " + halfSpace.normal + " d: " + halfSpace.d);
-        // make p[3] the furthest from p[0]p[1]
-        var len = points.length;
-        for (var i = 3; i < len; ++i) {
-            if (halfSpace.normal.dot(points[i]) > halfSpace.normal.dot(points[2])) {
-                var temp = points[2];
-                points[2] = points[i];
-                points[i] = temp;
-            }       
-        }
-        // log("points[2]: " + points[2]);
+        // // points = getPoints(csgs);
+        // var halfSpace = new HalfSpace(points[0], points[1]);
+        // // log("points[0]: " + points[0]);
+        // // log("points[1]: " + points[1]);
+        // // log("halfSpace.normal: " + halfSpace.normal + " d: " + halfSpace.d);
+        // // make p[3] the furthest from p[0]p[1]
+        // var len = points.length;
+        // for (var i = 3; i < len; ++i) {
+        //     if (halfSpace.normal.dot(points[i]) > halfSpace.normal.dot(points[2])) {
+        //         var temp = points[2];
+        //         points[2] = points[i];
+        //         points[i] = temp;
+        //     }       
+        // }
+        // // log("points[2]: " + points[2]);
         
-        var face1 = new Triangle3D(points[0], points[1], points[2]), 
-            face2 = new Triangle3D(points[0], points[2], points[1]);
-        var faces = [face1, face2];
+        // var face1 = new Triangle3D(points[0], points[1], points[2]), 
+        //     face2 = new Triangle3D(points[0], points[2], points[1]);
+        // var faces = [face1, face2];
 
-        // associate remaining points with one of these two faces   
-        for ( var i = 3; i < len; ++i) {
-            if ( !face1.add(points[i]) ) {
-                face2.add(points[i]);
-            }
-        }
+        // // associate remaining points with one of these two faces   
+        // for ( var i = 3; i < len; ++i) {
+        //     if ( !face1.add(points[i]) ) {
+        //         face2.add(points[i]);
+        //     }
+        // }
         
-        var edgeStack = new EdgeStack();
-        // Each time around the main loop we process one face 
-        for (var i = 0; i < faces.length; ++i) {
-            var selectedFace = faces[i];
-            if ( !selectedFace ) {
-                continue;
-            }
-            // log("i: " + i);
-            // log("selectedFace: " + selectedFace);
-            var newPoint = selectedFace.extreme();
-            if ( !newPoint ) {
-                continue;
-            }
-            // log("newPoint: " + newPoint);
+        // var edgeStack = new EdgeStack();
+        // // Each time around the main loop we process one face 
+        // for (var i = 0; i < faces.length; ++i) {
+        //     var selectedFace = faces[i];
+        //     if ( !selectedFace ) {
+        //         continue;
+        //     }
+        //     // log("i: " + i);
+        //     // log("selectedFace: " + selectedFace);
+        //     var newPoint = selectedFace.extreme();
+        //     if ( !newPoint ) {
+        //         continue;
+        //     }
+        //     // log("newPoint: " + newPoint);
             
-            // delete faces that this vertex can see
-            var ps = []; //pts associated with deleted faces
-            for (var j = 0; j < faces.length; ++j) {
-                var face = faces[j];
-                if ( face && face.inside(newPoint) ) {
-                    // log("removing face " + j + ": " + faces[j]);
+        //     // delete faces that this vertex can see
+        //     var ps = []; //pts associated with deleted faces
+        //     for (var j = 0; j < faces.length; ++j) {
+        //         var face = faces[j];
+        //         if ( face && face.inside(newPoint) ) {
+        //             // log("removing face " + j + ": " + faces[j]);
                     
-                    // update boundary of hole 
-                    edgeStack.putp( face.a, face.b );
-                    edgeStack.putp( face.b, face.c );
-                    edgeStack.putp( face.c, face.a );
-                    //add the points associated with this face to ps 
-                    ps = ps.concat(face.points);
-                    // remove face
-                    faces[j] = null;
-                }
-            }
+        //             // update boundary of hole 
+        //             edgeStack.putp( face.a, face.b );
+        //             edgeStack.putp( face.b, face.c );
+        //             edgeStack.putp( face.c, face.a );
+        //             //add the points associated with this face to ps 
+        //             ps = ps.concat(face.points);
+        //             // remove face
+        //             faces[j] = null;
+        //         }
+        //     }
 
-            while ( !edgeStack.isEmpty() ) {
-                var edge = edgeStack.get();
-                // log("edge: " + edge);
-                var triangle = new Triangle3D( edge.start, edge.end, newPoint );
-                var ps2 = [];
-                for (var j = ps.length - 1; j >= 0; --j) {
-                    var point = ps[j];
-                    if ( (point !== newPoint) && !triangle.add(point) ) {
-                        ps2.push(point);
-                    }
-                }
-                ps = ps2;
-                // log("new face: " + triangle);
-                faces.push(triangle);
-            }
-        }
-        // var polygons = [];
-        polygons = [];
-        console.log("final polygons:");
-        faces.map( function(face) {
-            if ( face ) {
-                polygons.push(face.getPolygon());
-                console.log(face.getPolygon().vertices[0].pos, face.getPolygon().vertices[1].pos, face.getPolygon().vertices[2].pos);
-            }
-        });
+        //     while ( !edgeStack.isEmpty() ) {
+        //         var edge = edgeStack.get();
+        //         // log("edge: " + edge);
+        //         var triangle = new Triangle3D( edge.start, edge.end, newPoint );
+        //         var ps2 = [];
+        //         for (var j = ps.length - 1; j >= 0; --j) {
+        //             var point = ps[j];
+        //             if ( (point !== newPoint) && !triangle.add(point) ) {
+        //                 ps2.push(point);
+        //             }
+        //         }
+        //         ps = ps2;
+        //         // log("new face: " + triangle);
+        //         faces.push(triangle);
+        //     }
+        // }
+        // // var polygons = [];
+        // polygons = [];
+        // console.log("final polygons:");
+        // faces.map( function(face) {
+        //     if ( face ) {
+        //         polygons.push(face.getPolygon());
+        //         console.log(face.getPolygon().vertices[0].pos, face.getPolygon().vertices[1].pos, face.getPolygon().vertices[2].pos);
+        //     }
+        // });
          return CSG.fromPolygons(polygons);
     },
      // end hull3d

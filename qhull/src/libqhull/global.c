@@ -450,18 +450,18 @@ design:
 */
 void qh_freeqhull2(boolT allmem) {
 
-  trace1((qh ferr, 1006, "qh_freeqhull2: free global memory\n"));
+  // trace1((qh ferr, 1006, "qh_freeqhull2: free global memory\n"));
   qh NOerrexit= True;  /* no more setjmp since called at exit and ~QhullQh */
-  qh_freebuild(allmem);
-  qh_freebuffers();
-  qh_freestatistics();
-#if qh_QHpointer
-  memset((char *)qh_qh, 0, sizeof(qhT));
-  /* qh_qh freed by caller, qh_freeqhull() */
-#else
-  memset((char *)&qh_qh, 0, sizeof(qhT));
-#endif
-  qh NOerrexit= True;
+  // qh_freebuild(allmem);
+  // qh_freebuffers();
+  // qh_freestatistics();
+// #if qh_QHpointer
+//   memset((char *)qh_qh, 0, sizeof(qhT));
+//    // qh_qh freed by caller, qh_freeqhull() 
+// #else
+//   memset((char *)&qh_qh, 0, sizeof(qhT));
+// #endif
+  // qh NOerrexit= True;
 } /* freeqhull2 */
 
 /*-<a                             href="qh-globa.htm#TOC"

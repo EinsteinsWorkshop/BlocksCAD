@@ -1109,178 +1109,178 @@ void qh_prepare_output(void) {
     or output results directly
 */
 void qh_printafacet(FILE *fp, qh_PRINT format, facetT *facet, boolT printall) {
-  realT color[4], offset, dist, outerplane, innerplane;
-  boolT zerodiv;
-  coordT *point, *normp, *coordp, **pointp, *feasiblep;
-  int k;
-  vertexT *vertex, **vertexp;
-  facetT *neighbor, **neighborp;
+  // realT color[4], offset, dist, outerplane, innerplane;
+  // boolT zerodiv;
+  // coordT *point, *normp, *coordp, **pointp, *feasiblep;
+  // int k;
+  // vertexT *vertex, **vertexp;
+  // facetT *neighbor, **neighborp;
 
-  if (!printall && qh_skipfacet(facet))
-    return;
-  if (facet->visible && qh NEWfacets && format != qh_PRINTfacets)
-    return;
-  qh printoutnum++;
-  switch (format) {
-  case qh_PRINTarea:
-    if (facet->isarea) {
-      qh_fprintf(fp, 9009, qh_REAL_1, facet->f.area);
-      qh_fprintf(fp, 9010, "\n");
-    }else
-      qh_fprintf(fp, 9011, "0\n");
-    break;
-  case qh_PRINTcoplanars:
-    qh_fprintf(fp, 9012, "%d", qh_setsize(facet->coplanarset));
-    FOREACHpoint_(facet->coplanarset)
-      qh_fprintf(fp, 9013, " %d", qh_pointid(point));
-    qh_fprintf(fp, 9014, "\n");
-    break;
-  case qh_PRINTcentrums:
-    qh_printcenter(fp, format, NULL, facet);
-    break;
-  case qh_PRINTfacets:
-    qh_printfacet(fp, facet);
-    break;
-  case qh_PRINTfacets_xridge:
-    qh_printfacetheader(fp, facet);
-    break;
-  case qh_PRINTgeom:  /* either 2 , 3, or 4-d by qh_printbegin */
-    if (!facet->normal)
-      break;
-    for (k=qh hull_dim; k--; ) {
-      color[k]= (facet->normal[k]+1.0)/2.0;
-      maximize_(color[k], -1.0);
-      minimize_(color[k], +1.0);
-    }
-    qh_projectdim3 (color, color);
-    if (qh PRINTdim != qh hull_dim)
-      qh_normalize2 (color, 3, True, NULL, NULL);
-    if (qh hull_dim <= 2)
-      qh_printfacet2geom(fp, facet, color);
-    else if (qh hull_dim == 3) {
-      if (facet->simplicial)
-        qh_printfacet3geom_simplicial(fp, facet, color);
-      else
-        qh_printfacet3geom_nonsimplicial(fp, facet, color);
-    }else {
-      if (facet->simplicial)
-        qh_printfacet4geom_simplicial(fp, facet, color);
-      else
-        qh_printfacet4geom_nonsimplicial(fp, facet, color);
-    }
-    break;
-  case qh_PRINTids:
-    qh_fprintf(fp, 9015, "%d\n", facet->id);
-    break;
-  case qh_PRINTincidences:
-  case qh_PRINToff:
-  case qh_PRINTtriangles:
-    if (qh hull_dim == 3 && format != qh_PRINTtriangles)
-      qh_printfacet3vertex(fp, facet, format);
-    else if (facet->simplicial || qh hull_dim == 2 || format == qh_PRINToff)
-      qh_printfacetNvertex_simplicial(fp, facet, format);
-    else
-      qh_printfacetNvertex_nonsimplicial(fp, facet, qh printoutvar++, format);
-    break;
-  case qh_PRINTinner:
-    qh_outerinner(facet, NULL, &innerplane);
-    offset= facet->offset - innerplane;
-    goto LABELprintnorm;
-    break; /* prevent warning */
-  case qh_PRINTmerges:
-    qh_fprintf(fp, 9016, "%d\n", facet->nummerge);
-    break;
-  case qh_PRINTnormals:
-    offset= facet->offset;
-    goto LABELprintnorm;
-    break; /* prevent warning */
-  case qh_PRINTouter:
-    qh_outerinner(facet, &outerplane, NULL);
-    offset= facet->offset - outerplane;
-  LABELprintnorm:
-    if (!facet->normal) {
-      qh_fprintf(fp, 9017, "no normal for facet f%d\n", facet->id);
-      break;
-    }
-    if (qh CDDoutput) {
-      qh_fprintf(fp, 9018, qh_REAL_1, -offset);
-      for (k=0; k < qh hull_dim; k++)
-        qh_fprintf(fp, 9019, qh_REAL_1, -facet->normal[k]);
-    }else {
-      for (k=0; k < qh hull_dim; k++)
-        qh_fprintf(fp, 9020, qh_REAL_1, facet->normal[k]);
-      qh_fprintf(fp, 9021, qh_REAL_1, offset);
-    }
-    qh_fprintf(fp, 9022, "\n");
-    break;
-  case qh_PRINTmathematica:  /* either 2 or 3-d by qh_printbegin */
-  case qh_PRINTmaple:
-    if (qh hull_dim == 2)
-      qh_printfacet2math(fp, facet, format, qh printoutvar++);
-    else
-      qh_printfacet3math(fp, facet, format, qh printoutvar++);
-    break;
-  case qh_PRINTneighbors:
-    qh_fprintf(fp, 9023, "%d", qh_setsize(facet->neighbors));
-    FOREACHneighbor_(facet)
-      qh_fprintf(fp, 9024, " %d",
-               neighbor->visitid ? neighbor->visitid - 1: 0 - neighbor->id);
-    qh_fprintf(fp, 9025, "\n");
-    break;
-  case qh_PRINTpointintersect:
-    if (!qh feasible_point) {
-      qh_fprintf(qh ferr, 6067, "qhull input error (qh_printafacet): option 'Fp' needs qh feasible_point\n");
-      qh_errexit( qh_ERRinput, NULL, NULL);
-    }
-    if (facet->offset > 0)
-      goto LABELprintinfinite;
-    point= coordp= (coordT*)qh_memalloc(qh normal_size);
-    normp= facet->normal;
-    feasiblep= qh feasible_point;
-    if (facet->offset < -qh MINdenom) {
-      for (k=qh hull_dim; k--; )
-        *(coordp++)= (*(normp++) / - facet->offset) + *(feasiblep++);
-    }else {
-      for (k=qh hull_dim; k--; ) {
-        *(coordp++)= qh_divzero(*(normp++), facet->offset, qh MINdenom_1,
-                                 &zerodiv) + *(feasiblep++);
-        if (zerodiv) {
-          qh_memfree(point, qh normal_size);
-          goto LABELprintinfinite;
-        }
-      }
-    }
-    qh_printpoint(fp, NULL, point);
-    qh_memfree(point, qh normal_size);
-    break;
-  LABELprintinfinite:
-    for (k=qh hull_dim; k--; )
-      qh_fprintf(fp, 9026, qh_REAL_1, qh_INFINITE);
-    qh_fprintf(fp, 9027, "\n");
-    break;
-  case qh_PRINTpointnearest:
-    FOREACHpoint_(facet->coplanarset) {
-      int id, id2;
-      vertex= qh_nearvertex(facet, point, &dist);
-      id= qh_pointid(vertex->point);
-      id2= qh_pointid(point);
-      qh_fprintf(fp, 9028, "%d %d %d " qh_REAL_1 "\n", id, id2, facet->id, dist);
-    }
-    break;
-  case qh_PRINTpoints:  /* VORONOI only by qh_printbegin */
-    if (qh CDDoutput)
-      qh_fprintf(fp, 9029, "1 ");
-    qh_printcenter(fp, format, NULL, facet);
-    break;
-  case qh_PRINTvertices:
-    qh_fprintf(fp, 9030, "%d", qh_setsize(facet->vertices));
-    FOREACHvertex_(facet->vertices)
-      qh_fprintf(fp, 9031, " %d", qh_pointid(vertex->point));
-    qh_fprintf(fp, 9032, "\n");
-    break;
-  default:
-    break;
-  }
+  // if (!printall && qh_skipfacet(facet))
+  //   return;
+  // if (facet->visible && qh NEWfacets && format != qh_PRINTfacets)
+  //   return;
+  // qh printoutnum++;
+  // switch (format) {
+  // case qh_PRINTarea:
+  //   if (facet->isarea) {
+  //     qh_fprintf(fp, 9009, qh_REAL_1, facet->f.area);
+  //     qh_fprintf(fp, 9010, "\n");
+  //   }else
+  //     qh_fprintf(fp, 9011, "0\n");
+  //   break;
+  // case qh_PRINTcoplanars:
+  //   qh_fprintf(fp, 9012, "%d", qh_setsize(facet->coplanarset));
+  //   FOREACHpoint_(facet->coplanarset)
+  //     qh_fprintf(fp, 9013, " %d", qh_pointid(point));
+  //   qh_fprintf(fp, 9014, "\n");
+  //   break;
+  // case qh_PRINTcentrums:
+  //   qh_printcenter(fp, format, NULL, facet);
+  //   break;
+  // case qh_PRINTfacets:
+  //   qh_printfacet(fp, facet);
+  //   break;
+  // case qh_PRINTfacets_xridge:
+  //   qh_printfacetheader(fp, facet);
+  //   break;
+  // case qh_PRINTgeom:  /* either 2 , 3, or 4-d by qh_printbegin */
+  //   if (!facet->normal)
+  //     break;
+  //   for (k=qh hull_dim; k--; ) {
+  //     color[k]= (facet->normal[k]+1.0)/2.0;
+  //     maximize_(color[k], -1.0);
+  //     minimize_(color[k], +1.0);
+  //   }
+  //   qh_projectdim3 (color, color);
+  //   if (qh PRINTdim != qh hull_dim)
+  //     qh_normalize2 (color, 3, True, NULL, NULL);
+  //   if (qh hull_dim <= 2)
+  //     qh_printfacet2geom(fp, facet, color);
+  //   else if (qh hull_dim == 3) {
+  //     if (facet->simplicial)
+  //       qh_printfacet3geom_simplicial(fp, facet, color);
+  //     else
+  //       qh_printfacet3geom_nonsimplicial(fp, facet, color);
+  //   }else {
+  //     if (facet->simplicial)
+  //       qh_printfacet4geom_simplicial(fp, facet, color);
+  //     else
+  //       qh_printfacet4geom_nonsimplicial(fp, facet, color);
+  //   }
+  //   break;
+  // case qh_PRINTids:
+  //   qh_fprintf(fp, 9015, "%d\n", facet->id);
+  //   break;
+  // case qh_PRINTincidences:
+  // case qh_PRINToff:
+  // case qh_PRINTtriangles:
+  //   if (qh hull_dim == 3 && format != qh_PRINTtriangles)
+  //     qh_printfacet3vertex(fp, facet, format);
+  //   else if (facet->simplicial || qh hull_dim == 2 || format == qh_PRINToff)
+  //     qh_printfacetNvertex_simplicial(fp, facet, format);
+  //   else
+  //     qh_printfacetNvertex_nonsimplicial(fp, facet, qh printoutvar++, format);
+  //   break;
+  // case qh_PRINTinner:
+  //   qh_outerinner(facet, NULL, &innerplane);
+  //   offset= facet->offset - innerplane;
+  //   goto LABELprintnorm;
+  //   break; /* prevent warning */
+  // case qh_PRINTmerges:
+  //   qh_fprintf(fp, 9016, "%d\n", facet->nummerge);
+  //   break;
+  // case qh_PRINTnormals:
+  //   offset= facet->offset;
+  //   goto LABELprintnorm;
+  //   break; /* prevent warning */
+  // case qh_PRINTouter:
+  //   qh_outerinner(facet, &outerplane, NULL);
+  //   offset= facet->offset - outerplane;
+  // LABELprintnorm:
+  //   if (!facet->normal) {
+  //     qh_fprintf(fp, 9017, "no normal for facet f%d\n", facet->id);
+  //     break;
+  //   }
+  //   if (qh CDDoutput) {
+  //     qh_fprintf(fp, 9018, qh_REAL_1, -offset);
+  //     for (k=0; k < qh hull_dim; k++)
+  //       qh_fprintf(fp, 9019, qh_REAL_1, -facet->normal[k]);
+  //   }else {
+  //     for (k=0; k < qh hull_dim; k++)
+  //       qh_fprintf(fp, 9020, qh_REAL_1, facet->normal[k]);
+  //     qh_fprintf(fp, 9021, qh_REAL_1, offset);
+  //   }
+  //   qh_fprintf(fp, 9022, "\n");
+  //   break;
+  // case qh_PRINTmathematica:  /* either 2 or 3-d by qh_printbegin */
+  // case qh_PRINTmaple:
+  //   if (qh hull_dim == 2)
+  //     qh_printfacet2math(fp, facet, format, qh printoutvar++);
+  //   else
+  //     qh_printfacet3math(fp, facet, format, qh printoutvar++);
+  //   break;
+  // case qh_PRINTneighbors:
+  //   qh_fprintf(fp, 9023, "%d", qh_setsize(facet->neighbors));
+  //   FOREACHneighbor_(facet)
+  //     qh_fprintf(fp, 9024, " %d",
+  //              neighbor->visitid ? neighbor->visitid - 1: 0 - neighbor->id);
+  //   qh_fprintf(fp, 9025, "\n");
+  //   break;
+  // case qh_PRINTpointintersect:
+  //   if (!qh feasible_point) {
+  //     qh_fprintf(qh ferr, 6067, "qhull input error (qh_printafacet): option 'Fp' needs qh feasible_point\n");
+  //     qh_errexit( qh_ERRinput, NULL, NULL);
+  //   }
+  //   if (facet->offset > 0)
+  //     goto LABELprintinfinite;
+  //   point= coordp= (coordT*)qh_memalloc(qh normal_size);
+  //   normp= facet->normal;
+  //   feasiblep= qh feasible_point;
+  //   if (facet->offset < -qh MINdenom) {
+  //     for (k=qh hull_dim; k--; )
+  //       *(coordp++)= (*(normp++) / - facet->offset) + *(feasiblep++);
+  //   }else {
+  //     for (k=qh hull_dim; k--; ) {
+  //       *(coordp++)= qh_divzero(*(normp++), facet->offset, qh MINdenom_1,
+  //                                &zerodiv) + *(feasiblep++);
+  //       if (zerodiv) {
+  //         qh_memfree(point, qh normal_size);
+  //         goto LABELprintinfinite;
+  //       }
+  //     }
+  //   }
+  //   qh_printpoint(fp, NULL, point);
+  //   qh_memfree(point, qh normal_size);
+  //   break;
+  // LABELprintinfinite:
+  //   for (k=qh hull_dim; k--; )
+  //     qh_fprintf(fp, 9026, qh_REAL_1, qh_INFINITE);
+  //   qh_fprintf(fp, 9027, "\n");
+  //   break;
+  // case qh_PRINTpointnearest:
+  //   FOREACHpoint_(facet->coplanarset) {
+  //     int id, id2;
+  //     vertex= qh_nearvertex(facet, point, &dist);
+  //     id= qh_pointid(vertex->point);
+  //     id2= qh_pointid(point);
+  //     qh_fprintf(fp, 9028, "%d %d %d " qh_REAL_1 "\n", id, id2, facet->id, dist);
+  //   }
+  //   break;
+  // case qh_PRINTpoints:  /* VORONOI only by qh_printbegin */
+  //   if (qh CDDoutput)
+  //     qh_fprintf(fp, 9029, "1 ");
+  //   qh_printcenter(fp, format, NULL, facet);
+  //   break;
+  // case qh_PRINTvertices:
+  //   qh_fprintf(fp, 9030, "%d", qh_setsize(facet->vertices));
+  //   FOREACHvertex_(facet->vertices)
+  //     qh_fprintf(fp, 9031, " %d", qh_pointid(vertex->point));
+  //   qh_fprintf(fp, 9032, "\n");
+  //   break;
+  // default:
+  //   break;
+  // }
 } /* printafacet */
 
 /*-<a                             href="qh-io.htm#TOC"
@@ -2043,53 +2043,53 @@ void qh_printfacet2math(FILE *fp, facetT *facet, qh_PRINT format, int notfirst) 
     uses facet->visitid for intersections and ridges
 */
 void qh_printfacet3geom_nonsimplicial(FILE *fp, facetT *facet, realT color[3]) {
-  ridgeT *ridge, **ridgep;
-  setT *projectedpoints, *vertices;
-  vertexT *vertex, **vertexp, *vertexA, *vertexB;
-  pointT *projpt, *point, **pointp;
-  facetT *neighbor;
-  realT dist, outerplane, innerplane;
-  int cntvertices, k;
-  realT black[3]={0, 0, 0}, green[3]={0, 1, 0};
+  // ridgeT *ridge, **ridgep;
+  // setT *projectedpoints, *vertices;
+  // vertexT *vertex, **vertexp, *vertexA, *vertexB;
+  // pointT *projpt, *point, **pointp;
+  // facetT *neighbor;
+  // realT dist, outerplane, innerplane;
+  // int cntvertices, k;
+  // realT black[3]={0, 0, 0}, green[3]={0, 1, 0};
 
-  qh_geomplanes(facet, &outerplane, &innerplane);
-  vertices= qh_facet3vertex(facet); /* oriented */
-  cntvertices= qh_setsize(vertices);
-  projectedpoints= qh_settemp(cntvertices);
-  FOREACHvertex_(vertices) {
-    zinc_(Zdistio);
-    qh_distplane(vertex->point, facet, &dist);
-    projpt= qh_projectpoint(vertex->point, facet, dist);
-    qh_setappend(&projectedpoints, projpt);
-  }
-  if (qh PRINTouter || (!qh PRINTnoplanes && !qh PRINTinner))
-    qh_printfacet3geom_points(fp, projectedpoints, facet, outerplane, color);
-  if (qh PRINTinner || (!qh PRINTnoplanes && !qh PRINTouter &&
-                outerplane - innerplane > 2 * qh MAXabs_coord * qh_GEOMepsilon)) {
-    for (k=3; k--; )
-      color[k]= 1.0 - color[k];
-    qh_printfacet3geom_points(fp, projectedpoints, facet, innerplane, color);
-  }
-  FOREACHpoint_(projectedpoints)
-    qh_memfree(point, qh normal_size);
-  qh_settempfree(&projectedpoints);
-  qh_settempfree(&vertices);
-  if ((qh DOintersections || qh PRINTridges)
-  && (!facet->visible || !qh NEWfacets)) {
-    facet->visitid= qh visit_id;
-    FOREACHridge_(facet->ridges) {
-      neighbor= otherfacet_(ridge, facet);
-      if (neighbor->visitid != qh visit_id) {
-        if (qh DOintersections)
-          qh_printhyperplaneintersection(fp, facet, neighbor, ridge->vertices, black);
-        if (qh PRINTridges) {
-          vertexA= SETfirstt_(ridge->vertices, vertexT);
-          vertexB= SETsecondt_(ridge->vertices, vertexT);
-          qh_printline3geom(fp, vertexA->point, vertexB->point, green);
-        }
-      }
-    }
-  }
+  // qh_geomplanes(facet, &outerplane, &innerplane);
+  // vertices= qh_facet3vertex(facet); /* oriented */
+  // cntvertices= qh_setsize(vertices);
+  // projectedpoints= qh_settemp(cntvertices);
+  // FOREACHvertex_(vertices) {
+  //   zinc_(Zdistio);
+  //   qh_distplane(vertex->point, facet, &dist);
+  //   projpt= qh_projectpoint(vertex->point, facet, dist);
+  //   qh_setappend(&projectedpoints, projpt);
+  // }
+  // if (qh PRINTouter || (!qh PRINTnoplanes && !qh PRINTinner))
+  //   qh_printfacet3geom_points(fp, projectedpoints, facet, outerplane, color);
+  // if (qh PRINTinner || (!qh PRINTnoplanes && !qh PRINTouter &&
+  //               outerplane - innerplane > 2 * qh MAXabs_coord * qh_GEOMepsilon)) {
+  //   for (k=3; k--; )
+  //     color[k]= 1.0 - color[k];
+  //   qh_printfacet3geom_points(fp, projectedpoints, facet, innerplane, color);
+  // }
+  // FOREACHpoint_(projectedpoints)
+  //   qh_memfree(point, qh normal_size);
+  // qh_settempfree(&projectedpoints);
+  // qh_settempfree(&vertices);
+  // if ((qh DOintersections || qh PRINTridges)
+  // && (!facet->visible || !qh NEWfacets)) {
+  //   facet->visitid= qh visit_id;
+  //   FOREACHridge_(facet->ridges) {
+  //     neighbor= otherfacet_(ridge, facet);
+  //     if (neighbor->visitid != qh visit_id) {
+  //       if (qh DOintersections)
+  //         qh_printhyperplaneintersection(fp, facet, neighbor, ridge->vertices, black);
+  //       if (qh PRINTridges) {
+  //         vertexA= SETfirstt_(ridge->vertices, vertexT);
+  //         vertexB= SETsecondt_(ridge->vertices, vertexT);
+  //         qh_printline3geom(fp, vertexA->point, vertexB->point, green);
+  //       }
+  //     }
+  //   }
+  // }
 } /* printfacet3geom_nonsimplicial */
 
 /*-<a                             href="qh-io.htm#TOC"
@@ -2147,46 +2147,46 @@ void qh_printfacet3geom_points(FILE *fp, setT *points, facetT *facet, realT offs
     so a DISTround error may have occured.
 */
 void qh_printfacet3geom_simplicial(FILE *fp, facetT *facet, realT color[3]) {
-  setT *points, *vertices;
-  vertexT *vertex, **vertexp, *vertexA, *vertexB;
-  facetT *neighbor, **neighborp;
-  realT outerplane, innerplane;
-  realT black[3]={0, 0, 0}, green[3]={0, 1, 0};
-  int k;
+  // setT *points, *vertices;
+  // vertexT *vertex, **vertexp, *vertexA, *vertexB;
+  // facetT *neighbor, **neighborp;
+  // realT outerplane, innerplane;
+  // realT black[3]={0, 0, 0}, green[3]={0, 1, 0};
+  // int k;
 
-  qh_geomplanes(facet, &outerplane, &innerplane);
-  vertices= qh_facet3vertex(facet);
-  points= qh_settemp(qh TEMPsize);
-  FOREACHvertex_(vertices)
-    qh_setappend(&points, vertex->point);
-  if (qh PRINTouter || (!qh PRINTnoplanes && !qh PRINTinner))
-    qh_printfacet3geom_points(fp, points, facet, outerplane, color);
-  if (qh PRINTinner || (!qh PRINTnoplanes && !qh PRINTouter &&
-              outerplane - innerplane > 2 * qh MAXabs_coord * qh_GEOMepsilon)) {
-    for (k=3; k--; )
-      color[k]= 1.0 - color[k];
-    qh_printfacet3geom_points(fp, points, facet, innerplane, color);
-  }
-  qh_settempfree(&points);
-  qh_settempfree(&vertices);
-  if ((qh DOintersections || qh PRINTridges)
-  && (!facet->visible || !qh NEWfacets)) {
-    facet->visitid= qh visit_id;
-    FOREACHneighbor_(facet) {
-      if (neighbor->visitid != qh visit_id) {
-        vertices= qh_setnew_delnthsorted(facet->vertices, qh hull_dim,
-                          SETindex_(facet->neighbors, neighbor), 0);
-        if (qh DOintersections)
-           qh_printhyperplaneintersection(fp, facet, neighbor, vertices, black);
-        if (qh PRINTridges) {
-          vertexA= SETfirstt_(vertices, vertexT);
-          vertexB= SETsecondt_(vertices, vertexT);
-          qh_printline3geom(fp, vertexA->point, vertexB->point, green);
-        }
-        qh_setfree(&vertices);
-      }
-    }
-  }
+  // qh_geomplanes(facet, &outerplane, &innerplane);
+  // vertices= qh_facet3vertex(facet);
+  // points= qh_settemp(qh TEMPsize);
+  // FOREACHvertex_(vertices)
+  //   qh_setappend(&points, vertex->point);
+  // if (qh PRINTouter || (!qh PRINTnoplanes && !qh PRINTinner))
+  //   qh_printfacet3geom_points(fp, points, facet, outerplane, color);
+  // if (qh PRINTinner || (!qh PRINTnoplanes && !qh PRINTouter &&
+  //             outerplane - innerplane > 2 * qh MAXabs_coord * qh_GEOMepsilon)) {
+  //   for (k=3; k--; )
+  //     color[k]= 1.0 - color[k];
+  //   qh_printfacet3geom_points(fp, points, facet, innerplane, color);
+  // }
+  // qh_settempfree(&points);
+  // qh_settempfree(&vertices);
+  // if ((qh DOintersections || qh PRINTridges)
+  // && (!facet->visible || !qh NEWfacets)) {
+  //   facet->visitid= qh visit_id;
+  //   FOREACHneighbor_(facet) {
+  //     if (neighbor->visitid != qh visit_id) {
+  //       vertices= qh_setnew_delnthsorted(facet->vertices, qh hull_dim,
+  //                         SETindex_(facet->neighbors, neighbor), 0);
+  //       if (qh DOintersections)
+  //          qh_printhyperplaneintersection(fp, facet, neighbor, vertices, black);
+  //       if (qh PRINTridges) {
+  //         vertexA= SETfirstt_(vertices, vertexT);
+  //         vertexB= SETsecondt_(vertices, vertexT);
+  //         qh_printline3geom(fp, vertexA->point, vertexB->point, green);
+  //       }
+  //       qh_setfree(&vertices);
+  //     }
+  //   }
+  // }
 } /* printfacet3geom_simplicial */
 
 /*-<a                             href="qh-io.htm#TOC"
@@ -2201,44 +2201,44 @@ void qh_printfacet3geom_simplicial(FILE *fp, facetT *facet, realT color[3]) {
     see qh_printfacet2math
 */
 void qh_printfacet3math(FILE *fp, facetT *facet, qh_PRINT format, int notfirst) {
-  vertexT *vertex, **vertexp;
-  setT *points, *vertices;
-  pointT *point, **pointp;
-  boolT firstpoint= True;
-  realT dist;
-  const char *pointfmt, *endfmt;
+  // vertexT *vertex, **vertexp;
+  // setT *points, *vertices;
+  // pointT *point, **pointp;
+  // boolT firstpoint= True;
+  // realT dist;
+  // const char *pointfmt, *endfmt;
 
-  if (notfirst)
-    qh_fprintf(fp, 9105, ",\n");
-  vertices= qh_facet3vertex(facet);
-  points= qh_settemp(qh_setsize(vertices));
-  FOREACHvertex_(vertices) {
-    zinc_(Zdistio);
-    qh_distplane(vertex->point, facet, &dist);
-    point= qh_projectpoint(vertex->point, facet, dist);
-    qh_setappend(&points, point);
-  }
-  if (format == qh_PRINTmaple) {
-    qh_fprintf(fp, 9106, "[");
-    pointfmt= "[%16.8f, %16.8f, %16.8f]";
-    endfmt= "]";
-  }else {
-    qh_fprintf(fp, 9107, "Polygon[{");
-    pointfmt= "{%16.8f, %16.8f, %16.8f}";
-    endfmt= "}]";
-  }
-  FOREACHpoint_(points) {
-    if (firstpoint)
-      firstpoint= False;
-    else
-      qh_fprintf(fp, 9108, ",\n");
-    qh_fprintf(fp, 9109, pointfmt, point[0], point[1], point[2]);
-  }
-  FOREACHpoint_(points)
-    qh_memfree(point, qh normal_size);
-  qh_settempfree(&points);
-  qh_settempfree(&vertices);
-  qh_fprintf(fp, 9110, endfmt);
+  // if (notfirst)
+  //   qh_fprintf(fp, 9105, ",\n");
+  // vertices= qh_facet3vertex(facet);
+  // points= qh_settemp(qh_setsize(vertices));
+  // FOREACHvertex_(vertices) {
+  //   zinc_(Zdistio);
+  //   qh_distplane(vertex->point, facet, &dist);
+  //   point= qh_projectpoint(vertex->point, facet, dist);
+  //   qh_setappend(&points, point);
+  // }
+  // if (format == qh_PRINTmaple) {
+  //   qh_fprintf(fp, 9106, "[");
+  //   pointfmt= "[%16.8f, %16.8f, %16.8f]";
+  //   endfmt= "]";
+  // }else {
+  //   qh_fprintf(fp, 9107, "Polygon[{");
+  //   pointfmt= "{%16.8f, %16.8f, %16.8f}";
+  //   endfmt= "}]";
+  // }
+  // FOREACHpoint_(points) {
+  //   if (firstpoint)
+  //     firstpoint= False;
+  //   else
+  //     qh_fprintf(fp, 9108, ",\n");
+  //   qh_fprintf(fp, 9109, pointfmt, point[0], point[1], point[2]);
+  // }
+  // FOREACHpoint_(points)
+  //   qh_memfree(point, qh normal_size);
+  // qh_settempfree(&points);
+  // qh_settempfree(&vertices);
+  // qh_fprintf(fp, 9110, endfmt);
 } /* printfacet3math */
 
 
@@ -2253,16 +2253,16 @@ void qh_printfacet3math(FILE *fp, facetT *facet, qh_PRINT format, int notfirst) 
     the facet may be non-simplicial
 */
 void qh_printfacet3vertex(FILE *fp, facetT *facet, qh_PRINT format) {
-  vertexT *vertex, **vertexp;
-  setT *vertices;
+  // vertexT *vertex, **vertexp;
+  // setT *vertices;
 
-  vertices= qh_facet3vertex(facet);
-  if (format == qh_PRINToff)
-    qh_fprintf(fp, 9111, "%d ", qh_setsize(vertices));
-  FOREACHvertex_(vertices)
-    qh_fprintf(fp, 9112, "%d ", qh_pointid(vertex->point));
-  qh_fprintf(fp, 9113, "\n");
-  qh_settempfree(&vertices);
+  // vertices= qh_facet3vertex(facet);
+  // if (format == qh_PRINToff)
+  //   qh_fprintf(fp, 9111, "%d ", qh_setsize(vertices));
+  // FOREACHvertex_(vertices)
+  //   printf("%d ", qh_pointid(vertex->point));
+  // printf("\n");
+  // qh_settempfree(&vertices);
 } /* printfacet3vertex */
 
 

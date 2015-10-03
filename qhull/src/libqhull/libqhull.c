@@ -61,46 +61,46 @@ void qh_qhull(void) {
   int numoutside;
 
   qh hulltime= qh_CPUclock;
-  if (qh RERUN || qh JOGGLEmax < REALmax/2)
-    qh_build_withrestart();
-  else {
+  // if (qh RERUN || qh JOGGLEmax < REALmax/2)
+  //   qh_build_withrestart();
+  // else {
     qh_initbuild();
     qh_buildhull();
-  }
-  if (!qh STOPpoint && !qh STOPcone) {
-    if (qh ZEROall_ok && !qh TESTvneighbors && qh MERGEexact)
-      qh_checkzero( qh_ALL);
-    if (qh ZEROall_ok && !qh TESTvneighbors && !qh WAScoplanar) {
-      trace2((qh ferr, 2055, "qh_qhull: all facets are clearly convex and no coplanar points.  Post-merging and check of maxout not needed.\n"));
-      qh DOcheckmax= False;
-    }else {
-      if (qh MERGEexact || (qh hull_dim > qh_DIMreduceBuild && qh PREmerge))
-        qh_postmerge("First post-merge", qh premerge_centrum, qh premerge_cos,
-             (qh POSTmerge ? False : qh TESTvneighbors));
-      else if (!qh POSTmerge && qh TESTvneighbors)
-        qh_postmerge("For testing vertex neighbors", qh premerge_centrum,
-             qh premerge_cos, True);
-      if (qh POSTmerge)
-        qh_postmerge("For post-merging", qh postmerge_centrum,
-             qh postmerge_cos, qh TESTvneighbors);
-      if (qh visible_list == qh facet_list) { /* i.e., merging done */
-        qh findbestnew= True;
-        qh_partitionvisible(/*visible_list, newfacet_list*/ !qh_ALL, &numoutside);
-        qh findbestnew= False;
-        qh_deletevisible(/*qh visible_list*/);
-        qh_resetlists(False, qh_RESETvisible /*qh visible_list newvertex_list newfacet_list */);
-      }
-    }
-    if (qh DOcheckmax){
-      if (qh REPORTfreq) {
-        qh_buildtracing(NULL, NULL);
-        qh_fprintf(qh ferr, 8115, "\nTesting all coplanar points.\n");
-      }
-      qh_check_maxout();
-    }
-    if (qh KEEPnearinside && !qh maxoutdone)
-      qh_nearcoplanar();
-  }
+  // }
+  // if (!qh STOPpoint && !qh STOPcone) {
+  //   if (qh ZEROall_ok && !qh TESTvneighbors && qh MERGEexact)
+  //     qh_checkzero( qh_ALL);
+  //   if (qh ZEROall_ok && !qh TESTvneighbors && !qh WAScoplanar) {
+  //     trace2((qh ferr, 2055, "qh_qhull: all facets are clearly convex and no coplanar points.  Post-merging and check of maxout not needed.\n"));
+  //     qh DOcheckmax= False;
+  //   }else {
+  //     if (qh MERGEexact || (qh hull_dim > qh_DIMreduceBuild && qh PREmerge))
+  //       qh_postmerge("First post-merge", qh premerge_centrum, qh premerge_cos,
+  //            (qh POSTmerge ? False : qh TESTvneighbors));
+  //     else if (!qh POSTmerge && qh TESTvneighbors)
+  //       qh_postmerge("For testing vertex neighbors", qh premerge_centrum,
+  //            qh premerge_cos, True);
+  //     if (qh POSTmerge)
+  //       qh_postmerge("For post-merging", qh postmerge_centrum,
+  //            qh postmerge_cos, qh TESTvneighbors);
+  //     if (qh visible_list == qh facet_list) { /* i.e., merging done */
+  //       qh findbestnew= True;
+  //       qh_partitionvisible(/*visible_list, newfacet_list*/ !qh_ALL, &numoutside);
+  //       qh findbestnew= False;
+  //       qh_deletevisible(/*qh visible_list*/);
+  //       qh_resetlists(False, qh_RESETvisible /*qh visible_list newvertex_list newfacet_list */);
+  //     }
+  //   }
+  //   if (qh DOcheckmax){
+  //     if (qh REPORTfreq) {
+  //       qh_buildtracing(NULL, NULL);
+  //       qh_fprintf(qh ferr, 8115, "\nTesting all coplanar points.\n");
+  //     }
+  //     qh_check_maxout();
+  //   }
+  //   if (qh KEEPnearinside && !qh maxoutdone)
+  //     qh_nearcoplanar();
+  // }
   if (qh_setsize(qhmem.tempstack) != 0) {
     qh_fprintf(qh ferr, 6164, "qhull internal error (qh_qhull): temporary sets not empty(%d)\n",
              qh_setsize(qhmem.tempstack));

@@ -1121,7 +1121,7 @@ setT *qh_facet3vertex(facetT *facet) {
   int cntvertices, cntprojected=0;
   setT *vertices;
 
-  cntvertices= qh_setsize(facet->vertices);
+  cntvertices= 3;
   vertices= qh_settemp(cntvertices);
   if (facet->simplicial) {
     if (cntvertices != 3) {

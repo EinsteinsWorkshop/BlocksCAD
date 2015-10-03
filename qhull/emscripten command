@@ -1,0 +1,9 @@
+
+
+
+C:\blockscad\qhull> emcc -O1 ./src/libqhull/geom.c ./src/libqhull/geom.c ./src/libqhull/geom2.c ./src/libqhull/global
+.c ./src/libqhull/io.c ./src/libqhull/libqhull.c ./src/libqhull/mem.c ./src/libqhull/merge.c ./src/libqhull/poly.c ./src
+/libqhull/poly2.c ./src/libqhull/qset.c ./src/libqhull/random.c ./src/libqhull/rboxlib.c ./src/libqhull/stat.c ./src/lib
+qhull/user.c ./src/libqhull/usermem.c ./src/libqhull/userprintf.c ./src/libqhull/userprintf_rbox.c ./src/main.c -s EXPOR
+TED_FUNCTIONS="['_run_qhull']" -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 --pre-js ./src/pre.js --post-js ./src/post.js -o
+ qhull.js

@@ -3,8 +3,8 @@
 
 var run_qhull = cwrap('run_qhull', 'pointer', ['pointer', 'number', 'number', 'pointer']);
 
-var QHULL_POINT_BUFFER = _malloc(4096);
-var QHULL_POINT_BUFFER_SIZE = 4096;
+var QHULL_POINT_BUFFER = _malloc(16 * 4096);
+var QHULL_POINT_BUFFER_SIZE = 16* 4096;
 var FACET_COUNT_POINTER = _malloc(4);
 
 function executeQHull(points, options) {
@@ -29,7 +29,7 @@ function executeQHull(points, options) {
     v |= v >> 8;
     v |= v >> 16;
     v++;
-    QHULL_POINT_BUFFER_SIZE = v;
+    QHULL_POINT_BUFFER_SIZE = 8 * v;
     // QHULL_POINT_BUFFER_SIZE = bits.nextPow(size * 8);
     QHULL_POINT_BUFFER = _malloc(QHULL_POINT_BUFFER_SIZE);
   }
