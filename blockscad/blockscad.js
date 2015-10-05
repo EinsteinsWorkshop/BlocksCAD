@@ -30,11 +30,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-<<<<<<< HEAD
 Blockscad.version = "1.1.2";
-=======
-Blockscad.version = "1.1.0";
->>>>>>> e7bc1d5e0bc263a28330659122a11cb3e4963441
 
 Blockscad.offline = true;
 
@@ -174,7 +170,7 @@ Blockscad.init = function() {
     // toggle whether or not we draw the axes, then redraw
     Blockscad.drawAxes = (Blockscad.drawAxes + 1) % 2;
     $( '#axesButton' ).toggleClass("btn-pushed");
-    gProcessor.viewer.toggleAxes();
+    gProcessor.viewer.onDraw();
   });
 
   // can I bind a click to a tab?

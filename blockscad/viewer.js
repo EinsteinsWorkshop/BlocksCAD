@@ -8,15 +8,9 @@
 var Blockscad =  Blockscad || {};
 var CSG = CSG || {};
 var CAG = CAG || {};
-/**
- * A viewer is a WebGL canvas that lets the user view a mesh. The user can tumble it around by dragging the mouse.
- * @constructor
- * @param {string} containerelement - selector of the doom element wich will contain the viewer
- * @param {int} width - width of the viewer
- * @param {int} height - width of the viewer
- * @param {int} initialdepth - ??
- */
 
+// A viewer is a WebGL canvas that lets the user view a mesh. The user can
+// tumble it around by dragging the mouse.
 Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   var gl = GL.create();
   this.gl = gl;
