@@ -223,9 +223,18 @@ Blockly.OpenSCAD['$fn'] = function(block) {
     if (statements_b != '') statements_a += statements_b + '\n';
   }  
 
-  var value_sides = Math.floor(Blockly.OpenSCAD.valueToCode(block, 'SIDES',Blockly.OpenSCAD.ORDER_ATOMIC));
-  if (value_sides < 3) value_sides = 3;
-
+  var value_sides = Blockly.OpenSCAD.valueToCode(block, 'SIDES',Blockly.OpenSCAD.ORDER_ATOMIC);
+  // missing fields?
+  if (!value_sides) {
+    Blockscad.missingFields.push(block.id); 
+  }
+  
+  // if this is a number, make sure it is a reasonable number.
+  // variables right now are on their own.
+  else if (!isNaN(value_sides)) {
+    value_sides = Math.floor(value_sides);
+    if (value_sides < 3) value_sides = 3;
+  }
 
   var code = 'assign($fn=' + value_sides + '){\n' + statements_a + '}';
   return code;
