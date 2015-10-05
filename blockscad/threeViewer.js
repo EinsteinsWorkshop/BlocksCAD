@@ -11,7 +11,7 @@ var CAG = CAG || {};
 Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   var scene = new THREE.Scene();
   this.scene=scene;
-  var camera = new THREE.PerspectiveCamera( 45, width/height, 1, 10000 );
+  var camera = new THREE.PerspectiveCamera( 45, width/height, 1, 1000 );
   this.camera=camera;
   this.camera.position.set( 50, -50, 50 );
   this.camera.up.set( 0, 0, 1 );
@@ -19,41 +19,31 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   this.renderer=renderer;
   this.renderer.setClearColor( 0xEDEDED, 1.0 );
-  this.renderer.shadowMap.enabled = true;
-  this.renderer.shadowMapSoft = false;
-  this.renderer.shadowCameraNear = 1;
-  this.renderer.shadowCameraFar = this.camera.far;
-  this.renderer.shadowCameraFov = 45;
-  this.renderer.shadowMapBias = 0.0039;
-  this.renderer.shadowMapDarkness = 0.5;
-  this.renderer.shadowMapWidth = 1024;
-  this.renderer.shadowMapHeight = 1024;
   this.renderer.setSize( width, height );
   var controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
   this.controls=controls;
-  this.controls.enableDamping = true;
-  this.controls.dampingFactor = 0.5;
+  this.controls.enableDamping = false;
   this.controls.enableZoom = true;
+  this.controls.zoomSpeed = 3;
   var light = new THREE.DirectionalLight(0xffffff, 1);
   this.light=light;
-  this.light.castShadow = true;
+  this.light.castShadow = false;
   this.light.position.copy( this.camera.position );
   this.scene.add(this.light);
-  this.axes = this.buildAxes( 500 );
-  this.GridPlane = this.buildGridPlane(500);
+  this.axes = this.buildAxes( 200 );
+  this.GridPlane = this.buildGridPlane(200);
   this.scene.add(this.axes);
   this.scene.add(this.GridPlane);
   $(containerelement).append(this.renderer.domElement);
-  var this_viewer =this;
-  //render loop
-  var render = function () {
-    requestAnimationFrame( render );
-    this_viewer.controls.update();
-    this_viewer.light.position.copy(this_viewer.camera.position );
-    this_viewer.renderer.render(this_viewer.scene, this_viewer.camera);
-  };
-  render();
-  
+  this.renderer.render(this.scene, this.camera);
+  var this_viewer=this;
+  //render function
+  var render = function(){
+    this_viewer.light.position.copy( this_viewer.camera.position );
+    this_viewer.renderer.render( this_viewer.scene,  this_viewer.camera);
+  }
+  this.render=render;
+  this.controls.addEventListener( 'change', render);
 };
 
 Blockscad.Viewer.prototype = {
@@ -68,13 +58,14 @@ Blockscad.Viewer.prototype = {
       this.threeMesh = Blockscad.Viewer.csgToThreeMesh(csg);
       this.threeMesh.name="threeMesh";
       this.scene.add(this.threeMesh);
+      this.render();
   },
 
   rendered_resize: function(width, height) { 
       this.renderer.setSize( width, height );
       this.camera.aspect = width / height;
       this.camera.updateProjectionMatrix();
-
+      this.render();
   },
 
   viewReset: function() {
@@ -122,10 +113,7 @@ Blockscad.Viewer.prototype = {
       this.camera.position.set( 50, -50, 50 );
       this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
     }
- 
-  },
-  supported: function() {
-    return !!this.gl;
+      this.render();
   },
 
 
@@ -138,6 +126,7 @@ Blockscad.Viewer.prototype = {
       this.scene.add(this.axes);
       this.scene.add(this.GridPlane);
     }
+    this.render();
   },
   buildLine: function( src, dst, colorHex, dashed, lineWidth  ){
     var geom = new THREE.Geometry(),mat;
