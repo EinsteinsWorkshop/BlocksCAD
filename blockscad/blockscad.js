@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.1.2";
 
-Blockscad.offline = true;
+Blockscad.offline = true;  // true unless using a cloud service backend for file management
 
 // -- BEGIN OPENJSCAD STUFF --
 
@@ -193,12 +193,12 @@ Blockscad.init = function() {
   // set up the delete-confirm button's function.
   $('#throw-it-away').click(function() {
     Blockscad.clearProject();
-    Blockscad.clearUndo();
     Blockscad.workspaceChanged();
+    Blockscad.clearUndo();
   });
 
   // handle the project->new menu option
-  $('#main').on('click', '.new-project', Blockscad.newProject);
+  $('#main').on('change', '.new-project', Blockscad.newProject);
 
 //FileSaver.js stuff
   // Loading a blocks xml file
@@ -463,6 +463,11 @@ Blockscad.init = function() {
   // file should be saved in the "examples" folder.
 
   $("#examples_torus").click({msg: "torus.xml"}, Blockscad.showExample);
+  $("#examples_box").click({msg: "box.xml"}, Blockscad.showExample);
+  $("#examples_linear_extrude").click({msg: "linear_extrude.xml"}, Blockscad.showExample);
+  $("#examples_rotate_extrude").click({msg: "rotate_extrude.xml"}, Blockscad.showExample);
+  $("#examples_cube_with_cutouts").click({msg: "cube_with_cutouts.xml"}, Blockscad.showExample);
+  $("#examples_anthias_fish").click({msg: "anthias_fish.xml"}, Blockscad.showExample);
 
   // to get sub-menus to work with bootstrap 3 navbar
   $(function(){
@@ -545,13 +550,14 @@ Blockscad.clearStlBlocks = function() {
 Blockscad.newProject = function() {
   // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
   // if the user is logged in, I should auto-save to the backend.
+  console.log("in Blockscad.newProject");
   if (Blockscad.undo.undoStack.length > 0) {
     if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
         console.log("autosaving");
         Blockscad.Auth.saveBlocksToAccount();
         Blockscad.clearProject();
-        Blockscad.clearUndo();
         Blockscad.workspaceChanged();
+        Blockscad.clearUndo();
     }
     else {
       // I'm going to ask if they really want to delete their current work.
@@ -559,7 +565,11 @@ Blockscad.newProject = function() {
       $('#delete-confirm').modal('show');
     }
   }
-  else Blockscad.clearProject();
+  else  {
+    Blockscad.clearProject();
+    Blockscad.workspaceChanged();
+    Blockscad.clearUndo();
+  }
 
   // if the user was on the code tab, switch them to the blocks tab.
   $('#displayBlocks').click();
@@ -586,6 +596,10 @@ Blockscad.showExample = function(e) {
         Blockscad.clearProject();
       }
     }
+    else {
+      Blockscad.clearProject();
+    }
+    Blockscad.workspaceChanged();
     // turn xml data object into a string that Blockly can use
     var xmlString;
     //IE
@@ -602,7 +616,7 @@ Blockscad.showExample = function(e) {
     Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
     Blockly.fireUiEvent(window, 'resize');
     // update project name
-    $('#project-name').val(name);
+    $('#project-name').val(name + ' example');
   });
 }
 
