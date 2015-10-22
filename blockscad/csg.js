@@ -372,195 +372,17 @@ for solid CAD anyway.
                 csgs = [csgs];
             }
 
+            console.log("csgs: ", csgs);
+
             // make a list of all unique vertices
-            var vertexmap = {};
-            csgs.map( function(csg) {
-                csg.reTesselated().polygons.map( function(polygon) {
-                    polygon.vertices.map( function(vertex) {
-                        vertexmap[vertex.getTag()] = vertex;
-                    });
-                });         
-            });
 
             var result = [];
-            for (var tag in vertexmap) {
-                if (vertexmap.hasOwnProperty(tag)) {
-                    vertexmap[tag].pos._x += (Math.random()-0.5)/1000;
-                    vertexmap[tag].pos._y += (Math.random()-0.5)/1000;
-                    vertexmap[tag].pos._z += (Math.random()-0.5)/1000;
-                    result.push(vertexmap[tag].pos);
-                }
-            }
+
             //console.log(result);
             return result;
         };
         
-        var HalfSpace = function(a, b, c) {
-            var k;
-            if ( c ) {
-                k = c.minus(a);
-            } else {
-                k = new CSG.Vector3D(0, 0, 1);
-            }
-            this._normal = b.minus(a).cross(k).unit();
-            this._d = this._normal.dot(a);
-        };
-        
-        HalfSpace.prototype = {
-            get normal() {
-                return this._normal;
-            },
-            get d() {
-                return this._d;
-            },
-            inside: function(x) {
-                return this._normal.dot(x) - this._d >= 0;
-            },
-            getPlane: function() {
-                return new CSG.Plane(this._normal, this._d);
-            },
-            toString: function() {
-                return "[normal: " + this._normal + "/d: " + this._d + "]";
-            },
-        };
-        
-        var Edge = function(start, end) {
-            this._start = start;
-            this._end = end;
-        };
-        
-        Edge.prototype = {
-            get start() {
-                return this._start;
-            },
-            get end() {
-                return this._end;
-            },
-            equals: function(e) {
-                return (this._start.equals(e._start) && this._end.equals(e._end)) || (this._start.equals(e._end) && this._end.equals(e._start));
-            },
-            toString: function() {
-                return "[start: " + this._start + "/end: " + this._end + "]";
-            }
-        };
-        
-        var EdgeStack = function() {
-            this._data = [];
-        };
-        
-        EdgeStack.prototype = {
-            isEmpty: function() {
-                return this._data.length === 0;
-            },
-            get: function() {
-                return this._data.pop();
-            },
-            put: function(a, b) {
-                var edge;
-                if ( b ) {
-                    edge = new Edge(a, b);
-                } else {
-                    edge = a;
-                }
-                this._data.push(edge);
-            },
-            putp: function(a, b) {
-                var edge;
-                if ( b ) {
-                    edge = new Edge(a, b);
-                } else {
-                    edge = a;
-                }
-                for (var i = 0, len = this._data.length; i < len; ++i) {
-                    if ( this._data[i].equals(edge) ) {
-                        this._data.splice(i, 1);
-                        return;
-                    }
-                }
-                this._data.push(edge);
-            },
-            toString: function() {
-                return this._data.toString();
-            }
-        };
-        
-        var Triangle3D = function(a, b, c) {
-            this._a = a;
-            this._b = b;
-            this._c = c;
-            this._halfSpace = new HalfSpace(a, b, c);
-            this._points = [];
-        };
-        
-        Triangle3D.prototype = {
-            get a() {
-                return this._a;
-            },
-            get b() {
-                return this._b;
-            },
-            get c() {
-                return this._c;
-            },
-            get points() {
-                return this._points;
-            },
-            inside: function(point) {
-                return this._halfSpace.inside(point);
-            },
-            add: function(point) {
-                if (this.inside(point)) {
-                    this._points.push(point);
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-            extreme: function() {
-                // log("Triangle3D.extreme()")
-                var result = null;
-                var maxD = -Number.MAX_VALUE;
-                for (var i = 0, len = this._points.length; i < len; ++i) {
-                    var point = this._points[i];
-                    var d = this._halfSpace.normal.dot(point);
-                    // log("point: " + point + "/d: " + d);
-                    if ( d > maxD ) {
-                        result = point;
-                        maxD = d;
-                    }
-                }
-                return result;
-            },
-            getPolygon: function() {
-                var vertices = [new CSG.Vertex(this._a), new CSG.Vertex(this._b), new CSG.Vertex(this._c)];
-                return new CSG.Polygon(vertices, null, this._halfSpace.getPlane());
-            },
-            toString: function() {
-                return "[a: " + this._a + "/b: " + this._b + "/c: " + this._c + "/halfSpace: " + this._halfSpace + "/points: " + this._points + "]";
-            },
-        };
-        
-        var findMaxMin = function(points) {
-            for (var i = 0, len = points.length; i < len; ++i) {
-                if (points[i].x + points[i].y + points[i].z > points[0].x + points[0].y + points[0].z) {
-                    var temp = points[0];
-                    points[0] = points[i];
-                    points[i] = temp;
-                }
-                if (points[i].x + points[i].y + points[i].z < points[1].x + points[1].y + points[1].z) {
-                    var temp = points[1];
-                    points[1] = points[i];
-                    points[i] = temp;
-                }
-            }
-        };
-        
-        var log = function(s) {
-            if ( typeof console !== "undefined" ) {
-                console.log(s);
-            }
-        };
-
+      
         var top_guy = this;
         var other_csgs = csg;
         var csgs = [];
@@ -580,90 +402,14 @@ for solid CAD anyway.
         }
         
         var points = getPoints(csgs);
-        findMaxMin(points);
-
-        var halfSpace = new HalfSpace(points[0], points[1]);
-        // log("points[0]: " + points[0]);
-        // log("points[1]: " + points[1]);
-        // log("halfSpace.normal: " + halfSpace.normal + " d: " + halfSpace.d);
-        // make p[3] the furthest from p[0]p[1]
-        var len = points.length;
-        for (var i = 3; i < len; ++i) {
-            if (halfSpace.normal.dot(points[i]) > halfSpace.normal.dot(points[2])) {
-                var temp = points[2];
-                points[2] = points[i];
-                points[i] = temp;
-            }       
-        }
-        // log("points[2]: " + points[2]);
-        
-        var face1 = new Triangle3D(points[0], points[1], points[2]), 
-            face2 = new Triangle3D(points[0], points[2], points[1]);
-        var faces = [face1, face2];
-
-        // associate remaining points with one of these two faces   
-        for ( var i = 3; i < len; ++i) {
-            if ( !face1.add(points[i]) ) {
-                face2.add(points[i]);
-            }
-        }
-        
-        var edgeStack = new EdgeStack();
-        // Each time around the main loop we process one face 
-        for (var i = 0; i < faces.length; ++i) {
-            var selectedFace = faces[i];
-            if ( !selectedFace ) {
-                continue;
-            }
-            // log("i: " + i);
-            // log("selectedFace: " + selectedFace);
-            var newPoint = selectedFace.extreme();
-            if ( !newPoint ) {
-                continue;
-            }
-            // log("newPoint: " + newPoint);
-            
-            // delete faces that this vertex can see
-            var ps = []; //pts associated with deleted faces
-            for (var j = 0; j < faces.length; ++j) {
-                var face = faces[j];
-                if ( face && face.inside(newPoint) ) {
-                    // log("removing face " + j + ": " + faces[j]);
-                    
-                    // update boundary of hole 
-                    edgeStack.putp( face.a, face.b );
-                    edgeStack.putp( face.b, face.c );
-                    edgeStack.putp( face.c, face.a );
-                    //add the points associated with this face to ps 
-                    ps = ps.concat(face.points);
-                    // remove face
-                    faces[j] = null;
-                }
-            }
-
-            while ( !edgeStack.isEmpty() ) {
-                var edge = edgeStack.get();
-                // log("edge: " + edge);
-                var triangle = new Triangle3D( edge.start, edge.end, newPoint );
-                var ps2 = [];
-                for (var j = ps.length - 1; j >= 0; --j) {
-                    var point = ps[j];
-                    if ( (point !== newPoint) && !triangle.add(point) ) {
-                        ps2.push(point);
-                    }
-                }
-                ps = ps2;
-                // log("new face: " + triangle);
-                faces.push(triangle);
-            }
-        }
+      
         var polygons = [];
-        faces.map( function(face) {
-            if ( face ) {
-                polygons.push(face.getPolygon());
-            }
-        });
-        return CSG.fromPolygons(polygons);
+        // faces.map( function(face) {
+        //     if ( face ) {
+        //         polygons.push(face.getPolygon());
+        //     }
+        // });
+        return new CSG();
     },
      // end hull3d
 
@@ -2436,6 +2182,34 @@ for solid CAD anyway.
         max: function(p) {
             return CSG.Vector3D.Create(
                 Math.max(this._x, p._x), Math.max(this._y, p._y), Math.max(this._z, p._z));
+        },
+
+        // functions added to support 3D convex hull
+        // J. Yoder, 2015
+
+        // set elements of this vector to 0
+        setZero: function() {
+            this.x = 0;
+            this.y = 0;
+            this.z = 0;
+        },
+        // normalize a vector in place
+        normalize: function() {
+            var lenSqr = this.lengthSquared();
+            var err = lenSqr - 1;
+            var DOUBLE_PREC = 2.2204460492503131e-16;
+            if (err > (2*DOUBLE_PREC) || err < -(2*DOUBLE_PREC)) {
+                var len = Math.sqrt(lenSqr);
+                this.x /= len;
+                this.y /= len;
+                this.z /= len;
+            }
+        },
+        // set a vector given x,y,z values
+        set: function(x,y,z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
     };
 
@@ -2489,6 +2263,779 @@ for solid CAD anyway.
             return this.pos.toString();
         }
     };
+
+    // 3D vertex used in 3D hull
+    // needs to hold a vector3D point pnt, an integer index, next and prev. vertices, and face info.
+    hVertex = function(x,y,z,idx) {
+        this.pnt = CSG.Vector3D.Create(x,y,z);
+        this.index = index;
+ 
+        this.next = null;
+        this.prev = null;
+        this.face = null;
+    }
+
+    // doubly linked list of vertices.  Store a head and a tail pointer 
+    // used for 3D hull. - JY
+    hVertexList = function() {
+        this.head = null;
+        this.tail = null;
+    }
+
+    hVertexList.prototype = {
+        // clear the list
+        clear: function() {
+            this.head = null;
+            this.tail = null;
+        },
+
+        // add a vertex to the end of the list
+        // assumes that the vertex to be added is already an instantiated hVertex object
+        add: function(v) {
+            if (this.head == null)
+                this.head = v;
+            else 
+                this.tail.next = v;
+            
+            v.prev = this.tail;
+            v.next = null;
+            this.tail = v;
+        },
+
+        // Add a chain of vertices to the end of this list.
+        addAll: function(vtx) {
+            if (this.head == null)
+                head = vtx;
+            else
+                this.tail.next = vtx;
+            vtx.prev = this.tail;
+            while (vtx.next != null) {
+                vtx = vtx.next;
+            }
+            this.tail = vtx;
+        }, 
+
+        //Delete a vertex or vertex chain from this list
+        delete: function(vtx1, vtx2) {
+            // delete single vertex
+            if (arguments.length == 1) {
+                if (vtx1.prev == null)
+                    this.head = vtx1.next;
+                else
+                    vtx1.prev.next = vtx1.next;
+                if (vtx1.next == null)
+                    this.tail = vtx1.prev;
+                else
+                    vtx1.next.prev = vtx1.prev;
+            }
+            // delete chain of contiguous vertices with vtx1 before vtx2
+            else if (arguments.length == 2) {
+                if (vtx1.prev == null)
+                    this.head = vtx2.next;
+                else
+                    vtex1.prev.next = vtx2.next;
+                if (vtx2.next == null)
+                    this.tail = vtx1.prev;
+                else
+                    vtx2.next.prev = vtx1.prev;
+            }
+        },
+        // insert a vertex into the list before another given vertex
+        insertBefore: function(vtx, next) {
+            vtx.prev = next.prev;
+            if (next.prev == null)
+                this.head = vtx;
+            else
+                next.prev.next = vtx;
+            vtx.next = next;
+            next.prev = vtx;
+        },
+        // return the first vertex in the list
+        first: function() {
+            return this.head;
+        },
+
+        // return true if the list is empty
+        isEmpty: function() {
+            return this.head == null;
+        }
+    } // end hVertexList
+
+    // HalfEdge class for 3D hull
+    // represents the half edges that surround each face in a counter-clockwise direction
+    HalfEdge = function(v, f) {
+        if (arguments.length == 2) {
+            // the vertex associated with the head of this half-edge
+            this.vertex = v;
+
+            // triangular face associated with this half-edge
+            this.face = f;
+        }
+        else {
+            this.vertex = null;
+            this.face = null;
+        }
+
+        // list pointers 
+        this.prev = null;
+        this.next = null;
+
+        // half-edge associated with the opposite triangle 
+        // adjacent to this edge
+
+        this.opposite = null;
+    }
+
+    HalfEdge.prototype = {
+        // set the value of the next edge adjacent 
+        // counter clockwise to this one within the triangle
+        // edge parameter is the next adjacent edge
+        setNext: function(edge) {
+            this.next = edge;
+        },
+
+        // get the value of the next adjacent edge 
+        // counter clockwise to this one in the triangle
+        getNext: function() {
+            return this.next;
+        },
+
+        //set the value of the previous edge (clockwise)
+        setPrev: function(edge) {
+            this.prev = edge;
+        },
+
+        // get the value of the previous edge (clockwise)
+        getPrev: function() {
+            return this.prev;
+        },
+
+        // returns the triangular face located to the left of this half-edge
+        getFace: function() {
+            return this.face;
+        },
+
+        // returns the half-edge opposite to this half-edge
+        getOpposite: function() {
+            return this.opposite;
+        },
+
+        // sets the half-edge opposite to this half-edge
+        // edge param is a half-edge
+        setOpposite: function(edge) {
+            this.opposite = edge;
+            edge.opposite = this;
+        },
+
+        // returns the head vertex associated with this half-edge
+        head: function() {
+            return this.vertex;
+        },
+
+        // returns the tail vertex associated with this half-edge
+        tail: function() {
+            return (this.prev != null) ? this.prev.vertex : null;
+        },
+
+        // returns the opposite triangular face associated with this half-edge
+        oppositeFace: function() {
+            return (this.opposite != null) ? this.opposite.face : null;
+        },
+
+        // produces a string of this half edge by the point index values
+        // of its head and tail vertices
+        getVertexString: function() {
+            if (this.tail() != null) 
+                return "" + this.tail().index + "-" + this.head().index;
+            else
+                return "?-" + this.head().index;
+        },
+
+        // returns the length of this half-edge
+        length: function() {
+            if (this.tail() != null)
+                return head().pnt.distanceTo(tail().pnt);
+            else
+                return -1;
+        },
+
+        // returns the length squared of this half-edge
+        lengthSquared: function() {
+            if (this.tail() != null)
+                return this.head().pnt.distanceToSquared(this.tail().pnt);
+            else 
+                return -1;
+        }
+    } // end HalfEdge class
+
+    // class Face
+    // Basic triangular face to form the convex 3D hull
+    // A face has a planar normal, a planar offset, and a
+    // doubly linked list of three HalfEdges which surround
+    // the face in a counter-clockwise direction.
+
+    Face = function() {
+
+        this.normal = new CSG.Vector3D(0,0,0);
+        this.centroid = new CSG.Vector3D(0,0,0);
+        this.mark = 1;  // VISIBLE
+
+        // list of half-edges
+        this.he0 = null;  
+
+        // area of the face
+        this.area = -1;
+
+        // planar offset
+        this.planeOffset = -1;
+
+        this.index = -1;
+        this.numVerts = -1;
+
+        // Faces are kept in a list
+        this.next = null;
+
+        // List of outside vertices?
+        this.outside = null;
+    }
+
+    Face.prototype = {
+        computeCentroid: function(centroid) {
+            centroid.setZero();
+            var he = this.he0;
+            do {
+                centroid.add (he.head().pnt);
+                he = he.next;
+            }
+            while (he != he0);
+            centroid.times(1/numVerts);
+        },
+
+        computeNormal: function(normal, minArea) {
+            var he1 = this.he0.next;
+            var he2 = he1.next;
+
+            var p0 = he0.head().pnt;
+            var p2 = he1.head().pnt;
+
+            var d2x = p2.x - p0.x;
+            var d2y = p2.y - p0.y;
+            var d2z = p2.z - p0.z;
+
+            this.normal.setZero();
+
+            this.numVerts = 2;
+
+            while (he2 != he0) {
+                var d1x = d2x;
+                var d1y = d2y;
+                var d1z = d2z;
+
+                p2 = he2.head().pnt;
+                d2x = p2.x - p0.x;
+                d2y = p2.y - p0.y;
+                d2z = p2.z - p0.z;
+
+                this.normal.x += d1y*d2z - d1z*d2y;
+                this.normal.y += d1z*d2x - d1x*d2z;
+                this.normal.z += d1x*d2y - d1y*d2x;
+
+                he1 = he2;
+                he2 = he2.next;
+                numVerts++;
+            }
+            this.area = this.normal.length();
+            this.normal.times(1/this.area);
+
+            if (arguments.length == 2) {
+                if (this.area < minArea) {
+                    // make the normal more robust by removing components parallel to the longest edge
+                    var hedgeMax = null;
+                    var lenSqrMax = 0;
+                    var hedge = this.he0;
+
+                    do {
+                        var lenSqr = hedge.lengthSquared();
+                        if (lenSqr > lenSqrMax) {
+                            hedgeMax = hedge;
+                            lenSqrMax = lenSqr;
+                        }
+                    }
+                    while (hedge != this.he0);
+
+                    p2 = hedgeMax.head().pnt;
+                    p1 = hedgeMax.tail().pnt;
+                    var lenMax = Math.sqrt(lenSqrMax);
+                    var ux = (p2.x - p1.x)/lenMax;
+                    var uy = (p2.y - p1.y)/lenMax;
+                    var uz = (p2.z - p1.z)/lenMax;    
+                    var dot = this.normal.x*ux + this.normal.y*uy + this.normal.z*uz;
+                    this.normal.x -= dot*ux;
+                    this.normal.y -= dot*uy;
+                    this.normal.z -= dot*uz;
+
+                    this.normal.normalize();
+                }
+            }
+        },
+
+        computeNormalAndCentroid: function() {
+            computeNormal(this.normal);
+            computeCentroid(this.centroid);
+            this.planeOffset = this.normal.dot(this.centroid);
+        },
+
+        // createTriangle creates and returns a triangle
+        // using vertices v0, v1, v2.  minArea is optional (set to 0 if not given).
+        createTriangle: function(v0,v1,v2,minArea) {
+            var face = new Face();
+            var he0 = new HalfEdge (v0, face);
+            var he1 = new HalfEdge (v1, face);
+            var he2 = new HalfEdge (v2, face);
+
+            he0.prev = he2;
+            he0.next = he1;
+            he1.prev = he0;
+            he1.next = he2;
+            he2.prev = he1;
+            he2.next = he0;
+ 
+            face.he0 = he0;
+
+            // compute the normal and offset
+
+            if (minArea)
+                face.computeNormalAndCentroid(minArea);
+            else 
+                face.computeNormalAndCentroid(0);
+
+            return face;
+
+        },
+        // create a face from an array of vertices and an array of indices
+        create: function(vtxArray, indices) {
+            var face = new Face();
+            var hePrev = null;
+            for (var i = 0; i < indices.length; i++) {
+                var he = new HalfEdge(vtxArray[indices[i]], face);
+                if (hePrev != null) {
+                    he.setPrev(hePrev);
+                    hePrev.setNext(he);
+                }
+                else {
+                    face.he0 = he;
+                }
+                hePrev = he;
+            }
+            face.he0.setPrev (hePrev);
+            hePrev.setNext (face.he0);
+
+            // compute the normal and offset
+            face.computeNormalAndCentroid();
+            return face;             
+        },
+
+        // get the i-th half-edge associated with the face.
+        // takes an index i (should be between 0 and 2)
+        // returns the half-edge.
+        getEdge: function(i) {
+            var he = this.he0;
+            while (i > 0) {
+                he = he.next;
+                i--;
+            }
+            while (i < 0) {
+                he = he.prev;
+                i++;
+            }
+            return he;
+        },
+
+        getFirstEdge: function() {
+            return this.he0;
+        },
+
+        // finds the half-edge within this face which has tail vt and head vh.
+        // takes two vertices (vt, vh)
+        // return the half-edge if found, or null.
+        findEdge: function(vt, vh) {
+            var he = this.he0;
+            do {
+                if (he.head() == vh && he.tail() == vt) 
+                    return he;
+                he = he.next;
+            }
+            while (he != he0);
+            return null;
+        },
+
+        // calculates the distance from this face to a point p
+        distanceToPlane: function(p) {
+            return this.normal.x * p.x + this.normal.y * p.y + this.normal.z * p.z - this.planeOffset;
+        },
+
+        // returns the normal of the plane associated with this face
+        getNormal: function() {
+            return this.normal;
+        },
+
+        getCentroid: function() {
+            return this.centroid;
+        },
+
+        numVertices: function() {
+            return this.numVerts;
+        },
+
+        getVertexString: function() {
+            var s = '';
+            var he = this.he0;
+
+            do {
+                if (s.length == 0) 
+                    s += he.head().index;
+                else
+                    s += " " + he.head().index;
+
+                he = he.next;
+            }
+            while (he != this.he0);
+            return s;
+        },
+
+        getVertexIndices: function(idxs) {
+            var he = this.he0;
+            var i = 0;
+            do {
+                idxs[i++] = he.head().index;
+                he = he.next;
+            }
+            while (he != this.he0);
+        },
+
+        connectHalfEdges: function(hedgePrev, hedge) {
+            var discardedFace = null;
+
+            if (hedgePrev.oppositeFace() == hedge.oppositeFace()) {
+                // there is a redundant edge we can get rid of
+                var oppFace = hedge.oppositeFace();
+                var hedgeOpp;
+
+                if (hedgePrev == this.he0) 
+                    this.he0 = hedge;
+                if (oppFace.numVertices() == 3) {
+                    // we can get rid of the opposite face altogether
+                    hedgeOpp = hedge.getOpposite().prev.getOpposite();
+                    oppFace.mark = 3;   // DELETED
+                    discardedFace = oppFace;
+                }
+                else {
+                    hedgeOpp = hedge.getOpposite().next;
+                    if (oppFace.he0 == hedgeOpp.prev) 
+                        oppFace.he0 = hedgeOpp;
+                    hedgeOpp.prev = hedgeOpp.prev.prev;
+                    hedgeOpp.prev.next = hedgeOpp;
+                }
+
+                hedge.prev = hedgePrev.prev;
+                hedge.prev.next = hedge;
+
+                hedge.opposite = hedgeOpp;
+                hedgeOpp.opposite = hedge;
+
+                // oppFace was modified, so need to recompute
+                oppFace.computeNormalAndCentroid();
+            }
+            else {
+                hedgePrev.next = hedge;
+                hedge.prev = hedgePrev;
+            }
+            return discardedFace;
+        },
+
+        checkConsistency: function() {
+            // do a sanity check on the face
+            var hedge = this.he0;
+            var maxd = 0;
+            var numv = 0;
+
+            if (this.numVerts < 3)
+                throw("face" + this.getVertexString() + ": " + "unreflected half edge " + hedge.getVertexString());
+
+            do {
+                var hedgeOpp = hedge.getOpposite();
+                if (hedgeOpp == null) 
+                    throw("face " + this.getVertexString() + ": " + "unreflected half edge " + hedge.getVertexString());
+                else if (hedgeOpp.getOpposite() != hedge)
+                    throw("face " + this.getVertexString() + ": " + "opposite half edge " + hedgeOpp.getVertexString()
+                            + " has opposite " + hedgeOpp.getOpposite().getVertexString());
+                if (hedgeOpp.head() != hedge.tail() || hedge.head() != hedgeOpp.tail())
+                    throw("face " + this.getVertexString() + ": " + "half edge " + hedge.getVertexString() +
+                            " reflected by " + hedgeOpp.getVertexString());
+
+                var oppFace = hedgeOpp.face;
+                if (oppFace == null)
+                    throw("face " + this.getVertexString() + ": " + "no face on half edge " +
+                            hedgeOpp.getVertexString());
+
+                else if (oppFace.mark == 3)  // DELETED
+                    throw("face " + this.getVertexString() + ": " + "opposite face " +
+                            oppFace.getVertexString() + " not on hull");  
+
+                var d = Math.abs(this.distanceToPlane(hedge.head().pnt));
+                if (d > maxd)
+                    maxd = d;
+                numv++;
+                hedge = hedge.next;                  
+            }
+            while (hedge != this.he0);
+
+            if (numv != this.numVerts)
+                throw("face " + this.getVertexString() + " numVerts=" + this.numVerts + " should be " + numv);
+        },
+
+        // merges adjacent faces.  
+        // hedgeAdj: a halfEdge
+        // discarded: an array of faces
+        mergeAdjacentFace: function(hedgeAdj, discarded) {
+            var oppFace = hedgeAdj.oppositeFace();
+            var numDiscarded = 0;
+
+            discarded[numDiscarded++] = oppFace;
+            oppFace.mark = 3; // DELETED
+
+            var hedgeOpp = hedgeAdj.getOpposite();
+            var hedgeAdjPrev = hedgeAdj.prev;
+            var hedgeAdjNext = hedgeAdj.next;
+            var hedgeOppPrev = hedgeOpp.prev;
+            var hedgeOppNext = hedgeOpp.next;
+
+            while (hedgeAdjPrev.oppositeFace() == oppFace) {
+                hedgeAdjPrev = hedgeAdjPrev.prev;
+                hedgeOppNext = hedgeOppNext.next;
+            }
+           
+            while (hedgeAdjNext.oppositeFace() == oppFace) { 
+                hedgeOppPrev = hedgeOppPrev.prev;
+                hedgeAdjNext = hedgeAdjNext.next;
+            }
+
+            var hedge;
+
+            for (hedge=hedgeOppNext; hedge!=hedgeOppPrev.next; hedge=hedge.next) { 
+                hedge.face = this;
+            }
+
+            if (hedgeAdj == this.he0)
+                this.he0 = hedgeAdjNext; 
+
+            // handle the half edges at the head
+            var discardedFace;
+
+            discardedFace = connectHalfEdges(hedgeOppPrev, hedgeAdjNext);
+            if (discardedFace != null)
+                discarded[numDiscarded++] = discardedFace; 
+             
+
+            // handle the half edges at the tail
+            discardedFace = connectHalfEdges(hedgeAdjPrev, hedgeOppNext);
+            if (discardedFace != null)
+                discarded[numDiscarded++] = discardedFace; 
+            
+
+            this.computeNormalAndCentroid();
+            this.checkConsistency();
+
+            return numDiscarded;                         
+        },
+        // return the squared area of the triangle defined by
+        // the half edge hedge0 and the point at the head of hedge1
+        areaSquared: function(hedge0, hedge1) {
+            var p0 = hedge0.tail().pnt;
+            var p1 = hedge0.head().pnt;
+            var p2 = hedge1.head().pnt;
+
+            var dx1 = p1.x - p0.x;
+            var dy1 = p1.y - p0.y;
+            var dz1 = p1.z - p0.z;
+
+            var dx2 = p2.x - p0.x;
+            var dy2 = p2.y - p0.y;
+            var dz2 = p2.z - p0.z;
+
+            var x = dy1*dz2 - dz1*dy2;
+            var y = dz1*dx2 - dx1*dz2;
+            var z = dx1*dy2 - dy1*dx2;
+
+            return x*x + y*y + z*z;              
+        },
+        
+        triangulate: function(newFaces, minArea) {
+            var hedge;
+
+            if (this.numVertices() < 4)     // nothing to triangulate!
+                return; 
+             
+
+            var v0 = this.he0.head();
+            var prevFace = null;
+
+            hedge = this.he0.next;
+            var oppPrev = hedge.opposite;
+            var face0 = null;
+
+            for (hedge=hedge.next; hedge!=this.he0.prev; hedge=hedge.next) {
+                var face = createTriangle (v0, hedge.prev.head(), hedge.head(), minArea);
+                face.he0.next.setOpposite(oppPrev);
+                face.he0.prev.setOpposite(hedge.opposite);
+                oppPrev = face.he0;
+                newFaces.add(face);
+                if (face0 == null)
+                    face0 = face; 
+            }
+            hedge = new HalfEdge (this.he0.prev.prev.head(), this);
+            hedge.setOpposite (oppPrev);
+ 
+            hedge.prev = this.he0;
+            hedge.prev.next = hedge;
+ 
+            hedge.next = this.he0.prev;
+            hedge.next.prev = hedge;
+ 
+            computeNormalAndCentroid (minArea);
+            checkConsistency();
+ 
+            for (var face=face0; face!=null; face=face.next)
+                face.checkConsistency(); 
+        }        
+    } // end of Face.prototype
+
+    FaceList = function() {
+        this.head = null;
+        this.tail = null;
+    }
+
+    FaceList.prototype = {
+        // clear the list
+        clear: function() {
+            this.head = null;
+            this.tail = null;
+        },
+        // add to the end of this list
+        add: function(f) {
+            if (this.head == null)
+                this.head = f;
+            else 
+                this.tail.next = f;
+            f.next = null;
+            this.tail = f;
+        },
+
+        first: function() {
+            return this.head;
+        },
+        
+        // returns true if the list is empty
+        isEmpty: function() {
+            return this.head == null;
+        }        
+    } // end FaceList.prototype
+
+    // function to build a 3D convex hull
+    // takes an array of CSG.Vector3D values,
+    // returns an array of "faces" (indexes into 
+    // the original vector array)
+    quickHull3D = function() {
+        // the distance tolerance should be computed from input points
+        const AUTOMATIC_TOLERANCE = -1;
+        const DOUBLE_PREC = 2.2204460492503131e-16;
+        var findIndex = -1;
+
+        var debug = true;
+
+        // estimated size of the point set
+        var charLength;
+
+        // will hold an array of vertices
+        var pointBuffer = [];
+        var vertexPointIndices = [];
+        var discardedFaces = [new Face(), new Face(), new Face()];
+
+        var maxVtxs = [];
+        var minVtxs = [];
+
+        var faces = [];
+        var horizon = [];
+
+        var newFaces = new FaceList();
+        var unclaimed = new hVertexList();
+        var claimed = new hVertexList();
+
+        var numVertices;
+        var numFaces;
+        var numPoints;
+
+        var explicitTolerance = AUTOMATIC_TOLERANCE;
+        var tolerance;
+    }
+
+    quickHull3D.prototype = {
+
+        build: function(points) {
+            // test to see if we have enough points to build a hull.
+            if (points.length < 4) {
+                console.log("cannot build hull - fewer than four points");
+                return null;
+            }
+
+            initBuffers(points, points.length);
+            buildHull();
+        },
+
+        initBuffers: function(points,nump) {
+            this.pointBuffer = [];
+            for (var i = 0; i < nump; i++)
+                this.pointBuffer.push(new hVertex(points[i].x,points[i].y,points[i].z));
+            this.faces.clear();
+            this.claimed.clear();
+            this.numFaces = 0;
+            this.numPoints = nump;
+        },
+
+        buildHull: function() {
+            var cnt = 0;
+            var eyeVtx;
+
+            this.computeMaxAndMin();
+            // this.createInitialSimplex();
+
+            // while ((eyeVtx = this.nextPointToAdd()) != null) {
+            //     this.addPointToHull(eyeVtx);
+            //     cnt++;
+            //     if (this.debug) console.log ("iteration " + cnt + " done");
+            // }
+
+            // this.reindexFacesAndVertices();
+            // if (this.debug) console.log("hull done");
+        },
+
+        computeMaxAndMin: function() {
+            var max = CSG.Vector3D.Create(0,0,0);
+            var min = CSG.Vector3D.Create(0,0,0);
+
+            for (var i = 0; i < 3; i++) {
+                this.maxVtxs[i] = this.pointBuffer[0];
+                this.minVtxs[i] = this.pointBuffer[0];
+            }
+
+            max.set(this.pointBuffer[0].pnt);
+            min.set(this.pointBuffer[0].pnt);
+
+            console.log("max and min:", max, min);
+
+        }
+
+    }  // end of quickHull3D.prototype 
 
     // # class Plane
     // Represents a plane in 3D space.
