@@ -470,6 +470,26 @@ Blockscad.init = function() {
       root.find('.sub-menu:visible').hide();
     });
   });
+
+
+  // testing hull code.  eventually delete this.
+  var points = [
+    CSG.Vector3D.Create(0,0,0),
+    CSG.Vector3D.Create(1,0,0),
+    // CSG.Vector3D.Create(-2,-1,-10),
+    CSG.Vector3D.Create(0,1,0),
+    CSG.Vector3D.Create(0,0,1),
+    CSG.Vector3D.Create(0,1,1),
+    CSG.Vector3D.Create(1,1,0),
+    CSG.Vector3D.Create(1,0,1),
+    CSG.Vector3D.Create(1,1,1),
+    CSG.Vector3D.Create(0.5,0.5,0.5)
+  ];
+  var qhull = new quickHull3D();
+
+  var faces = qhull.build(points);
+
+
 }; // end Blockscad.init()
 
 
