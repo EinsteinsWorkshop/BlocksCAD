@@ -430,14 +430,28 @@ for solid CAD anyway.
             var qhull = new quickHull3D();
 
             var faces = qhull.build(points);
+
+            // console.log(faces);
           
             var polygons = [];
-            // faces.map( function(face) {
-            //     if ( face ) {
-            //         polygons.push(face.getPolygon());
-            //     }
-            // });
-            return new CSG();
+            for (var i = 0; i < faces.length; i++) {
+                // each index is a face.  I need to get the points and make an array of them
+                // to send to CSG.Polygon.createFromPoints
+                var pp = [];
+                for (var j = 0; j < faces[i].length; j++) {
+                    // each of these should be an integer index into the original points variable.
+                    pp.push(points[faces[i][j]]);
+                }
+                // console.log("points for polygons");
+                // console.log(pp);
+                polygons.push(new CSG.Polygon.createFromPoints(pp));
+            }
+            // console.log("polygons");
+            // console.log(polygons);
+
+            return CSG.fromPolygons(polygons);
+
+
         },
          // end hull3d
 
@@ -2243,12 +2257,12 @@ for solid CAD anyway.
         },
         // normalize a vector in place
         normalize: function() {
-            console.log(" in normalize", this);
+            // console.log(" in normalize", this);
             var lenSqr = this.lengthSquared();
             var err = lenSqr - 1;
             var DOUBLE_PREC = 2.2204460492503131e-16;
             if (err > (2*DOUBLE_PREC) || err < -(2*DOUBLE_PREC)) {
-                console.log("normalizing");
+                // console.log("normalizing");
                 var len = Math.sqrt(lenSqr);
                 this._x /= len;
                 this._y /= len;
@@ -2361,7 +2375,7 @@ for solid CAD anyway.
         // Add a chain of vertices to the end of this list.
         addAll: function(vtx) {
             if (this.head == null)
-                head = vtx;
+                this.head = vtx;
             else
                 this.tail.next = vtx;
             vtx.prev = this.tail;
@@ -2389,7 +2403,7 @@ for solid CAD anyway.
                 if (vtx1.prev == null)
                     this.head = vtx2.next;
                 else
-                    vtex1.prev.next = vtx2.next;
+                    vtx1.prev.next = vtx2.next;
                 if (vtx2.next == null)
                     this.tail = vtx1.prev;
                 else
@@ -2504,13 +2518,13 @@ for solid CAD anyway.
             if (this.tail() != null) 
                 return "" + this.tail().index + "-" + this.head().index;
             else
-                return "?-" + this.head().index;
+                return "? -" + this.head().index;
         },
 
         // returns the length of this half-edge
         length: function() {
             if (this.tail() != null)
-                return head().pnt.distanceTo(tail().pnt);
+                return this.head().pnt.distanceTo(this.tail().pnt);
             else
                 return -1;
         },
@@ -2557,18 +2571,18 @@ for solid CAD anyway.
 
     Face.prototype = {
         computeCentroid: function(centroid) {
-            console.log("centroid was:",centroid);
+            // console.log("centroid was:",centroid);
             centroid.setZero();
             var he = this.he0;
-            console.log("he",he);
+            // console.log("he",he);
             do {
-                console.log("now centroid is:",centroid);
+                // console.log("now centroid is:",centroid);
                 centroid.hAdd(centroid, he.head().pnt);
                 he = he.next;
             }
             while (he != this.he0);
             centroid.hTimes(centroid, 1 / this.numVerts);
-            console.log("now centroid is (done):",centroid);
+            // console.log("now centroid is (done):",centroid);
         },
 
         computeNormal: function(normal, minArea) {
@@ -3003,42 +3017,53 @@ for solid CAD anyway.
         }        
     } // end FaceList.prototype
 
+    // implementation of the quickhull algorithm
+    // based on the original paper by Barber, Dobkin, and Huhdanpaa (1995)
+    // ported from the Java library by John Lloyd
+    // https://www.cs.ubc.ca/~lloyd/java/quickhull3d.html
+    // 
     // function to build a 3D convex hull
     // takes an array of CSG.Vector3D values,
     // returns an array of "faces" (indexes into 
     // the original vector array)
     quickHull3D = function() {
         // the distance tolerance should be computed from input points
-        const AUTOMATIC_TOLERANCE = -1;
-        const DOUBLE_PREC = 2.2204460492503131e-16;
-        var findIndex = -1;
+        this.AUTOMATIC_TOLERANCE = -1;
+        this.DOUBLE_PREC = 2.2204460492503131e-16;
+        this.findIndex = -1;
 
-        var debug = true;
+        this.debug = true;
 
         // estimated size of the point set
-        var charLength;
+        this.charLength;
 
         // will hold an array of vertices
-        var pointBuffer = [];
-        var vertexPointIndices = [];
-        var discardedFaces = [];
+        this.pointBuffer = [];
+        this.vertexPointIndices = [];
+        this.discardedFaces = [];
 
-        var maxVtxs = [];
-        var minVtxs = [];
+        this.maxVtxs = [];
+        this.minVtxs = [];
 
-        var faces = [];
-        var horizon = [];
+        for (var i = 0; i < 3; i++) {
+            this.maxVtxs.push(new hVertex(0,0,0,i));
+            this.minVtxs.push(new hVertex(0,0,0,i));
+            this.discardedFaces.push(new Face());
+        }
 
-        var newFaces = new FaceList();
-        var unclaimed = new hVertexList();
-        var claimed = new hVertexList();
+        this.faces = [];
+        this.horizon = [];
 
-        var numVertices;
-        var numFaces;
-        var numPoints;
+        this.newFaces = new FaceList();
+        this.unclaimed = new hVertexList();
+        this.claimed = new hVertexList();
 
-        var explicitTolerance = AUTOMATIC_TOLERANCE;
-        var tolerance;
+        this.numVertices;
+        this.numFaces;
+        this.numPoints;
+
+        this.explicitTolerance = this.AUTOMATIC_TOLERANCE;
+        this.tolerance;
     }
 
     quickHull3D.prototype = {
@@ -3051,69 +3076,61 @@ for solid CAD anyway.
             }
 
             this.initBuffers(points, points.length);
-            this.buildHull();
+            var doneFaces = this.buildHull();
+            return doneFaces;
         },
 
         initBuffers: function(points,nump) {
-            this.AUTOMATIC_TOLERANCE = -1;
-            this.DOUBLE_PREC = 2.2204460492503131e-16;
-            this.findIndex = -1;
 
-            this.debug = true;
-            this.charLength = null;
-            this.tolerance = null;
-            this.explicitTolerance = this.AUTOMATIC_TOLERANCE;
-            this.pointBuffer = [];  
-            for (var i = 0; i < nump; i++)
+            this.pointBuffer = [];
+            for (var i = 0; i < nump; i++) {
                 this.pointBuffer.push(new hVertex(points[i].x,points[i].y,points[i].z, i));
+                this.vertexPointIndices.push(0);
+            }
+
             this.faces = [];
+            this.claimed.clear();
+
             this.numVertices = nump;
             this.numFaces = 0;
             this.numPoints = nump;
-            this.maxVtxs = [];
-            this.minVtxs = [];
-            this.horizon = [];
-            this.newFaces = new FaceList();
-            this.unclaimed = new hVertexList();
-            this.claimed = new hVertexList();
-            this.explicitTolerance = this.AUTOMATIC_TOLERANCE;
-            this.vertexPointIndices = [];
-            this.discardedFaces = [];
+
         },
 
         buildHull: function() {
             var cnt = 0;
             var eyeVtx;
-            console.log(this.pointBuffer[0]);
+            // console.log(this.pointBuffer[0]);
             this.computeMaxAndMin();
             this.createInitialSimplex();
 
-            console.log("trying new stuff");
-
             while ((eyeVtx = this.nextPointToAdd()) != null) {
-                console.log ("eyeVtx is" , eyeVtx);
+                // console.log ("eyeVtx is" , eyeVtx);
                 this.addPointToHull(eyeVtx);
                 cnt++;
-                console.log ("iteration " + cnt + " done");
+                // console.log ("iteration " + cnt + " done");
             }
 
             this.reindexFacesAndVertices();
-            console.log("hull done");
+            // console.log("hull done");
             var doneFaces = this.getFaces();
-            console.log(doneFaces);
-            var doneVerts = this.getVertices();
-            console.log(doneVerts);
+            // console.log(doneFaces);
+            // var doneVerts = this.getVertices();
+            // console.log(doneVerts);
+            // console.log("the points:");
+            // this.printPoints();
+            return(doneFaces);
         },
 
         computeMaxAndMin: function() {
             // console.log(this.maxVtxs);
-             console.log(this.pointBuffer);
+             // console.log(this.pointBuffer);
 
             var pt = this.pointBuffer[0];
 
             for (var i = 0; i < 3; i++) {
-                this.maxVtxs.push(new hVertex(pt.pnt.x,pt.pnt.y,pt.pnt.z,i));
-                this.minVtxs.push(new hVertex(pt.pnt.x,pt.pnt.y,pt.pnt.z,i));
+                this.maxVtxs[i] = this.pointBuffer[0];
+                this.minVtxs[i] = this.pointBuffer[0];
             }
 
             // console.log(this.maxVtxs,this.minVtxs);
@@ -3152,8 +3169,9 @@ for solid CAD anyway.
             }
 
             // epsilon formula is from QuickHull
-            this.charLength = Math.max(max[0]-min[0], max[1]-min[1]);
-            this.charLength = Math.max(max[2]-min[2], this.charLength);
+            this.charLength = Math.max(max[0]-min[0], max[1]-min[1], max[2]-min[2]);
+            // console.log("longest delta was: ",this.charLength);
+
             if (this.explicitTolerance == this.AUTOMATIC_TOLERANCE) { 
                 this.tolerance =
                 3*this.DOUBLE_PREC*(Math.max(Math.abs(max[0]),Math.abs(min[0]))+
@@ -3167,7 +3185,7 @@ for solid CAD anyway.
             // console.log("max and min:", this.maxVtxs, this.minVtxs);
         },
         createInitialSimplex: function() {
-            console.log("in createInitialSimplex");
+            // console.log("in createInitialSimplex");
 
             var max = 0;
             var imax = 0;
@@ -3175,18 +3193,6 @@ for solid CAD anyway.
             var dy = this.maxVtxs[1].pnt.y - this.minVtxs[1].pnt.y;
             var dz = this.maxVtxs[2].pnt.z - this.minVtxs[2].pnt.z;
 
-            if (dx > max) {
-                max = dx;
-                imax = 0;
-            }
-            if (dy > max) {
-                max = dy;
-                imax = 1;
-            }
-            if (dz > max) {
-                max = dz;
-                imax = 2;
-            }
             if (dx > max) {
                 max = dx;
                 imax = 0;
@@ -3233,7 +3239,7 @@ for solid CAD anyway.
                     maxSqr = lenSqr;
                     vtx[2] = this.pointBuffer[i];
                     nrml.set(xprod.x,xprod.y,xprod.z);
-                    console.log("1",nrml);
+                    // console.log("1",nrml);
                 }
             }
             if (Math.sqrt(maxSqr) <= 100*this.tolerance)
@@ -3257,11 +3263,11 @@ for solid CAD anyway.
             if (Math.abs(maxDist) <= 100*this.tolerance)
                 throw("Input points appear to be coplanar");
 
-            console.log("initial vertices:");
-            console.log(vtx[0].index + ": " + vtx[0].pnt);
-            console.log(vtx[1].index + ": " + vtx[1].pnt);
-            console.log(vtx[2].index + ": " + vtx[2].pnt);
-            console.log(vtx[3].index + ": " + vtx[3].pnt);
+            // console.log("initial vertices:");
+            // console.log(vtx[0].index + ": " + vtx[0].pnt);
+            // console.log(vtx[1].index + ": " + vtx[1].pnt);
+            // console.log(vtx[2].index + ": " + vtx[2].pnt);
+            // console.log(vtx[3].index + ": " + vtx[3].pnt);
 
             // we have our starting tetrahedron now.  Let's assign the other points.
 
@@ -3295,7 +3301,7 @@ for solid CAD anyway.
             for (var i=0; i < 4; i++) 
                 this.faces.push(tris[i]);
 
-            console.log(this.faces);
+            // console.log(this.faces);
 
             for (var i = 0; i < this.numPoints; i++) {
                 var v = this.pointBuffer[i];
@@ -3317,6 +3323,7 @@ for solid CAD anyway.
 
         addPointToFace: function(vtx,face) {
             vtx.face = face;
+            // console.log("adding point: " + vtx.index + " to face: "  + face.getVertexString());
             if (face.outside == null)
                 this.claimed.add(vtx);
             else
@@ -3325,10 +3332,15 @@ for solid CAD anyway.
         },
 
         nextPointToAdd: function() {
-            console.log("this.claimed:",this.claimed);
+            // var i = this.claimed.head;
+            // while (i != null) {
+            //     console.log("this.claimed: " + i.index);
+            //     i = i.next;
+            // }
+
             if (!this.claimed.isEmpty()) {
                 var eyeFace = this.claimed.first().face;
-                console.log("eyeFace: ",eyeFace);
+                // console.log("eyeFace: ",eyeFace);
                 var eyeVtx = null;
                 var maxDist = 0;
                 for (var vtx=eyeFace.outside; vtx != null && vtx.face == eyeFace; vtx = vtx.next) {
@@ -3348,12 +3360,17 @@ for solid CAD anyway.
             this.horizon = [];
             this.unclaimed.clear();
 
-            console.log("Adding Point: " + eyeVtx.index + 
-                " which is " + eyeVtx.face.distanceToPlane(eyeVtx.pnt) +
-                " above face ");
+            // console.log("Adding Point: " + eyeVtx.index + 
+            //     " which is " + eyeVtx.face.distanceToPlane(eyeVtx.pnt) +
+            //     " above face ");
 
           
+            // console.log("in addPointToHull.  About to call this.removePointFromFace");
             this.removePointFromFace (eyeVtx, eyeVtx.face);
+            // console.log("just removed a point.  Here is what is left in this.claimed:");
+            // for (var i = this.claimed.head; i != null; i = i.next) {
+            //     console.log(i.index);
+            // }
             this.calculateHorizon(eyeVtx.pnt, null, eyeVtx.face, this.horizon);
             this.newFaces.clear();
             this.addNewFaces(this.newFaces, eyeVtx, this.horizon);
@@ -3380,6 +3397,7 @@ for solid CAD anyway.
         },
 
         removePointFromFace: function(vtx,face) {
+            // console.log("in removePointFromFace.  About to delete: " + vtx.index);
             if (vtx == face.outside) { 
                 if (vtx.next != null && vtx.next.face == face)  
                     face.outside = vtx.next;
@@ -3390,9 +3408,13 @@ for solid CAD anyway.
         },
 
         calculateHorizon: function(eyePnt, edge0, face, horizon) {
+            // console.log("in calculateHorizon.  Going to deleteFacePoints for " + face.getVertexString());
             this.deleteFacePoints(face,null);
             face.mark = 3; // DELETED
-            console.log("  visiting face " + face.getVertexString());
+            // console.log("  visiting face " + face.getVertexString());
+            // console.log("this.unclaimed now has: ");
+            // for (var i = this.unclaimed.head;  i != null; i = i.next)
+            //     console.log(i.index);
             var edge;
             if (edge0 == null) {
                 edge0 = face.getEdge(0);
@@ -3408,7 +3430,7 @@ for solid CAD anyway.
                         this.calculateHorizon(eyePnt, edge.getOpposite(), oppFace, horizon);
                     else {
                         horizon.push(edge);
-                        console.log("   adding horizon edge " + edge.getVertexString());
+                        // console.log("   adding horizon edge " + edge.getVertexString());
                     }
 
                 }
@@ -3455,12 +3477,12 @@ for solid CAD anyway.
                 }
 
                 if (merge) {
-                    console.log("  merging " + face.getVertexString() + " and " + oppFace.getVertexString());
+                    // console.log("  merging " + face.getVertexString() + " and " + oppFace.getVertexString());
                     var numd = face.mergeAdjacentFace(hedge, this.discardedFaces);
                     for (var i = 0; i < numd; i++) {
                         this.deleteFacePoints(this.discardedFaces[i], face);
                     }
-                    console.log("  result: " + face.getVertexString());
+                    // console.log("  result: " + face.getVertexString());
                     return true;
                 }
                 hedge = hedge.next;
@@ -3481,8 +3503,10 @@ for solid CAD anyway.
                     for (var vtx = vtxNext; vtx != null; vtx = vtxNext) {
                         vtxNext = vtx.next;
                         var dist = absorbingFace.distanceToPlane(vtx.pnt);
-                        if (dist > this.tolerance)
+                        if (dist > this.tolerance) {
+                            // console.log("in deleteFacePoints - going to add points to a face now");
                             this.addPointToFace(vtx, absorbingFace);
+                        }
                         else
                             this.unclaimed.add(vtx);
                     }
@@ -3495,6 +3519,7 @@ for solid CAD anyway.
                 var end = face.outside;
                 while (end.next != null && end.next.face == face)
                     end = end.next;
+                // console.log("about to delete all points this.claimed in removeAllPointsFromFace: " + face.outside.index + " - " + end.index); 
                 this.claimed.delete(face.outside, end);
                 end.next = null;
                 return face.outside;
@@ -3512,7 +3537,7 @@ for solid CAD anyway.
             for (var i = 0; i < horizon.length; i++) {
                 var horizonHe = horizon[i];
                 var hedgeSide = this.addAdjoiningFace(eyeVtx, horizonHe);
-                console.log("new face: " + hedgeSide.face.getVertexString());
+                // console.log("new face: " + hedgeSide.face.getVertexString());
 
                 if (hedgeSidePrev != null)
                     hedgeSide.next.setOpposite(hedgeSidePrev);
@@ -3528,15 +3553,18 @@ for solid CAD anyway.
         addAdjoiningFace: function(eyeVtx, he) {
             var face = new Face();
             face = face.createTriangle (eyeVtx, he.tail(), he.head());
-            console.log("in addAdjoiningFace.  face is:",face);
+            // console.log("in addAdjoiningFace.  face is:",face);
             this.faces.push (face);
             face.getEdge(-1).setOpposite(he.getOpposite());
             return face.getEdge(0);
         },
 
         resolveUnclaimedPoints: function(newFaces) {
+            // console.log("in resolveUnclaimedPoints, which has:");
+
             var vtxNext = this.unclaimed.first();
             for (var vtx = vtxNext; vtx != null; vtx = vtxNext) {
+                // console.log(vtx.index);
                 vtxNext = vtx.next;
                 var maxDist = this.tolerance;
                 var maxFace = null;
@@ -3553,11 +3581,11 @@ for solid CAD anyway.
                 }
                 if (maxFace != null) {
                     this.addPointToFace(vtx, maxFace);
-                    if (vtx.index == this.findIndex)    
-                        console.log(this.findIndex + " CLAIMED BY " + maxFace.getVertexString()); 
+                    if (vtx.index == this.findIndex)  ;  
+                        // console.log(this.findIndex + " CLAIMED BY " + maxFace.getVertexString()); 
                 }
-                else if (vtx.index == this.findIndex)
-                    console.log(this.findIndex + " DISCARDED");
+                else if (vtx.index == this.findIndex);
+                    // console.log(this.findIndex + " DISCARDED");
             }
         },
 
@@ -3572,6 +3600,7 @@ for solid CAD anyway.
                 if (face.mark != 1) {   // VISIBLE
                     // remove the element at index i
                     this.faces.splice(i,1);
+                    i--;
                 }
                 else {
                     this.markFaceVertices(face,0);
@@ -3604,7 +3633,7 @@ for solid CAD anyway.
             var allFaces = [];
             for (var i = 0; i < this.faces.length; i++) {
                 var face = this.faces[i];
-                allFaces.push([-1,-1,-1]);
+                allFaces.push([]);
                 this.getFaceIndices(allFaces[i], face);
             }
 
@@ -3614,7 +3643,7 @@ for solid CAD anyway.
         getFaceIndices: function(indices, face) {
             var ccw = true;
             var indexedFromOne = false;
-            var pointRelative = false;
+            var pointRelative = true;
 
             var hedge = face.he0;
             var k = 0;
@@ -3636,6 +3665,13 @@ for solid CAD anyway.
                 coords.push([pnt.x,pnt.y,pnt.z]);
             }
             return coords;
+        },
+
+        printPoints: function() {
+            for (var i = 0; i < this.pointBuffer.length; i++) {
+                var pnt = this.pointBuffer[i].pnt;
+                console.log(i + ": " + pnt.x + ", " + pnt.y + ", " + pnt.z);
+            }
         }
 
 
