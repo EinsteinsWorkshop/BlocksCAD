@@ -381,30 +381,25 @@ for solid CAD anyway.
                 }
      
                 // make a list of all unique vertices
-                var vertexmap = {};
                 var vertex_array = [];
-                // console.log("polygons going into hull");
-                csgs.map( function(csg) {
-                    // console.log("new csg");
-                    csg.reTesselated().polygons.map( function(polygon) {
-                        // console.log("new polygon");
-                        polygon.vertices.map( function(vertex) {
-                            vertex_array.push([vertex.pos._x,vertex.pos._y,vertex.pos._z]);
-                        });
-                    });         
-                });
 
-
+                for (var i = 0; i < csgs.length; i++) {
+                    for (var j = 0; j < csgs[i].polygons.length; j++) {
+                        for (var k = 0; k < csgs[i].polygons[j].vertices.length; k++) {
+                            vertex_array.push([csgs[i].polygons[j].vertices[k].pos._x,
+                                               csgs[i].polygons[j].vertices[k].pos._y,
+                                               csgs[i].polygons[j].vertices[k].pos._z ])
+                        }
+                    }
+                }
                 var result = CSG.uniqBy(vertex_array, JSON.stringify);
                 // console.log("uniq points:", result);
                 var points = [];
                 for (var i = 0; i < result.length; i++) {
                     points.push(CSG.Vector3D.Create(result[i][0], result[i][1], result[i][2]));
                 }
-
                 return points;
             }
-            
           
             var top_guy = this;
             var other_csgs = csg;
@@ -3595,18 +3590,17 @@ for solid CAD anyway.
             // remove inactive faces and mark active vertices
 
             this.numFaces = 0;
+            var nFaces = [];
+
             for (var i = 0; i < this.faces.length; i++) {
                 var face = this.faces[i];
-                if (face.mark != 1) {   // VISIBLE
-                    // remove the element at index i
-                    this.faces.splice(i,1);
-                    i--;
-                }
-                else {
+                if (face.mark == 1) {
                     this.markFaceVertices(face,0);
                     this.numFaces++;
+                    nFaces.push(face);
                 }
             }
+            this.faces = nFaces;
 
             // reindex vertices
             this.numVertices = 0;
