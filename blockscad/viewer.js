@@ -1223,12 +1223,19 @@ Blockscad.Processor.prototype = {
     // console.log(this);
 
     var blob;
+    var res;
     if(format == "stla") {      
-      blob = this.currentObject.toStlString();        
+      res = this.currentObject.fixTJunctions();
+      if (res)
+        blob = res.toStlString();
+      else blob = this.currentObject.toStlString();        
       blob = new Blob([blob],{ type: this.formatInfo(format).mimetype });
     }
     else if(format == "stlb") {      
-      blob = this.currentObject.toStlBinary({webBlob: true});     
+      res = this.currentObject.fixTJunctions();
+      if (res)
+        blob = res.toStlBinary({webBlob: true});
+      else blob = this.currentObject.toStlBinary({webBlob: true});     
 
       // -- binary string -> blob gives bad data, so we request cgs.js already blobbing the binary
       //blob = new Blob([blob],{ type: this.formatInfo(format).mimetype+"/charset=UTF-8" }); 

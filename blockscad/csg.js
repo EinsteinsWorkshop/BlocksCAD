@@ -1442,7 +1442,8 @@ for solid CAD anyway.
             }
             if (!sidemapisempty) {
                 // throw new Error("!sidemapisempty");
-            OpenJsCad.log("!sidemapisempty");
+                // OpenJsCad.log("!sidemapisempty");
+                console.log("fix T junctions failed: !sidemapisempty");
             }
             return csg;
         },
@@ -2252,7 +2253,7 @@ for solid CAD anyway.
             // console.log(" in normalize", this);
             var lenSqr = this.lengthSquared();
             var err = lenSqr - 1;
-            var DOUBLE_PREC = 2.2204460492503131e-16;
+            var DOUBLE_PREC = 2.2204460492503131e-15;
             if (err > (2*DOUBLE_PREC) || err < -(2*DOUBLE_PREC)) {
                 // console.log("normalizing");
                 var len = Math.sqrt(lenSqr);
@@ -3021,7 +3022,7 @@ for solid CAD anyway.
     quickHull3D = function() {
         // the distance tolerance should be computed from input points
         this.AUTOMATIC_TOLERANCE = -1;
-        this.DOUBLE_PREC = 2.2204460492503131e-16;
+        this.DOUBLE_PREC = 2.2204460492503131e-15;
         this.findIndex = -1;
 
         this.debug = true;
