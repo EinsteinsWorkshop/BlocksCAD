@@ -444,6 +444,12 @@ for solid CAD anyway.
             // console.log("polygons");
             // console.log(polygons);
 
+            // I don't think I need to retesselate or canonicalize this CSG.
+
+            var hulledShape = CSG.fromPolygons(polygons);
+            hulledShape.isCanonicalized = true;
+            hulledShape.isRetesselated = true;
+
             return CSG.fromPolygons(polygons);
 
 
@@ -2110,23 +2116,14 @@ for solid CAD anyway.
             return this._z;
         },
 
-        // set x(v) {
-        //     throw new Error("Vector3D is immutable");
-        // },
-        // set y(v) {
-        //     throw new Error("Vector3D is immutable");
-        // },
-        // set z(v) {
-        //     throw new Error("Vector3D is immutable");
-        // },
         set x(v) {
-            this._x = v;
+            throw new Error("Vector3D is immutable");
         },
         set y(v) {
-            this._y = v;
+            throw new Error("Vector3D is immutable");
         },
         set z(v) {
-            this._z = v;
+            throw new Error("Vector3D is immutable");
         },
 
         clone: function() {
@@ -2587,9 +2584,9 @@ for solid CAD anyway.
             var p0 = this.he0.head().pnt;
             var p2 = he1.head().pnt;
 
-            var d2x = p2.x - p0.x;
-            var d2y = p2.y - p0.y;
-            var d2z = p2.z - p0.z;
+            var d2x = p2._x - p0._x;
+            var d2y = p2._y - p0._y;
+            var d2z = p2._z - p0._z;
 
             this.normal.setZero();
 
@@ -2601,13 +2598,13 @@ for solid CAD anyway.
                 var d1z = d2z;
 
                 p2 = he2.head().pnt;
-                d2x = p2.x - p0.x;
-                d2y = p2.y - p0.y;
-                d2z = p2.z - p0.z;
+                d2x = p2._x - p0._x;
+                d2y = p2._y - p0._y;
+                d2z = p2._z - p0._z;
 
-                this.normal.x += d1y*d2z - d1z*d2y;
-                this.normal.y += d1z*d2x - d1x*d2z;
-                this.normal.z += d1x*d2y - d1y*d2x;
+                this.normal._x += d1y*d2z - d1z*d2y;
+                this.normal._y += d1z*d2x - d1x*d2z;
+                this.normal._z += d1x*d2y - d1y*d2x;
 
                 he1 = he2;
                 he2 = he2.next;
@@ -2635,13 +2632,13 @@ for solid CAD anyway.
                     p2 = hedgeMax.head().pnt;
                     p1 = hedgeMax.tail().pnt;
                     var lenMax = Math.sqrt(lenSqrMax);
-                    var ux = (p2.x - p1.x)/lenMax;
-                    var uy = (p2.y - p1.y)/lenMax;
-                    var uz = (p2.z - p1.z)/lenMax;    
-                    var dot = this.normal.x*ux + this.normal.y*uy + this.normal.z*uz;
-                    this.normal.x -= dot*ux;
-                    this.normal.y -= dot*uy;
-                    this.normal.z -= dot*uz;
+                    var ux = (p2._x - p1._x)/lenMax;
+                    var uy = (p2._y - p1._y)/lenMax;
+                    var uz = (p2._z - p1._z)/lenMax;    
+                    var dot = this.normal._x*ux + this.normal._y*uy + this.normal._z*uz;
+                    this.normal._x -= dot*ux;
+                    this.normal._y -= dot*uy;
+                    this.normal._z -= dot*uz;
 
                     this.normal.normalize();
                 }
@@ -2742,7 +2739,7 @@ for solid CAD anyway.
 
         // calculates the distance from this face to a point p
         distanceToPlane: function(p) {
-            return this.normal.x * p.x + this.normal.y * p.y + this.normal.z * p.z - this.planeOffset;
+            return this.normal._x * p._x + this.normal._y * p._y + this.normal._z * p._z - this.planeOffset;
         },
 
         // returns the normal of the plane associated with this face
@@ -2926,13 +2923,13 @@ for solid CAD anyway.
             var p1 = hedge0.head().pnt;
             var p2 = hedge1.head().pnt;
 
-            var dx1 = p1.x - p0.x;
-            var dy1 = p1.y - p0.y;
-            var dz1 = p1.z - p0.z;
+            var dx1 = p1._x - p0._x;
+            var dy1 = p1._y - p0._y;
+            var dz1 = p1._z - p0._z;
 
-            var dx2 = p2.x - p0.x;
-            var dy2 = p2.y - p0.y;
-            var dz2 = p2.z - p0.z;
+            var dx2 = p2._x - p0._x;
+            var dy2 = p2._y - p0._y;
+            var dz2 = p2._z - p0._z;
 
             var x = dy1*dz2 - dz1*dy2;
             var y = dz1*dx2 - dx1*dz2;
@@ -3079,7 +3076,7 @@ for solid CAD anyway.
 
             this.pointBuffer = [];
             for (var i = 0; i < nump; i++) {
-                this.pointBuffer.push(new hVertex(points[i].x,points[i].y,points[i].z, i));
+                this.pointBuffer.push(new hVertex(points[i]._x,points[i]._y,points[i]._z, i));
                 this.vertexPointIndices.push(0);
             }
 
@@ -3130,35 +3127,35 @@ for solid CAD anyway.
 
             // console.log(this.maxVtxs,this.minVtxs);
 
-            var max = [pt.pnt.x, pt.pnt.y, pt.pnt.z];
-            var min = [pt.pnt.x, pt.pnt.y, pt.pnt.z];
+            var max = [pt.pnt._x, pt.pnt._y, pt.pnt._z];
+            var min = [pt.pnt._x, pt.pnt._y, pt.pnt._z];
 
             for (var i = 0; i < this.numPoints; i++) {
                 var pnt = this.pointBuffer[i].pnt;
-                if (pnt.x > max[0]) {
-                    max[0] = pnt.x;
+                if (pnt._x > max[0]) {
+                    max[0] = pnt._x;
                     this.maxVtxs[0] = this.pointBuffer[i];
                 }
-                else if (pnt.x < min[0]) {
-                    min[0] = pnt.x;
+                else if (pnt._x < min[0]) {
+                    min[0] = pnt._x;
                     this.minVtxs[0] = this.pointBuffer[i];
                 }
                 // y
-                if (pnt.y > max[1]) {
-                    max[1] = pnt.y;
+                if (pnt._y > max[1]) {
+                    max[1] = pnt._y;
                     this.maxVtxs[1] = this.pointBuffer[i];
                 }
-                else if (pnt.y < min[1]) {
-                    min[1] = pnt.y;
+                else if (pnt._y < min[1]) {
+                    min[1] = pnt._y;
                     this.minVtxs[1] = this.pointBuffer[i];
                 }
                 // z
-                if (pnt.z > max[2]) {
-                    max[2] = pnt.z;
+                if (pnt._z > max[2]) {
+                    max[2] = pnt._z;
                     this.maxVtxs[2] = this.pointBuffer[i];
                 }
-                else if (pnt.z < min[2]) {
-                    min[2] = pnt.z;
+                else if (pnt._z < min[2]) {
+                    min[2] = pnt._z;
                     this.minVtxs[2] = this.pointBuffer[i];
                 }
             }
@@ -3184,9 +3181,9 @@ for solid CAD anyway.
 
             var max = 0;
             var imax = 0;
-            var dx = this.maxVtxs[0].pnt.x - this.minVtxs[0].pnt.x;
-            var dy = this.maxVtxs[1].pnt.y - this.minVtxs[1].pnt.y;
-            var dz = this.maxVtxs[2].pnt.z - this.minVtxs[2].pnt.z;
+            var dx = this.maxVtxs[0].pnt._x - this.minVtxs[0].pnt._x;
+            var dy = this.maxVtxs[1].pnt._y - this.minVtxs[1].pnt._y;
+            var dz = this.maxVtxs[2].pnt._z - this.minVtxs[2].pnt._z;
 
             if (dx > max) {
                 max = dx;
@@ -3214,7 +3211,7 @@ for solid CAD anyway.
             // set the third vertex to be the vertex farthest from 
             // the line between vtx0 and vtx1
 
-            var u01 = new CSG.Vector3D(vtx[1].pnt.x,vtx[1].pnt.y,vtx[1].pnt.z);
+            var u01 = new CSG.Vector3D(vtx[1].pnt._x,vtx[1].pnt._y,vtx[1].pnt._z);
             u01 = u01.minus(vtx[0].pnt);
             u01.normalize();
 
@@ -3223,9 +3220,9 @@ for solid CAD anyway.
 
             for (var i = 0; i < this.numPoints; i++) {
                 var pt = this.pointBuffer[i];
-                var diff02 = CSG.Vector3D.Create(pt.pnt.x,pt.pnt.y,pt.pnt.z); 
+                var diff02 = CSG.Vector3D.Create(pt.pnt._x,pt.pnt._y,pt.pnt._z); 
                 diff02 = diff02.minus(vtx[0].pnt);
-                var xprod = CSG.Vector3D.Create(u01.x,u01.y,u01.z);
+                var xprod = CSG.Vector3D.Create(u01._x,u01._y,u01._z);
                 xprod = xprod.cross(diff02);
                 var lenSqr = xprod.lengthSquared();
                 if (lenSqr > maxSqr && 
@@ -3233,7 +3230,7 @@ for solid CAD anyway.
                     this.pointBuffer[i] != vtx[1]) {
                     maxSqr = lenSqr;
                     vtx[2] = this.pointBuffer[i];
-                    nrml.set(xprod.x,xprod.y,xprod.z);
+                    nrml.set(xprod._x,xprod._y,xprod._z);
                     // console.log("1",nrml);
                 }
             }
@@ -3656,7 +3653,7 @@ for solid CAD anyway.
             var coords = [];
             for (var i = 0; i < this.numVertices; i++) {
                 var pnt = this.pointBuffer[this.vertexPointIndices[i]].pnt;
-                coords.push([pnt.x,pnt.y,pnt.z]);
+                coords.push([pnt._x,pnt._y,pnt._z]);
             }
             return coords;
         },
@@ -3664,7 +3661,7 @@ for solid CAD anyway.
         printPoints: function() {
             for (var i = 0; i < this.pointBuffer.length; i++) {
                 var pnt = this.pointBuffer[i].pnt;
-                console.log(i + ": " + pnt.x + ", " + pnt.y + ", " + pnt.z);
+                console.log(i + ": " + pnt._x + ", " + pnt._y + ", " + pnt._z);
             }
         }
 
