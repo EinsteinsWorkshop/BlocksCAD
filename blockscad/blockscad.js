@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.1.2";
 
-Blockscad.offline = true;
+Blockscad.offline = true;  // true unless using a cloud service backend for file management
 
 // -- BEGIN OPENJSCAD STUFF --
 
@@ -191,10 +191,14 @@ Blockscad.init = function() {
   $('#renderButton').prop('disabled', true); 
 
   // set up the delete-confirm button's function.
-  $('#throw-it-away').click(Blockscad.clearProject);
+  $('#throw-it-away').click(function() {
+    Blockscad.clearProject();
+    Blockscad.workspaceChanged();
+    Blockscad.clearUndo();
+  });
 
   // handle the project->new menu option
-  $('#main').on('click', '.new-project', Blockscad.newProject);
+  $('#main').on('change', '.new-project', Blockscad.newProject);
 
 //FileSaver.js stuff
   // Loading a blocks xml file
@@ -452,6 +456,19 @@ Blockscad.init = function() {
       Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
     }
   });
+
+  // example handlers
+  // to add an example, add a list item in index.html, add a click handler below, 
+  // and be sure to put the name of the example file in the msg field.  The xml
+  // file should be saved in the "examples" folder.
+
+  $("#examples_torus").click({msg: "torus.xml"}, Blockscad.showExample);
+  $("#examples_box").click({msg: "box.xml"}, Blockscad.showExample);
+  $("#examples_linear_extrude").click({msg: "linear_extrude.xml"}, Blockscad.showExample);
+  $("#examples_rotate_extrude").click({msg: "rotate_extrude.xml"}, Blockscad.showExample);
+  $("#examples_cube_with_cutouts").click({msg: "cube_with_cutouts.xml"}, Blockscad.showExample);
+  $("#examples_anthias_fish").click({msg: "anthias_fish.xml"}, Blockscad.showExample);
+
   // to get sub-menus to work with bootstrap 3 navbar
   $(function(){
     $(".dropdown-menu > li > a.trigger").on("click",function(e){
@@ -533,11 +550,14 @@ Blockscad.clearStlBlocks = function() {
 Blockscad.newProject = function() {
   // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
   // if the user is logged in, I should auto-save to the backend.
+  console.log("in Blockscad.newProject");
   if (Blockscad.undo.undoStack.length > 0) {
     if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
         console.log("autosaving");
         Blockscad.Auth.saveBlocksToAccount();
         Blockscad.clearProject();
+        Blockscad.workspaceChanged();
+        Blockscad.clearUndo();
     }
     else {
       // I'm going to ask if they really want to delete their current work.
@@ -545,11 +565,61 @@ Blockscad.newProject = function() {
       $('#delete-confirm').modal('show');
     }
   }
-  else Blockscad.clearProject();
+  else  {
+    Blockscad.clearProject();
+    Blockscad.workspaceChanged();
+    Blockscad.clearUndo();
+  }
 
   // if the user was on the code tab, switch them to the blocks tab.
   $('#displayBlocks').click();
 };
+
+
+// if a user clicks on an example from Help->Examples, this code is run.
+Blockscad.showExample = function(e) {
+  // note: offline, I don't clear the undo stack.  I also don't do a delete-confirm.
+  console.log("in showExample");
+  // console.log(e.data.msg);
+  var example = "examples/" + e.data.msg;
+  var name = e.data.msg.split('.')[0];
+
+  $.get( example, function( data ) {
+    if (Blockscad.undo.undoStack.length > 0) {
+      if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
+          console.log("autosaving");
+          Blockscad.Auth.saveBlocksToAccount();
+          Blockscad.clearProject();
+          Blockscad.clearUndo();
+      }
+      else {
+        Blockscad.clearProject();
+      }
+    }
+    else {
+      Blockscad.clearProject();
+    }
+    Blockscad.workspaceChanged();
+    // turn xml data object into a string that Blockly can use
+    var xmlString;
+    //IE
+    if (window.ActiveXObject){
+        xmlString = data.xml;
+    }
+    // code for Mozilla, Firefox, Opera, etc.
+    else{
+        xmlString = (new XMLSerializer()).serializeToString(data);
+    }
+    // console.log(xmlString);
+    // load xml blocks
+    var xml = Blockly.Xml.textToDom(xmlString);
+    Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
+    Blockly.fireUiEvent(window, 'resize');
+    // update project name
+    $('#project-name').val(name + ' example');
+  });
+}
+
 
 Blockscad.clearProject = function() {
 
@@ -560,8 +630,13 @@ Blockscad.clearProject = function() {
   }
   Blockscad.workspace.clear();
   gProcessor.clearViewer();  
-  Blockscad.workspaceChanged();
 
+  $('#project-name').val('Untitled');
+  $('#projectView').hide();
+  $('#editView').show();
+};
+
+Blockscad.clearUndo = function() {
   // clear the undo and redo stacks
   while(Blockscad.undo.undoStack.length) {
     Blockscad.undo.undoStack.pop();
@@ -569,13 +644,7 @@ Blockscad.clearProject = function() {
   while(Blockscad.undo.redoStack.length){
     Blockscad.undo.redoStack.pop();
   }
-
-  $('#project-name').val('Untitled');
-  $('#projectView').hide();
-  $('#editView').show();
-};
-
-
+}
 
 /**
  * Discard all blocks from the workspace.
