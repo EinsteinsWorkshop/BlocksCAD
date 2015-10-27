@@ -113,7 +113,7 @@ Blockly.FieldCheckbox.prototype.init = function(block) {
           {'height': sz + 'px',
            'width': sz + 'px',
            'y': offsetY,
-           'fill-opacity': 0}, this.fieldGroup_);
+           'opacity':0.0}, this.fieldGroup_);
     }
     this.updateEditable();
     block.getSvgRoot().appendChild(this.fieldGroup_);

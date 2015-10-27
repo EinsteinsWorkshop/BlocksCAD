@@ -30,8 +30,22 @@ Blockly.OpenSCAD['cylinder'] = function(block) {
     Blockscad.missingFields.push(block.id);
     // illegal field value?
     // console.log(block);
-  if (value_rad1 && value_rad1 <= 0) {
-    if (value_rad2 && value_rad2 <= 0) {
+
+  // m1 and m2 will keep me from double-counting errors on blocks
+  var m1 = false;
+  var m2 = false;
+
+
+  if (value_rad1 && value_rad1 < 0) {
+    Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
+    m1 = true;
+  }
+  if (value_rad2 && value_rad2 < 0) {
+    Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
+    m2 = true;
+  }
+  if ((!m1 && !m2) && value_rad1 && value_rad1 == 0) {
+    if (value_rad2 && value_rad2 == 0) {
       Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
       Blockscad.illegalValue.push(block.inputList[3].connection.targetBlock().id);
     }
@@ -511,6 +525,32 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
   }
   var code = 'text("' + this_text + '", font = "' + this_font +
              '", size = ' + value_size + ');\n';
+  return code;
+}
+
+Blockly.OpenSCAD['bs_3dtext'] = function(block) {
+  // var this_text = block.getFieldValue('TEXT');
+  var this_text = Blockly.OpenSCAD.valueToCode(block,'TEXT', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var this_font = Blockscad.fontName[parseInt(block.getFieldValue('FONT'))];
+  var value_size = Blockly.OpenSCAD.valueToCode(block,'SIZE', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value_thickness = Blockly.OpenSCAD.valueToCode(block, 'THICKNESS', Blockly.OpenSCAD.ORDER_ATOMIC);
+
+  // escape any quote characters in this_text before passing it to the openscad parser
+  this_text = this_text.replace(/\"/g,"\\\"");
+  this_text = this_text.replace(/\\/g,"\\\\");
+  // missing fields?
+  if (!value_size || !value_thickness)
+    Blockscad.missingFields.push(block.id); 
+  // illegal field value?
+  if (value_size && value_size <= 0) {
+    Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
+  }
+  if (value_thickness && value_thickness <= 0) {
+    Blockscad.illegalValue.push(block.inputList[4].connection.targetBlock().id);
+  }
+  var code = 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
+             '  text("' + this_text + '", font = "' + this_font +
+             '", size = ' + value_size + ');\n}\n';
   return code;
 }
 

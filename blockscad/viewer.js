@@ -1219,9 +1219,6 @@ Blockscad.Processor.prototype = {
   currentObjectToBlob: function() {
     var format = this.selectedFormat();
 
-    // console.log("in currentObjectToBlob. format is:",format);
-    // console.log(this);
-
     var blob;
     if(format == "stla") {      
       blob = this.currentObject.toStlString();        

@@ -85,10 +85,11 @@
     <!-- start the html at the top: the navigation bar.  -->
     <nav class="navbar navbar-default" id="top-navigation-bar">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">BlocksCAD</a>
+        <a href="#" class="pull-left"><img src="imgs/bslogo.png" style="max-height:50px"></a>
+        <!-- <a class="navbar-brand" href="#">BlocksCAD</a> -->
         <!-- Collect the nav links, forms, and other content for toggling -->
         <ul class="nav navbar-nav">
-          <li class="dropdown">
+          <li class="dropdown"> 
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Project<span class="caret"></span></a>
             <ul id="file-menu" class="dropdown-menu" role="menu">
               <li><a href="#" class="new-project">New</a></li>
@@ -107,6 +108,8 @@
                 <input type="file" accept=".stl" id="importStl" style="visibility: hidden; width: 1px; height: 1px" />
                 <a href="#" onclick="document.getElementById('importStl').click(); return false">Import STL into Current Project</a>
               </li>
+              <li class="divider"></li>
+              <li><a href="#" id="saveOpenscad">Save OpenSCAD code to your Computer</a></li>
             </ul>
           </li>
           <li class="dropdown">
@@ -136,6 +139,9 @@
                   <li><a href="#" id="examples_box">Parametric Box</a></li>
                   <li><a href="#" id="examples_linear_extrude">Linear Extrude</a></li>
                   <li><a href="#" id="examples_rotate_extrude">Rotate Extrude</a></li>
+                  <li><a href="#" id="examples_chain_hull_sun">Chain Hull Sun</a></li>
+                  <li><a href="#" id="examples_sine_function_with_loop">Sine Function with Loop</a></li>
+                  <li><a href="#" id="examples_trefoil_knot_param_eq">Trefoil Knot with Parametric Equations</a></li>
                 </ul>
               </li>              
               <li class="divider"></li>
@@ -590,7 +596,7 @@
     </div>
     <div class="modal-body">
       <div>
-        <p>Version 1.0.1 (2015/09/01)</p>
+        <p>Version <script type="text/javascript">document.write(Blockscad.version);</script> (2015/09/01)</p>
         <br>
         <p>Want to help? <a href="https://github.com/EinsteinsWorkshop/BlocksCAD">Get involved!</a></p>
         <p>Have feedback? <a href="mailto://blockscad@einsteinsworkshop.com">blockscad@einsteinsworkshop.com</a>

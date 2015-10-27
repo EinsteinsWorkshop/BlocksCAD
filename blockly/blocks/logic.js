@@ -41,7 +41,8 @@ Blockly.Blocks['controls_if'] = {
         .setCheck(['Boolean','Number'])
         .appendField(Blockly.Msg.CONTROLS_IF_MSG_IF);
     this.appendStatementInput('DO0')
-        .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
+        .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN)
+        .setCheck(['CSG','CAG']);
     this.setPreviousStatement(true);
     //this.setNextStatement(true);
     this.setMutator(new Blockly.Mutator(['controls_if_elseif',
@@ -94,10 +95,12 @@ Blockly.Blocks['controls_if'] = {
           .setCheck('Boolean')
           .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSEIF);
       this.appendStatementInput('DO' + i)
+          .setCheck(['CSG','CAG'])
           .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
     }
     if (this.elseCount_) {
       this.appendStatementInput('ELSE')
+          .setCheck(['CSG','CAG'])
           .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSE);
     }
   },
@@ -150,7 +153,8 @@ Blockly.Blocks['controls_if'] = {
           var ifInput = this.appendValueInput('IF' + this.elseifCount_)
               .setCheck('Boolean')
               .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSEIF);
-          var doInput = this.appendStatementInput('DO' + this.elseifCount_);
+          var doInput = this.appendStatementInput('DO' + this.elseifCount_)
+              .setCheck(['CSG','CAG']);
           doInput.appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
           // Reconnect any child blocks.
           if (clauseBlock.valueConnection_) {
@@ -162,7 +166,8 @@ Blockly.Blocks['controls_if'] = {
           break;
         case 'controls_if_else':
           this.elseCount_++;
-          var elseInput = this.appendStatementInput('ELSE');
+          var elseInput = this.appendStatementInput('ELSE')
+                .setCheck(['CSG','CAG']);
           elseInput.appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSE);
           // Reconnect any child blocks.
           if (clauseBlock.statementConnection_) {

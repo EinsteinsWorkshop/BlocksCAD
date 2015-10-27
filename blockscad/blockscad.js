@@ -26,7 +26,6 @@ var Blockscad = Blockscad || {};
 Blockscad.Toolbox = Blockscad.Toolbox || {};
 Blockscad.Auth = Blockscad.Auth || {};    // cloud accounts plugin
 BlocklyStorage = BlocklyStorage || {};
-//var OpenJsCad = OpenJsCad || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
@@ -198,7 +197,7 @@ Blockscad.init = function() {
   });
 
   // handle the project->new menu option
-  $('#main').on('change', '.new-project', Blockscad.newProject);
+  $('#main').on('click', '.new-project', Blockscad.newProject);
 
 //FileSaver.js stuff
   // Loading a blocks xml file
@@ -355,7 +354,7 @@ Blockscad.init = function() {
       // in order that we can read this filename again, I'll clear out the current filename
       $("#importStl")[0].value = '';
 
-      // switch us back to the blocks tab in case we were on the code tabe.
+      // switch us back to the blocks tab in case we were on the code tab.
       $('#displayBlocks').click();
       // enable the render button.
       $('#renderButton').prop('disabled', false);       
@@ -415,6 +414,9 @@ Blockscad.init = function() {
   // set up handler for saving blocks locally
   $('#file-menu').on('click', '#saveLocal', Blockscad.saveBlocksLocal);
 
+  // set up handler for exporting openscad code locally
+  $('#file-menu').on('click', '#saveOpenscad', Blockscad.saveOpenscadLocal);
+
   // toolbox toggle handlers
   $('#simpleToolbox').on('click', function() {
     console.log("switching to simple toolbox");
@@ -468,6 +470,9 @@ Blockscad.init = function() {
   $("#examples_rotate_extrude").click({msg: "rotate_extrude.xml"}, Blockscad.showExample);
   $("#examples_cube_with_cutouts").click({msg: "cube_with_cutouts.xml"}, Blockscad.showExample);
   $("#examples_anthias_fish").click({msg: "anthias_fish.xml"}, Blockscad.showExample);
+  $("#examples_chain_hull_sun").click({msg: "chain_hull_sun.xml"}, Blockscad.showExample);
+  $("#examples_sine_function_with_loop").click({msg: "sine_function_with_loop.xml"}, Blockscad.showExample);
+  $("#examples_trefoil_knot_param_eq").click({msg: "trefoil_knot_param_eq.xml"}, Blockscad.showExample);
 
   // to get sub-menus to work with bootstrap 3 navbar
   $(function(){
@@ -694,11 +699,13 @@ Blockscad.mixes2and3D = function() {
         if (mytype.length == 1 && mytype[0] == 'CSG') hasCSG++;
         if (mytype.length == 1 && mytype[0] == 'CAG') hasCAG++;
       }
-      if (cat == 'PROCEDURE') {
-        mytype = topBlocks[i].myType_;
-        if (mytype && mytype == 'CSG') hasCSG++;
-        if (mytype && mytype == 'CAG') hasCAG++;
-      }
+      // I don't want a procedure definition to be counted as a shape.
+      // only the calling block is actually a shape.
+      // if (cat == 'PROCEDURE') {
+      //   mytype = topBlocks[i].myType_;
+      //   if (mytype && mytype == 'CSG') hasCSG++;
+      //   if (mytype && mytype == 'CAG') hasCAG++;
+      // }
       if (cat == 'COLOR') hasCSG++;
       if (cat == 'EXTRUDE') hasCSG++;
       if (topBlocks[i].type == 'controls_if') hasUnknown++;
@@ -1419,6 +1426,24 @@ Blockscad.saveBlocksLocal = function() {
   // don't save without a filename.  Name isn't checked for quality.
   if (blocks_filename) {
     saveAs(blob, blocks_filename + ".xml");
+  }
+  else {
+    alert("SAVE FAILED.  Please give your project a name, then try again.");
+  }
+};
+
+/**
+ * Save the openScad code for the current workspace to the local machine.
+ */
+Blockscad.saveOpenscadLocal = function() {
+  var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace); 
+  var blob = new Blob([code], {type: "text/plain;charset=utf-8"});
+
+  // pull a filename entered by the user
+  var blocks_filename = $('#project-name').val();
+  // don't save without a filename.  Name isn't checked for quality.
+  if (blocks_filename) {
+    saveAs(blob, blocks_filename + ".scad");
   }
   else {
     alert("SAVE FAILED.  Please give your project a name, then try again.");

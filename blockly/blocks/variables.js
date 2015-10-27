@@ -121,8 +121,8 @@ Blockly.Blocks['variables_set'] = {
         ['VAR', new Blockly.FieldVariable(Blockly.Msg.VARIABLES_SET_ITEM)],
         ['VALUE', null, Blockly.ALIGN_RIGHT],
         Blockly.ALIGN_RIGHT);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
+    this.setPreviousStatement(true,['VariableSet','Procedure']);
+    this.setNextStatement(true, 'VariableSet');
     this.setTooltip(Blockly.Msg.VARIABLES_SET_TOOLTIP);
     this.contextMenuMsg_ = Blockly.Msg.VARIABLES_SET_CREATE_GET;
     this.contextMenuType_ = 'variables_get';

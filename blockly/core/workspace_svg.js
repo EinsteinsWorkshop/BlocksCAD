@@ -773,7 +773,9 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function(e) {
       for (var i = 0; i < topBlocks.length; i++) {
         var block = topBlocks[i];
         while (block) {
-          block.setDisabled(true);
+          // I don't want to disable procedure definitions!
+          if (block.category != 'PROCEDURE')
+            block.setDisabled(true);
           block = block.getNextBlock();
         }
       }

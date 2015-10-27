@@ -535,6 +535,22 @@ Blockscad.Toolbox.catOther = '<category name="Text">' +
           '</block>' +
         '</value>' + 
       '</block>' +
+      '<block type="bs_3dtext">' + 
+        '<value name="TEXT">' + 
+          '<block type="text">' +
+          '</block>' +
+        '</value>' +
+        '<value name="SIZE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' + 
+        '<value name="THICKNESS">' + 
+          '<block type="math_number">' +
+            '<field name="NUM">2</field>' + 
+          '</block>' +
+        '</value>' +
+      '</block>' +
       // '<block type="rotateextrudetwist">' +
       //   '<value name="RAD">' +
       //     '<block type="math_number">' +

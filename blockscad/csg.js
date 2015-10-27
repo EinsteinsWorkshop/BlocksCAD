@@ -1571,8 +1571,8 @@ for solid CAD anyway.
             c = CSG.parseOptionAs3DVector(options, "center", [0, 0, 0]);
             r = CSG.parseOptionAs3DVector(options, "radius", [1, 1, 1]);
         }
-        //r = r.abs(); // negative radii make no sense
-        if ((r.x <= 0) || (r.y <= 0) || (r.z <= 0)) {
+        //r = r.abs(); // negative radii make no sense.  Variables aren't caught by our error system.
+        if ((r.x < 0) || (r.y < 0) || (r.z < 0)) {
             throw new Error("Dimension should be positive");
         }
         // throw out cubes with any dimension too close to zero - JY
@@ -1651,7 +1651,7 @@ for solid CAD anyway.
         var resolution = CSG.parseOptionAsInt(options, "resolution", CSG.defaultResolution3D);
         var xvector, yvector, zvector;
 
-        if (radius <= 0) {
+        if (radius < 0) {
             throw new Error("Radius should be positive");
         }
         if(radius < 0.0005) {
@@ -1743,11 +1743,11 @@ for solid CAD anyway.
         if ((rEnd < 0) || (rStart < 0)) {
             throw new Error("Radius should be non-negative");
         }
-        if ((rEnd === 0) && (rStart === 0)) {
-            throw new Error("Either radiusStart or radiusEnd should be nonzero");
-        }
-        if (Math.abs(e.z - s.z) < 0.0005) {
-            console.log("throwing out a zero-height cylinder");
+        // if ((rEnd === 0) && (rStart === 0)) {
+        //     throw new Error("Either radiusStart or radiusEnd should be nonzero");
+        // }
+        if (Math.abs(e.z - s.z) < 0.0005 || ((rEnd < 0.0005) && (rStart < 0.0005))) {
+            console.log("throwing out a zero-height cylinder or a cylinder with both ends < 0.0005");
             return new CSG;
         }
 
@@ -7037,8 +7037,8 @@ for solid CAD anyway.
         var sides = [];
         var prevvertex;
 
-        // JY - throw out circles with a radius too small ("zero" or negative)
-        if(radius <= 0) {
+        // JY - throw out circles with a radius too small (negative)
+        if(radius < 0) {
             throw new Error("Radius should be positive.");
         }
         else if(radius < 0.0005) { 
@@ -7080,7 +7080,7 @@ for solid CAD anyway.
         }
         //r = r.abs(); // negative radii make no sense
         
-        if(r.x <= 0 || r.y <= 0) {
+        if(r.x < 0 || r.y < 0) {
             throw new Error("Dimension should be positive.");
         }
         // throw out squares with either dimension too close to zero - JY

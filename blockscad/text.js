@@ -34,7 +34,7 @@ Blockscad.fontList = ['/fonts/liberation/LiberationSerif-Bold.ttf',
                       '/fonts/AverageMono/AverageMonoSimp.ttf',
                       '/fonts/Open_Sans/OpenSans-ExtraBold.ttf',
                       '/fonts/Chewy/Chewy.ttf',
-                      '/fonts/bangers/angers.ttf'];
+                      '/fonts/bangers/Bangers.ttf'];
 
 // display names for fonts, used in font block (also used to key fonts object)
 Blockscad.fontName = ['Liberation Serif',
