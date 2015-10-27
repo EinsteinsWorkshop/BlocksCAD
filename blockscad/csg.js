@@ -7794,7 +7794,7 @@ for solid CAD anyway.
 
                // from http://www.psychedelicdevelopment.com/grahamscan/
        //    see also at https://github.com/bkiers/GrahamScan/blob/master/src/main/cg/GrahamScan.java
-       ConvexHullPoint = function(i, a, d) {
+       CAG.ConvexHullPoint = function(i, a, d) {
 
           this.index = i;
           this.angle = a;
@@ -7815,7 +7815,7 @@ for solid CAD anyway.
           }
        }
    
-       ConvexHull = function() {
+       CAG.ConvexHull = function() {
           this.points = null;
           this.indices = null;
        
@@ -7874,7 +7874,7 @@ for solid CAD anyway.
                 if (ang<0)
                    ang += Math.PI;
                 dist = this.distance(min, i);
-                al.push(new ConvexHullPoint(i, ang, dist));
+                al.push(new CAG.ConvexHullPoint(i, ang, dist));
              }
        
              al.sort(function (a, b) { return a.compare(b); });
@@ -7944,7 +7944,7 @@ for solid CAD anyway.
 
 
 
-       var hull = new ConvexHull();
+       var hull = new CAG.ConvexHull();
 
        hull.compute(pts);
        var indices = hull.getIndices();
