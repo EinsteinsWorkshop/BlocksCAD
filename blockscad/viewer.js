@@ -762,9 +762,9 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 // callback: should be function(error, csg)
 Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
-    //"blockscad/viewer_compressed.js"
-      "blockscad/csg.js",
-      "blockscad/viewer.js"
+      "blockscad/viewer_compressed.js"
+      // "blockscad/csg.js",
+      // "blockscad/viewer.js"
   ];
 
   // console.log("in parseBlockscadScriptASync");

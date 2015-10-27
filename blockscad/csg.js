@@ -422,7 +422,7 @@ for solid CAD anyway.
             var points = getPoints(csgs);
             // console.log("points for hull are:",points);
 
-            var qhull = new quickHull3D();
+            var qhull = new CSG.quickHull3D();
 
             var faces = qhull.build(points);
 
@@ -2322,7 +2322,7 @@ for solid CAD anyway.
 
     // 3D vertex used in 3D hull
     // needs to hold a vector3D point pnt, an integer index, next and prev. vertices, and face info.
-    hVertex = function(x,y,z,idx) {
+    CSG.hVertex = function(x,y,z,idx) {
         this.pnt = new CSG.Vector3D(x,y,z);
         if (arguments.length == 4)
             this.index = idx;
@@ -2332,19 +2332,19 @@ for solid CAD anyway.
         this.face = null;
     }
 
-    hVertex.prototype = {
+    CSG.hVertex.prototype = {
         clone: function() {
-            return new hVertex(this._x,this._y,this._z,this.index);
+            return new CSG.hVertex(this._x,this._y,this._z,this.index);
         }
     }
     // doubly linked list of vertices.  Store a head and a tail pointer 
     // used for 3D hull. - JY
-    hVertexList = function() {
+    CSG.hVertexList = function() {
         this.head = null;
         this.tail = null;
     }
 
-    hVertexList.prototype = {
+    CSG.hVertexList.prototype = {
         // clear the list
         clear: function() {
             this.head = null;
@@ -2425,7 +2425,7 @@ for solid CAD anyway.
 
     // HalfEdge class for 3D hull
     // represents the half edges that surround each face in a counter-clockwise direction
-    HalfEdge = function(v, f) {
+    CSG.HalfEdge = function(v, f) {
         if (arguments.length == 2) {
             // the vertex associated with the head of this half-edge
             this.vertex = v;
@@ -2448,7 +2448,7 @@ for solid CAD anyway.
         this.opposite = null;
     }
 
-    HalfEdge.prototype = {
+    CSG.HalfEdge.prototype = {
         // set the value of the next edge adjacent 
         // counter clockwise to this one within the triangle
         // edge parameter is the next adjacent edge
@@ -2536,7 +2536,7 @@ for solid CAD anyway.
     // doubly linked list of three HalfEdges which surround
     // the face in a counter-clockwise direction.
 
-    Face = function() {
+    CSG.Face = function() {
 
         this.normal = new CSG.Vector3D(0,0,0);
         this.centroid = new CSG.Vector3D(0,0,0);
@@ -2561,7 +2561,7 @@ for solid CAD anyway.
         this.outside = null;
     }
 
-    Face.prototype = {
+    CSG.Face.prototype = {
         computeCentroid: function(centroid) {
             // console.log("centroid was:",centroid);
             centroid.setZero();
@@ -2656,10 +2656,10 @@ for solid CAD anyway.
         // createTriangle creates and returns a triangle
         // using vertices v0, v1, v2.  minArea is optional (set to 0 if not given).
         createTriangle: function(v0,v1,v2,minArea) {
-            var face = new Face();
-            var he0 = new HalfEdge (v0, face);
-            var he1 = new HalfEdge (v1, face);
-            var he2 = new HalfEdge (v2, face);
+            var face = new CSG.Face();
+            var he0 = new CSG.HalfEdge (v0, face);
+            var he1 = new CSG.HalfEdge (v1, face);
+            var he2 = new CSG.HalfEdge (v2, face);
 
             he0.prev = he2;
             he0.next = he1;
@@ -2682,10 +2682,10 @@ for solid CAD anyway.
         },
         // create a face from an array of vertices and an array of indices
         create: function(vtxArray, indices) {
-            var face = new Face();
+            var face = new CSG.Face();
             var hePrev = null;
             for (var i = 0; i < indices.length; i++) {
-                var he = new HalfEdge(vtxArray[indices[i]], face);
+                var he = new CSG.HalfEdge(vtxArray[indices[i]], face);
                 if (hePrev != null) {
                     he.setPrev(hePrev);
                     hePrev.setNext(he);
@@ -2961,7 +2961,7 @@ for solid CAD anyway.
                 if (face0 == null)
                     face0 = face; 
             }
-            hedge = new HalfEdge (this.he0.prev.prev.head(), this);
+            hedge = new CSG.HalfEdge (this.he0.prev.prev.head(), this);
             hedge.setOpposite (oppPrev);
  
             hedge.prev = this.he0;
@@ -2978,12 +2978,12 @@ for solid CAD anyway.
         }        
     } // end of Face.prototype
 
-    FaceList = function() {
+    CSG.FaceList = function() {
         this.head = null;
         this.tail = null;
     }
 
-    FaceList.prototype = {
+    CSG.FaceList.prototype = {
         // clear the list
         clear: function() {
             this.head = null;
@@ -3018,7 +3018,7 @@ for solid CAD anyway.
     // takes an array of CSG.Vector3D values,
     // returns an array of "faces" (indexes into 
     // the original vector array)
-    quickHull3D = function() {
+    CSG.quickHull3D = function() {
         // the distance tolerance should be computed from input points
         this.AUTOMATIC_TOLERANCE = -1;
         this.DOUBLE_PREC = 2.2204460492503131e-16;
@@ -3027,7 +3027,7 @@ for solid CAD anyway.
         this.debug = true;
 
         // estimated size of the point set
-        this.charLength;
+        this.charLength = 0;
 
         // will hold an array of vertices
         this.pointBuffer = [];
@@ -3038,27 +3038,27 @@ for solid CAD anyway.
         this.minVtxs = [];
 
         for (var i = 0; i < 3; i++) {
-            this.maxVtxs.push(new hVertex(0,0,0,i));
-            this.minVtxs.push(new hVertex(0,0,0,i));
-            this.discardedFaces.push(new Face());
+            this.maxVtxs.push(new CSG.hVertex(0,0,0,i));
+            this.minVtxs.push(new CSG.hVertex(0,0,0,i));
+            this.discardedFaces.push(new CSG.Face());
         }
 
         this.faces = [];
         this.horizon = [];
 
-        this.newFaces = new FaceList();
-        this.unclaimed = new hVertexList();
-        this.claimed = new hVertexList();
+        this.newFaces = new CSG.FaceList();
+        this.unclaimed = new CSG.hVertexList();
+        this.claimed = new CSG.hVertexList();
 
-        this.numVertices;
-        this.numFaces;
-        this.numPoints;
+        this.numVertices = 0;
+        this.numFaces = 0;
+        this.numPoints = 0;
 
         this.explicitTolerance = this.AUTOMATIC_TOLERANCE;
-        this.tolerance;
+        this.tolerance = 0;
     }
 
-    quickHull3D.prototype = {
+    CSG.quickHull3D.prototype = {
 
         build: function(points) {
             // test to see if we have enough points to build a hull.
@@ -3076,7 +3076,7 @@ for solid CAD anyway.
 
             this.pointBuffer = [];
             for (var i = 0; i < nump; i++) {
-                this.pointBuffer.push(new hVertex(points[i]._x,points[i]._y,points[i]._z, i));
+                this.pointBuffer.push(new CSG.hVertex(points[i]._x,points[i]._y,points[i]._z, i));
                 this.vertexPointIndices.push(0);
             }
 
@@ -3263,7 +3263,7 @@ for solid CAD anyway.
 
             // we have our starting tetrahedron now.  Let's assign the other points.
 
-            var tris = [new Face(), new Face(), new Face(), new Face()];
+            var tris = [new CSG.Face(), new CSG.Face(), new CSG.Face(), new CSG.Face()];
 
             if (vtx[3].pnt.dot(nrml) - d0 < 0) {
                 tris[0] = tris[0].createTriangle (vtx[0], vtx[1], vtx[2]);
@@ -3372,8 +3372,7 @@ for solid CAD anyway.
          
             for (var face = this.newFaces.first(); face!=null; face=face.next) {
                 if (face.mark == 1) {   // VISIBLE
-                    while (this.doAdjacentMerge(face, 1))   // NONCONVEX_WRT_LARGER_FACE
-                        ;
+                    while (this.doAdjacentMerge(face, 1)) {}  // NONCONVEX_WRT_LARGER_FACE
                 }
             }      
             // second merge pass ... merge faces which are non-convex
@@ -3381,8 +3380,7 @@ for solid CAD anyway.
             for (var face = this.newFaces.first(); face!=null; face=face.next) {
                 if (face.mark == 2) {   // NON_CONVEX
                     face.mark = 1;      // VISIBLE
-                    while (this.doAdjacentMerge(face, 2))       // NON_CONVEX
-                    ;
+                    while (this.doAdjacentMerge(face, 2)) {}      // NON_CONVEX
                 }
             } 
             this.resolveUnclaimedPoints(this.newFaces);            
@@ -3543,7 +3541,7 @@ for solid CAD anyway.
         },
 
         addAdjoiningFace: function(eyeVtx, he) {
-            var face = new Face();
+            var face = new CSG.Face();
             face = face.createTriangle (eyeVtx, he.tail(), he.head());
             // console.log("in addAdjoiningFace.  face is:",face);
             this.faces.push (face);
@@ -3573,10 +3571,10 @@ for solid CAD anyway.
                 }
                 if (maxFace != null) {
                     this.addPointToFace(vtx, maxFace);
-                    if (vtx.index == this.findIndex)  ;  
+                    // if (vtx.index == this.findIndex)  ;  
                         // console.log(this.findIndex + " CLAIMED BY " + maxFace.getVertexString()); 
                 }
-                else if (vtx.index == this.findIndex);
+                // else if (vtx.index == this.findIndex);
                     // console.log(this.findIndex + " DISCARDED");
             }
         },
