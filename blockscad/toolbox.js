@@ -14,20 +14,10 @@ Blockscad.Toolbox.catIDs = [];
 // Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
 //                 'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_ADVANCED',
 //                 'HEX_VARIABLE','HEX_PROCEDURE'];
-
-
-// Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
-//                 'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_TEXT',
-//                 'HEX_VARIABLE','HEX_PROCEDURE'];
-
-// for standalone, remove text category
 Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
                 'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP',
                 'HEX_VARIABLE','HEX_PROCEDURE'];
 
-// Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,8,9];
-
-// for standalone (no text category)
 Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,7,8];
 
 
@@ -513,38 +503,55 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
           '</block>' +
         '</value>' +
       '</block>' +
-      // '<block type="controls_for_chainhull">' +
-      //   '<value name="FROM">' +
-      //     '<block type="math_number">' +
-      //       '<field name="NUM">1</field>' +
-      //     '</block> ' +
-      //   '</value>' +
-      //   '<value name="TO">' +
-      //     '<block type="math_number">' +
-      //       '<field name="NUM">10</field>' +
-      //     '</block>' +
-      //   '</value>' +
-      //   '<value name="BY">' +
-      //     '<block type="math_number">' +
-      //       '<field name="NUM">1</field>' +
-      //     '</block>' +
-      //   '</value>' +
-      // '</block>' +
-    '</category>';
-
-Blockscad.Toolbox.catOther = '<category name="Text">' +
-      '<block type="text"></block>' +
-      '<block type="bs_text">' + 
-        '<value name="TEXT">' + 
-          '<block type="text">' +
-          '</block>' +
+      '<block type="controls_for_chainhull">' +
+        '<value name="FROM">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block> ' +
         '</value>' +
-        '<value name="SIZE">' +
+        '<value name="TO">' +
           '<block type="math_number">' +
             '<field name="NUM">10</field>' +
           '</block>' +
-        '</value>' + 
+        '</value>' +
+        '<value name="BY">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' +
+        '</value>' +
       '</block>' +
+    '</category>';
+
+Blockscad.Toolbox.catOther = 
+      // '<category name="Text">' +
+      // '<block type="text"></block>' +
+      // '<block type="bs_text">' + 
+      //   '<value name="TEXT">' + 
+      //     '<block type="text">' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="SIZE">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">10</field>' +
+      //     '</block>' +
+      //   '</value>' + 
+      // '</block>' +
+      // '<block type="bs_3dtext">' + 
+      //   '<value name="TEXT">' + 
+      //     '<block type="text">' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="SIZE">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">10</field>' +
+      //     '</block>' +
+      //   '</value>' + 
+      //   '<value name="THICKNESS">' + 
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">2</field>' + 
+      //     '</block>' +
+      //   '</value>' +
+      // '</block>' +
       // '<block type="rotateextrudetwist">' +
       //   '<value name="RAD">' +
       //     '<block type="math_number">' +
@@ -596,7 +603,7 @@ Blockscad.Toolbox.catOther = '<category name="Text">' +
       // '</block>' +
 
       // '<block type="stl_import"></block>' +
-    '</category>' +
+    // '</category>' +
     '<category name="Variables" custom="VARIABLE"></category>' +
     '<category name="Modules" custom="PROCEDURE"></category>' +
   '</xml>'; 
@@ -613,8 +620,7 @@ Blockscad.Toolbox.adv += Blockscad.Toolbox.catTransform;
 Blockscad.Toolbox.adv += Blockscad.Toolbox.catSetOps;
 Blockscad.Toolbox.adv += Blockscad.Toolbox.catMathLogic;
 Blockscad.Toolbox.adv += Blockscad.Toolbox.catLoops;
-// Blockscad.Toolbox.adv += Blockscad.Toolbox.catOther; // for not standalone, include the text category
-Blockscad.Toolbox.adv += Blockscad.Toolbox.catOther_sim; // for standalone, take out text
+Blockscad.Toolbox.adv += Blockscad.Toolbox.catOther;
 
 Blockscad.Toolbox.sim = '<xml id="toolbox" style="display: none">';
 Blockscad.Toolbox.sim += Blockscad.Toolbox.cat_3D_sim;

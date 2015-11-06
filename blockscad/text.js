@@ -34,7 +34,7 @@ Blockscad.fontList = ['/fonts/liberation/LiberationSerif-Bold.ttf',
                       '/fonts/AverageMono/AverageMonoSimp.ttf',
                       '/fonts/Open_Sans/OpenSans-ExtraBold.ttf',
                       '/fonts/Chewy/Chewy.ttf',
-                      '/fonts/bangers/bangers.ttf'];
+                      '/fonts/bangers/Bangers.ttf'];
 
 // display names for fonts, used in font block (also used to key fonts object)
 Blockscad.fontName = ['Liberation Serif',
@@ -66,9 +66,16 @@ Blockscad.loadFont = function(index) {
 
 Blockscad.loadFontThenRender = function(i,code) {
   try {
+    var name = Blockscad.fontName[Blockscad.loadTheseFonts[i]];
     opentype.load(Blockscad.fontList[Blockscad.loadTheseFonts[i]], function(err, font) {
       if (err) {
         console.log('Could not load font: ', font + ":" + err);
+        // I'm not going to be rendering because of a lack of font.
+        // need an error message in the render pane and set the render button active and "render"y.
+        $( '#error-message' ).html("Error: Failed to load font: " + name);
+        $( '#error-message' ).addClass("has-error");
+        $('#renderButton').html('Render'); 
+        $('#renderButton').prop('disabled', false);
       } else {
         Blockscad.fonts[Blockscad.fontName[Blockscad.loadTheseFonts[i]]] = font; // save the loaded fonts
         Blockscad.numloaded++;

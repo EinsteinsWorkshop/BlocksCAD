@@ -9,6 +9,9 @@
   <title>BlocksCAD</title>
   <!-- compressed javascript files for non-debug stuff -->
 
+  <audio id="audio_click" src="blockly/media/click.ogg" ></audio>
+  <audio id="audio_delete" src="blockly/media/delete.ogg" ></audio>
+
       <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
       <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
 
@@ -53,6 +56,7 @@
   <script src="blockscad/lightgl.js"></script>
 -->
 
+
   <!--
   <script type="text/javascript" src="backend_compressed.js"></script> 
   -->
@@ -65,13 +69,14 @@
   -->
   
   <script src="blockscad/blockscad_compressed.js"></script>
+  <script src="examples/examples.js"></script>
 
   <script src="blockscad/underscore.js"></script>
   <script src="blockscad/openscad-openjscad-translator.js"></script>
   <!-- end viewer stuff -->
 
   <!-- font manip library -->
-  <script src="opentype/dist/opentype.min.js"></script>
+  <script src="opentype/dist/opentype.js"></script>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -88,10 +93,11 @@
     <!-- start the html at the top: the navigation bar.  -->
     <nav class="navbar navbar-default" id="top-navigation-bar">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">BlocksCAD</a>
+        <a href="#" class="pull-left"><img src="imgs/bslogo.png" style="max-height:50px"></a>
+        <!-- <a class="navbar-brand" href="#">BlocksCAD</a> -->
         <!-- Collect the nav links, forms, and other content for toggling -->
         <ul class="nav navbar-nav">
-          <li class="dropdown">
+          <li class="dropdown"> 
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Project<span class="caret"></span></a>
             <ul id="file-menu" class="dropdown-menu" role="menu">
               <li><a href="#" class="new-project">New</a></li>
@@ -110,6 +116,8 @@
                 <input type="file" accept=".stl" id="importStl" style="visibility: hidden; width: 1px; height: 1px" />
                 <a href="#" onclick="document.getElementById('importStl').click(); return false">Import STL into Current Project</a>
               </li>
+              <li class="divider"></li>
+              <li><a href="#" id="saveOpenscad">Save OpenSCAD code to your Computer</a></li>
             </ul>
           </li>
           <li class="dropdown">
@@ -130,6 +138,20 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help<span class="caret"></span></a>
             <ul id="help-menu" class="dropdown-menu" role="menu">
               <li><a href="docs/index.html" target="_blank">Documentation</a></li>
+              <li>
+                <a class="trigger right-caret">Examples</a>
+                <ul class="dropdown-menu sub-menu">
+                  <li><a href="#" id="examples_cube_with_cutouts">Cube with cutouts</a></li>
+                  <li><a href="#" id="examples_anthias_fish">Anthias fish</a></li>
+                  <li><a href="#" id="examples_torus">Torus</a></li>
+                  <li><a href="#" id="examples_box">Parametric Box</a></li>
+                  <li><a href="#" id="examples_linear_extrude">Linear Extrude</a></li>
+                  <li><a href="#" id="examples_rotate_extrude">Rotate Extrude</a></li>
+                  <li><a href="#" id="examples_chain_hull_sun">Chain Hull Sun</a></li>
+                  <li><a href="#" id="examples_sine_function_with_loop">Sine Function with Loop</a></li>
+                  <li><a href="#" id="examples_trefoil_knot_param_eq">Trefoil Knot with Parametric Equations</a></li>
+                </ul>
+              </li>              
               <li class="divider"></li>
               <li><a href="#" data-toggle="modal" data-target="#about-modal">About</a></li>
             </ul>
@@ -582,7 +604,8 @@
     </div>
     <div class="modal-body">
       <div>
-        <p>Version 1.0.1 (2015/09/18)</p>
+
+        <p>Version <script type="text/javascript">document.write(Blockscad.version);</script> (2015/09/01)</p>
         <br>
         <!-- <p>Want to help? <a href="https://github.com/EinsteinsWorkshop/BlocksCAD">Get involved!</a></p> -->
         <!-- <p>Have feedback? <a href="mailto://blockscad@einsteinsworkshop.com">blockscad@einsteinsworkshop.com</a> -->

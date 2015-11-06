@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "BlocksCAD - Easy, Open-Source Solid CAD for Everyone!",
   "main": "index.html",
+  "chromium-args": "--allow-file-access-from-files",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "node_modules/.bin/jshint blockly blockscad",

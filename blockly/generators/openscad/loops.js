@@ -95,17 +95,36 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
   var variable0 = Blockly.OpenSCAD.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   var argument0 = Blockly.OpenSCAD.valueToCode(block, 'FROM',
-      Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '0';
+      Blockly.OpenSCAD.ORDER_ASSIGNMENT);
   var argument1 = Blockly.OpenSCAD.valueToCode(block, 'TO',
-      Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '0';
+      Blockly.OpenSCAD.ORDER_ASSIGNMENT);
   var increment = Blockly.OpenSCAD.valueToCode(block, 'BY',
-      Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '1';
+      Blockly.OpenSCAD.ORDER_ASSIGNMENT);
   var branch = Blockly.OpenSCAD.statementToCode(block, 'DO');
+
+  var miss = 0;
+
+  if (!argument0) {
+    argument0 = '0';
+    miss = 1;
+  }
+  if (!argument1) {
+    argument1 = '0';
+    miss = 1;
+  }
+  if (!increment) {
+    increment = '1';
+    miss = 1;
+  }
 
   if (Blockly.OpenSCAD.INFINITE_LOOP_TRAP) {
     branch = Blockly.OpenSCAD.INFINITE_LOOP_TRAP.replace(/%1/g,
         '\'' + block.id + '\'') + branch;
   }
+
+  // missing fields?
+  if (miss)
+    Blockscad.missingFields.push(block.id); 
 
   var code;
 
@@ -126,13 +145,30 @@ Blockly.OpenSCAD['controls_for_chainhull'] = function(block) {
   var variable0 = Blockly.OpenSCAD.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   var argument0 = Blockly.OpenSCAD.valueToCode(block, 'FROM',
-      Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '0';
+      Blockly.OpenSCAD.ORDER_ASSIGNMENT);
   var argument1 = Blockly.OpenSCAD.valueToCode(block, 'TO',
-      Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '0';
+      Blockly.OpenSCAD.ORDER_ASSIGNMENT);
   var increment = Blockly.OpenSCAD.valueToCode(block, 'BY',
-      Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '1';
+      Blockly.OpenSCAD.ORDER_ASSIGNMENT);
   var branch = Blockly.OpenSCAD.statementToCode(block, 'DO');
 
+  var miss = 0;
+
+  if (!argument0) {
+    argument0 = '0';
+    miss = 1;
+  }
+  if (!argument1) {
+    argument1 = '0';
+    miss = 1;
+  }
+  if (!increment) {
+    increment = '1';
+    miss = 1;
+  }  
+
+  // in chainhull, I want to actually loop through to argument1 - (increment),
+  // because chainhull involves doing a "step ahead" (hulling n with n+increment)
   var query = "([^a-z|A-Z])" + variable0 + "(?![a-z|A-Z])"; 
   var re = new RegExp(query, 'g');
   // console.log("reg exp = ", re);
@@ -147,6 +183,10 @@ Blockly.OpenSCAD['controls_for_chainhull'] = function(block) {
     branch = Blockly.OpenSCAD.INFINITE_LOOP_TRAP.replace(/%1/g,
         '\'' + block.id + '\'') + branch;
   }
+
+  // missing fields?
+  if (miss)
+    Blockscad.missingFields.push(block.id); 
 
   var code;
   code = "// chain hull"

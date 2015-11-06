@@ -31,7 +31,12 @@ Blockly.Blocks['sphere'] = {
 
 Blockly.Blocks['cylinder'] = {
   init: function() {
-    this.category = 'PRIMITIVE_CSG'
+    this.category = 'PRIMITIVE_CSG';
+    this.prevR1 = null;
+    this.prevR2 = null;
+    this.pRatio = null;
+    this.pR1id = null;
+    this.pR2id = null;
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
@@ -40,10 +45,20 @@ Blockly.Blocks['cylinder'] = {
         .setCheck('Number')    
         .appendField('radius1')
         .setAlign(Blockly.ALIGN_RIGHT);
-    // this.appendDummyInput()
-    //     .setAlign(Blockly.ALIGN_RIGHT)
-    //     .appendField(new Blockly.FieldImage("lock_icon.png", 15, 15, "*"))
-    //     .appendField(new Blockly.FieldCheckbox("TRUE"), "LOCKED");
+    // handle backwards compatibility for cylinders created before locking.
+    if (Blockscad.inputVersion == null || Blockscad.inputVersion == "1.0.0"
+        || Blockscad.inputVersion == "1.0.1" || Blockscad.inputVersion == "1.1.0") {
+      this.appendDummyInput()
+          .setAlign(Blockly.ALIGN_RIGHT)
+          .appendField(new Blockly.FieldCheckbox("FALSE", null,
+            "imgs/lock_icon.png","imgs/unlock_icon.png"), "LOCKED");
+    }
+    else {
+      this.appendDummyInput()
+          .setAlign(Blockly.ALIGN_RIGHT)
+          .appendField(new Blockly.FieldCheckbox("TRUE", null,
+            "imgs/lock_icon.png","imgs/unlock_icon.png"), "LOCKED") ;    
+    }
     this.appendValueInput('RAD2')
         .setCheck('Number')
         .appendField('radius2')
@@ -57,7 +72,42 @@ Blockly.Blocks['cylinder'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
     this.setTooltip('Creates a  with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
-  }//,
+  },
+  onchange: function() {
+    if (!this.workspace) {
+      // Block has been deleted.
+      return;
+    }
+    // console.log("calling cylinder onchange");
+    var locked = this.getField("LOCKED").getValue();
+
+    var R1 = null;
+    var R2 = null;
+    // get the values (if any) attached to the two radius inputs.
+    if (this.getInput('RAD1').connection.targetConnection &&
+        this.getInput('RAD1').connection.targetConnection.sourceBlock_.type == "math_number") { 
+      R1 = this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+    }
+    if (this.getInput('RAD2').connection.targetConnection &&
+        this.getInput('RAD2').connection.targetConnection.sourceBlock_.type == "math_number") {
+      R2 = this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').getValue();
+    }
+    if (locked == 'TRUE' && R1 && R2 && R1 != R2) {
+      if (R1 != this.prevR1) { 
+        this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R1,true);
+      }
+      else if (R2 != this.prevR2) { 
+        this.getInput('RAD1').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R2,true);
+      }
+      // if you set locking on two different radii, do you want them to both take the value of R1?
+      // else if (R1 != R2) this.getInput('RAD2').connection.targetConnection.sourceBlock_.getField('NUM').setValue(R1);
+    }
+
+    this.prevR1 = R1;
+    this.prevR2 = R2;
+    // console.log("in cylinder onchange.  R1  R2  pR1  pR2", R1, R2, this.prevR1, this.prevR2);
+
+  }
 };
 
 // planning not to use this.
@@ -1367,8 +1417,8 @@ Blockly.Blocks['stl_import'] = {
   }
 };
 
-// this text block for BlocksCAD is a CAG object?
-// or a csg object with height?  I'll start CAG.
+// the original text block, in amazing 2D (CAG)
+
 Blockly.Blocks['bs_text'] = {
   /**
    * Block for text value.
@@ -1381,38 +1431,80 @@ Blockly.Blocks['bs_text'] = {
         CONSTANTS.push([Blockscad.fontName[i],i.toString()]);
     }
     this.category = 'PRIMITIVE_CAG'
-    // this.appendDummyInput()
-    //     .appendField("Text  ");
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
-        .appendField("Text  ")
+        .appendField("2D Text  ")
         .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
-        // .appendField(this.newQuote_(true))
-        // .appendField(new Blockly.FieldTextInput('hello'), 'TEXT');
-        // .appendField(this.newQuote_(false));
 
     this.appendValueInput("SIZE")
         .setCheck("Number")
         .appendField(" size")
         .setAlign(Blockly.ALIGN_RIGHT);
-    // this.appendValueInput('SIZE')
-    //     .setCheck('Number')
-    //     .appendField('Size')
-    //     .setAlign(Blockly.ALIGN_RIGHT);
+
     this.appendDummyInput()
         .appendField(" font")
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
     this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
-    this.setTooltip("This is not a tooltip.");
-    // this.appendDummyInput()
-    // .appendField("B")
-    //     .appendField(new Blockly.FieldCheckbox("FALSE"), 'BOLD');
-    // this.appendDummyInput()
-    //     .appendField("I")
-    //     .appendField(new Blockly.FieldCheckbox("FALSE"), 'ITALIC');
+    this.setTooltip("A 2D rendering of text with a given size and font");
+  },
+  /**
+   * Create an image of an open or closed quote.
+   * @param {boolean} open True if open quote, false if closed.
+   * @return {!Blockly.FieldImage} The field image of the quote.
+   * @this Blockly.Block
+   * @private
+   */
+  newQuote_: function(open) {
+    if (open == this.RTL) {
+      var file = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAKCAQAAAAqJXdxAAAAqUlEQVQI1z3KvUpCcRiA8ef9E4JNHhI0aFEacm1o0BsI0Slx8wa8gLauoDnoBhq7DcfWhggONDmJJgqCPA7neJ7p934EOOKOnM8Q7PDElo/4x4lFb2DmuUjcUzS3URnGib9qaPNbuXvBO3sGPHJDRG6fGVdMSeWDP2q99FQdFrz26Gu5Tq7dFMzUvbXy8KXeAj57cOklgA+u1B5AoslLtGIHQMaCVnwDnADZIFIrXsoXrgAAAABJRU5ErkJggg==';
+    } else {
+      var file = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAKCAQAAAAqJXdxAAAAn0lEQVQI1z3OMa5BURSF4f/cQhAKjUQhuQmFNwGJEUi0RKN5rU7FHKhpjEH3TEMtkdBSCY1EIv8r7nFX9e29V7EBAOvu7RPjwmWGH/VuF8CyN9/OAdvqIXYLvtRaNjx9mMTDyo+NjAN1HNcl9ZQ5oQMM3dgDUqDo1l8DzvwmtZN7mnD+PkmLa+4mhrxVA9fRowBWmVBhFy5gYEjKMfz9AylsaRRgGzvZAAAAAElFTkSuQmCC';
+    }
+    return new Blockly.FieldImage(file, 12, 12, '"');
+  }
+};
+
+// a 3D text block.
+
+Blockly.Blocks['bs_3dtext'] = {
+  /**
+   * Block for text value.
+   * @this Blockly.Block
+   */
+  init: function() {
+    // load up the font names and positions
+    var CONSTANTS = [];
+    for (var i=0; i<Blockscad.fontName.length; i++) {
+        CONSTANTS.push([Blockscad.fontName[i],i.toString()]);
+    }
+    this.category = 'PRIMITIVE_CSG'
+    this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
+    this.appendValueInput('TEXT')
+        .appendField("3D Text  ")
+        .setCheck('String')
+        .setAlign(Blockly.ALIGN_RIGHT);
+
+    this.appendValueInput("SIZE")
+        .setCheck("Number")
+        .appendField(" size")
+        .setAlign(Blockly.ALIGN_RIGHT);
+
+    this.appendDummyInput()
+        .appendField(" font")
+        .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
+
+    this.appendValueInput('THICKNESS')
+        .appendField(" thickness")
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT);
+
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, 'CSG');
+    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setTooltip("A 3D rendering of text with a given size and font, and thickness");
   },
   /**
    * Create an image of an open or closed quote.

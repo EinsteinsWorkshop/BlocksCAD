@@ -26,26 +26,22 @@ var Blockscad = Blockscad || {};
 Blockscad.Toolbox = Blockscad.Toolbox || {};
 Blockscad.Auth = Blockscad.Auth || {};    // cloud accounts plugin
 BlocklyStorage = BlocklyStorage || {};
-//var OpenJsCad = OpenJsCad || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.0.1";
+Blockscad.version = "1.1.2";
 
-Blockscad.offline = true;
+Blockscad.offline = true;  // true unless using a cloud service backend for file management
 
 // -- BEGIN OPENJSCAD STUFF --
 
-var gCurrentFile = null;
 var gProcessor = null;
-var editor = null;
 
-var gCurrentFiles = [];       // linear array, contains files (to read)
-var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
-var gMemFsCount = 0;          // async reading: count of already read files
-var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
-var gMemFsChanged = 0;        // how many files have changed
-var gRootFs = [];             // root(s) of folders 
+// var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
+// var gMemFsCount = 0;          // async reading: count of already read files
+// var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
+// var gMemFsChanged = 0;        // how many files have changed
+// var gRootFs = [];             // root(s) of folders 
 
 var _includePath = './';
 // -- END OPENJSCAD STUFF --
@@ -59,6 +55,9 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 Blockscad.init = function() {
   Blockscad.initLanguage();
 
+
+  // version of input files/projects
+  Blockscad.inputVersion = Blockscad.version;
 
   var rtl = BSUtils.isRtl();
   Blockscad.missingFields = [];  // variable to see if any blocks are missing fields
@@ -191,7 +190,11 @@ Blockscad.init = function() {
   $('#renderButton').prop('disabled', true); 
 
   // set up the delete-confirm button's function.
-  $('#throw-it-away').click(Blockscad.clearProject);
+  $('#throw-it-away').click(function() {
+    Blockscad.clearProject();
+    Blockscad.workspaceChanged();
+    Blockscad.clearUndo();
+  });
 
   // handle the project->new menu option
   $('#main').on('click', '.new-project', Blockscad.newProject);
@@ -351,7 +354,7 @@ Blockscad.init = function() {
       // in order that we can read this filename again, I'll clear out the current filename
       $("#importStl")[0].value = '';
 
-      // switch us back to the blocks tab in case we were on the code tabe.
+      // switch us back to the blocks tab in case we were on the code tab.
       $('#displayBlocks').click();
       // enable the render button.
       $('#renderButton').prop('disabled', false);       
@@ -411,6 +414,9 @@ Blockscad.init = function() {
   // set up handler for saving blocks locally
   $('#file-menu').on('click', '#saveLocal', Blockscad.saveBlocksLocal);
 
+  // set up handler for exporting openscad code locally
+  $('#file-menu').on('click', '#saveOpenscad', Blockscad.saveOpenscadLocal);
+
   // toolbox toggle handlers
   $('#simpleToolbox').on('click', function() {
     console.log("switching to simple toolbox");
@@ -452,6 +458,22 @@ Blockscad.init = function() {
       Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
     }
   });
+
+  // example handlers
+  // to add an example, add a list item in index.html, add a click handler below, 
+  // and be sure to put the name of the example file in the msg field.  The xml
+  // file should be saved in the "examples" folder.
+
+  $("#examples_torus").click({msg: "torus.xml"}, Blockscad.showExample);
+  $("#examples_box").click({msg: "box.xml"}, Blockscad.showExample);
+  $("#examples_linear_extrude").click({msg: "linear_extrude.xml"}, Blockscad.showExample);
+  $("#examples_rotate_extrude").click({msg: "rotate_extrude.xml"}, Blockscad.showExample);
+  $("#examples_cube_with_cutouts").click({msg: "cube_with_cutouts.xml"}, Blockscad.showExample);
+  $("#examples_anthias_fish").click({msg: "anthias_fish.xml"}, Blockscad.showExample);
+  $("#examples_chain_hull_sun").click({msg: "chain_hull_sun.xml"}, Blockscad.showExample);
+  $("#examples_sine_function_with_loop").click({msg: "sine_function_with_loop.xml"}, Blockscad.showExample);
+  $("#examples_trefoil_knot_param_eq").click({msg: "trefoil_knot_param_eq.xml"}, Blockscad.showExample);
+
   // to get sub-menus to work with bootstrap 3 navbar
   $(function(){
     $(".dropdown-menu > li > a.trigger").on("click",function(e){
@@ -533,11 +555,14 @@ Blockscad.clearStlBlocks = function() {
 Blockscad.newProject = function() {
   // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
   // if the user is logged in, I should auto-save to the backend.
+  console.log("in Blockscad.newProject");
   if (Blockscad.undo.undoStack.length > 0) {
     if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
         console.log("autosaving");
         Blockscad.Auth.saveBlocksToAccount();
         Blockscad.clearProject();
+        Blockscad.workspaceChanged();
+        Blockscad.clearUndo();
     }
     else {
       // I'm going to ask if they really want to delete their current work.
@@ -545,11 +570,88 @@ Blockscad.newProject = function() {
       $('#delete-confirm').modal('show');
     }
   }
-  else Blockscad.clearProject();
+  else  {
+    Blockscad.clearProject();
+    Blockscad.workspaceChanged();
+    Blockscad.clearUndo();
+  }
 
   // if the user was on the code tab, switch them to the blocks tab.
   $('#displayBlocks').click();
 };
+
+
+// if a user clicks on an example from Help->Examples, this code is run.
+Blockscad.showExample = function(e) {
+  // note: offline, I don't clear the undo stack.  I also don't do a delete-confirm.
+  console.log("in showExample");
+  // console.log(e.data.msg);
+  var example = "examples/" + e.data.msg;
+  var name = e.data.msg.split('.')[0];
+  var fn = "example_" + name;
+
+  // console.log(name);
+  // console.log(Blockscad[fn]);
+    if (Blockscad.undo.undoStack.length > 0) {
+      if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
+          console.log("autosaving");
+          Blockscad.Auth.saveBlocksToAccount();
+          Blockscad.clearProject();
+          Blockscad.clearUndo();
+      }
+      else {
+        Blockscad.clearProject();
+      }
+    }
+    else {
+      Blockscad.clearProject();
+    }
+    Blockscad.workspaceChanged();
+    // load xml blocks
+    var xml = Blockly.Xml.textToDom(Blockscad[fn]);
+    Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
+    Blockly.fireUiEvent(window, 'resize');
+    // update project name
+    $('#project-name').val(name + ' example');
+
+
+
+  // $.get( example, function( data ) {
+  //   if (Blockscad.undo.undoStack.length > 0) {
+  //     if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
+  //         console.log("autosaving");
+  //         Blockscad.Auth.saveBlocksToAccount();
+  //         Blockscad.clearProject();
+  //         Blockscad.clearUndo();
+  //     }
+  //     else {
+  //       Blockscad.clearProject();
+  //     }
+  //   }
+  //   else {
+  //     Blockscad.clearProject();
+  //   }
+  //   Blockscad.workspaceChanged();
+  //   // turn xml data object into a string that Blockly can use
+  //   var xmlString;
+  //   //IE
+  //   if (window.ActiveXObject){
+  //       xmlString = data.xml;
+  //   }
+  //   // code for Mozilla, Firefox, Opera, etc.
+  //   else{
+  //       xmlString = (new XMLSerializer()).serializeToString(data);
+  //   }
+  //   // console.log(xmlString);
+  //   // load xml blocks
+  //   var xml = Blockly.Xml.textToDom(xmlString);
+  //   Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
+  //   Blockly.fireUiEvent(window, 'resize');
+  //   // update project name
+  //   $('#project-name').val(name + ' example');
+  // });
+}
+
 
 Blockscad.clearProject = function() {
 
@@ -560,8 +662,13 @@ Blockscad.clearProject = function() {
   }
   Blockscad.workspace.clear();
   gProcessor.clearViewer();  
-  Blockscad.workspaceChanged();
 
+  $('#project-name').val('Untitled');
+  $('#projectView').hide();
+  $('#editView').show();
+};
+
+Blockscad.clearUndo = function() {
   // clear the undo and redo stacks
   while(Blockscad.undo.undoStack.length) {
     Blockscad.undo.undoStack.pop();
@@ -569,13 +676,7 @@ Blockscad.clearProject = function() {
   while(Blockscad.undo.redoStack.length){
     Blockscad.undo.redoStack.pop();
   }
-
-  $('#project-name').val('Untitled');
-  $('#projectView').hide();
-  $('#editView').show();
-};
-
-
+}
 
 /**
  * Discard all blocks from the workspace.
@@ -625,11 +726,13 @@ Blockscad.mixes2and3D = function() {
         if (mytype.length == 1 && mytype[0] == 'CSG') hasCSG++;
         if (mytype.length == 1 && mytype[0] == 'CAG') hasCAG++;
       }
-      if (cat == 'PROCEDURE') {
-        mytype = topBlocks[i].myType_;
-        if (mytype && mytype == 'CSG') hasCSG++;
-        if (mytype && mytype == 'CAG') hasCAG++;
-      }
+      // I don't want a procedure definition to be counted as a shape.
+      // only the calling block is actually a shape.
+      // if (cat == 'PROCEDURE') {
+      //   mytype = topBlocks[i].myType_;
+      //   if (mytype && mytype == 'CSG') hasCSG++;
+      //   if (mytype && mytype == 'CAG') hasCAG++;
+      // }
       if (cat == 'COLOR') hasCSG++;
       if (cat == 'EXTRUDE') hasCSG++;
       if (topBlocks[i].type == 'controls_if') hasUnknown++;
@@ -895,6 +998,7 @@ Blockscad.isRealChange = function() {
           $('#renderButton').prop('disabled', false); 
           if (Blockscad.undo.fieldChanging != myid) {
             Blockscad.undo.fieldChanging = myid;
+            // console.log("triggering field-change addition to undo stack");
             return true; // found a real change - a field is changing!
           }
           else return false; // this event should be ignored by undo.
@@ -1274,15 +1378,15 @@ Blockscad.hasExtrudeParent = function(block) {
 
 // -- BEGIN OPENJSCAD STUFF --
 
-function putSourceInEditor(src,fn) {
-   editor.setValue(src); 
-   editor.clearSelection();
-   editor.navigateFileStart();
+// function putSourceInEditor(src,fn) {
+//    editor.setValue(src); 
+//    editor.clearSelection();
+//    editor.navigateFileStart();
 
-   previousFilename = fn;
-   previousScript = src;
-   gPreviousModificationTime = "";
-}
+//    previousFilename = fn;
+//    previousScript = src;
+//    gPreviousModificationTime = "";
+// }
 
 /**
  * Initialize the page language.
@@ -1354,3 +1458,23 @@ Blockscad.saveBlocksLocal = function() {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
   }
 };
+
+/**
+ * Save the openScad code for the current workspace to the local machine.
+ */
+Blockscad.saveOpenscadLocal = function() {
+  var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace); 
+  var blob = new Blob([code], {type: "text/plain;charset=utf-8"});
+
+  // pull a filename entered by the user
+  var blocks_filename = $('#project-name').val();
+  // don't save without a filename.  Name isn't checked for quality.
+  if (blocks_filename) {
+    saveAs(blob, blocks_filename + ".scad");
+  }
+  else {
+    alert("SAVE FAILED.  Please give your project a name, then try again.");
+  }
+};
+
+

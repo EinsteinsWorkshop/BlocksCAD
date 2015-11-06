@@ -378,7 +378,6 @@ Blockly.WorkspaceSvg.prototype.setVisible = function(isVisible) {
  * Render all blocks in workspace.
  */
 Blockly.WorkspaceSvg.prototype.render = function() {
-  console.log("rendering workspace");
   var renderList = this.getAllBlocks();
   for (var i = 0, block; block = renderList[i]; i++) {
     if (!block.getChildren().length) {
@@ -465,6 +464,18 @@ Blockly.WorkspaceSvg.prototype.fireUndoEvent = function() {
     Blockly.fireUiEvent(this.svgBlockCanvas_, 'blocklyWorkspaceUndo');
   }
 };
+
+/**
+ * Added for BlocksCAD - jayod
+ * Fire an "I closed a texteditor" event.  The locking cylinder can pick it up
+ * and change the ratio of the radii then.
+ */
+Blockly.WorkspaceSvg.prototype.fireEditorEvent = function() {
+  if (this.rendered && this.svgBlockCanvas_) {
+    Blockly.fireUiEvent(this.svgBlockCanvas_, 'blocklyWorkspaceEditor');
+  }
+};
+
 /**
  * Paste the provided block onto the workspace.
  * @param {!Element} xmlBlock XML block element.
@@ -762,7 +773,9 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function(e) {
       for (var i = 0; i < topBlocks.length; i++) {
         var block = topBlocks[i];
         while (block) {
-          block.setDisabled(true);
+          // I don't want to disable procedure definitions!
+          if (block.category != 'PROCEDURE')
+            block.setDisabled(true);
           block = block.getNextBlock();
         }
       }
@@ -845,25 +858,30 @@ Blockly.WorkspaceSvg.prototype.preloadAudio_ = function() {
  * @param {number=} opt_volume Volume of sound (0-1).
  */
 Blockly.WorkspaceSvg.prototype.playAudio = function(name, opt_volume) {
-  var sound = this.SOUNDS_[name];
-  if (sound) {
-    var mySound;
-    var ie9 = goog.userAgent.DOCUMENT_MODE &&
-              goog.userAgent.DOCUMENT_MODE === 9;
-    if (ie9 || goog.userAgent.IPAD || goog.userAgent.ANDROID) {
-      // Creating a new audio node causes lag in IE9, Android and iPad. Android
-      // and IE9 refetch the file from the server, iPad uses a singleton audio
-      // node which must be deleted and recreated for each new audio tag.
-      mySound = sound;
-    } else {
-      mySound = sound.cloneNode();
-    }
-    mySound.volume = (opt_volume === undefined ? 1 : opt_volume);
-    mySound.play();
-  } else if (this.options.parentWorkspace) {
-    // Maybe a workspace on a lower level knows about this sound.
-    this.options.parentWorkspace.playAudio(name, opt_volume);
-  }
+  // var sound = this.SOUNDS_[name];
+  // if (sound) {
+  //   var mySound;
+  //   var ie9 = goog.userAgent.DOCUMENT_MODE &&
+  //             goog.userAgent.DOCUMENT_MODE === 9;
+  //   if (ie9 || goog.userAgent.IPAD || goog.userAgent.ANDROID) {
+  //     // Creating a new audio node causes lag in IE9, Android and iPad. Android
+  //     // and IE9 refetch the file from the server, iPad uses a singleton audio
+  //     // node which must be deleted and recreated for each new audio tag.
+  //     mySound = sound;
+  //   } else {
+  //     mySound = sound.cloneNode();
+  //   }
+  //   mySound.volume = (opt_volume === undefined ? 1 : opt_volume);
+  //   mySound.play();
+  // } else if (this.options.parentWorkspace) {
+  //   // Maybe a workspace on a lower level knows about this sound.
+  //   this.options.parentWorkspace.playAudio(name, opt_volume);
+  // }
+  // can I play audio directly?
+  var audio = document.getElementById("audio_" + name);
+  console.log("trying to play ")
+  console.log(audio);
+  audio.play();
 };
 
 /**

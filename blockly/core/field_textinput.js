@@ -78,7 +78,9 @@ Blockly.FieldTextInput.prototype.dispose = function() {
  * @param {?string} text New text.
  * @override
  */
-Blockly.FieldTextInput.prototype.setText = function(text) {
+// skipUndo is used by BlocksCAD for cylinder locking, so that 
+// when the block changes its own value it doesn't create an undo loop
+Blockly.FieldTextInput.prototype.setText = function(text,skipUndo) {
   if (text === null) {
     // No change if null.
     return;
@@ -91,7 +93,8 @@ Blockly.FieldTextInput.prototype.setText = function(text) {
       text = validated;
     }
   }
-  Blockly.Field.prototype.setText.call(this, text);
+
+  Blockly.Field.prototype.setText.call(this, text, skipUndo);
 };
 
 /**
@@ -283,6 +286,10 @@ Blockly.FieldTextInput.prototype.widgetDispose_ = function() {
     style.width = 'auto';
     style.height = 'auto';
     style.fontSize = '';
+    // For locking cylinders, I want to know when the user is done using the editor so 
+    // I can re-set the ratio of the radii.  Can I trigger a call to that function here?
+    if (thisField.sourceBlock_)
+      thisField.sourceBlock_.workspace.fireEditorEvent();
   };
 };
 

@@ -96,7 +96,6 @@ BlocklyStorage.restoreBlocks = function() {
             Blockscad.csg_center[csg_key] = csg_center;
             blocks[i].render();
           }
-        }
           else {
             // The xml thinks there should be stl data here, but I can't find it.  Clear the block.
             console.log("couldn't find the stuff in localStorage");
@@ -137,6 +136,8 @@ BlocklyStorage.restoreBlocks = function() {
             // If my block had a button field for browsing, I'd make it visible now.
             // Then I'd make the filename field invisible.
           }
+        }
+
       }
     }
 
