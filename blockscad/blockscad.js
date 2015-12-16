@@ -1350,11 +1350,18 @@ Blockscad.assignVarTypes = function(blk) {
     // variable name and assign it only to this particular instance of the get.
     console.log(blk.id + " just changed name to " + blk.getFieldValue("VAR"));
     var instances = Blockly.Variables.getInstances(blk.getFieldValue('VAR'), this.workspace);
+    var found_it = 0;
     for (var i = 0; i < instances.length; i++) {
       if (instances[i].type == "variables_set") {
-        blk.outputConnection.check_ = instances[i].myType_;
+        blk.outputConnection.setCheck(instances[i].myType_);
+        found_it = 1;
         break;
       }
+    }
+    if (!found_it) {
+      // this came out of a loop - no set_variable block to go with it.  Set type to number.
+      console.log("setting a variables_get block to type number");
+      blk.outputConnection.setCheck("Number");
     }
     // now, if this variables_get was inside a variables_set, that variables_set needs to be retyped.
     var parent = blk.getParent();
