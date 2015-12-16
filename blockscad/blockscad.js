@@ -867,6 +867,7 @@ Blockscad.isRealChange = function() {
   Blockscad.undo.parentIds = [];
   Blockscad.undo.fieldValues = [];
   Blockscad.undo.isDisabled = [];
+  Blockscad.undo.varNames = [];
   var deletedBlockPos = null;
   var addedBlockPos = null;
   var deletedBlockParent = null;
@@ -884,6 +885,10 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
+    if (Blockscad.undo.blockList[i].type == "variables_set" || "variables_get")
+      Blockscad.undo.varNames[i] = Blockscad.undo.blockList[i].getFieldValue('VAR');
+    else
+      Blockscad.undo.varNames[i] = null;
     if (Blockscad.undo.blockList[i].getParent()) {
       Blockscad.undo.parentIds[i] = Blockscad.undo.blockList[i].getParent().id;
     }
@@ -959,6 +964,8 @@ Blockscad.isRealChange = function() {
   // console.log("oldBlockIds",Blockscad.undo.oldBlockIds);
   // console.log("parentIds",Blockscad.undo.parentIds);
   // console.log("oldParentIds",Blockscad.undo.oldParentIds);
+
+  // I'm also going to check if any variables have changed names.  That will trigger a type change.
   for (var i = 0; i < Blockscad.undo.blockIds.length; i++) {
     var myid = Blockscad.undo.blockIds[i];
     var found_it = 0;
@@ -993,6 +1000,12 @@ Blockscad.isRealChange = function() {
             }
           }
           return true; // found a real change - a plug/unplug event!
+        }
+        if (Blockscad.undo.varNames[i] != Blockscad.undo.oldVarNames[j]) {
+          Blockscad.undo.fieldChanging = 0;
+          console.log("found a var changing name from (old): " + 
+                        Blockscad.undo.oldVarNames[j] + " to: " + Blockscad.undo.varNames[i]);
+          Blockscad.assignVarTypes(Blockscad.undo.blockList[i]);
         }
         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
           // A field is changing.  I won't trigger undo yet to aggregate
@@ -1047,6 +1060,7 @@ Blockscad.workspaceChanged = function () {
   Blockscad.undo.oldParentIds = Blockscad.undo.parentIds;
   Blockscad.undo.oldFieldValues = Blockscad.undo.fieldValues;
   Blockscad.undo.oldDisabled = Blockscad.undo.isDisabled;
+  Blockscad.undo.oldVarNames = Blockscad.undo.varNames;
 
 
 //  Blockscad.undo.oldBlockList = Blockscad.undo.blockList;
@@ -1320,6 +1334,8 @@ Blockscad.stackIsShape = function(block) {
 
 // Blockscad.assignVarTypes
 // input: single block of type variables_set
+// or a block of variables_get type whose name has just been changed
+// and needs to pick up its new variable's type.
 // on a refresh I will be sent an array of all blocks and need to pick
 // out the variables_set blocks.
 // I need to type the variable instances of the variables_set blocks.
@@ -1328,36 +1344,45 @@ Blockscad.assignVarTypes = function(blk) {
   // I need to go through the children of the variables_set block.
   // I am only interested in children that have an output connection.
   //does this block have any children?  If not, change type to null.
-  var children = blk.getChildren();
-  if (children.length == 0)
-    blk.setType(null);
-  else {
-    var found_one = 0;
-    for (var i = 0; i < children.length; i++) {
-      console.log("child " + i + " has type " + children[i].type);
-      if (children[i].outputConnection) {
-        var childType = children[i].outputConnection.check_;
-        console.log("child " + i + "has an output connection of type " + childType);
-        // console.log(childType);
-        blk.setType(childType);
-        found_one = 1;
-        // break;
+
+  if (blk.type == "variables_get") {
+    // this variables_get just had its name changed.  Find out the type of this
+    // variable name and assign it only to this particular instance of the get.
+    console.log(blk.id + " just changed name to " + blk.getFieldValue("VAR"));
+    var instances = Blockly.Variables.getInstances(blk.getFieldValue('VAR'), this.workspace);
+    for (var i = 0; i < instances.length; i++) {
+      if (instances[i].type == "variables_set") {
+        blk.outputConnection.check_ = instances[i].myType_;
+        break;
       }
     }
-    if (found_one == 0)
-      blk.setType(null);
+    // now, if this variables_get was inside a variables_set, that variables_set needs to be retyped.
+    var parent = blk.getParent();
+    if (parent && parent.type == "variables_set") {
+      Blockscad.assignVarTypes(parent);
+    }
   }
-  // console.log("here is the block I need to type:");
-  // console.log(blk);
-  // if (!blk.outputConnection) {
-  //   console.log("I see no output connection. Setting type to null for " + blk.id);
-  //   blk.setType(null);
-  // }
-  // else {
-  //   var input_block_type = blk.outputConnection.targetConnection.check_;
-  //   console.log("input block has a target connection of " + input_block_type);
-  //   blk.setType(input_block_type);
-  // }
+  else {
+    var children = blk.getChildren();
+    if (children.length == 0)
+      blk.setType(null);
+    else {
+      var found_one = 0;
+      for (var i = 0; i < children.length; i++) {
+        console.log("child " + i + " has type " + children[i].type);
+        if (children[i].outputConnection) {
+          var childType = children[i].outputConnection.check_;
+          console.log("child " + i + "has an output connection of type " + childType);
+          // console.log(childType);
+          blk.setType(childType);
+          found_one = 1;
+          // break;
+        }
+      }
+      if (found_one == 0)
+        blk.setType(null);
+    }
+  }
 }
 
 // Blockscad.assignBlockTypes
