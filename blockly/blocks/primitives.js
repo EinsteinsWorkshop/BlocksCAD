@@ -1539,3 +1539,18 @@ function showMyInput(value,drawMe) {
   }
 }
 
+Blockly.Blocks['bs_text_length'] = {
+  /**
+   * Block for string length.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.setHelpUrl(Blockly.Msg.TEXT_LENGTH_HELPURL);
+    this.setColourHex(Blockscad.Toolbox.HEX_TEXT);
+    this.interpolateMsg(Blockly.Msg.TEXT_LENGTH_TITLE,
+                        ['VALUE', ['String', 'Array'], Blockly.ALIGN_RIGHT],
+                        Blockly.ALIGN_RIGHT);
+    this.setOutput(true, 'Number');
+    this.setTooltip(Blockly.Msg.TEXT_LENGTH_TOOLTIP);
+  }
+};

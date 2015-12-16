@@ -36,6 +36,7 @@ Blockly.Blocks['variables_get'] = {
    * @this Blockly.Block
    */
   init: function() {
+    this.initialized_type = 0;  // for blockscad - to keep onchange from churning
     this.setHelpUrl(Blockly.Msg.VARIABLES_GET_HELPURL);
     this.setColourHex(Blockscad.Toolbox.HEX_VARIABLE);
     this.appendDummyInput()
@@ -66,6 +67,27 @@ Blockly.Blocks['variables_get'] = {
   renameVar: function(oldName, newName) {
     if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
       this.setFieldValue(newName, 'VAR');
+    }
+  },
+  /**
+   * onchange: happens on EVERY WORKSPACE CHANGE
+   * because I need to type variables_get blocks before the user 
+   * has a chance to try plugging them in
+   */
+  onchange: function() {
+    if (this.initialized_type == 0) {
+      // console.log("initializing a new variables_get: id ", this.id);
+      this.initialized_type = 1;
+
+      // get my "type" from my corresponding variables_set block
+      var all_of_them = Blockly.Variables.getInstances(this.getFieldValue('VAR'), this.workspace);
+      for (var i = 0; i < all_of_them.length; i++) {
+        if (all_of_them[i].type == 'variables_set') {
+          this.outputConnection.check_ = all_of_them[i].myType_;
+          console.log("vars_get " + this.id + " was initialized to " + all_of_them[i].myType_);
+          break;
+        }
+      }      
     }
   },
   /**
@@ -112,6 +134,8 @@ Blockly.Blocks['variables_set'] = {
    * @this Blockly.Block
    */
   init: function() {
+    this.myType_ = null;       // for blocksCAD
+    this.backlightBlocks = []; // for blocksCAD
     this.setHelpUrl(Blockly.Msg.VARIABLES_SET_HELPURL);
     this.setColourHex(Blockscad.Toolbox.HEX_VARIABLE);
     this.interpolateMsg(
@@ -121,8 +145,8 @@ Blockly.Blocks['variables_set'] = {
         ['VAR', new Blockly.FieldVariable(Blockly.Msg.VARIABLES_SET_ITEM)],
         ['VALUE', null, Blockly.ALIGN_RIGHT],
         Blockly.ALIGN_RIGHT);
-    this.setPreviousStatement(true,['VariableSet','Procedure']);
-    this.setNextStatement(true, 'VariableSet');
+    this.setPreviousStatement(true,['VariableSet']);
+    this.setNextStatement(true, ['VariableSet','CAG','CSG']);
     this.setTooltip(Blockly.Msg.VARIABLES_SET_TOOLTIP);
     this.contextMenuMsg_ = Blockly.Msg.VARIABLES_SET_CREATE_GET;
     this.contextMenuType_ = 'variables_get';
@@ -135,6 +159,92 @@ Blockly.Blocks['variables_set'] = {
   getVars: function() {
     return [this.getFieldValue('VAR')];
   },
+   /**
+   * if this variable is set to a value, set the associated variable blocks to 
+   * the type of the value block.
+   * @this Blockly.Block
+   */
+  setType: function(type) {      // for blocksCAD
+    console.log("in variable_set setType with: ",type);
+    if (!this.workspace) {
+      // Block has been deleted.
+      return;
+    }
+    if (this.myType_ == type) {
+      console.log("type didn't actually change.  Returning without doing work.");
+      return;
+    }
+    // var instances = this.getVars();
+    var instances = Blockly.Variables.getInstances(this.getFieldValue('VAR'), this.workspace);
+    var numBumped = [];
+    var parentAccepts;
+
+    // go through instances, pulling out the variables_get blocks.
+    // if the variables have a parent block, they might need to get bumped 
+
+    if (instances.length > 0) {
+      for (var i = 0; i < instances.length; i++) {
+        console.log("found an instance: ", instances[i].id , " ", instances[i].type);
+        if (instances[i].type != "variables_get")
+          continue;
+        var parent = instances[i].getParent();
+        if (type != null) {
+          // this is a variables_get block, so the parent is the block connected
+          // to the output connection. let's handle any bumpage that occurs.
+          if (parent) {
+            console.log("found instance with parent: ", parent.type);
+            parentAccepts = instances[i].outputConnection.targetConnection.check_;
+            if (parentAccepts != null)
+              parentAccepts = parentAccepts[0];
+            console.log("types parent accepts: ",parentAccepts);
+            // take care of bumps
+            if (parentAccepts != null && parentAccepts != type[0]) {
+              // I have a type mismatch with this variable.  it is going to be bumped.
+              console.log("block " + instances[i].id + " will be kicked out.");
+              numBumped.push(instances[i]);
+              instances[i].backlight();
+              this.backlightBlocks.push(instances[i].id);
+              // if the instance is in a collapsed stack, find collapsed parent and expand
+              var topBlock = instances[i].collapsedParents();
+              if (topBlock)
+                for (var j = 0; j < topBlock.length; j++)
+                  topBlock[j].setCollapsed(false);
+            }
+
+          }  // end if (parent)
+        }  // end if type == null
+        // actually set the type here
+        instances[i].outputConnection.setCheck(type);
+        // what if a parent is a variables_set of a different variable?
+        // then I want to call Blockscad.assignVarTypes for that parent.
+        if (parent && parent.type == "variables_set") {
+          console.log("found a variables_set parent from inside variables code");
+          Blockscad.assignVarTypes(parent);
+        }
+      }  // end looping through instances
+    }  // end if instances.length > 0
+
+    if (numBumped.length) {
+      var text = '';
+      text += numBumped.length + " ";
+      // took out the name so I wouldn't have to deal with renaming the proc.
+      //text += this.getFieldValue('NAME') + " ";
+      text += "variable blocks were displaced due to type mismatches\nvariable \"";
+      text += this.getFieldValue('VAR') + "\" had its type changed from ";
+      text += parentAccepts + " to " + type[0];
+      this.setWarningText(text);
+    }
+    else
+      this.setWarningText(null);
+
+    // set the variables_set type - important for stopping infinite typing loops
+    this.myType_ = type;
+
+    // the system will be done now with unplugging all the blocks that need it.  
+    // Time to fire a workspaceChanged() so our list of parentIDs will be current.
+    if (numBumped.length)
+      Blockscad.workspaceChanged();
+  },        // end for blocksCAD
   /**
    * Notification that a variable is renaming.
    * If the name matches one of this block's variables, rename it.

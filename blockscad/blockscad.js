@@ -908,7 +908,11 @@ Blockscad.isRealChange = function() {
       //console.log("got the deleted block postion at",deletedBlockPos);
       var oldParentID = Blockscad.undo.oldParentIds[deletedBlockPos]; 
       deletedBlockParent = Blockscad.getBlockFromId(oldParentID,Blockscad.undo.blockList);
-      if (deletedBlockParent) Blockscad.assignBlockTypes([deletedBlockParent]);
+      if (deletedBlockParent) {
+        Blockscad.assignBlockTypes([deletedBlockParent]);
+        if (deletedBlockParent.type == 'variables_set')
+          Blockscad.assignVarTypes(deletedBlockParent);
+      }
     }
     return true;
   }
@@ -919,12 +923,26 @@ Blockscad.isRealChange = function() {
     if (Blockscad.undo.oldBlockList.length === 0) {
       // We just refreshed, loaded
       Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
+      var allBlocks = Blockly.mainWorkspace.getAllBlocks();
+      for (var i = 0; i < allBlocks.length; i++) {
+        if (allBlocks[i].type == 'variables_set')
+          Blockscad.assignVarTypes(allBlocks[i]);
+      }
  //     console.log("whole workspace refreshed");
     }
     else {
-      //console.log("a block was added");
       addedBlockPos = Blockscad.getExtraRootBlock(Blockscad.undo.oldBlockList, Blockscad.undo.blockList);
       Blockscad.assignBlockTypes([Blockscad.undo.blockList[addedBlockPos]]);
+      // if new block's or its parent is a variables_set block, do variable typing.
+      addedBlockParent = Blockscad.undo.blockList[addedBlockPos].getParent();
+      if (addedBlockParent && addedBlockParent.type == 'variables_set') {
+        console.log("added block parent was a variables_set block, must do typing");
+        Blockscad.assignVarTypes(addedBlockParent);
+      }
+      if (Blockscad.undo.blockList[addedBlockPos].type == 'variables_set') {
+        console.log("added block was a variables_set - type it")
+        Blockscad.assignVarTypes(Blockscad.undo.blockList[addedBlockPos]);
+      }
     }
     return true;
   }
@@ -932,7 +950,9 @@ Blockscad.isRealChange = function() {
   // I need to go through the blocks.  First, I'll check for blocks having different parents.
   // I speculate that these are mainly plug/unplug events.  Is that true?
   // on a plug/unplug event I run enableMathBlocks in case a math block was 
-  // plugged into something and needs to be enabled again.
+  // plugged into something and needs to be enabled again. NOTE: I wasn't catching all
+  // the cases of math blocks needing to be enabled/disabled, so I do that on all changes,
+  // instead of here.
 
   // after checking parents I check for field values changing.
   // console.log("blockIds",Blockscad.undo.blockIds);
@@ -955,11 +975,20 @@ Blockscad.isRealChange = function() {
           // Note:  one event can be both a "plug" and an "unplug" event.
           // console.log("plug or unplug - send block myid",myid);
           Blockscad.assignBlockTypes([Blockscad.undo.blockList[i]]);
+          var plugParent = Blockscad.undo.blockList[i].getParent();
+          if (plugParent && plugParent.type == "variables_set") {
+            console.log("something was plugged into a variables_set block, type it");
+            Blockscad.assignVarTypes(plugParent);
+          }
           for (var k = 0, blk; blk = Blockscad.undo.blockList[k]; k++) {
             if (blk.id == Blockscad.undo.oldParentIds[j]) {
               // console.log("unplugged parent exists with id",blk.id);
               Blockscad.assignBlockTypes([Blockscad.undo.blockList[k]]);
               // Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
+              if (Blockscad.undo.blockList[k].type == "variables_set") {
+                console.log("something was unplugged from var_set #" + blk.id + " ,type it");
+                Blockscad.assignVarTypes(Blockscad.undo.blockList[k]);
+              }
               break;
             }
           }
@@ -1289,9 +1318,52 @@ Blockscad.stackIsShape = function(block) {
   return false;
 };
 
+// Blockscad.assignVarTypes
+// input: single block of type variables_set
+// on a refresh I will be sent an array of all blocks and need to pick
+// out the variables_set blocks.
+// I need to type the variable instances of the variables_set blocks.
+Blockscad.assignVarTypes = function(blk) {
+  console.log("in assignVarTypes with ", blk.type);
+  // I need to go through the children of the variables_set block.
+  // I am only interested in children that have an output connection.
+  //does this block have any children?  If not, change type to null.
+  var children = blk.getChildren();
+  if (children.length == 0)
+    blk.setType(null);
+  else {
+    var found_one = 0;
+    for (var i = 0; i < children.length; i++) {
+      console.log("child " + i + " has type " + children[i].type);
+      if (children[i].outputConnection) {
+        var childType = children[i].outputConnection.check_;
+        console.log("child " + i + "has an output connection of type " + childType);
+        // console.log(childType);
+        blk.setType(childType);
+        found_one = 1;
+        // break;
+      }
+    }
+    if (found_one == 0)
+      blk.setType(null);
+  }
+  // console.log("here is the block I need to type:");
+  // console.log(blk);
+  // if (!blk.outputConnection) {
+  //   console.log("I see no output connection. Setting type to null for " + blk.id);
+  //   blk.setType(null);
+  // }
+  // else {
+  //   var input_block_type = blk.outputConnection.targetConnection.check_;
+  //   console.log("input block has a target connection of " + input_block_type);
+  //   blk.setType(input_block_type);
+  // }
+}
+
 // Blockscad.assignBlockTypes
 // input: array of blocks whose trees need typing
 Blockscad.assignBlockTypes = function(blocks) {
+  // console.log("in assignBlockTypes");
   for (var i=0; i < blocks.length; i++) {
     var topBlock = blocks[i].getRootBlock();
     var blockStack = topBlock.getDescendants();
