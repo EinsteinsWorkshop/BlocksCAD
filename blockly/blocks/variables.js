@@ -84,16 +84,21 @@ Blockly.Blocks['variables_get'] = {
       var found_it = 0;
       for (var i = 0; i < all_of_them.length; i++) {
         if (all_of_them[i].type == 'variables_set') {
-          this.outputConnection.check_ = all_of_them[i].myType_;
+          this.outputConnection.setCheck(all_of_them[i].myType_);
           console.log("vars_get " + this.id + " was initialized to " + all_of_them[i].myType_);
           found_it = 1;
           break;
         }
+        if (all_of_them[i].type == 'controls_for' || all_of_them[i].type == 'controls_for_chainhull') {
+          this.outputConnection.setCheck("Number");
+          found_it = 1;
+        }
       }
       if (!found_it) {
-        // this has no variables_set block... Must be from a loop  Make it a number.
-        console.log("is there a variable instance from a loop here?");
-        this.outputConnection.setCheck("Number");
+        // this has no variables_set block... Could be from a procedure.
+        // since I don't know it's type, set it to null.
+        console.log("is there a variable instance from a procedure here?");
+        this.outputConnection.setCheck(null);
       }      
     }
   },

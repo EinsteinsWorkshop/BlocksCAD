@@ -1357,11 +1357,17 @@ Blockscad.assignVarTypes = function(blk) {
         found_it = 1;
         break;
       }
+      if (instances[i].type == "controls_for" || instances[i].type == "controls_for_chainhull") {
+        blk.outputConnection.setCheck("Number");
+        found_it = 1;
+        break;
+      }
     }
     if (!found_it) {
-      // this came out of a loop - no set_variable block to go with it.  Set type to number.
-      console.log("setting a variables_get block to type number");
-      blk.outputConnection.setCheck("Number");
+      // this came out of a procedure - no set_variable block to go with it.  
+      // a procedure could have any type associated, so set type to null.
+      console.log("setting a variables_get block to type null");
+      blk.outputConnection.setCheck(null);
     }
     // now, if this variables_get was inside a variables_set, that variables_set needs to be retyped.
     var parent = blk.getParent();
