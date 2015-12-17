@@ -1434,7 +1434,7 @@ Blockly.Blocks['bs_text'] = {
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
         .appendField("2D Text  ")
-        .setCheck('String')
+        // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendValueInput("SIZE")
@@ -1484,9 +1484,8 @@ Blockly.Blocks['bs_3dtext'] = {
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
         .appendField("3D Text  ")
-        .setCheck('String')
+        // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
-
     this.appendValueInput("SIZE")
         .setCheck("Number")
         .appendField(" size")
@@ -1539,3 +1538,18 @@ function showMyInput(value,drawMe) {
   }
 }
 
+Blockly.Blocks['bs_text_length'] = {
+  /**
+   * Block for string length.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.setHelpUrl(Blockly.Msg.TEXT_LENGTH_HELPURL);
+    this.setColourHex(Blockscad.Toolbox.HEX_TEXT);
+    this.interpolateMsg(Blockly.Msg.TEXT_LENGTH_TITLE,
+                        ['VALUE', ['String', 'Array'], Blockly.ALIGN_RIGHT],
+                        Blockly.ALIGN_RIGHT);
+    this.setOutput(true, 'Number');
+    this.setTooltip(Blockly.Msg.TEXT_LENGTH_TOOLTIP);
+  }
+};

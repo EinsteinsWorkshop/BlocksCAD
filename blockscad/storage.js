@@ -12,11 +12,11 @@ var Blockly = Blockly || {};
 Blockly.Xml = Blockly.Xml || {};
 
 /**
- * Backup code blocks to localStorage.
+ * Backup code blocks to localStorage including stl files
  * @private
  */
 BlocklyStorage.backupBlocks_ = function() {
-  console.log("in backupBlocks");
+  // console.log("in backupBlocks");
   if ('localStorage' in window) {
     // clear out old stuff from localStorage
     localStorage.clear();
@@ -51,7 +51,24 @@ BlocklyStorage.backupBlocks_ = function() {
     window.localStorage.setItem(url3, Blockscad.Auth.current_project);
   }
 };
+/**
+ * Backup just code blocks to localStorage
+ * intended for autosaving after undoable changes.
+ * @private
+ */
+BlocklyStorage.autosaveBlocks = function(xml_text) {
+  // console.log("in backupBlocks");
+  if ('localStorage' in window) {
+    // Gets the current URL, not including the hash.
+    var url = window.location.href.split('#')[0];
+    var url2 = url + "proj_name";
+    var url3 = url + "current_project";
 
+    localStorage.setItem(url, xml_text);
+    localStorage.setItem(url2, $('#project-name').val());
+    localStorage.setItem(url3, Blockscad.Auth.current_project);
+  }
+};
 /**
  * Bind the localStorage backup function to the unload event.
  */
