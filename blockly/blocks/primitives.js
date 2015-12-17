@@ -1434,7 +1434,7 @@ Blockly.Blocks['bs_text'] = {
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
         .appendField("2D Text  ")
-        .setCheck('String')
+        // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendValueInput("SIZE")
@@ -1484,7 +1484,7 @@ Blockly.Blocks['bs_3dtext'] = {
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
         .appendField("3D Text  ")
-        .setCheck('String')
+        // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendValueInput("SIZE")

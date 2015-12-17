@@ -515,9 +515,6 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
   var this_font = Blockscad.fontName[parseInt(block.getFieldValue('FONT'))];
   var value_size = Blockly.OpenSCAD.valueToCode(block,'SIZE', Blockly.OpenSCAD.ORDER_ATOMIC);
 
-  // escape any quote characters in this_text before passing it to the openscad parser
-  // this_text = this_text.replace(/\"/g,"\\\"");
-  // this_text = this_text.replace(/\\/g,"\\\\");
   // missing fields?
   if (!value_size || !this_text)
     Blockscad.missingFields.push(block.id); 

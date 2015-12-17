@@ -110,7 +110,7 @@ Blockly.OpenSCAD['logic_negate'] = function(block) {
 
 Blockly.OpenSCAD['logic_boolean'] = function(block) {
   // Boolean values true and false.
-  var code = (block.getFieldValue('BOOL') == 'TRUE') ? '1' : '0';
+  var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'true' : 'false';
   if (block.getParent())
     return [code, Blockly.OpenSCAD.ORDER_ATOMIC];
   else return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
