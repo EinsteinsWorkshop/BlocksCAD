@@ -1358,7 +1358,7 @@ Blockscad.assignVarTypes = function(blk) {
         break;
       }
       if (instances[i].type == "controls_for" || instances[i].type == "controls_for_chainhull") {
-        blk.outputConnection.setCheck("Number");
+        blk.outputConnection.setCheck(null);
         found_it = 1;
         break;
       }
@@ -1375,7 +1375,7 @@ Blockscad.assignVarTypes = function(blk) {
       Blockscad.assignVarTypes(parent);
     }
   }
-  else {
+  else if (blk.type == "variables_set") {
     var children = blk.getChildren();
     if (children.length == 0)
       blk.setType(null);
