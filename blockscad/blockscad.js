@@ -1097,6 +1097,8 @@ Blockscad.workspaceChanged = function () {
         Blockscad.undo.undoStack.shift();
       }
     }
+    // lets autosave the new blocks to local storage in case of crashes.
+    BlocklyStorage.autosaveBlocks(Blockly.Xml.domToText(Blockscad.undo.current_xml));
   }
   // even though this isn't a real change, I want to accumulate moves
   // and field changes in the current state, which will then be pushed
