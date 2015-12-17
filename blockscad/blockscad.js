@@ -584,7 +584,7 @@ Blockscad.newProject = function() {
 // if a user clicks on an example from Help->Examples, this code is run.
 Blockscad.showExample = function(e) {
   // note: offline, I don't clear the undo stack.  I also don't do a delete-confirm.
-  console.log("in showExample");
+  // console.log("in showExample");
   // console.log(e.data.msg);
   var example = "examples/" + e.data.msg;
   var name = e.data.msg.split('.')[0];
@@ -941,11 +941,11 @@ Blockscad.isRealChange = function() {
       // if new block's or its parent is a variables_set block, do variable typing.
       addedBlockParent = Blockscad.undo.blockList[addedBlockPos].getParent();
       if (addedBlockParent && addedBlockParent.type == 'variables_set') {
-        console.log("added block parent was a variables_set block, must do typing");
+        // console.log("added block parent was a variables_set block, must do typing");
         Blockscad.assignVarTypes(addedBlockParent);
       }
       if (Blockscad.undo.blockList[addedBlockPos].type == 'variables_set') {
-        console.log("added block was a variables_set - type it")
+        // console.log("added block was a variables_set - type it")
         Blockscad.assignVarTypes(Blockscad.undo.blockList[addedBlockPos]);
       }
     }
@@ -984,7 +984,7 @@ Blockscad.isRealChange = function() {
           Blockscad.assignBlockTypes([Blockscad.undo.blockList[i]]);
           var plugParent = Blockscad.undo.blockList[i].getParent();
           if (plugParent && plugParent.type == "variables_set") {
-            console.log("something was plugged into a variables_set block, type it");
+            // console.log("something was plugged into a variables_set block, type it");
             Blockscad.assignVarTypes(plugParent);
           }
           for (var k = 0, blk; blk = Blockscad.undo.blockList[k]; k++) {
@@ -993,7 +993,7 @@ Blockscad.isRealChange = function() {
               Blockscad.assignBlockTypes([Blockscad.undo.blockList[k]]);
               // Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
               if (Blockscad.undo.blockList[k].type == "variables_set") {
-                console.log("something was unplugged from var_set #" + blk.id + " ,type it");
+                // console.log("something was unplugged from var_set #" + blk.id + " ,type it");
                 Blockscad.assignVarTypes(Blockscad.undo.blockList[k]);
               }
               break;
@@ -1003,8 +1003,8 @@ Blockscad.isRealChange = function() {
         }
         if (Blockscad.undo.varNames[i] != Blockscad.undo.oldVarNames[j]) {
           Blockscad.undo.fieldChanging = 0;
-          console.log("found a var changing name from (old): " + 
-                        Blockscad.undo.oldVarNames[j] + " to: " + Blockscad.undo.varNames[i]);
+          // console.log("found a var changing name from (old): " + 
+                        // Blockscad.undo.oldVarNames[j] + " to: " + Blockscad.undo.varNames[i]);
           Blockscad.assignVarTypes(Blockscad.undo.blockList[i]);
         }
         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
@@ -1340,7 +1340,7 @@ Blockscad.stackIsShape = function(block) {
 // out the variables_set blocks.
 // I need to type the variable instances of the variables_set blocks.
 Blockscad.assignVarTypes = function(blk) {
-  console.log("in assignVarTypes with ", blk.type);
+  // console.log("in assignVarTypes with ", blk.type);
   // I need to go through the children of the variables_set block.
   // I am only interested in children that have an output connection.
   //does this block have any children?  If not, change type to null.
@@ -1348,7 +1348,7 @@ Blockscad.assignVarTypes = function(blk) {
   if (blk.type == "variables_get") {
     // this variables_get just had its name changed.  Find out the type of this
     // variable name and assign it only to this particular instance of the get.
-    console.log(blk.id + " just changed name to " + blk.getFieldValue("VAR"));
+    // console.log(blk.id + " just changed name to " + blk.getFieldValue("VAR"));
     var instances = Blockly.Variables.getInstances(blk.getFieldValue('VAR'), this.workspace);
     var found_it = 0;
     for (var i = 0; i < instances.length; i++) {
@@ -1366,7 +1366,7 @@ Blockscad.assignVarTypes = function(blk) {
     if (!found_it) {
       // this came out of a procedure - no set_variable block to go with it.  
       // a procedure could have any type associated, so set type to null.
-      console.log("setting a variables_get block to type null");
+      // console.log("setting a variables_get block to type null");
       blk.outputConnection.setCheck(null);
     }
     // now, if this variables_get was inside a variables_set, that variables_set needs to be retyped.
@@ -1382,10 +1382,10 @@ Blockscad.assignVarTypes = function(blk) {
     else {
       var found_one = 0;
       for (var i = 0; i < children.length; i++) {
-        console.log("child " + i + " has type " + children[i].type);
+        // console.log("child " + i + " has type " + children[i].type);
         if (children[i].outputConnection) {
           var childType = children[i].outputConnection.check_;
-          console.log("child " + i + "has an output connection of type " + childType);
+          // console.log("child " + i + "has an output connection of type " + childType);
           // console.log(childType);
           blk.setType(childType);
           found_one = 1;

@@ -85,7 +85,7 @@ Blockly.Blocks['variables_get'] = {
       for (var i = 0; i < all_of_them.length; i++) {
         if (all_of_them[i].type == 'variables_set') {
           this.outputConnection.setCheck(all_of_them[i].myType_);
-          console.log("vars_get " + this.id + " was initialized to " + all_of_them[i].myType_);
+          // console.log("vars_get " + this.id + " was initialized to " + all_of_them[i].myType_);
           found_it = 1;
           break;
         }
@@ -97,7 +97,7 @@ Blockly.Blocks['variables_get'] = {
       if (!found_it) {
         // this has no variables_set block... Could be from a procedure.
         // since I don't know it's type, set it to null.
-        console.log("is there a variable instance from a procedure here?");
+        // console.log("is there a variable instance from a procedure here?");
         this.outputConnection.setCheck(null);
       }      
     }
@@ -177,13 +177,13 @@ Blockly.Blocks['variables_set'] = {
    * @this Blockly.Block
    */
   setType: function(type) {      // for blocksCAD
-    console.log("in variable_set setType with: ",type);
+    // console.log("in variable_set setType with: ",type);
     if (!this.workspace) {
       // Block has been deleted.
       return;
     }
     if (this.myType_ == type) {
-      console.log("type didn't actually change.  Returning without doing work.");
+      // console.log("type didn't actually change.  Returning without doing work.");
       return;
     }
     // var instances = this.getVars();
@@ -196,7 +196,7 @@ Blockly.Blocks['variables_set'] = {
 
     if (instances.length > 0) {
       for (var i = 0; i < instances.length; i++) {
-        console.log("found an instance: ", instances[i].id , " ", instances[i].type);
+        // console.log("found an instance: ", instances[i].id , " ", instances[i].type);
         if (instances[i].type != "variables_get")
           continue;
         var parent = instances[i].getParent();
@@ -204,15 +204,15 @@ Blockly.Blocks['variables_set'] = {
           // this is a variables_get block, so the parent is the block connected
           // to the output connection. let's handle any bumpage that occurs.
           if (parent) {
-            console.log("found instance with parent: ", parent.type);
+            // console.log("found instance with parent: ", parent.type);
             parentAccepts = instances[i].outputConnection.targetConnection.check_;
             if (parentAccepts != null)
               parentAccepts = parentAccepts[0];
-            console.log("types parent accepts: ",parentAccepts);
+            // console.log("types parent accepts: ",parentAccepts);
             // take care of bumps
             if (parentAccepts != null && parentAccepts != type[0]) {
               // I have a type mismatch with this variable.  it is going to be bumped.
-              console.log("block " + instances[i].id + " will be kicked out.");
+              // console.log("block " + instances[i].id + " will be kicked out.");
               numBumped.push(instances[i]);
               instances[i].backlight();
               this.backlightBlocks.push(instances[i].id);
@@ -230,7 +230,7 @@ Blockly.Blocks['variables_set'] = {
         // what if a parent is a variables_set of a different variable?
         // then I want to call Blockscad.assignVarTypes for that parent.
         if (parent && parent.type == "variables_set") {
-          console.log("found a variables_set parent from inside variables code");
+          // console.log("found a variables_set parent from inside variables code");
           Blockscad.assignVarTypes(parent);
         }
       }  // end looping through instances
