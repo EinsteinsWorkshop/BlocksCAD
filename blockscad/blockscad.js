@@ -115,7 +115,10 @@ Blockscad.init = function() {
   // hide "switch to advanced toolbox" because that's where we'll start
   $('#advancedToolbox').hide();
 
-  BSUtils.loadBlocks('');
+  // BSUtils.loadBlocks('');
+  // for standalone, just call restoreBlocks directly
+  console.log("trying to restore blocks");
+  BlocklyStorage.standaloneRestoreBlocks();
 
   if ('BlocklyStorage' in window) {
     // Hook a save function onto unload.
@@ -915,7 +918,8 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
-    if (Blockscad.undo.blockList[i].type == "variables_set" || "variables_get")
+    if (Blockscad.undo.blockList[i].type == "variables_set" || 
+        Blockscad.undo.blockList[i].type == "variables_get")
       Blockscad.undo.varNames[i] = Blockscad.undo.blockList[i].getFieldValue('VAR');
     else
       Blockscad.undo.varNames[i] = null;
@@ -1128,6 +1132,9 @@ Blockscad.workspaceChanged = function () {
       }
     }
     // lets autosave the new blocks to local storage in case of crashes.
+    console.log("trying to autosave blocks");
+    var blocks_to_autosave = Blockly.Xml.domToText(Blockscad.undo.current_xml);
+    console.log(blocks_to_autosave);
     BlocklyStorage.autosaveBlocks(Blockly.Xml.domToText(Blockscad.undo.current_xml));
   }
   // even though this isn't a real change, I want to accumulate moves
@@ -1390,7 +1397,7 @@ Blockscad.assignVarTypes = function(blk) {
         break;
       }
       if (instances[i].type == "controls_for" || instances[i].type == "controls_for_chainhull") {
-        blk.outputConnection.setCheck("Number");
+        blk.outputConnection.setCheck(null);
         found_it = 1;
         break;
       }

@@ -90,7 +90,7 @@ Blockly.Blocks['variables_get'] = {
           break;
         }
         if (all_of_them[i].type == 'controls_for' || all_of_them[i].type == 'controls_for_chainhull') {
-          this.outputConnection.setCheck("Number");
+          this.outputConnection.setCheck(null);
           found_it = 1;
         }
       }

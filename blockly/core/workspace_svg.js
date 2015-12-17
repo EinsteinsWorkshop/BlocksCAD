@@ -879,8 +879,8 @@ Blockly.WorkspaceSvg.prototype.playAudio = function(name, opt_volume) {
   // }
   // can I play audio directly?
   var audio = document.getElementById("audio_" + name);
-  console.log("trying to play ")
-  console.log(audio);
+  // console.log("trying to play ")
+  // console.log(audio);
   audio.play();
 };
 

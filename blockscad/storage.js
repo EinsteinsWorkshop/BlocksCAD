@@ -59,16 +59,26 @@ BlocklyStorage.backupBlocks_ = function() {
 BlocklyStorage.autosaveBlocks = function(xml_text) {
   // console.log("in backupBlocks");
   if ('localStorage' in window) {
-    // Gets the current URL, not including the hash.
-    var url = window.location.href.split('#')[0];
-    var url2 = url + "proj_name";
-    var url3 = url + "current_project";
 
-    localStorage.setItem(url, xml_text);
-    localStorage.setItem(url2, $('#project-name').val());
-    localStorage.setItem(url3, Blockscad.Auth.current_project);
+    // in standalone, the "url" scheme doesn't work.  Have to name the
+    // items in localStorage directly.
+
+    localStorage.xml = xml_text;
+    localStorage.proj_name = $('#project-name').val();
   }
 };
+BlocklyStorage.standaloneRestoreBlocks = function() {
+
+  if (localStorage.xml) {
+    var xml = Blockly.Xml.textToDom(localStorage.xml);
+    Blockly.Xml.domToWorkspace(Blockscad.workspace, xml);
+    var project_name = localStorage.proj_name;
+    if (project_name != "undefined") {
+      $('#project-name').val(project_name);
+    }
+    else $('#project-name').val('Untitled');
+  }
+}
 /**
  * Bind the localStorage backup function to the unload event.
  */
