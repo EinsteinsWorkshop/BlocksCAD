@@ -7,5 +7,3 @@ Next, build standalone binaries by running
 
 the resulting binaries are in the newly-created build directory.
 
-TODO: edit package.json so that nwbuild only includes the necessary files.
-

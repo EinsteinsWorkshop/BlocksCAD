@@ -15,10 +15,10 @@ Blockscad.Toolbox.catIDs = [];
 //                 'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP','HEX_ADVANCED',
 //                 'HEX_VARIABLE','HEX_PROCEDURE'];
 Blockscad.Toolbox.allcats = ['HEX_3D_PRIMITIVE','HEX_2D_PRIMITIVE','HEX_TRANSFORM',
-                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP',
+                'HEX_SETOP', 'HEX_MATH','HEX_LOGIC','HEX_LOOP', 'HEX_TEXT',
                 'HEX_VARIABLE','HEX_PROCEDURE'];
 
-Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,7,8];
+Blockscad.Toolbox.whichCatsInSimple = [0,2,3,4,8,9];
 
 
 Blockscad.Toolbox.colorScheme = {};
@@ -30,7 +30,7 @@ Blockscad.Toolbox.colorScheme['one'] =  // classic
         '#0186E2',  // Math
         '#BF6920',  // Logic
         '#612485',  // Loops
-        // '#727272',  // Advanced (or Text)
+        '#727272',  // Advanced (or Text)
         '#8C7149',  // Variables
         '#900355']; // Modules
 
@@ -42,7 +42,7 @@ Blockscad.Toolbox.colorScheme['two'] =  // pale
         '#ba9969',  // Math
         '#afaf13',  // Logic
         '#a66658',  // Loops
-        // '#d761bf',  // Advanced (or Text)
+        '#d761bf',  // Advanced (or Text)
         '#999999',  // Variables
         '#b02375']; // Modules
 
@@ -524,35 +524,35 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
 
 
 Blockscad.Toolbox.catOther = 
-      // '<category name="Text">' +
-      // '<block type="text"></block>' +
-      // '<block type="bs_text">' + 
-      //   '<value name="TEXT">' + 
-      //     '<block type="text">' +
-      //     '</block>' +
-      //   '</value>' +
-      //   '<value name="SIZE">' +
-      //     '<block type="math_number">' +
-      //       '<field name="NUM">10</field>' +
-      //     '</block>' +
-      //   '</value>' + 
-      // '</block>' +
-      // '<block type="bs_3dtext">' + 
-      //   '<value name="TEXT">' + 
-      //     '<block type="text">' +
-      //     '</block>' +
-      //   '</value>' +
-      //   '<value name="SIZE">' +
-      //     '<block type="math_number">' +
-      //       '<field name="NUM">10</field>' +
-      //     '</block>' +
-      //   '</value>' + 
-      //   '<value name="THICKNESS">' + 
-      //     '<block type="math_number">' +
-      //       '<field name="NUM">2</field>' + 
-      //     '</block>' +
-      //   '</value>' +
-      // '</block>' +
+      '<category name="Text">' +
+      '<block type="text"></block>' +
+      '<block type="bs_text">' + 
+        '<value name="TEXT">' + 
+          '<block type="text">' +
+          '</block>' +
+        '</value>' +
+        '<value name="SIZE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' + 
+      '</block>' +
+      '<block type="bs_3dtext">' + 
+        '<value name="TEXT">' + 
+          '<block type="text">' +
+          '</block>' +
+        '</value>' +
+        '<value name="SIZE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">10</field>' +
+          '</block>' +
+        '</value>' + 
+        '<value name="THICKNESS">' + 
+          '<block type="math_number">' +
+            '<field name="NUM">2</field>' + 
+          '</block>' +
+        '</value>' +
+      '</block>' +
 
       // '<block type="rotateextrudetwist">' +
       //   '<value name="RAD">' +
@@ -605,7 +605,7 @@ Blockscad.Toolbox.catOther =
       // '</block>' +
 
       // '<block type="stl_import"></block>' +
-    // '</category>' +
+    '</category>' +
     '<category name="Variables" custom="VARIABLE"></category>' +
     '<category name="Modules" custom="PROCEDURE"></category>' +
   '</xml>'; 
