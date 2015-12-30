@@ -1414,7 +1414,7 @@ Blockscad.assignVarTypes = function(blk) {
       Blockscad.assignVarTypes(parent);
     }
   }
-  else {
+  else if (blk.type == "variables_set") {
     var children = blk.getChildren();
     if (children.length == 0)
       blk.setType(null);
