@@ -50,6 +50,10 @@ Blockly.MutatorPlus.prototype.createIcon = function() {
 };
 
 Blockly.MutatorPlus.prototype.iconClick_ = function(e) {
+  if (Blockly.dragMode_ == 2) {
+    // Drag operation is concluding.  Don't treat this as a mutator click.
+    return;
+  }
   if (this.block_.isEditable()) {
       this.block_.updateShape_(1);
   }

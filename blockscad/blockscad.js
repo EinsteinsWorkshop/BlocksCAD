@@ -168,6 +168,9 @@ Blockscad.init = function() {
   BSUtils.bindClick('undoButton', Blockscad.onUndo);
   BSUtils.bindClick('redoButton', Blockscad.onRedo);
 
+  $( '#redrawBlocksButton' ).click(function () {
+    Blockly.fireUiEvent(window, 'resize');
+  })
   $( '#axesButton' ).click(function() {
     // toggle whether or not we draw the axes, then redraw
     Blockscad.drawAxes = (Blockscad.drawAxes + 1) % 2;
@@ -1132,9 +1135,9 @@ Blockscad.workspaceChanged = function () {
       }
     }
     // lets autosave the new blocks to local storage in case of crashes.
-    console.log("trying to autosave blocks");
+    // console.log("trying to autosave blocks");
     var blocks_to_autosave = Blockly.Xml.domToText(Blockscad.undo.current_xml);
-    console.log(blocks_to_autosave);
+    // console.log(blocks_to_autosave);
     BlocklyStorage.autosaveBlocks(Blockly.Xml.domToText(Blockscad.undo.current_xml));
   }
   // even though this isn't a real change, I want to accumulate moves

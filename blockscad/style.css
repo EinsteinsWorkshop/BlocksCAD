@@ -132,8 +132,11 @@ html, body {
 .btn-over-blockly {
 	position: absolute;
 	top: -8px;
-	left: 40%;
+	left: 30%;
 	z-index: 299;
+}
+.tt-show {
+	pointer-events: auto;
 }
 .proj-input {
 	max-width: 30%;

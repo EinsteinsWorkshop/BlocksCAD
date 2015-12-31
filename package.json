@@ -20,10 +20,10 @@
   "author": "",
   "single-instance": true,
   "window": {
-    "toolbar": true,
+    "toolbar": false,
     "title": "BlocksCAD",
-    "width": 1100,
-    "height": 700,
+    "width": 1900,
+    "height": 1200,
     "icon": "ewicon.png"
   },
   "license": "GPL-3.0+",
