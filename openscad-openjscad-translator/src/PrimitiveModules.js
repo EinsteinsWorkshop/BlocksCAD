@@ -152,8 +152,6 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
 
         var resolution = Context.get_fragments_from_r(dummy_size, context);
 
-        str = str.toString();
-
         if (Blockscad.fonts[font]) {
             // Use your font here.
             var path = Blockscad.fonts[font].getPath(str,0,0,size);

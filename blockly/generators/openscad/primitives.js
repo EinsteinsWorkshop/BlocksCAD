@@ -522,6 +522,9 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
   if (value_size && value_size <= 0) {
     Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
   }
+
+  if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
+    this_text = 'str(' + this_text + ')';
   var code = 'text(' + this_text + ', font = "' + this_font +
              '", size = ' + value_size + ');\n';
   return code;
@@ -547,6 +550,9 @@ Blockly.OpenSCAD['bs_3dtext'] = function(block) {
   if (value_thickness && value_thickness <= 0) {
     Blockscad.illegalValue.push(block.inputList[4].connection.targetBlock().id);
   }
+
+  if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
+    this_text = 'str(' + this_text + ')';
   var code = 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
              '  text(' + this_text + ', font = "' + this_font +
              '", size = ' + value_size + ');\n}\n';

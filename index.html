@@ -166,14 +166,26 @@
         </ul> 
         <div class="input-group">
           <span class="input-group-addon" id="proj_name_label">Project Name</span>
-          <input type="text" id="project-name" class="form-control proj-input" value="Untitled" maxlength="24" style="width: 300px;">
+          <input type="text" id="project-name" class="form-control proj-input" value="Untitled" maxlength="28" style="width: 300px;">
         </div>
-        <div class="btn-over-blockly">
+        <div class="btn-over-blockly" style="margin-left: 20px">
+          <button id="redrawBlocksButton" class="btn btn-default notext" type="button"
+            title="Redraw all blocks in workspace." style="margin-right:20px">
+            <img src='imgs/refresh.svg' width='19px' height='19px'>
+          </button>
           <div class="btn-group navbar-btn" role="group" aria-label="...">
-            <button type="button" class="btn btn-default" id="undoButton">Undo</button>
-            <button type="button" class="btn btn-default" id="redoButton">Redo</button>
+            <div style="display: inline-block" title="Undo" style="margin-right:-5px">
+              <button type="button" class="btn btn-default" id="undoButton" style="margin-right: -5px">
+                <img src='imgs/undo.svg' width='25px' height='19px'>
+              </button>
+            </div>
+            <div style="display: inline-block" title="Redo">
+              <button type="button" class="btn btn-default" id="redoButton" style="margin-right: 20px">
+                <img src='imgs/redo.svg' width='25px' height='19px'>
+              </button>
+            </div>
           </div>
-          <button id="trashButton" class="btn btn-default notext">
+          <button id="trashButton" class="btn btn-default notext" title="Delete all blocks">
             <img src='blockly/media/1x1.gif' class="trash icon21">
           </button>
         </div> <!-- undo/redo/trash div --> 

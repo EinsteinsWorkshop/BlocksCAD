@@ -595,7 +595,7 @@ Blockscad.showExample = function(e) {
           console.log("autosaving");
           Blockscad.Auth.saveBlocksToAccount();
           Blockscad.clearProject();
-          Blockscad.clearUndo();
+          // Blockscad.clearUndo();
       }
       else {
         Blockscad.clearProject();
@@ -917,6 +917,18 @@ Blockscad.isRealChange = function() {
         Blockscad.assignBlockTypes([deletedBlockParent]);
         if (deletedBlockParent.type == 'variables_set')
           Blockscad.assignVarTypes(deletedBlockParent);
+      }
+      // if the block that was deleted was a variable_set block, and the only one for that variable name, 
+      // I want to set all the instances to null.  I think I can just send all the instances to 
+      // the variable typing code.
+      if (Blockscad.undo.oldVarNames[deletedBlockPos] != null) {
+        // the deleted block had a variable name associated with it
+        // get all instances with that name? or just send the name?
+        var instances = Blockly.Variables.getInstances(Blockscad.undo.oldVarNames[deletedBlockPos],Blockscad.workspace);
+        for (var k = 0; k < instances.length; k++) {
+          if (instances[k].type == 'variables_get')
+            Blockscad.assignVarTypes(instances[k]);
+        }
       }
     }
     return true;
