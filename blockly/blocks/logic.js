@@ -284,10 +284,8 @@ Blockly.Blocks['logic_compare'] = {
     this.setHelpUrl(Blockly.Msg.LOGIC_COMPARE_HELPURL);
     this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
     this.setOutput(true, 'Boolean');
-    this.appendValueInput('A')
-        .setCheck('Number');
-    this.appendValueInput('B')
-        .setCheck('Number')
+    this.appendValueInput('A');
+     this.appendValueInput('B')
         .appendField(new Blockly.FieldDropdown(OPERATORS), 'OP');
     this.setInputsInline(true);
     // Assign 'this' to a variable for use in the tooltip closure below.
@@ -304,7 +302,32 @@ Blockly.Blocks['logic_compare'] = {
       };
       return TOOLTIPS[op];
     });
+    this.prevBlocks_ = [null, null];
+  },
+  /**
+   * Called whenever anything on the workspace changes.
+   * Prevent mismatched types from being compared.
+   * @this Blockly.Block
+   */
+  onchange: function() {
+    var blockA = this.getInputTargetBlock('A');
+    var blockB = this.getInputTargetBlock('B');
+    // Disconnect blocks that existed prior to this change if they don't match.
+    if (blockA && blockB &&
+        !blockA.outputConnection.checkType_(blockB.outputConnection)) {
+      // Mismatch between two inputs.  Disconnect previous and bump it away.
+      for (var i = 0; i < this.prevBlocks_.length; i++) {
+        var block = this.prevBlocks_[i];
+        if (block === blockA || block === blockB) {
+          block.setParent(null);
+          block.bumpNeighbours_();
+        }
+      }
+    }
+    this.prevBlocks_[0] = blockA;
+    this.prevBlocks_[1] = blockB;
   }
+  
 };
 
 Blockly.Blocks['logic_operation'] = {

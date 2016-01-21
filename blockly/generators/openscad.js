@@ -171,8 +171,8 @@ Blockly.OpenSCAD.quote_ = function(string) {
   // TODO: This is a quick hack.  Replace with goog.string.quote
   string = string.replace(/\\/g, '\\\\')
                  .replace(/\n/g, '\\\n')
-                 .replace(/'/g, '\\\'');
-  return '\'' + string + '\'';
+                 .replace(/"/g, '\\\"');
+  return '"' + string + '"';
 };
 
 /**

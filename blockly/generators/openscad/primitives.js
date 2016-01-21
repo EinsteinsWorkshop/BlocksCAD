@@ -507,23 +507,25 @@ Blockly.OpenSCAD['stl_import'] = function(block) {
   return code;
 };
 
+// 2d text block.  Named before I knew we would be adding a 3D text block.
+
 Blockly.OpenSCAD['bs_text'] = function(block) {
   // var this_text = block.getFieldValue('TEXT');
   var this_text = Blockly.OpenSCAD.valueToCode(block,'TEXT', Blockly.OpenSCAD.ORDER_ATOMIC);
   var this_font = Blockscad.fontName[parseInt(block.getFieldValue('FONT'))];
   var value_size = Blockly.OpenSCAD.valueToCode(block,'SIZE', Blockly.OpenSCAD.ORDER_ATOMIC);
 
-  // escape any quote characters in this_text before passing it to the openscad parser
-  this_text = this_text.replace(/\"/g,"\\\"");
-  this_text = this_text.replace(/\\/g,"\\\\");
   // missing fields?
-  if (!value_size)
+  if (!value_size || !this_text)
     Blockscad.missingFields.push(block.id); 
   // illegal field value?
   if (value_size && value_size <= 0) {
     Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
   }
-  var code = 'text("' + this_text + '", font = "' + this_font +
+
+  if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
+    this_text = 'str(' + this_text + ')';
+  var code = 'text(' + this_text + ', font = "' + this_font +
              '", size = ' + value_size + ');\n';
   return code;
 }
@@ -536,10 +538,10 @@ Blockly.OpenSCAD['bs_3dtext'] = function(block) {
   var value_thickness = Blockly.OpenSCAD.valueToCode(block, 'THICKNESS', Blockly.OpenSCAD.ORDER_ATOMIC);
 
   // escape any quote characters in this_text before passing it to the openscad parser
-  this_text = this_text.replace(/\"/g,"\\\"");
-  this_text = this_text.replace(/\\/g,"\\\\");
+  // this_text = this_text.replace(/\"/g,"\\\"");
+  // this_text = this_text.replace(/\\/g,"\\\\");
   // missing fields?
-  if (!value_size || !value_thickness)
+  if (!value_size || !value_thickness || !this_text)
     Blockscad.missingFields.push(block.id); 
   // illegal field value?
   if (value_size && value_size <= 0) {
@@ -548,19 +550,46 @@ Blockly.OpenSCAD['bs_3dtext'] = function(block) {
   if (value_thickness && value_thickness <= 0) {
     Blockscad.illegalValue.push(block.inputList[4].connection.targetBlock().id);
   }
+
+  if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
+    this_text = 'str(' + this_text + ')';
   var code = 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
-             '  text("' + this_text + '", font = "' + this_font +
+             '  text(' + this_text + ', font = "' + this_font +
              '", size = ' + value_size + ');\n}\n';
   return code;
 }
 
 Blockly.OpenSCAD['text'] = function(block) {
-  var code = block.getFieldValue('TEXT');
+
+  // Text value.
+  var code = Blockly.OpenSCAD.quote_(block.getFieldValue('TEXT'));
+
+  // var code = '"' + block.getFieldValue('TEXT') + '"';
   if (!block.getParent())
     return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
   else
     return [code,Blockly.OpenSCAD.ORDER_ATOMIC];
 }
+
+// OpenSCAD does not implement a text length function.  This isn't a problem
+// for BlocksCAD, because we can just compute the actual length of the string in
+// the code and use that number directly.  
+// However, it is a problem for someone who is exporting the openscad code to
+// run in openscad.  What is the best way to accomplish this?  A warning at the 
+// top of the openscad file?  A popup warning when you export the openscad code?
+// both?  Adding a string length function to openscad? (heh)
+Blockly.OpenSCAD['bs_text_length'] = function(block) {
+  // String length.
+  var argument0 = Blockly.OpenSCAD.valueToCode(block, 'VALUE',
+      Blockly.OpenSCAD.ORDER_FUNCTION_CALL) || '\'\'';
+  var code = 'len(' + argument0 + ')';
+
+  if (!block.getParent())
+    return ['//' + code, Blockly.OpenSCAD.ORDER_ATOMIC];
+  else
+    return [code,Blockly.OpenSCAD.ORDER_ATOMIC];
+}
+
 // hexTo(RGB) take a blockly color string '#00ff88' for example, including the quotes
 // and returns RGB values.  
 

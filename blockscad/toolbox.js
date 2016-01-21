@@ -523,7 +523,6 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
     '</category>';
 
 Blockscad.Toolbox.catOther = '<category name="Text">' +
-      '<block type="text"></block>' +
       '<block type="bs_text">' + 
         '<value name="TEXT">' + 
           '<block type="text">' +
@@ -551,6 +550,8 @@ Blockscad.Toolbox.catOther = '<category name="Text">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="text"></block>' +
+      '<block type="bs_text_length"></block>' +
       // '<block type="rotateextrudetwist">' +
       //   '<value name="RAD">' +
       //     '<block type="math_number">' +
