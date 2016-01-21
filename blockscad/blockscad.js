@@ -31,7 +31,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.1.2";
 
-Blockscad.offline = true;  // true unless using a cloud service backend for file management
+Blockscad.offline = false;  // true unless using a cloud service backend for file management
 
 // -- BEGIN OPENJSCAD STUFF --
 
@@ -885,7 +885,7 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
-    if (Blockscad.undo.blockList[i].type == "variables_set" || "variables_get")
+    if (Blockscad.undo.blockList[i].type == "variables_set" || Blockscad.undo.blockList[i].type == "variables_get")
       Blockscad.undo.varNames[i] = Blockscad.undo.blockList[i].getFieldValue('VAR');
     else
       Blockscad.undo.varNames[i] = null;
