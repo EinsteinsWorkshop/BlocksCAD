@@ -1,4 +1,4 @@
-<xml xmlns="http://www.w3.org/1999/xhtml"><version num="1.1.2"></version><block type="variables_set" id="102" x="-1853" y="2"><field name="VAR">size</field><comment pinned="true" h="142" w="704">A trefoil knot can be described by these parametric equations:
+<xml xmlns="http://blockscad.einsteinsworkshop.com"><version num="1.1.2"></version><block type="variables_set" id="102" x="-1853" y="2"><field name="VAR">size</field><comment pinned="true" h="142" w="704">A trefoil knot can be described by these parametric equations:
 x(t) = sin(t) + 2sin(2t)
 y(t) = cos(t) - 2cos(2t)
 z(t) = -sin(3t)

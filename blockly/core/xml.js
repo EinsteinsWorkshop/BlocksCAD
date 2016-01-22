@@ -44,6 +44,9 @@ Blockly.Xml.workspaceToDom = function(workspace) {
     width = workspace.getWidth();
   }
   var xml = goog.dom.createDom('xml');
+  // set xml namespace for blockscad
+  xml.setAttribute('xmlns', 'http://blockscad.einsteinsworkshop.com');
+  
   var blocks = workspace.getTopBlocks(true);
 
   // For BlocksCAD: add version information
