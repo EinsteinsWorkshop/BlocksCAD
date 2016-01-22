@@ -7549,7 +7549,16 @@ for solid CAD anyway.
             var twistangle = CSG.parseOptionAsFloat(options, "twistangle", 0);
             var twiststeps = CSG.parseOptionAsInt(options, "twiststeps", CSG.defaultResolution3D);
             var scale = CSG.parseOptionAs2DVector(options, "scale", [1,1]);
-            console.log("scale option is:", scale);
+
+            // to match openscad behavior, set scale values of less than 0 to 0.0001 (because 0 seems to break interactions with other CSGs).
+            var xscale = scale.x;
+            var yscale = scale.y;
+            if (xscale < 0.0001)
+                xscale = 0.0001;
+            if (yscale < 0.0001)
+                yscale = 0.0001;
+
+            console.log("scale option is x: " + xscale + " y: " + yscale);
             if (offsetVector.z == 0) {
                 throw('offset cannot be orthogonal to Z axis');
             }
@@ -7583,8 +7592,8 @@ for solid CAD anyway.
                 newVert = [];
                 for (var j = 0; j < polygons[i].vertices.length; j++) {
                     var z = polygons[i].vertices[j].pos.z;
-                    var x = polygons[i].vertices[j].pos._x * ( 1 + ((scale.x - 1) * z / offsetVector.z));
-                    var y = polygons[i].vertices[j].pos._y *  (1 + ((scale.y - 1) * z / offsetVector.z));
+                    var x = polygons[i].vertices[j].pos._x * ( 1 + ((xscale - 1) * z / offsetVector.z));
+                    var y = polygons[i].vertices[j].pos._y *  (1 + ((yscale - 1) * z / offsetVector.z));
                     newVert[j] = [x,y,z];
                 }
                 newPolys[i] = new CSG.Polygon.createFromPoints(newVert);
