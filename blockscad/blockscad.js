@@ -337,7 +337,7 @@ Blockscad.init = function() {
         else {
           // lets make some xml and load a block into the workspace.
           // console.log("making block from xml");
-          var xml = '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
+          var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
           f.name + '</field>' + '<field name="STL_BUTTON">Browse</field>' + 
           '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
           //console.log("xml is:",xml);
