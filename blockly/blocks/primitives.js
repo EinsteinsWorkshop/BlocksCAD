@@ -1149,6 +1149,17 @@ Blockly.Blocks['linearextrude'] = {
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown([['is not centered', 'false'], ['is centered', 'true']]), 'CENTERDROPDOWN')
         .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendDummyInput()
+        .appendField('scale: ')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('XSCALE')
+        .setCheck('Number')
+        .appendField('x')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('YSCALE')
+        .setCheck('Number')
+        .appendField('y')
+        .setAlign(Blockly.ALIGN_RIGHT);
     this.appendStatementInput('A')
         .setCheck('CAG');
     this.setInputsInline(true);
