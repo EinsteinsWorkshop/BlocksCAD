@@ -829,7 +829,11 @@ Blockscad.renderCode = function(code) {
   var code_good = true;
     try {
    // console.log("code was: ",code);
-   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); }, 0);
+   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
+                                  console.log(csgcode);
+                                }, 0);
+
+
    //code = openscadOpenJscadParser.parse(code);
    //console.log("code is now:",code);
   }
@@ -885,7 +889,7 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
-    if (Blockscad.undo.blockList[i].type == "variables_set" || "variables_get")
+    if (Blockscad.undo.blockList[i].type == "variables_set" || Blockscad.undo.blockList[i].type == "variables_get")
       Blockscad.undo.varNames[i] = Blockscad.undo.blockList[i].getFieldValue('VAR');
     else
       Blockscad.undo.varNames[i] = null;

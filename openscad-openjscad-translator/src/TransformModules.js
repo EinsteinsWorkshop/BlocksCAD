@@ -254,6 +254,8 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
         var center = Context.contextVariableLookup(context, "center", false);
         var twist = Number(Context.contextVariableLookup(context, "twist", 0))/-1; // note inverse for openjscad
         var slices = Context.contextVariableLookup(context, "slices", undefined);
+        var scale = Context.contextVariableLookup(context, "scale", [1,1]);
+        // console.log("in parser.  scale var is:", scale);
         var fn = Context.contextVariableLookup(context, "$fn", Globals.FN_DEFAULT);
         var fs = Context.contextVariableLookup(context, "$fs", Globals.FS_DEFAULT);
         var fa = Context.contextVariableLookup(context, "$fa", Globals.FA_DEFAULT);
@@ -263,7 +265,7 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
         }
 
         return this.transformChildren(inst.children, context, function(){
-            var template = _.template(".extrude({offset: [0, 0, <%=height%>], twistangle: <%=twist%>,twiststeps: <%=slices%>})", {height:height, twist:twist, slices:slices});
+            var template = _.template(".extrude({offset: [0, 0, <%=height%>], twistangle: <%=twist%>,twiststeps: <%=slices%>, scale: [<%=scale%>]})", {height:height, twist:twist, slices:slices,scale:scale});
             if (center){
                 var offset = -height/2;
                 template += _.template(".translate([0,0,<%=offset%>])", {offset:offset});

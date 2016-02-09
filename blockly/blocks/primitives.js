@@ -1146,14 +1146,26 @@ Blockly.Blocks['linearextrude'] = {
         .setCheck('Number')
         .appendField('twist')
         .setAlign(Blockly.ALIGN_RIGHT);
+    // this.appendDummyInput()
+    //     .appendField('scale: ')
+    //     .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('XSCALE')
+        .setCheck('Number')
+        .appendField('scale: x')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('YSCALE')
+        .setCheck('Number')
+        .appendField('y')
+        .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown([['is not centered', 'false'], ['is centered', 'true']]), 'CENTERDROPDOWN')
         .setAlign(Blockly.ALIGN_RIGHT);
+
     this.appendStatementInput('A')
         .setCheck('CAG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Extrudes one or more 2-dimensional objects by a specified height with a specified twist. Resulting extrusion may optionally be centered around the origin.');
+    this.setTooltip('Extrudes one or more 2-dimensional objects by a specified height with a specified twist. Shape can be scaled as it extrudes in both x and y. Resulting extrusion may optionally be centered around the origin.');
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;

@@ -437,6 +437,8 @@ Blockly.OpenSCAD['square'] = function(block) {
 Blockly.OpenSCAD['linearextrude'] = function(block) {
   var value_height = Blockly.OpenSCAD.valueToCode(block, 'HEIGHT', Blockly.OpenSCAD.ORDER_ATOMIC);
   var value_twist = Blockly.OpenSCAD.valueToCode(block, 'TWIST', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value_xscale = Blockly.OpenSCAD.valueToCode(block, 'XSCALE', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value_yscale = Blockly.OpenSCAD.valueToCode(block, 'YSCALE', Blockly.OpenSCAD.ORDER_ATOMIC);
   var dropdown_center = block.getFieldValue('CENTERDROPDOWN');
   var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
   if (statements_a != '') statements_a += '\n';
@@ -452,7 +454,8 @@ Blockly.OpenSCAD['linearextrude'] = function(block) {
     Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
   }
 
-  var code = 'linear_extrude( height=' + value_height + ', twist=' + value_twist + ', center=' + dropdown_center + '){\n' + statements_a + '}';
+  var code = 'linear_extrude( height=' + value_height + ', twist=' + value_twist + 
+             ', scale=[' + value_xscale + ', ' + value_yscale + '], center=' + dropdown_center + '){\n' + statements_a + '}';
   return code;
 };
 

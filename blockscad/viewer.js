@@ -539,32 +539,36 @@ Blockscad.Viewer.prototype = {
 
       if(1) {
         //can I draw in an x just by drawing lines?  Text is hard.  - JY
+
+        // sf is a size factor (inverse).  The smaller this number, the larger
+        // the x,y,z labels will be.
+        var sf = 80;
         gl.color(0,0,0,1);  // black?
-        gl.vertex(plate/2 + 1*plate/160,-1*plate/160,0);
-        gl.vertex(plate/2 + 3*plate/160,1*plate/160,0);
+        gl.vertex(plate/2 + 1*plate/sf,-1*plate/sf,0);
+        gl.vertex(plate/2 + 3*plate/sf,1*plate/sf,0);
         
-        gl.vertex(plate/2+1*plate/160,1*plate/160,0);
-        gl.vertex(plate/2+3*plate/160,-1*plate/160,0);
+        gl.vertex(plate/2+1*plate/sf,1*plate/sf,0);
+        gl.vertex(plate/2+3*plate/sf,-1*plate/sf,0);
 
         // drawing in a "y" - JY
-        gl.vertex(-1*plate/160,plate/2 + 4*plate/160,0);
-        gl.vertex(0,plate/2+3*plate/160,0);
+        gl.vertex(-1*plate/sf,plate/2 + 4*plate/sf,0);
+        gl.vertex(0,plate/2+3*plate/sf,0);
         
-        gl.vertex(0,plate/2+3*plate/160,0);
-        gl.vertex(1*plate/160,plate/2+4*plate/160,0);
+        gl.vertex(0,plate/2+3*plate/sf,0);
+        gl.vertex(1*plate/sf,plate/2+4*plate/sf,0);
         
-        gl.vertex(0,plate/2+1*plate/160,0);
-        gl.vertex(0,plate/2+3*plate/160,0);
+        gl.vertex(0,plate/2+1*plate/sf,0);
+        gl.vertex(0,plate/2+3*plate/sf,0);
 
         // why not a "z" - JY
-        gl.vertex(-1*plate/160,0,plate/2.8+3*plate/160);
-        gl.vertex(1*plate/160,0,plate/2.8+3*plate/160);
+        gl.vertex(-1*plate/sf,0,plate/2.8+3*plate/sf);
+        gl.vertex(1*plate/sf,0,plate/2.8+3*plate/sf);
 
-        gl.vertex(-1*plate/160,0,plate/2.8+1*plate/160);
-        gl.vertex(1*plate/160,0,plate/2.8+1*plate/160);
+        gl.vertex(-1*plate/sf,0,plate/2.8+1*plate/sf);
+        gl.vertex(1*plate/sf,0,plate/2.8+1*plate/sf);
 
-        gl.vertex(-1*plate/160,0,plate/2.8+1*plate/160);
-        gl.vertex(1*plate/160,0,plate/2.8+3*plate/160);
+        gl.vertex(-1*plate/sf,0,plate/2.8+1*plate/sf);
+        gl.vertex(1*plate/sf,0,plate/2.8+3*plate/sf);
 
       }
       gl.end();

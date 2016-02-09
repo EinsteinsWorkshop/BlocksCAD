@@ -291,6 +291,16 @@ Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
             '<field name="NUM">0</field>' +
           '</block>' +
         '</value>' +
+        '<value name="XSCALE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="YSCALE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' +
+        '</value>' +
       '</block>' +
       '<block type="rotateextrude">' +
         '<value name="FACES">' +
