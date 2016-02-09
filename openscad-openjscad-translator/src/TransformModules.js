@@ -255,7 +255,7 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
         var twist = Number(Context.contextVariableLookup(context, "twist", 0))/-1; // note inverse for openjscad
         var slices = Context.contextVariableLookup(context, "slices", undefined);
         var scale = Context.contextVariableLookup(context, "scale", [1,1]);
-        console.log("in parser.  scale var is:", scale);
+        // console.log("in parser.  scale var is:", scale);
         var fn = Context.contextVariableLookup(context, "$fn", Globals.FN_DEFAULT);
         var fs = Context.contextVariableLookup(context, "$fs", Globals.FS_DEFAULT);
         var fa = Context.contextVariableLookup(context, "$fa", Globals.FA_DEFAULT);

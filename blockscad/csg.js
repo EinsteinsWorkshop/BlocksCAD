@@ -7558,7 +7558,7 @@ for solid CAD anyway.
             if (yscale < 0.0001)
                 yscale = 0.0001;
 
-            console.log("scale option is x: " + xscale + " y: " + yscale);
+            // console.log("scale option is x: " + xscale + " y: " + yscale);
             if (offsetVector.z == 0) {
                 throw('offset cannot be orthogonal to Z axis');
             }
@@ -7585,7 +7585,7 @@ for solid CAD anyway.
             // go through all polygons.  Scale x and y points based on scale * z_point / offsetVector.z
             // console.log(polygons); 
             var newPolys = [];
-            console.log(offsetVector.z);
+            // console.log(offsetVector.z);
             var newVert = [];
             for (var i = 0; i < polygons.length; i++) {
                 // console.log("scaling a polygon");
