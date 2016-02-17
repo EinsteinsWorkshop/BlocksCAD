@@ -187,7 +187,7 @@ Blockscad.init = function() {
 
 
   // I think the render button should start out disabled.
-  $('#renderButton').prop('disabled', true); 
+  // $('#renderButton').prop('disabled', true); 
 
   // set up the delete-confirm button's function.
   $('#throw-it-away').click(function() {
@@ -357,7 +357,7 @@ Blockscad.init = function() {
       // switch us back to the blocks tab in case we were on the code tab.
       $('#displayBlocks').click();
       // enable the render button.
-      $('#renderButton').prop('disabled', false);       
+      // $('#renderButton').prop('disabled', false);       
 
     } else { 
       alert("Failed to load file");
@@ -730,30 +730,30 @@ Blockscad.doRender = function() {
   // Clear the previously rendered model
   gProcessor.clearViewer();
 
+  // check to see if the code mixes 2D and 3D shapes to give a good error message
   var mixes = Blockscad.mixes2and3D();
 
   if (mixes[1] === 0) { // doesn't have any CSG or CAG shapes at all!
     $( '#error-message' ).html("Error: Nothing to Render");
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     // HACK: file load is too slow - if user tries to render during file load
     // they get the "no objects to render" message.  Enable the render button.
     //$('#renderButton').prop('disabled', false); 
     return;
   }
 
-
-
-
   if (mixes[0]) {    // has both 2D and 3D shapes
     $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     return;
   }
 
-
-
-
-
+  // check for missing fields and illegal values in blocks.  Highlight them for the user
+  // and give an error message.
   Blockscad.missingFields = [];
   Blockscad.illegalValue = [];
   var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace);
@@ -805,6 +805,8 @@ Blockscad.doRender = function() {
 
     $( '#error-message' ).html(errText);
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     return;
   }
   Blockscad.loadTheseFonts = Blockscad.whichFonts(code);

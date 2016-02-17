@@ -71,7 +71,7 @@ Blockly.Blocks['cylinder'] = {
         .appendField(new Blockly.FieldDropdown([['not centered', 'false'], ['centered', 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a  with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
+    this.setTooltip('Creates a cylinder with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
   },
   onchange: function() {
     if (!this.workspace) {

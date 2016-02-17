@@ -1129,6 +1129,7 @@ Blockscad.Processor.prototype = {
     this.clearViewer();
     this.processing = true;
     $( '#renderButton' ).html("Render");
+    $( '#renderButton' ).prop('disabled', false);
     //this.statusspan.innerHTML = "Rendering code <img id=busy src='imgs/busy.gif'>";
     this.enableItems();
     var that = this;
