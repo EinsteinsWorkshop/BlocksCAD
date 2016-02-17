@@ -28,8 +28,8 @@ Blockscad.fonts = {};
 
 
 // List and location of fonts to load into BlocksCAD
-Blockscad.fontList = ['/fonts/liberation/LiberationSerif-Bold.ttf',
-                      '/fonts/Roboto/Roboto-Bold.ttf',
+Blockscad.fontList = ['/fonts/Roboto/Roboto-Bold.ttf',
+                      '/fonts/liberation/LiberationSerif-Bold.ttf',
                       '/fonts/nimbus/nimbus-sans-l_bold.ttf',
                       '/fonts/AverageMono/AverageMonoSimp.ttf',
                       '/fonts/Open_Sans/OpenSans-ExtraBold.ttf',
@@ -37,8 +37,8 @@ Blockscad.fontList = ['/fonts/liberation/LiberationSerif-Bold.ttf',
                       '/fonts/bangers/Bangers.ttf'];
 
 // display names for fonts, used in font block (also used to key fonts object)
-Blockscad.fontName = ['Liberation Serif',
-                      'Roboto',
+Blockscad.fontName = ['Roboto',
+                      'Liberation Serif',
                       'Nimbus Sans',
                       'Average Mono',
                       'Open Sans',

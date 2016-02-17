@@ -29,7 +29,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.1.2";
+Blockscad.version = "1.2.0";
 
 Blockscad.offline = false;  // true unless using a cloud service backend for file management
 
@@ -187,7 +187,7 @@ Blockscad.init = function() {
 
 
   // I think the render button should start out disabled.
-  $('#renderButton').prop('disabled', true); 
+  // $('#renderButton').prop('disabled', true); 
 
   // set up the delete-confirm button's function.
   $('#throw-it-away').click(function() {
@@ -337,7 +337,7 @@ Blockscad.init = function() {
         else {
           // lets make some xml and load a block into the workspace.
           // console.log("making block from xml");
-          var xml = '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
+          var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
           f.name + '</field>' + '<field name="STL_BUTTON">Browse</field>' + 
           '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
           //console.log("xml is:",xml);
@@ -357,7 +357,7 @@ Blockscad.init = function() {
       // switch us back to the blocks tab in case we were on the code tab.
       $('#displayBlocks').click();
       // enable the render button.
-      $('#renderButton').prop('disabled', false);       
+      // $('#renderButton').prop('disabled', false);       
 
     } else { 
       alert("Failed to load file");
@@ -730,30 +730,30 @@ Blockscad.doRender = function() {
   // Clear the previously rendered model
   gProcessor.clearViewer();
 
+  // check to see if the code mixes 2D and 3D shapes to give a good error message
   var mixes = Blockscad.mixes2and3D();
 
   if (mixes[1] === 0) { // doesn't have any CSG or CAG shapes at all!
     $( '#error-message' ).html("Error: Nothing to Render");
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     // HACK: file load is too slow - if user tries to render during file load
     // they get the "no objects to render" message.  Enable the render button.
     //$('#renderButton').prop('disabled', false); 
     return;
   }
 
-
-
-
   if (mixes[0]) {    // has both 2D and 3D shapes
     $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     return;
   }
 
-
-
-
-
+  // check for missing fields and illegal values in blocks.  Highlight them for the user
+  // and give an error message.
   Blockscad.missingFields = [];
   Blockscad.illegalValue = [];
   var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace);
@@ -805,6 +805,8 @@ Blockscad.doRender = function() {
 
     $( '#error-message' ).html(errText);
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     return;
   }
   Blockscad.loadTheseFonts = Blockscad.whichFonts(code);
@@ -829,7 +831,11 @@ Blockscad.renderCode = function(code) {
   var code_good = true;
     try {
    // console.log("code was: ",code);
-   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); }, 0);
+   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
+                                  console.log(csgcode);
+                                }, 0);
+
+
    //code = openscadOpenJscadParser.parse(code);
    //console.log("code is now:",code);
   }

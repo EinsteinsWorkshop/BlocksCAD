@@ -7534,7 +7534,7 @@ for solid CAD anyway.
             return this.extrudeInOrthonormalBasis(CSG.OrthoNormalBasis.GetCartesian(axis1, axis2), depth);
         },
 
-        // extruded=cag.extrude({offset: [0,0,10], twistangle: 360, twiststeps: 100});
+        // extruded=cag.extrude({offset: [0,0,10], twistangle: 360, twiststeps: 100, scale: 1});
         // linear extrusion of 2D shape, with optional twist
         // The 2d shape is placed in in z=0 plane and extruded into direction <offset> (a CSG.Vector3D)
         // The final face is rotated <twistangle> degrees. Rotation is done around the origin of the 2d shape (i.e. x=0, y=0)
@@ -7548,6 +7548,17 @@ for solid CAD anyway.
             var offsetVector = CSG.parseOptionAs3DVector(options, "offset", [0, 0, 1]);
             var twistangle = CSG.parseOptionAsFloat(options, "twistangle", 0);
             var twiststeps = CSG.parseOptionAsInt(options, "twiststeps", CSG.defaultResolution3D);
+            var scale = CSG.parseOptionAs2DVector(options, "scale", [1,1]);
+
+            // to match openscad behavior, set scale values of less than 0 to 0.0001 (because 0 seems to break interactions with other CSGs).
+            var xscale = scale.x;
+            var yscale = scale.y;
+            if (xscale < 0.0001)
+                xscale = 0.0001;
+            if (yscale < 0.0001)
+                yscale = 0.0001;
+
+            // console.log("scale option is x: " + xscale + " y: " + yscale);
             if (offsetVector.z == 0) {
                 throw('offset cannot be orthogonal to Z axis');
             }
@@ -7571,7 +7582,24 @@ for solid CAD anyway.
                 polygons = polygons.concat(this._toWallPolygons({toConnector1: c1, toConnector2: c2}));
             }
 
-            return CSG.fromPolygons(polygons);
+            // go through all polygons.  Scale x and y points based on scale * z_point / offsetVector.z
+            // console.log(polygons); 
+            var newPolys = [];
+            // console.log(offsetVector.z);
+            var newVert = [];
+            for (var i = 0; i < polygons.length; i++) {
+                // console.log("scaling a polygon");
+                newVert = [];
+                for (var j = 0; j < polygons[i].vertices.length; j++) {
+                    var z = polygons[i].vertices[j].pos.z;
+                    var x = polygons[i].vertices[j].pos._x * ( 1 + ((xscale - 1) * z / offsetVector.z));
+                    var y = polygons[i].vertices[j].pos._y *  (1 + ((yscale - 1) * z / offsetVector.z));
+                    newVert[j] = [x,y,z];
+                }
+                newPolys[i] = new CSG.Polygon.createFromPoints(newVert);
+                newPolys[i].shared = polygons[i].shared;
+            }
+            return CSG.fromPolygons(newPolys);
         },
 
         /*
