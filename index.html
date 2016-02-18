@@ -52,9 +52,9 @@
   <script type="text/javascript" src="blockscad/text.js"></script>
   <script src="blockscad/lightgl.js"></script>
 
-  <!--
+
   <script type="text/javascript" src="backend_compressed.js"></script> 
-  -->
+
   <!-- viewer stuff -->
   <!--<script type="text/javascript" src="blockscad/viewer_compressed.js"></script>-->
   <script type="text/javascript" src="blockscad/csg.js"></script>
@@ -499,6 +499,38 @@
       </div>
     </div>
   </div> <!-- end of password recovery email sent modal -->
+    <!--  do you want to save? popup -->
+  <div id="want-to-save" class="modal">
+    <div class="modal-dialog modal-sm" style="width:400px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 >Want to Save your current Project?</h4>
+        </div>
+        <div class="modal-footer">
+            <button id="please-save-it" class="button btn-default btn-lg primary" style="margin-right:90px" type="button" aria-label="Save" 
+            data-dismiss="modal" data-target="#want-to-save">Yes</button> 
+            <button id="throw-it-away" class="button btn-lg btn-default primary pull-left" aria-label="Okay" style="margin-left:90px" type="button" 
+            data-dismiss="modal" data-target="#want-to-save">No</button> 
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div> <!-- end of want-to-save popup -->
+    <!--  save-on-project-list popup -->
+  <div id="proj-list-save-prompt" class="modal">
+    <div class="modal-dialog modal-sm" style="width:400px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 >Want to Save your current Project?</h4>
+        </div>
+        <div class="modal-footer">
+            <button id="pl-save" class="button btn-default btn-lg primary" style="margin-right:90px" type="button" aria-label="Save" 
+            data-dismiss="modal" data-target="#proj-list-save-prompt">Yes</button> 
+            <button id="pl-dump" class="button btn-lg btn-default primary pull-left" aria-label="Okay" style="margin-left:90px" type="button" 
+            data-dismiss="modal" data-target="#proj-list-save-prompt">No</button> 
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div> <!-- end of save-on-project-list popup -->
   <!--  delete confirm popup -->
   <div id="delete-confirm" class="modal">
     <div class="modal-dialog modal-sm" style="width:400px">

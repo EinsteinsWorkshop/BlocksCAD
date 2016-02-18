@@ -31,7 +31,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.1.2";
 
-Blockscad.offline = true;  // true unless using a cloud service backend for file management
+Blockscad.offline = false;  // true unless using a cloud service backend for file management
 
 // -- BEGIN OPENJSCAD STUFF --
 
@@ -188,6 +188,21 @@ Blockscad.init = function() {
 
   // I think the render button should start out disabled.
   // $('#renderButton').prop('disabled', true); 
+
+  // set up want-to-save save function
+
+  $('#please-save-it').click(function() {
+    if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
+        Blockscad.Auth.saveBlocksToAccount();
+    }
+    else {
+      // i'm not logged into an account.  Save blocks locally.
+      Blockscad.saveBlocksLocal();
+    }
+    Blockscad.clearProject();
+    Blockscad.workspaceChanged();
+    Blockscad.clearUndo();   
+  });
 
   // set up the delete-confirm button's function.
   $('#throw-it-away').click(function() {
@@ -556,26 +571,22 @@ Blockscad.newProject = function() {
   // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
   // if the user is logged in, I should auto-save to the backend.
   console.log("in Blockscad.newProject");
-  if (Blockscad.undo.undoStack.length > 0) {
-    if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
-        console.log("autosaving");
-        Blockscad.Auth.saveBlocksToAccount();
-        Blockscad.clearProject();
-        Blockscad.workspaceChanged();
-        Blockscad.clearUndo();
-    }
-    else {
-      // I'm going to ask if they really want to delete their current work.
-      // the modal's "yes, throw it away" button will actually do the deleting.
-      $('#delete-confirm').modal('show');
-    }
-  }
-  else  {
-    Blockscad.clearProject();
-    Blockscad.workspaceChanged();
-    Blockscad.clearUndo();
-  }
-
+  console.log("undo stack length is: ", Blockscad.undo.undoStack.length);
+  // if (Blockscad.undo.undoStack.length > 0) {
+    // if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
+    //     console.log("autosaving");
+    //     Blockscad.Auth.saveBlocksToAccount();
+    //     Blockscad.clearProject();
+    //     Blockscad.workspaceChanged();
+    //     Blockscad.clearUndo();
+    // }
+    // else {
+    //   // I'm going to ask if they really want to delete their current work.
+    //   // the modal's "yes, throw it away" button will actually do the deleting.
+    //   $('#delete-confirm').modal('show');
+    // }
+    $('#want-to-save').modal('show');
+  // }
   // if the user was on the code tab, switch them to the blocks tab.
   $('#displayBlocks').click();
 };
@@ -931,7 +942,7 @@ Blockscad.isRealChange = function() {
         // the deleted block had a variable name associated with it
         // get all instances with that name? or just send the name?
         var instances = Blockly.Variables.getInstances(Blockscad.undo.oldVarNames[deletedBlockPos],Blockscad.workspace);
-        for (var k = 0; k < instances.length; k++) {
+        for (var k = 0; instances && k < instances.length; k++) {
           if (instances[k].type == 'variables_get')
             Blockscad.assignVarTypes(instances[k]);
         }
