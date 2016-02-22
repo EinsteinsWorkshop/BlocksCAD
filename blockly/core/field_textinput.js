@@ -296,7 +296,7 @@ Blockly.FieldTextInput.prototype.widgetDispose_ = function() {
     style.fontSize = '';
     // For locking cylinders, I want to know when the user is done using the editor so 
     // I can re-set the ratio of the radii.  Can I trigger a call to that function here?
-    if (thisField.sourceBlock_)
+    if (thisField.sourceBlock_.workspace)
       thisField.sourceBlock_.workspace.fireEditorEvent();
   };
 };

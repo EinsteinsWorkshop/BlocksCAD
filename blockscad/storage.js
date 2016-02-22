@@ -67,7 +67,7 @@ BlocklyStorage.restoreBlocks = function() {
   var url = window.location.href.split('#')[0];
   var url2 = url + "proj_name";
   var url3 = url + "current_project";
-  console.log(window.localStorage);
+  // console.log(window.localStorage);
   if ('localStorage' in window && window.localStorage[url]) {
     var xml = Blockly.Xml.textToDom(window.localStorage[url]);
     Blockly.Xml.domToWorkspace(Blockscad.workspace, xml);
@@ -98,7 +98,7 @@ BlocklyStorage.restoreBlocks = function() {
           }
           else {
             // The xml thinks there should be stl data here, but I can't find it.  Clear the block.
-            console.log("couldn't find the stuff in localStorage");
+            console.log("couldn't find the stl in localStorage");
 
             // set a warning message in the render pane
 
@@ -151,5 +151,6 @@ BlocklyStorage.restoreBlocks = function() {
       Blockscad.Auth.currentProject = current_project;
     }
     else Blockscad.Auth.currentProject = '';
+
   }
 };

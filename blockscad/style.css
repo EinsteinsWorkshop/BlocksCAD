@@ -159,7 +159,18 @@ html, body {
 	z-index: 500;
 }
 
+.giant-yes {
+	padding-left: 45px;
+	padding-right: 45px;
+}
  
+.save-message {
+	position:relative;
+	top:3px;
+	display:inline-block;
+	padding-right:15px;
+	font-size: 18px;
+}
 .content {
   margin: 0;
   padding: 20px;
