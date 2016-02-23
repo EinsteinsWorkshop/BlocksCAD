@@ -55,7 +55,6 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 Blockscad.init = function() {
   Blockscad.initLanguage();
 
-
   // version of input files/projects
   Blockscad.inputVersion = Blockscad.version;
 
@@ -189,72 +188,13 @@ Blockscad.init = function() {
   // I think the render button should start out disabled.
   // $('#renderButton').prop('disabled', true); 
 
-  // set up want-to-save save function
-
-  $('#please-save-it').click(function() {
-    if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
-        Blockscad.Auth.saveBlocksToAccount();
-    }
-    else {
-      // i'm not logged into an account.  Save blocks locally.
-      Blockscad.saveBlocksLocal();
-    }
-    Blockscad.clearProject();
-    Blockscad.workspaceChanged();
-    Blockscad.clearUndo();   
-    console.log("setting needToSave to 0");
-    Blockscad.undo.needToSave = 0;
-  });
-
-  // set up the delete-confirm button's function.
-  $('#throw-it-away').click(function() {
-    Blockscad.clearProject();
-    Blockscad.workspaceChanged();
-    Blockscad.clearUndo();
-    console.log("setting needToSave to 0");
-    Blockscad.undo.needToSave = 0;
-  });
-
   // handle the project->new menu option
   $('#main').on('click', '.new-project', Blockscad.newProject);
 
-
-  $('#file-menu').on('change', '#loadLocal', function(e) { 
-    var evt = e;
-    if (evt.target.files.length) {
-      $('#delete-confirm').modal('show');
-    }
-
-    // I seem to need to define the fl-yes and fl-no bindings inside loadlocal
-    // in order to keep track of the file event.
-    // to prevent multiple bindings when loadlocal is called multiple times
-    // I turn the bindings off on clicks. 
-    
-    $('#fl-yes').on('click', function() {
-      console.log("someone clicked fl-yes");
-
-      if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) {
-        Blockscad.Auth.saveBlocksToAccount();
-      }
-      else {
-        Blockscad.saveBlocksLocal();
-      }
-      readSingleFile(evt, true);
-      $('#fl-yes').off('click');
-      $('#fl-no').off('click');
-    });
-
-    $('#fl-no').on('click', function() {
-      readSingleFile(evt, true);
-      $('#fl-yes').off('click');
-      $('#fl-no').off('click');
-    });
-  });
-
+  // handle the project->load (blocks, stl, import blocks)  options
+  $('#file-menu').on('change', '#loadLocal', function(e) { Blockscad.loadLocalBlocks(e);});
   $('#file-menu').on('change', '#importLocal', function(e) { readSingleFile(e, false);});
   $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
-//End FileSaver.js stuff
-
 
   //Create the openjscad processing object instance
   gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
@@ -312,7 +252,7 @@ Blockscad.init = function() {
 
   // toolbox toggle handlers
   $('#simpleToolbox').on('click', function() {
-    console.log("switching to simple toolbox");
+    // console.log("switching to simple toolbox");
     $('#simpleToolbox').hide();
     $('#advancedToolbox').show();
     if (Blockscad.workspace) {
@@ -322,7 +262,7 @@ Blockscad.init = function() {
     }
   });
   $('#advancedToolbox').on('click', function() {
-    console.log("switching to advanced toolbox");
+    // console.log("switching to advanced toolbox");
     $('#advancedToolbox').hide();
     $('#simpleToolbox').show();
     if (Blockscad.workspace) {
@@ -333,7 +273,7 @@ Blockscad.init = function() {
 
   });
   $('#colors_one').on('click', function() {
-    console.log("switching block color scheme");
+    // console.log("switching block color scheme");
     if (Blockscad.workspace) {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
       Blockscad.Toolbox.setCatColors();
@@ -343,7 +283,7 @@ Blockscad.init = function() {
 
   });
   $('#colors_two').on('click', function() {
-    console.log("switching block color scheme");
+    // console.log("switching block color scheme");
     if (Blockscad.workspace) {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['two']);
       Blockscad.Toolbox.setCatColors();
@@ -386,8 +326,36 @@ Blockscad.init = function() {
       root.find('.sub-menu:visible').hide();
     });
   });
-
 }; // end Blockscad.init()
+
+
+Blockscad.loadLocalBlocks = function(e) {
+  var evt = e;
+  if (evt.target.files.length) {
+    if (Blockscad.undo.needToSave) {
+      promptForSave().then(function(wantToSave) {
+        if (wantToSave=="cancel") 
+          return;
+        if (wantToSave=="save")
+          Blockscad.saveBlocks();
+        // else 
+        //   console.log("user didn't want to save." );
+        // console.log("time to load the local blocks!");
+        Blockscad.createNewProject();
+        readSingleFile(evt,true);
+          
+      }).catch(function(result) {
+        console.log("caught an error in new project.  result is:" + result);
+
+      });
+    }
+    else {
+      // console.log("no need to save old project.  Just load the new blocks.");
+      Blockscad.createNewProject();
+      readSingleFile(evt,true);  
+    }
+  }
+}
 
 //FileSaver.js stuff
 // Loading a blocks xml file
@@ -612,68 +580,118 @@ Blockscad.clearStlBlocks = function() {
 };
 
 // Start a new project (save old project to account if logged in, clear blocks, clear rendered view)
-Blockscad.newProject = function() {
 
+Blockscad.newProject = function() {
   // if the user was on the code tab, switch them to the blocks tab.
   $('#displayBlocks').click();
   // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
   // if the user is logged in, I should auto-save to the backend.
   console.log("in Blockscad.newProject");
-  console.log("undo stack length is: ", Blockscad.undo.undoStack.length);
-  console.log("needToSave is: ", Blockscad.undo.needToSave);
+  // console.log("undo stack length is: ", Blockscad.undo.undoStack.length);
+  // console.log("needToSave is: ", Blockscad.undo.needToSave);
   if (Blockscad.undo.needToSave) {
-    // if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
-    //     console.log("autosaving");
-    //     Blockscad.Auth.saveBlocksToAccount();
-    //     Blockscad.clearProject();
-    //     Blockscad.workspaceChanged();
-    //     Blockscad.clearUndo();
-    // }
-    // else {
-    //   // I'm going to ask if they really want to delete their current work.
-    //   // the modal's "yes, throw it away" button will actually do the deleting.
-    //   $('#delete-confirm').modal('show');
-    // }
-    $('#want-to-save').modal('show');
+    promptForSave().then(function(wantToSave) {
+      if (wantToSave=="cancel") 
+        return;
+      if (wantToSave=="save")
+        Blockscad.saveBlocks();
+      // else 
+      //   console.log("user didn't want to save." );
+      // console.log("time to get a new project!");
+      Blockscad.createNewProject();
+        
+    }).catch(function(result) {
+      console.log("caught an error in new project.  result is:" + result);
+
+    });
   }
   else {
-    // if I don't need to save, just take the user to a new project immediately.
-    Blockscad.clearProject();
-    Blockscad.workspaceChanged();
-    Blockscad.clearUndo();
-    console.log("setting needToSave to 0");
-    Blockscad.undo.needToSave = 0;
+    // console.log("no need to save old project.  Just make a new one..");
+    Blockscad.createNewProject();  
   }
-
-  $('#displayBlocks').click();
-
-
 };
+Blockscad.createNewProject = function() {
+  Blockscad.clearProject();
+  Blockscad.workspaceChanged();
+  Blockscad.clearUndo();
+  setTimeout(Blockscad.setNoSaveNeeded, 100);
+  $('#displayBlocks').click();
+}
+// first attempt to use promises for async stuff!
+function promptForSave() {
+  // console.log("in promptForSave()");
+  return new Promise(function(resolve, reject) {
+    bootbox.dialog({
+      message: "<h4>Want to save your stuff?</h4>",
+      backdrop: true,
+      size: "small",
+      buttons: {
+        save: {
+          label: "Save",
+          className: "btn-default btn-lg primary pull-right giant-yes",
+          callback: function(result) {
+            // console.log("save clicked.  Result was: ", result);
+            resolve("save");
+          }
+        },
+        dont_save: {
+          label: "Don't Save",
+          className: "btn-default btn-lg primary pull-left",
+          callback: function(result) {
+            // console.log("don't save clicked.  Result was: ", result);
+            resolve("nosave");
+          }
+        }
+      },
+      onEscape: function() {
+        // console.log("bootbox dialog escaped.");
+        resolve("cancel");
+      }
+    });
+  });
+}
 
+Blockscad.saveBlocks = function() {
+  // save to cloud storage if available and logged in
+  if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
+      Blockscad.Auth.saveBlocksToAccount();
+  }
+  else {
+    // i'm not logged into an account.  Save blocks locally.
+    Blockscad.saveBlocksLocal();
+  }
+}
 
-// if a user clicks on an example from Help->Examples, this code is run.
 Blockscad.showExample = function(e) {
-  // note: offline, I don't clear the undo stack.  I also don't do a delete-confirm.
-  // console.log("in showExample");
-  // console.log(e.data.msg);
   var example = "examples/" + e.data.msg;
   var name = e.data.msg.split('.')[0];
 
-  $.get( example, function( data ) {
-    if (Blockscad.undo.needToSave) {
-      if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
-          console.log("autosaving");
-          Blockscad.Auth.saveBlocksToAccount();
-          Blockscad.clearProject();
-          // Blockscad.clearUndo();
-      }
-      else {
-        Blockscad.clearProject();
-      }
-    }
-    else {
-      Blockscad.clearProject();
-    }
+  // console.log("in showExample");
+  if (Blockscad.undo.needToSave) {
+    promptForSave().then(function(wantToSave) {
+        if (wantToSave=="cancel") 
+          return;
+        if (wantToSave=="save")
+          Blockscad.saveBlocks();
+        // else 
+        //   console.log("user didn't want to save." );
+        // console.log("i would try to show the example now!");
+        Blockscad.getExample(example, name);
+    }).catch(function(result) {
+      console.log("caught an error in show example 1.  result is:" + result);
+
+    });
+  }
+  else {
+    // console.log("no need to save old project.  Just go get example.");
+    Blockscad.getExample(example, name);
+  }
+}
+
+Blockscad.getExample = function(example, name) {
+  $.get(example, function( data ) {
+
+    Blockscad.clearProject();
     Blockscad.workspaceChanged();
     // turn xml data object into a string that Blockly can use
     var xmlString;
@@ -693,10 +711,13 @@ Blockscad.showExample = function(e) {
     // update project name
     $('#project-name').val(name + ' example');
     // we just got a new project.  It doesn't need saving yet.
-    Blockscad.undo.needToSave = 0;
+    setTimeout(Blockscad.setNoSaveNeeded, 200);
   });
 }
-
+Blockscad.setNoSaveNeeded = function() {
+  // console.log("setting needToSave to 0 (on delay?)");
+  Blockscad.undo.needToSave = 0;
+}
 
 Blockscad.clearProject = function() {
 
@@ -728,10 +749,26 @@ Blockscad.clearUndo = function() {
  */
 Blockscad.discard = function() {
   var count = Blockly.mainWorkspace.getAllBlocks().length;
-  if (count < 2 ||
-      window.confirm("Delete all " + count + " blocks?")) {
+  if (count < 2) {
     Blockly.mainWorkspace.clear();
     window.location.hash = '';
+  }
+  else {
+    bootbox.confirm({
+      size: "small",
+      message: "Delete all " + count + " blocks?", 
+      buttons: {
+        confirm: {
+          className: "btn-default confirm-yes"
+        }
+      },
+      callback: function(result) { 
+        if (result) {
+          Blockly.mainWorkspace.clear();
+          window.location.hash = '';
+        }
+      }
+    });
   }
 };
 
@@ -958,7 +995,7 @@ Blockscad.isRealChange = function() {
 
   // I'm not going to make a project name change an undoable change, but it will trigger needing to save.
   if (Blockscad.undo.projectName != Blockscad.undo.oldProjectName) {
-    console.log("projname: setting needToSave to 1");
+    // console.log("projname: setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
   }
 
@@ -1020,7 +1057,7 @@ Blockscad.isRealChange = function() {
         }
       }
     }
-    console.log("setting needToSave to 1");
+    // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
     return true;
   }
@@ -1052,7 +1089,7 @@ Blockscad.isRealChange = function() {
         Blockscad.assignVarTypes(Blockscad.undo.blockList[addedBlockPos]);
       }
     }
-    console.log("setting needToSave to 1");
+    // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
     return true;
   }
@@ -1081,7 +1118,7 @@ Blockscad.isRealChange = function() {
 
         if (Blockscad.undo.parentIds[i] != Blockscad.undo.oldParentIds[j]) {
 
-          console.log("setting needToSave to 1");
+          // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
           // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
 
@@ -1115,7 +1152,7 @@ Blockscad.isRealChange = function() {
                         // Blockscad.undo.oldVarNames[j] + " to: " + Blockscad.undo.varNames[i]);
           Blockscad.assignVarTypes(Blockscad.undo.blockList[i]);
 
-          console.log("setting needToSave to 1");
+          // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
         }
         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
@@ -1124,7 +1161,7 @@ Blockscad.isRealChange = function() {
           $('#renderButton').prop('disabled', false); 
 
 
-          console.log("setting needToSave to 1");
+          // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
           if (Blockscad.undo.fieldChanging != myid) {
             Blockscad.undo.fieldChanging = myid;
@@ -1142,7 +1179,7 @@ Blockscad.isRealChange = function() {
         if (Blockscad.undo.comment[i] != Blockscad.undo.oldComment[j]) {
           // a comment has been changed.  Note that this won't trigger if the comment icon is added.
           // I don't want to set a real change here until the whole thing is done (??)
-          console.log("setting needToSave to 1");
+          // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
           if (Blockscad.undo.fieldChanging != myid) {
             Blockscad.undo.fieldChanging = myid;
@@ -1163,7 +1200,7 @@ Blockscad.isRealChange = function() {
   }
   if (real_change) {
 
-    console.log("setting needToSave to 1");
+    // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
     return true;
   } 
@@ -1672,10 +1709,10 @@ Blockscad.saveBlocksLocal = function() {
   // pull a filename entered by the user
   var blocks_filename = $('#project-name').val();
   // don't save without a filename.  Name isn't checked for quality.
-  console.log("in SaveBlocksLocal with: ", blocks_filename);
+  // console.log("in SaveBlocksLocal with: ", blocks_filename);
   if (blocks_filename) {
     saveAs(blob, blocks_filename + ".xml");
-    console.log("SAVED locally: setting needToSave to 0");
+    // console.log("SAVED locally: setting needToSave to 0");
     Blockscad.undo.needToSave = 0;
   }
   else {

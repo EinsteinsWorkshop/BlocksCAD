@@ -21,7 +21,14 @@
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
   <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
- 
+  <!-- Lie (promises polyfill library) -->
+  <script src="lie/lie.polyfill.min.js"></script>
+  <!-- Bootbox (helper library for Bootstrap Modals) -->
+  <script src="bootbox/bootbox.min.js"></script>
+
+
+
+  <!-- uncompressed blockly and blocks -->
   <script type="text/javascript" src="blockly/blockly_uncompressed.js"></script>
   <script type="text/javascript" src="blockly/blocks/colour.js"></script>
   <script type="text/javascript" src="blockly/blocks/geom_set_ops.js"></script>
@@ -69,6 +76,7 @@
 
   <!-- font manip library -->
   <script src="opentype/dist/opentype.min.js"></script>
+
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -449,7 +457,7 @@
   <div id='pw-recover' class="modal">
     <div class="modal-dialog">
       <div class="modal-content modal-md">
-        <form id='pw-recover-form'novalidate>
+        <form id='pw-recover-form' novalidate>
           <fieldset>
             <div class="modal-header">
               <a href="#" data-dismiss="modal" class="close">x
@@ -501,62 +509,6 @@
       </div>
     </div>
   </div> <!-- end of password recovery email sent modal -->
-    <!--  do you want to save? popup -->
-  <div id="want-to-save" class="modal">
-    <div class="modal-dialog modal-sm" style="width:400px">
-      <div class="modal-content">
-        <div class="modal-header">
-          <a href="#" data-dismiss="modal" class="close">x
-          </a>
-          <h4 >Want to Save your current Project?</h4>
-        </div>
-        <div class="modal-footer">
-            <button id="please-save-it" class="button btn-default btn-lg primary giant-yes" style="margin-right:40px" type="button" aria-label="Save" 
-            data-dismiss="modal" data-target="#want-to-save">Save</button> 
-            <button id="throw-it-away" class="button btn-lg btn-default primary pull-left" aria-label="Don't Save" style="margin-left:40px" type="button" 
-            data-dismiss="modal" data-target="#want-to-save">Don't Save</button> 
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div> <!-- end of want-to-save popup -->
-    <!--  save-on-project-list popup -->
-  <div id="proj-list-save-prompt" class="modal">
-    <div class="modal-dialog modal-sm" style="width:400px">
-      <div class="modal-content">
-        <div class="modal-header">
-          <a href="#" data-dismiss="modal" class="close">x
-          </a>
-          <h4 >Want to Save your current Project?</h4>
-        </div>
-        <div class="modal-footer">
-            <button id="pl-save" class="button btn-default btn-lg primary giant-yes" style="margin-right:40px" type="button" aria-label="Save" 
-            data-dismiss="modal" data-target="#proj-list-save-prompt">Save</button> 
-            <button id="pl-dump" class="button btn-lg btn-default primary pull-left" aria-label="Don't Save" style="margin-left:40px" type="button" 
-            data-dismiss="modal" data-target="#proj-list-save-prompt">Don't Save</button> 
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div> <!-- end of save-on-project-list popup -->
-  <!--  delete confirm popup -->
-  <div id="delete-confirm" class="modal">
-    <div class="modal-dialog modal-sm" style="width:400px">
-      <div class="modal-content">
-        <div class="modal-header">
-          <a href="#" data-dismiss="modal" class="close">x
-          </a>
-          <h4 >Want to save your current Project?</h4>
-
-        </div>
-        <div class="modal-body">
-                  <h6>Loading Blocks will replace your current project.</h6>
-        </div>
-        <div class="modal-footer">
-            <button id="fl-yes" class="button btn-lg btn-default primary pull-left giant-yes" aria-label="Save" style="margin-right:40px" type="button" data-dismiss="modal" data-target="#delete-confirm">Save</button> 
-            <button id="fl-no" class="button btn-default btn-lg primary" style="margin-left:40px" type="button" aria-label="Don't Save" data-dismiss="modal" data-target="#delete-confirm">Don't Save</button> 
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div> <!-- end of delete-confirm popup -->
   <!--  online delete confirm popup -->
   <div id="online-delete-confirm" class="modal" data-backdrop="false">
     <div class="modal-dialog modal-sm" style="width:400px">

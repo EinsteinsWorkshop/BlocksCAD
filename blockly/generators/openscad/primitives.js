@@ -454,6 +454,10 @@ Blockly.OpenSCAD['linearextrude'] = function(block) {
     Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
   }
 
+  // let empty scale fields default to one
+  if (!value_xscale) value_xscale = 1;
+  if (!value_yscale) value_yscale = 1;
+  
   var code = 'linear_extrude( height=' + value_height + ', twist=' + value_twist + 
              ', scale=[' + value_xscale + ', ' + value_yscale + '], center=' + dropdown_center + '){\n' + statements_a + '}';
   return code;

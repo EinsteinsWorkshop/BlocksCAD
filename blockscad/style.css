@@ -163,7 +163,11 @@ html, body {
 	padding-left: 45px;
 	padding-right: 45px;
 }
- 
+
+.confirm-yes {
+	padding-left: 30px;
+	padding-right: 30px;
+} 
 .save-message {
 	position:relative;
 	top:3px;
