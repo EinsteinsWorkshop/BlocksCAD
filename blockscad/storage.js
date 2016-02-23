@@ -25,6 +25,7 @@ BlocklyStorage.backupBlocks_ = function() {
     var url = window.location.href.split('#')[0];
     var url2 = url + "proj_name";
     var url3 = url + "current_project";
+    var url4 = url + "current_project_key";
 
     // do I have any stl files (converted to CSG commands) I want to save?
     // TO-DO: don't do this unless you find it in the xml you're saving.  
@@ -48,7 +49,8 @@ BlocklyStorage.backupBlocks_ = function() {
 
     window.localStorage.setItem(url, Blockly.Xml.domToText(xml));
     window.localStorage.setItem(url2, $('#project-name').val());
-    window.localStorage.setItem(url3, Blockscad.Auth.current_project);
+    window.localStorage.setItem(url3, Blockscad.Auth.currentProject);
+    window.localStorage.setItem(url4, Blockscad.Auth.currentProjectKey);
   }
 };
 
@@ -67,6 +69,7 @@ BlocklyStorage.restoreBlocks = function() {
   var url = window.location.href.split('#')[0];
   var url2 = url + "proj_name";
   var url3 = url + "current_project";
+  var url4 = url + "current_project_key";
   console.log(window.localStorage);
   if ('localStorage' in window && window.localStorage[url]) {
     var xml = Blockly.Xml.textToDom(window.localStorage[url]);
@@ -98,7 +101,7 @@ BlocklyStorage.restoreBlocks = function() {
           }
           else {
             // The xml thinks there should be stl data here, but I can't find it.  Clear the block.
-            console.log("couldn't find the stuff in localStorage");
+            console.log("couldn't find the stl in localStorage");
 
             // set a warning message in the render pane
 
@@ -151,5 +154,10 @@ BlocklyStorage.restoreBlocks = function() {
       Blockscad.Auth.currentProject = current_project;
     }
     else Blockscad.Auth.currentProject = '';
+    var current_project_key = window.localStorage[url4];
+    if (current_project_key != "undefined") {
+      Blockscad.Auth.currentProjectKey = current_project_key;
+    }
+
   }
 };

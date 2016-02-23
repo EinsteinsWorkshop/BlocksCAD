@@ -55,6 +55,7 @@ goog.inherits(Blockly.FieldVariable, Blockly.FieldDropdown);
  */
 Blockly.FieldVariable.prototype.setChangeHandler = function(handler) {
   var wrappedHandler;
+  console.log("in fieldvariable SetChangeHandler with: ", handler);
   if (handler) {
     // Wrap the user's change handler together with the variable rename handler.
     wrappedHandler = function(value) {
@@ -159,6 +160,7 @@ Blockly.FieldVariable.dropdownCreate = function() {
  * @this {!Blockly.FieldVariable}
  */
 Blockly.FieldVariable.dropdownChange = function(text) {
+  console.log("in dropdownChange with: ", text);
   function promptName(promptText, defaultText) {
     Blockly.hideChaff();
     var newVar = window.prompt(promptText, defaultText);
