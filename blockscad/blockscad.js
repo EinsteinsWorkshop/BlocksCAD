@@ -29,7 +29,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.2.0";
+Blockscad.version = "1.2.1";
 
 Blockscad.offline = false;  // true unless using a cloud service backend for file management
 
@@ -421,6 +421,8 @@ function readSingleFile(evt, replaceOld) {
     // I should hide the projView, and show the editView.
     $('#projView').hide();
     $('#editView').show();
+    // turn the big save button back on.
+    $('#bigsavebutton').show();
 
     // switch us back to the blocks tab in case we were on the code tabe.
     $('#displayBlocks').click();
@@ -586,7 +588,7 @@ Blockscad.newProject = function() {
   $('#displayBlocks').click();
   // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
   // if the user is logged in, I should auto-save to the backend.
-  console.log("in Blockscad.newProject");
+  // console.log("in Blockscad.newProject");
   // console.log("undo stack length is: ", Blockscad.undo.undoStack.length);
   // console.log("needToSave is: ", Blockscad.undo.needToSave);
   if (Blockscad.undo.needToSave) {
@@ -732,6 +734,8 @@ Blockscad.clearProject = function() {
   $('#project-name').val('Untitled');
   $('#projectView').hide();
   $('#editView').show();
+  // turn the big save button back on.
+  $('#bigsavebutton').show();
 };
 
 Blockscad.clearUndo = function() {
@@ -923,7 +927,7 @@ Blockscad.doRender = function() {
   $('#renderButton').html('working'); 
 
   if (Blockscad.loadTheseFonts.length > 0) {
-    console.log("I need to load " + Blockscad.loadTheseFonts.length + " fonts.");
+    // console.log("I need to load " + Blockscad.loadTheseFonts.length + " fonts.");
     Blockscad.numloaded = 0;
     for (var i = 0; i < Blockscad.loadTheseFonts.length; i++) {
       Blockscad.loadFontThenRender(i,code);
