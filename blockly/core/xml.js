@@ -44,6 +44,10 @@ Blockly.Xml.workspaceToDom = function(workspace) {
     width = workspace.getWidth();
   }
   var xml = goog.dom.createDom('xml');
+  // set xml namespace for blockscad
+  // note - setAttribute breaks Firefox!  It saves the xml with every tag having a spurious a0: in it.
+  // xml.setAttribute('xmlns', 'http://blockscad.einsteinsworkshop.com');
+  
   var blocks = workspace.getTopBlocks(true);
 
   // For BlocksCAD: add version information
@@ -170,7 +174,11 @@ Blockly.Xml.blockToDom_ = function(block) {
  */
 Blockly.Xml.domToText = function(dom) {
   var oSerializer = new XMLSerializer();
-  return oSerializer.serializeToString(dom);
+  var xml_text = oSerializer.serializeToString(dom);
+  // for BlocksCAD, change the xml namespace in the saved file
+  xml_text = xml_text.replace('xmlns="http://www.w3.org/1999/xhtml"',
+                              'xmlns="http://blockscad.einsteinsworkshop.com"');
+  return xml_text;
 };
 
 /**

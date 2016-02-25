@@ -12,8 +12,8 @@
   <audio id="audio_click" src="blockly/media/click.ogg" ></audio>
   <audio id="audio_delete" src="blockly/media/delete.ogg" ></audio>
 
-      <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
-      <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
+  <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
+  <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
 
   <!-- Jquery -->
   <script src="jquery/jquery-1.11.3.min.js"></script>
@@ -24,7 +24,12 @@
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
   <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
- <!--
+
+  <!-- Lie (promises polyfill library) -->
+  <script src="lie/lie.polyfill.min.js"></script>
+  <!-- Bootbox (helper library for Bootstrap Modals) -->
+  <script src="bootbox/bootbox.min.js"></script>
+  <!-- uncompressed blockly and blocks 
   <script type="text/javascript" src="blockly/blockly_uncompressed.js"></script>
   <script type="text/javascript" src="blockly/blocks/colour.js"></script>
   <script type="text/javascript" src="blockly/blocks/geom_set_ops.js"></script>
@@ -56,11 +61,7 @@
   <script src="blockscad/lightgl.js"></script>
 -->
 
-  <!--
   <script type="text/javascript" src="backend_compressed.js"></script> 
-  -->
-
-  <script type="text/javascript" src="auth.js"></script> 
 
   <!-- viewer stuff -->
   <script type="text/javascript" src="blockscad/viewer_compressed.js"></script>
@@ -75,10 +76,11 @@
 
   <script src="blockscad/underscore.js"></script>
   <script src="blockscad/openscad-openjscad-translator.js"></script>
-  <!-- end viewer stuff -->
+  <!-- end viewer stuff 
 
   <!-- font manip library -->
   <script src="opentype/dist/opentype.js"></script>
+
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -176,7 +178,7 @@
         </ul> 
         <div class="input-group">
           <span class="input-group-addon" id="proj_name_label">Project Name</span>
-          <input type="text" id="project-name" class="form-control proj-input" value="Untitled" maxlength="26" style="width: 300px;">
+          <input type="text" id="project-name" class="form-control proj-input" value="Untitled" maxlength="28" style="width: 300px;">
         </div>
         <div class="btn-over-blockly" style="margin-left: 20px">
           <button id="redrawBlocksButton" class="btn btn-default notext" type="button"
@@ -459,7 +461,7 @@
   <div id='pw-recover' class="modal">
     <div class="modal-dialog">
       <div class="modal-content modal-md">
-        <form id='pw-recover-form'novalidate>
+        <form id='pw-recover-form' novalidate>
           <fieldset>
             <div class="modal-header">
               <a href="#" data-dismiss="modal" class="close">x
@@ -501,6 +503,8 @@
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
+          <a href="#" data-dismiss="modal" class="close">x
+          </a>
           <h3>Password Recovery Email has been Sent</h3>
         </div>
         <div class="modal-body">
@@ -509,25 +513,13 @@
       </div>
     </div>
   </div> <!-- end of password recovery email sent modal -->
-  <!--  delete confirm popup -->
-  <div id="delete-confirm" class="modal">
-    <div class="modal-dialog modal-sm" style="width:400px">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 >Discard Contents of the Current Project?</h4>
-        </div>
-        <div class="modal-footer">
-            <button id="throw-it-away" class="button btn-lg btn-default primary pull-left" aria-label="Okay" style="margin-left:90px" type="button" data-dismiss="modal" data-target="#delete-confirm">Okay</button> 
-            <button class="button btn-default btn-lg primary" style="margin-right:90px" type="button" aria-label="Cancel" data-dismiss="modal" data-target="#delete-confirm">Cancel</button> 
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div> <!-- end of delete-confirm popup -->
   <!--  online delete confirm popup -->
   <div id="online-delete-confirm" class="modal" data-backdrop="false">
     <div class="modal-dialog modal-sm" style="width:400px">
       <div class="modal-content">
         <div class="modal-header">
+          <a href="#" data-dismiss="modal" class="close">x
+          </a>
           <h4 class="modal-title">Are you sure you want to delete this project?</h4>
         </div>
         <div class="modal-footer">
@@ -618,7 +610,7 @@
     </div>
     <div class="modal-body">
       <div>
-        <p>Version <script type="text/javascript">document.write(Blockscad.version);</script> (2015/12/31)</p>
+        <p>Version <script type="text/javascript">document.write(Blockscad.version);</script> (2016/02/23)</p>
         <br>
         <!-- <p>Want to help? <a href="https://github.com/EinsteinsWorkshop/BlocksCAD">Get involved!</a></p> -->
         <!-- <p>Have feedback? <a href="mailto://blockscad@einsteinsworkshop.com">blockscad@einsteinsworkshop.com</a> -->

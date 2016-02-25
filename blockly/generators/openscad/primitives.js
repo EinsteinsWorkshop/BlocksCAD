@@ -437,6 +437,8 @@ Blockly.OpenSCAD['square'] = function(block) {
 Blockly.OpenSCAD['linearextrude'] = function(block) {
   var value_height = Blockly.OpenSCAD.valueToCode(block, 'HEIGHT', Blockly.OpenSCAD.ORDER_ATOMIC);
   var value_twist = Blockly.OpenSCAD.valueToCode(block, 'TWIST', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value_xscale = Blockly.OpenSCAD.valueToCode(block, 'XSCALE', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value_yscale = Blockly.OpenSCAD.valueToCode(block, 'YSCALE', Blockly.OpenSCAD.ORDER_ATOMIC);
   var dropdown_center = block.getFieldValue('CENTERDROPDOWN');
   var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
   if (statements_a != '') statements_a += '\n';
@@ -452,7 +454,12 @@ Blockly.OpenSCAD['linearextrude'] = function(block) {
     Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
   }
 
-  var code = 'linear_extrude( height=' + value_height + ', twist=' + value_twist + ', center=' + dropdown_center + '){\n' + statements_a + '}';
+  // let empty scale fields default to one
+  if (!value_xscale) value_xscale = 1;
+  if (!value_yscale) value_yscale = 1;
+  
+  var code = 'linear_extrude( height=' + value_height + ', twist=' + value_twist + 
+             ', scale=[' + value_xscale + ', ' + value_yscale + '], center=' + dropdown_center + '){\n' + statements_a + '}';
   return code;
 };
 
@@ -522,6 +529,9 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
   if (value_size && value_size <= 0) {
     Blockscad.illegalValue.push(block.inputList[2].connection.targetBlock().id);
   }
+
+  if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
+    this_text = 'str(' + this_text + ')';
   var code = 'text(' + this_text + ', font = "' + this_font +
              '", size = ' + value_size + ');\n';
   return code;
@@ -547,6 +557,9 @@ Blockly.OpenSCAD['bs_3dtext'] = function(block) {
   if (value_thickness && value_thickness <= 0) {
     Blockscad.illegalValue.push(block.inputList[4].connection.targetBlock().id);
   }
+
+  if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
+    this_text = 'str(' + this_text + ')';
   var code = 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
              '  text(' + this_text + ', font = "' + this_font +
              '", size = ' + value_size + ');\n}\n';

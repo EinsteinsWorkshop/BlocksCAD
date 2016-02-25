@@ -29,7 +29,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.1.6";
+Blockscad.version = "1.2.1";
 
 Blockscad.offline = false;  // true unless using a cloud service backend for file management
 
@@ -54,7 +54,6 @@ Blockscad.drawAxes = 1;       // start with axes drawn
  */
 Blockscad.init = function() {
   Blockscad.initLanguage();
-
 
   // version of input files/projects
   Blockscad.inputVersion = Blockscad.version;
@@ -193,187 +192,15 @@ Blockscad.init = function() {
 
 
   // I think the render button should start out disabled.
-  $('#renderButton').prop('disabled', true); 
-
-  // set up the delete-confirm button's function.
-  $('#throw-it-away').click(function() {
-    Blockscad.clearProject();
-    Blockscad.workspaceChanged();
-    Blockscad.clearUndo();
-  });
+  // $('#renderButton').prop('disabled', true); 
 
   // handle the project->new menu option
   $('#main').on('click', '.new-project', Blockscad.newProject);
 
-//FileSaver.js stuff
-  // Loading a blocks xml file
-  // if replaceOld is true, any current blocks are ditched, a new project is started
-  // and the filename loaded is used as the project filename.
-  // if replaceOld is false, the blocks are inserted in the current project,
-  // adding to the blocks that are there already and not changing the filename.
-  
-  function readSingleFile(evt, replaceOld) {
-
-    //Retrieve the first (and only!) File from the FileList object
-    var f = evt.target.files[0]; 
-    //console.log("in readSingleFile.  f is ", f);
-
-    if (f) {
-      var proj_name;
-
-      if (replaceOld) {
-        // use the name of the loaded file to fill the "file loading" and "project name" boxes.
-        proj_name = f.name.substr(0,f.name.lastIndexOf('(')) || f.name;
-        proj_name = proj_name.substr(0,f.name.lastIndexOf('.')) || proj_name;
-
-        // trim any whitespace from the beginning or end of the project name
-        proj_name = proj_name.replace(/^\s+|\s+$/g,'');
-      }
-
-      if (!Blockscad.offline && replaceOld) {
-        // first, autosave anything new.  Is there anything on the undo stack?  If so, save the changes.
-        if (Blockscad.Auth.isLoggedIn && Blockscad.undo.undoStack.length > 0) {
-          console.log("autosaving!");
-          Blockscad.Auth.saveBlocksToAccount();
-        }
-        // if we had a current project before, we just changed to something else!
-        Blockscad.Auth.currentProject = '';
-        // clear the workspace to fit the new file contents.
-
-      }
-
-      if (replaceOld)
-        Blockly.getMainWorkspace().clear();
-
-      var contents = {};
-      var stuff = {};
-      var r = new FileReader();
-      // all the file processing has to go inside the onload function. -JY
-      r.onload = function(e) { 
-
-        contents = e.target.result;  
-        var xml = Blockly.Xml.textToDom(contents);
-        Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
-        Blockly.fireUiEvent(window, 'resize');
-
-        Blockscad.clearStlBlocks();
-      };
-      r.readAsText(f);
-
-      // in order that we can read this filename again, I'll clear out the current filename
-      $("#importLocal")[0].value = '';
-      $("#loadLocal")[0].value = '';
-
-      if (replaceOld)
-        $('#project-name').val(proj_name);
-
-      // I should hide the projView, and show the editView.
-      $('#projView').hide();
-      $('#editView').show();
-
-      // switch us back to the blocks tab in case we were on the code tabe.
-      $('#displayBlocks').click();
-
-    } else { 
-      alert("Failed to load file");
-    }
-  }
-  Blockscad.readStlFile = function(evt) {
-
-    // this can be called from an existing importSTL block.  If so, 
-    // don't create a new block - instead, update the fields on the existing block.
-
-    //Retrieve the first (and only!) File from the FileList object
-    var f = evt.target.files[0]; 
-
-    if (f) {
-      var contents = {};
-      var stuff = {};
-      var r = new FileReader();
-
-      // all the file processing has to go inside the onload function. -JY
-      r.onload = function(e) { 
-
-        var contents = e.target.result;  
-        var result = importSTL(contents);
-        // console.log("result is:",result);
-        var src = result[0];
-        var center = result[1];
-        if (!center) center = 'blah';
-        // console.log(center);
-        var proj_name = f.name.substr(0,f.name.lastIndexOf('(')) || f.name;
-        proj_name = proj_name.substr(0,f.name.lastIndexOf('.')) || proj_name;
-
-        // trim any whitespace from the beginning or end of the project name
-        proj_name = proj_name.replace(/^\s+|\s+$/g,'');
-        var proj_name_use = proj_name;
-        var add = 1;
-        var found_file = 0;
-        while (Blockscad.csg_commands[proj_name_use] && !found_file) {
-          if (src != Blockscad.csg_commands[proj_name_use]) {
-            proj_name_use = proj_name + '_' + add;
-            add++;
-          }
-          else found_file = 1;
-        }
-        //console.log("stl file parsed is",src);
-        // save these CSG commands so I never have to run this conversion again.
-        Blockscad.csg_commands[proj_name_use] = src;
-        if (!found_file)
-          Blockscad.csg_filename[proj_name_use] = f.name + ':::';
-        else Blockscad.csg_filename[proj_name_use] += f.name + ':::';
-
-        Blockscad.csg_center[proj_name_use] = center;
-        // I've got a file here.  What should I do with it?
-        var bt_input;
-        if (Blockscad.currentInterestingBlock) {
-          // console.log('the current block is:', Blockscad.currentInterestingBlock);
-          var fn_input = Blockscad.currentInterestingBlock.getField('STL_FILENAME');
-          bt_input = Blockscad.currentInterestingBlock.getField('STL_BUTTON');
-          var ct_input = Blockscad.currentInterestingBlock.getField('STL_CONTENTS');
-          fn_input.setText(f.name);
-          fn_input.setVisible(true);
-          bt_input.setVisible(false);
-          ct_input.setText(proj_name_use);
-          Blockscad.currentInterestingBlock.setCommentText(f.name + '\ncenter:(' + center + ')');
-
-          Blockscad.currentInterestingBlock = null;
-
-        }
-        else {
-          // lets make some xml and load a block into the workspace.
-          // console.log("making block from xml");
-          var xml = '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
-          f.name + '</field>' + '<field name="STL_BUTTON">Browse</field>' + 
-          '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
-          //console.log("xml is:",xml);
-          var stuff = Blockly.Xml.textToDom(xml);
-          var newblock = Blockly.Xml.domToBlock(Blockscad.workspace, stuff.firstChild);
-          bt_input = newblock.getField('STL_BUTTON');
-          bt_input.setVisible(false);
-          newblock.setCommentText(f.name + '\ncenter:(' + center + ')');
-          newblock.render();
-        }
-
-      };
-      r.readAsBinaryString(f);
-      // in order that we can read this filename again, I'll clear out the current filename
-      $("#importStl")[0].value = '';
-
-      // switch us back to the blocks tab in case we were on the code tab.
-      $('#displayBlocks').click();
-      // enable the render button.
-      $('#renderButton').prop('disabled', false);       
-
-    } else { 
-      alert("Failed to load file");
-    }
-  };
-  $('#file-menu').on('change', '#loadLocal', function(e) { readSingleFile(e, true);});
+  // handle the project->load (blocks, stl, import blocks)  options
+  $('#file-menu').on('change', '#loadLocal', function(e) { Blockscad.loadLocalBlocks(e);});
   $('#file-menu').on('change', '#importLocal', function(e) { readSingleFile(e, false);});
   $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
-//End FileSaver.js stuff
-
 
   //Create the openjscad processing object instance
   gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
@@ -400,8 +227,14 @@ Blockscad.init = function() {
     oldBlockIds:[],
     oldFieldValues:[],
     oldParentIds:[],
-    just_did_undo:0
+    just_did_undo:0,
+    oldProjectName:'Untitled'
   };
+
+  // undo stack length doesn't really show when the user needs to save (after a save, for example).  
+  // this should fix that.
+  // starts at 0 ("do not need to save") because the user hasn't done anything yet.
+  Blockscad.undo.needToSave = 0;
 
   // Set up an event listener to see when the Blockly workspace gets a change
   // TODO: Set up some "Undo_events" in Blockly that only trigger on the good stuff
@@ -425,7 +258,7 @@ Blockscad.init = function() {
 
   // toolbox toggle handlers
   $('#simpleToolbox').on('click', function() {
-    console.log("switching to simple toolbox");
+    // console.log("switching to simple toolbox");
     $('#simpleToolbox').hide();
     $('#advancedToolbox').show();
     if (Blockscad.workspace) {
@@ -435,7 +268,7 @@ Blockscad.init = function() {
     }
   });
   $('#advancedToolbox').on('click', function() {
-    console.log("switching to advanced toolbox");
+    // console.log("switching to advanced toolbox");
     $('#advancedToolbox').hide();
     $('#simpleToolbox').show();
     if (Blockscad.workspace) {
@@ -446,7 +279,7 @@ Blockscad.init = function() {
 
   });
   $('#colors_one').on('click', function() {
-    console.log("switching block color scheme");
+    // console.log("switching block color scheme");
     if (Blockscad.workspace) {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
       Blockscad.Toolbox.setCatColors();
@@ -456,7 +289,7 @@ Blockscad.init = function() {
 
   });
   $('#colors_two').on('click', function() {
-    console.log("switching block color scheme");
+    // console.log("switching block color scheme");
     if (Blockscad.workspace) {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['two']);
       Blockscad.Toolbox.setCatColors();
@@ -464,6 +297,7 @@ Blockscad.init = function() {
       Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
     }
   });
+
 
   // example handlers
   // to add an example, add a list item in index.html, add a click handler below, 
@@ -501,6 +335,202 @@ Blockscad.init = function() {
 }; // end Blockscad.init()
 
 
+Blockscad.loadLocalBlocks = function(e) {
+  var evt = e;
+  if (evt.target.files.length) {
+    if (Blockscad.undo.needToSave) {
+      promptForSave().then(function(wantToSave) {
+        if (wantToSave=="cancel") 
+          return;
+        if (wantToSave=="save")
+          Blockscad.saveBlocks();
+        // else 
+        //   console.log("user didn't want to save." );
+        // console.log("time to load the local blocks!");
+        Blockscad.createNewProject();
+        readSingleFile(evt,true);
+          
+      }).catch(function(result) {
+        console.log("caught an error in new project.  result is:" + result);
+
+      });
+    }
+    else {
+      // console.log("no need to save old project.  Just load the new blocks.");
+      Blockscad.createNewProject();
+      readSingleFile(evt,true);  
+    }
+  }
+}
+
+//FileSaver.js stuff
+// Loading a blocks xml file
+// if replaceOld is true, any current blocks are ditched, a new project is started
+// and the filename loaded is used as the project filename.
+// if replaceOld is false, the blocks are inserted in the current project,
+// adding to the blocks that are there already and not changing the filename.
+
+function readSingleFile(evt, replaceOld) {
+
+  //Retrieve the first (and only!) File from the FileList object
+  var f = evt.target.files[0]; 
+  //console.log("in readSingleFile.  f is ", f);
+
+  if (f) {
+    var proj_name;
+
+    if (replaceOld) {
+      // use the name of the loaded file to fill the "file loading" and "project name" boxes.
+      proj_name = f.name.substr(0,f.name.lastIndexOf('(')) || f.name;
+      proj_name = proj_name.substr(0,f.name.lastIndexOf('.')) || proj_name;
+
+      // trim any whitespace from the beginning or end of the project name
+      proj_name = proj_name.replace(/^\s+|\s+$/g,'');
+    }
+
+    if (replaceOld) {
+      // first, autosave anything new.  Is there anything on the undo stack?  If so, save the changes.
+      // if (Blockscad.undo.needToSave) {
+      //   // Blockscad.Auth.saveBlocksToAccount();
+      // }
+      // if we had a current project before, we just changed to something else!
+      Blockscad.Auth.currentProject = '';
+      // clear the workspace to fit the new file contents.
+
+    }
+
+    if (replaceOld)
+      Blockly.getMainWorkspace().clear();
+
+    var contents = {};
+    var stuff = {};
+    var r = new FileReader();
+    // all the file processing has to go inside the onload function. -JY
+    r.onload = function(e) { 
+
+      contents = e.target.result;  
+      var xml = Blockly.Xml.textToDom(contents);
+      Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
+      Blockly.fireUiEvent(window, 'resize');
+
+      Blockscad.clearStlBlocks();
+    };
+    r.readAsText(f);
+
+    // in order that we can read this filename again, I'll clear out the current filename
+    $("#importLocal")[0].value = '';
+    $("#loadLocal")[0].value = '';
+
+    if (replaceOld)
+      $('#project-name').val(proj_name);
+
+    // I should hide the projView, and show the editView.
+    $('#projView').hide();
+    $('#editView').show();
+    // turn the big save button back on.
+    $('#bigsavebutton').show();
+
+    // switch us back to the blocks tab in case we were on the code tabe.
+    $('#displayBlocks').click();
+
+    // clear the render window
+    gProcessor.clearViewer();
+
+  } else { 
+    // alert("Failed to load file");
+  }
+}
+Blockscad.readStlFile = function(evt) {
+
+  // this can be called from an existing importSTL block.  If so, 
+  // don't create a new block - instead, update the fields on the existing block.
+
+  //Retrieve the first (and only!) File from the FileList object
+  var f = evt.target.files[0]; 
+
+  if (f) {
+    var contents = {};
+    var stuff = {};
+    var r = new FileReader();
+
+    // all the file processing has to go inside the onload function. -JY
+    r.onload = function(e) { 
+
+      var contents = e.target.result;  
+      var result = importSTL(contents);
+      // console.log("result is:",result);
+      var src = result[0];
+      var center = result[1];
+      if (!center) center = 'blah';
+      // console.log(center);
+      var proj_name = f.name.substr(0,f.name.lastIndexOf('(')) || f.name;
+      proj_name = proj_name.substr(0,f.name.lastIndexOf('.')) || proj_name;
+
+      // trim any whitespace from the beginning or end of the project name
+      proj_name = proj_name.replace(/^\s+|\s+$/g,'');
+      var proj_name_use = proj_name;
+      var add = 1;
+      var found_file = 0;
+      while (Blockscad.csg_commands[proj_name_use] && !found_file) {
+        if (src != Blockscad.csg_commands[proj_name_use]) {
+          proj_name_use = proj_name + '_' + add;
+          add++;
+        }
+        else found_file = 1;
+      }
+      //console.log("stl file parsed is",src);
+      // save these CSG commands so I never have to run this conversion again.
+      Blockscad.csg_commands[proj_name_use] = src;
+      if (!found_file)
+        Blockscad.csg_filename[proj_name_use] = f.name + ':::';
+      else Blockscad.csg_filename[proj_name_use] += f.name + ':::';
+
+      Blockscad.csg_center[proj_name_use] = center;
+      // I've got a file here.  What should I do with it?
+      var bt_input;
+      if (Blockscad.currentInterestingBlock) {
+        // console.log('the current block is:', Blockscad.currentInterestingBlock);
+        var fn_input = Blockscad.currentInterestingBlock.getField('STL_FILENAME');
+        bt_input = Blockscad.currentInterestingBlock.getField('STL_BUTTON');
+        var ct_input = Blockscad.currentInterestingBlock.getField('STL_CONTENTS');
+        fn_input.setText(f.name);
+        fn_input.setVisible(true);
+        bt_input.setVisible(false);
+        ct_input.setText(proj_name_use);
+        Blockscad.currentInterestingBlock.setCommentText(f.name + '\ncenter:(' + center + ')');
+
+        Blockscad.currentInterestingBlock = null;
+
+      }
+      else {
+        // lets make some xml and load a block into the workspace.
+        // console.log("making block from xml");
+        var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
+        f.name + '</field>' + '<field name="STL_BUTTON">Browse</field>' + 
+        '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
+        //console.log("xml is:",xml);
+        var stuff = Blockly.Xml.textToDom(xml);
+        var newblock = Blockly.Xml.domToBlock(Blockscad.workspace, stuff.firstChild);
+        bt_input = newblock.getField('STL_BUTTON');
+        bt_input.setVisible(false);
+        newblock.setCommentText(f.name + '\ncenter:(' + center + ')');
+        newblock.render();
+      }
+
+    };
+    r.readAsBinaryString(f);
+    // in order that we can read this filename again, I'll clear out the current filename
+    $("#importStl")[0].value = '';
+
+    // switch us back to the blocks tab in case we were on the code tab.
+    $('#displayBlocks').click();
+    // enable the render button.
+    // $('#renderButton').prop('disabled', false);       
+
+  } else { 
+    alert("Failed to load file");
+  }
+};
 
 // Load Blockly's language strings.
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
@@ -558,41 +588,92 @@ Blockscad.clearStlBlocks = function() {
 };
 
 // Start a new project (save old project to account if logged in, clear blocks, clear rendered view)
-Blockscad.newProject = function() {
-  // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
-  // if the user is logged in, I should auto-save to the backend.
-  console.log("in Blockscad.newProject");
-  if (Blockscad.undo.undoStack.length > 0) {
-    if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
-        console.log("autosaving");
-        Blockscad.Auth.saveBlocksToAccount();
-        Blockscad.clearProject();
-        Blockscad.workspaceChanged();
-        Blockscad.clearUndo();
-    }
-    else {
-      // I'm going to ask if they really want to delete their current work.
-      // the modal's "yes, throw it away" button will actually do the deleting.
-      $('#delete-confirm').modal('show');
-    }
-  }
-  else  {
-    Blockscad.clearProject();
-    Blockscad.workspaceChanged();
-    Blockscad.clearUndo();
-  }
 
+Blockscad.newProject = function() {
   // if the user was on the code tab, switch them to the blocks tab.
   $('#displayBlocks').click();
+  // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
+  // if the user is logged in, I should auto-save to the backend.
+  // console.log("in Blockscad.newProject");
+  // console.log("undo stack length is: ", Blockscad.undo.undoStack.length);
+  // console.log("needToSave is: ", Blockscad.undo.needToSave);
+  if (Blockscad.undo.needToSave) {
+    promptForSave().then(function(wantToSave) {
+      if (wantToSave=="cancel") 
+        return;
+      if (wantToSave=="save")
+        Blockscad.saveBlocks();
+      // else 
+      //   console.log("user didn't want to save." );
+      // console.log("time to get a new project!");
+      Blockscad.createNewProject();
+        
+    }).catch(function(result) {
+      console.log("caught an error in new project.  result is:" + result);
+
+    });
+  }
+  else {
+    // console.log("no need to save old project.  Just make a new one..");
+    Blockscad.createNewProject();  
+  }
 };
+Blockscad.createNewProject = function() {
+  Blockscad.clearProject();
+  Blockscad.workspaceChanged();
+  Blockscad.clearUndo();
+  setTimeout(Blockscad.setNoSaveNeeded, 100);
+  $('#displayBlocks').click();
+}
+// first attempt to use promises for async stuff!
+function promptForSave() {
+  // console.log("in promptForSave()");
+  return new Promise(function(resolve, reject) {
+    bootbox.dialog({
+      message: "<h4>Want to save your stuff?</h4>",
+      backdrop: true,
+      size: "small",
+      buttons: {
+        save: {
+          label: "Save",
+          className: "btn-default btn-lg primary pull-right giant-yes",
+          callback: function(result) {
+            // console.log("save clicked.  Result was: ", result);
+            resolve("save");
+          }
+        },
+        dont_save: {
+          label: "Don't Save",
+          className: "btn-default btn-lg primary pull-left",
+          callback: function(result) {
+            // console.log("don't save clicked.  Result was: ", result);
+            resolve("nosave");
+          }
+        }
+      },
+      onEscape: function() {
+        // console.log("bootbox dialog escaped.");
+        resolve("cancel");
+      }
+    });
+  });
+}
 
+Blockscad.saveBlocks = function() {
+  // save to cloud storage if available and logged in
+  if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
+      Blockscad.Auth.saveBlocksToAccount();
+  }
+  else {
+    // i'm not logged into an account.  Save blocks locally.
+    Blockscad.saveBlocksLocal();
+  }
+}
 
-// if a user clicks on an example from Help->Examples, this code is run.
 Blockscad.showExample = function(e) {
+
   // note: offline, I don't clear the undo stack.  I also don't do a delete-confirm.
 
-  console.log("in showExample");
-  // console.log(e.data.msg);
   var example = "examples/" + e.data.msg;
   var name = e.data.msg.split('.')[0];
   var fn = "example_" + name;
@@ -600,20 +681,32 @@ Blockscad.showExample = function(e) {
   // console.log(name);
   // console.log(Blockscad[fn]);
 
-    if (Blockscad.undo.undoStack.length > 0) {
-      if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
-          console.log("autosaving");
-          Blockscad.Auth.saveBlocksToAccount();
-          Blockscad.clearProject();
-          Blockscad.clearUndo();
-      }
-      else {
-        Blockscad.clearProject();
-      }
-    }
-    else {
-      Blockscad.clearProject();
-    }
+  // console.log("in showExample");
+  if (Blockscad.undo.needToSave) {
+    promptForSave().then(function(wantToSave) {
+        if (wantToSave=="cancel") 
+          return;
+        if (wantToSave=="save")
+          Blockscad.saveBlocks();
+        // else 
+        //   console.log("user didn't want to save." );
+        // console.log("i would try to show the example now!");
+        Blockscad.getExample(example, name);
+    }).catch(function(result) {
+      console.log("caught an error in show example 1.  result is:" + result);
+
+    });
+  }
+  else {
+    // console.log("no need to save old project.  Just go get example.");
+    Blockscad.getExample(example, name);
+  }
+}
+
+Blockscad.getExample = function(example, name) {
+  $.get(example, function( data ) {
+
+    Blockscad.clearProject();
     Blockscad.workspaceChanged();
 
     // load xml blocks
@@ -623,44 +716,14 @@ Blockscad.showExample = function(e) {
     Blockly.fireUiEvent(window, 'resize');
     // update project name
     $('#project-name').val(name + ' example');
-
-  // $.get( example, function( data ) {
-  //   if (Blockscad.undo.undoStack.length > 0) {
-  //     if (!Blockscad.offline && Blockscad.Auth.isLoggedIn) { 
-  //         console.log("autosaving");
-  //         Blockscad.Auth.saveBlocksToAccount();
-  //         Blockscad.clearProject();
-  //         Blockscad.clearUndo();
-  //     }
-  //     else {
-  //       Blockscad.clearProject();
-  //     }
-  //   }
-  //   else {
-  //     Blockscad.clearProject();
-  //   }
-  //   Blockscad.workspaceChanged();
-  //   // turn xml data object into a string that Blockly can use
-  //   var xmlString;
-  //   //IE
-  //   if (window.ActiveXObject){
-  //       xmlString = data.xml;
-  //   }
-  //   // code for Mozilla, Firefox, Opera, etc.
-  //   else{
-  //       xmlString = (new XMLSerializer()).serializeToString(data);
-  //   }
-  //   // console.log(xmlString);
-  //   // load xml blocks
-  //   var xml = Blockly.Xml.textToDom(xmlString);
-  //   Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
-  //   Blockly.fireUiEvent(window, 'resize');
-  //   // update project name
-  //   $('#project-name').val(name + ' example');
-  // });
-
+    // we just got a new project.  It doesn't need saving yet.
+    setTimeout(Blockscad.setNoSaveNeeded, 200);
+  });
 }
-
+Blockscad.setNoSaveNeeded = function() {
+  // console.log("setting needToSave to 0 (on delay?)");
+  Blockscad.undo.needToSave = 0;
+}
 
 Blockscad.clearProject = function() {
 
@@ -675,6 +738,8 @@ Blockscad.clearProject = function() {
   $('#project-name').val('Untitled');
   $('#projectView').hide();
   $('#editView').show();
+  // turn the big save button back on.
+  $('#bigsavebutton').show();
 };
 
 Blockscad.clearUndo = function() {
@@ -692,10 +757,26 @@ Blockscad.clearUndo = function() {
  */
 Blockscad.discard = function() {
   var count = Blockly.mainWorkspace.getAllBlocks().length;
-  if (count < 2 ||
-      window.confirm("Delete all " + count + " blocks?")) {
+  if (count < 2) {
     Blockly.mainWorkspace.clear();
     window.location.hash = '';
+  }
+  else {
+    bootbox.confirm({
+      size: "small",
+      message: "Delete all " + count + " blocks?", 
+      buttons: {
+        confirm: {
+          className: "btn-default confirm-yes"
+        }
+      },
+      callback: function(result) { 
+        if (result) {
+          Blockly.mainWorkspace.clear();
+          window.location.hash = '';
+        }
+      }
+    });
   }
 };
 
@@ -766,30 +847,30 @@ Blockscad.doRender = function() {
   // Clear the previously rendered model
   gProcessor.clearViewer();
 
+  // check to see if the code mixes 2D and 3D shapes to give a good error message
   var mixes = Blockscad.mixes2and3D();
 
   if (mixes[1] === 0) { // doesn't have any CSG or CAG shapes at all!
     $( '#error-message' ).html("Error: Nothing to Render");
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     // HACK: file load is too slow - if user tries to render during file load
     // they get the "no objects to render" message.  Enable the render button.
     //$('#renderButton').prop('disabled', false); 
     return;
   }
 
-
-
-
   if (mixes[0]) {    // has both 2D and 3D shapes
     $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     return;
   }
 
-
-
-
-
+  // check for missing fields and illegal values in blocks.  Highlight them for the user
+  // and give an error message.
   Blockscad.missingFields = [];
   Blockscad.illegalValue = [];
   var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace);
@@ -841,6 +922,8 @@ Blockscad.doRender = function() {
 
     $( '#error-message' ).html(errText);
     $( '#error-message' ).addClass("has-error");
+    // enable the render button.
+    $('#renderButton').prop('disabled', false);
     return;
   }
   Blockscad.loadTheseFonts = Blockscad.whichFonts(code);
@@ -848,7 +931,7 @@ Blockscad.doRender = function() {
   $('#renderButton').html('working'); 
 
   if (Blockscad.loadTheseFonts.length > 0) {
-    console.log("I need to load " + Blockscad.loadTheseFonts.length + " fonts.");
+    // console.log("I need to load " + Blockscad.loadTheseFonts.length + " fonts.");
     Blockscad.numloaded = 0;
     for (var i = 0; i < Blockscad.loadTheseFonts.length; i++) {
       Blockscad.loadFontThenRender(i,code);
@@ -865,7 +948,11 @@ Blockscad.renderCode = function(code) {
   var code_good = true;
     try {
    // console.log("code was: ",code);
-   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); }, 0);
+   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
+                                  // console.log(csgcode);
+                                }, 0);
+
+
    //code = openscadOpenJscadParser.parse(code);
    //console.log("code is now:",code);
   }
@@ -904,11 +991,21 @@ Blockscad.isRealChange = function() {
   Blockscad.undo.fieldValues = [];
   Blockscad.undo.isDisabled = [];
   Blockscad.undo.varNames = [];
+  Blockscad.undo.comment = [];
+  Blockscad.undo.projectName = $('#project-name').val();
+
+
   var deletedBlockPos = null;
   var addedBlockPos = null;
   var deletedBlockParent = null;
   var addedBlockParent = null;
   var real_change = false;
+
+  // I'm not going to make a project name change an undoable change, but it will trigger needing to save.
+  if (Blockscad.undo.projectName != Blockscad.undo.oldProjectName) {
+    // console.log("projname: setting needToSave to 1");
+    Blockscad.undo.needToSave = 1;
+  }
 
   // console.log("in isRealChange with current",Blockscad.undo.blockList);
   // console.log("old at RealChange",Blockscad.undo.oldBlockList);
@@ -921,8 +1018,8 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
-    if (Blockscad.undo.blockList[i].type == "variables_set" || 
-        Blockscad.undo.blockList[i].type == "variables_get")
+    Blockscad.undo.comment[i] = Blockscad.undo.blockList[i].getCommentText();
+    if (Blockscad.undo.blockList[i].type == "variables_set" || Blockscad.undo.blockList[i].type == "variables_get")
       Blockscad.undo.varNames[i] = Blockscad.undo.blockList[i].getFieldValue('VAR');
     else
       Blockscad.undo.varNames[i] = null;
@@ -955,7 +1052,21 @@ Blockscad.isRealChange = function() {
         if (deletedBlockParent.type == 'variables_set')
           Blockscad.assignVarTypes(deletedBlockParent);
       }
+      // if the block that was deleted was a variable_set block, and the only one for that variable name, 
+      // I want to set all the instances to null.  I think I can just send all the instances to 
+      // the variable typing code.
+      if (Blockscad.undo.oldVarNames[deletedBlockPos] != null) {
+        // the deleted block had a variable name associated with it
+        // get all instances with that name? or just send the name?
+        var instances = Blockly.Variables.getInstances(Blockscad.undo.oldVarNames[deletedBlockPos],Blockscad.workspace);
+        for (var k = 0; instances && k < instances.length; k++) {
+          if (instances[k].type == 'variables_get')
+            Blockscad.assignVarTypes(instances[k]);
+        }
+      }
     }
+    // console.log("setting needToSave to 1");
+    Blockscad.undo.needToSave = 1;
     return true;
   }
   if (Blockscad.undo.blockCount < Blockscad.undo.blockList.length) {
@@ -970,7 +1081,7 @@ Blockscad.isRealChange = function() {
         if (allBlocks[i].type == 'variables_set')
           Blockscad.assignVarTypes(allBlocks[i]);
       }
- //     console.log("whole workspace refreshed");
+      // console.log("whole workspace refreshed");
     }
     else {
       addedBlockPos = Blockscad.getExtraRootBlock(Blockscad.undo.oldBlockList, Blockscad.undo.blockList);
@@ -986,6 +1097,8 @@ Blockscad.isRealChange = function() {
         Blockscad.assignVarTypes(Blockscad.undo.blockList[addedBlockPos]);
       }
     }
+    // console.log("setting needToSave to 1");
+    Blockscad.undo.needToSave = 1;
     return true;
   }
 
@@ -1012,6 +1125,9 @@ Blockscad.isRealChange = function() {
         found_it = 1;
 
         if (Blockscad.undo.parentIds[i] != Blockscad.undo.oldParentIds[j]) {
+
+          // console.log("setting needToSave to 1");
+          Blockscad.undo.needToSave = 1;
           // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
 
           // determine if we had a "plug" or an "unplug" event, and 
@@ -1043,11 +1159,18 @@ Blockscad.isRealChange = function() {
           // console.log("found a var changing name from (old): " + 
                         // Blockscad.undo.oldVarNames[j] + " to: " + Blockscad.undo.varNames[i]);
           Blockscad.assignVarTypes(Blockscad.undo.blockList[i]);
+
+          // console.log("setting needToSave to 1");
+          Blockscad.undo.needToSave = 1;
         }
         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
           // A field is changing.  I won't trigger undo yet to aggregate
           // the keypresses, but I do want to enable the renderButton already.
           $('#renderButton').prop('disabled', false); 
+
+
+          // console.log("setting needToSave to 1");
+          Blockscad.undo.needToSave = 1;
           if (Blockscad.undo.fieldChanging != myid) {
             Blockscad.undo.fieldChanging = myid;
             // console.log("triggering field-change addition to undo stack");
@@ -1061,6 +1184,17 @@ Blockscad.isRealChange = function() {
           // don't return from here though - I might need to enable/disable more math blocks.
           real_change = true;
         }
+        if (Blockscad.undo.comment[i] != Blockscad.undo.oldComment[j]) {
+          // a comment has been changed.  Note that this won't trigger if the comment icon is added.
+          // I don't want to set a real change here until the whole thing is done (??)
+          // console.log("setting needToSave to 1");
+          Blockscad.undo.needToSave = 1;
+          if (Blockscad.undo.fieldChanging != myid) {
+            Blockscad.undo.fieldChanging = myid;
+            return true;
+          }
+          else return false;
+        }
       }
 
     }
@@ -1072,13 +1206,21 @@ Blockscad.isRealChange = function() {
       return true;
     }
   }
-  if (real_change) return true;
+  if (real_change) {
+
+    // console.log("setting needToSave to 1");
+    Blockscad.undo.needToSave = 1;
+    return true;
+  } 
   return false;
 };// end Blockscad.isRealChange()
 
 Blockscad.workspaceChanged = function () {
 
-  Blockscad.undo.yesthis = 0;  // I don't know if this is a real change yet.
+
+
+
+  Blockscad.undo.yesthis = 0;  // don't know if this is a change to add to the undo stack yet.
   //console.log("workspace has changed\n");
   // important - check to see if the change is one we want to make undoable!
   Blockscad.undo.blockList = Blockly.mainWorkspace.getAllBlocks();
@@ -1097,6 +1239,8 @@ Blockscad.workspaceChanged = function () {
   Blockscad.undo.oldParentIds = Blockscad.undo.parentIds;
   Blockscad.undo.oldFieldValues = Blockscad.undo.fieldValues;
   Blockscad.undo.oldDisabled = Blockscad.undo.isDisabled;
+  Blockscad.undo.oldComment = Blockscad.undo.comment;
+  Blockscad.undo.oldProjectName = Blockscad.undo.projectName;
   Blockscad.undo.oldVarNames = Blockscad.undo.varNames;
 
 
@@ -1571,13 +1715,18 @@ Blockscad.initLanguage = function() {
 Blockscad.saveBlocksLocal = function() {
   var xmlDom = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
   var xmlText = Blockly.Xml.domToText(xmlDom);
+  // console.log(xmlText);
   var blob = new Blob([xmlText], {type: "text/plain;charset=utf-8"});
+
 
   // pull a filename entered by the user
   var blocks_filename = $('#project-name').val();
   // don't save without a filename.  Name isn't checked for quality.
+  // console.log("in SaveBlocksLocal with: ", blocks_filename);
   if (blocks_filename) {
     saveAs(blob, blocks_filename + ".xml");
+    // console.log("SAVED locally: setting needToSave to 0");
+    Blockscad.undo.needToSave = 0;
   }
   else {
     alert("SAVE FAILED.  Please give your project a name, then try again.");

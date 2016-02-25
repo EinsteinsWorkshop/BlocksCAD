@@ -131,7 +131,7 @@ Blockly.Blocks['difference'] = {
       this.minusCount_++;
       var mytype = this.getInput('A').connection.check_;
       var minusInput = this.appendStatementInput('MINUS' + this.minusCount_)
-          .appendField('Minus')
+          .appendField('minus')
           .setCheck(mytype); 
     } else if (num == -1) {
       this.removeInput('MINUS' + this.minusCount_); 
