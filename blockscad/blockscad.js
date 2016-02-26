@@ -691,7 +691,7 @@ Blockscad.showExample = function(e) {
         // else 
         //   console.log("user didn't want to save." );
         // console.log("i would try to show the example now!");
-        Blockscad.getExample(example, name);
+        Blockscad.getExample(example, name,fn);
     }).catch(function(result) {
       console.log("caught an error in show example 1.  result is:" + result);
 
@@ -699,18 +699,19 @@ Blockscad.showExample = function(e) {
   }
   else {
     // console.log("no need to save old project.  Just go get example.");
-    Blockscad.getExample(example, name);
+    Blockscad.getExample(example, name,fn);
   }
 }
 
-Blockscad.getExample = function(example, name) {
+Blockscad.getExample = function(example, name, fn) {
+  var ffn = fn;
   $.get(example, function( data ) {
 
     Blockscad.clearProject();
     Blockscad.workspaceChanged();
 
     // load xml blocks
-    var xml = Blockly.Xml.textToDom(Blockscad[fn]);
+    var xml = Blockly.Xml.textToDom(Blockscad[ffn]);
 
     Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
     Blockly.fireUiEvent(window, 'resize');
