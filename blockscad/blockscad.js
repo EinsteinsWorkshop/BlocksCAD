@@ -55,6 +55,12 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 Blockscad.init = function() {
   Blockscad.initLanguage();
 
+  // // start logging keypresses for undo.  I need to catch the enter key to know that
+  // // a field has been finished writing in.
+  // $(document).keypress(function(event){
+  //   alert(String.fromCharCode(event.which)); 
+  // });
+
   // version of input files/projects
   Blockscad.inputVersion = Blockscad.version;
 
@@ -986,6 +992,7 @@ Blockscad.isRealChange = function() {
   Blockscad.undo.comment = [];
   Blockscad.undo.projectName = $('#project-name').val();
 
+  Blockscad.undo.triggerRender = false;   // should the change trigger a re-render?
 
   var deletedBlockPos = null;
   var addedBlockPos = null;
@@ -999,6 +1006,7 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.needToSave = 1;
   }
 
+  // console.log("in realChange()");
   // console.log("in isRealChange with current",Blockscad.undo.blockList);
   // console.log("old at RealChange",Blockscad.undo.oldBlockList);
 
@@ -1059,6 +1067,7 @@ Blockscad.isRealChange = function() {
     }
     // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
+    Blockscad.undo.triggerRender = true;
     return true;
   }
   if (Blockscad.undo.blockCount < Blockscad.undo.blockList.length) {
@@ -1091,6 +1100,7 @@ Blockscad.isRealChange = function() {
     }
     // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
+    Blockscad.undo.triggerRender = true;
     return true;
   }
 
@@ -1120,6 +1130,7 @@ Blockscad.isRealChange = function() {
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
+          Blockscad.undo.triggerRender = true;
           // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
 
           // determine if we had a "plug" or an "unplug" event, and 
@@ -1154,38 +1165,54 @@ Blockscad.isRealChange = function() {
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
+          Blockscad.undo.triggerRender = true;
         }
         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
           // A field is changing.  I won't trigger undo yet to aggregate
           // the keypresses, but I do want to enable the renderButton already.
           $('#renderButton').prop('disabled', false); 
+          console.log("found a field changing");
+          Blockscad.undo.fieldChanging = 1;
+
 
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
-          if (Blockscad.undo.fieldChanging != myid) {
-            Blockscad.undo.fieldChanging = myid;
-            // console.log("triggering field-change addition to undo stack");
-            return true; // found a real change - a field is changing!
+          // if (Blockscad.undo.fieldChanging != myid) {
+          //   Blockscad.undo.fieldChanging = myid;
+          //   console.log("triggering field-change addition to undo stack");
+          //   //return true; // found a real change - a field is changing!
+          // }
+          // if (Blockscad.undo.editorClosed) {
+          //   console.log("in isRealChange.  editor was closed.");
+          //   return true;
+          // }
+          // else return false; // this event should be ignored by undo.
+        }
+        if (Blockscad.undo.fieldChanging) {
+          // console.log("currently, blockscad thinks a field is changing");
+          if (Blockscad.undo.editorClosed) {
+            // console.log("editor was closed.  Field no longer changing.");
+            Blockscad.undo.fieldChanging = 0;
+            Blockscad.undo.triggerRender = true;
+            return true;
           }
-          else return false; // this event should be ignored by undo.
+          // else
+          //   console.log("editor was not closed, so the field is still changing.");
         }
         if (Blockscad.undo.isDisabled[i] != Blockscad.undo.oldDisabled[j]) {
           // some block has changed from disabled to enabled, or vice-versa.  Mark this
           // as an undoable change.
           // don't return from here though - I might need to enable/disable more math blocks.
           real_change = true;
+          Blockscad.undo.triggerRender = true;
         }
         if (Blockscad.undo.comment[i] != Blockscad.undo.oldComment[j]) {
           // a comment has been changed.  Note that this won't trigger if the comment icon is added.
-          // I don't want to set a real change here until the whole thing is done (??)
+          // detecting when a comment is finished being entered is hard.  I'll
+          // only set a need to save here, not bother to make the change undoable.
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
-          if (Blockscad.undo.fieldChanging != myid) {
-            Blockscad.undo.fieldChanging = myid;
-            return true;
-          }
-          else return false;
         }
       }
 
@@ -1270,6 +1297,10 @@ Blockscad.workspaceChanged = function () {
         Blockscad.undo.undoStack.shift();
       }
     }
+
+
+    // just for fun, lets render every time there is a real change.
+    Blockscad.doRender();
   }
   // even though this isn't a real change, I want to accumulate moves
   // and field changes in the current state, which will then be pushed
