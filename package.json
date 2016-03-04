@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "BlocksCAD - Easy, Open-Source Solid CAD for Everyone!",
   "main": "app://blockscad/index.html",
-  "chromium-args": "--data-path='data/'",
+  "chromium-args": "--data-path='data/' --enable-webgl --ignore-gpu-blacklist",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "node_modules/.bin/jshint blockly blockscad",
