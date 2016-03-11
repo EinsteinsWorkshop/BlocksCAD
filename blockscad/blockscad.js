@@ -234,7 +234,7 @@ Blockscad.init = function() {
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
   // this should fix that.
   // starts at 0 ("do not need to save") because the user hasn't done anything yet.
-  Blockscad.undo.needToSave = 0;
+  Blockscad.setNoSaveNeeded();
 
   // Set up an event listener to see when the Blockly workspace gets a change
   // TODO: Set up some "Undo_events" in Blockly that only trigger on the good stuff
@@ -340,12 +340,14 @@ Blockscad.loadLocalBlocks = function(e) {
   if (evt.target.files.length) {
     if (Blockscad.undo.needToSave) {
       promptForSave().then(function(wantToSave) {
-        if (wantToSave=="cancel") 
+        if (wantToSave=="cancel") { 
           return;
-        if (wantToSave=="save")
+        }
+        if (wantToSave=="nosave")
+          Blockscad.setNoSaveNeeded();
+        else if (wantToSave=="save")
           Blockscad.saveBlocks();
-        // else 
-        //   console.log("user didn't want to save." );
+
         // console.log("time to load the local blocks!");
         Blockscad.createNewProject();
         readSingleFile(evt,true);
@@ -597,12 +599,14 @@ Blockscad.newProject = function() {
   // console.log("needToSave is: ", Blockscad.undo.needToSave);
   if (Blockscad.undo.needToSave) {
     promptForSave().then(function(wantToSave) {
-      if (wantToSave=="cancel") 
+      if (wantToSave=="cancel") {
         return;
-      if (wantToSave=="save")
+      }
+      if (wantToSave=="nosave")
+        Blockscad.setNoSaveNeeded();      
+      else if (wantToSave=="save")
         Blockscad.saveBlocks();
-      // else 
-      //   console.log("user didn't want to save." );
+
       // console.log("time to get a new project!");
       Blockscad.createNewProject();
         
@@ -620,7 +624,7 @@ Blockscad.createNewProject = function() {
   Blockscad.clearProject();
   Blockscad.workspaceChanged();
   Blockscad.clearUndo();
-  setTimeout(Blockscad.setNoSaveNeeded, 100);
+  setTimeout(Blockscad.setNoSaveNeeded, 300);
   $('#displayBlocks').click();
 }
 // first attempt to use promises for async stuff!
@@ -675,12 +679,14 @@ Blockscad.showExample = function(e) {
   // console.log("in showExample");
   if (Blockscad.undo.needToSave) {
     promptForSave().then(function(wantToSave) {
-        if (wantToSave=="cancel") 
+        if (wantToSave=="cancel") {
           return;
-        if (wantToSave=="save")
+        }
+        if (wantToSave=="nosave")
+          Blockscad.setNoSaveNeeded();
+        else if (wantToSave=="save")
           Blockscad.saveBlocks();
-        // else 
-        //   console.log("user didn't want to save." );
+
         // console.log("i would try to show the example now!");
         Blockscad.getExample(example, name);
     }).catch(function(result) {
@@ -717,7 +723,7 @@ Blockscad.getExample = function(example, name) {
     // update project name
     $('#project-name').val(name + ' example');
     // we just got a new project.  It doesn't need saving yet.
-    setTimeout(Blockscad.setNoSaveNeeded, 200);
+    setTimeout(Blockscad.setNoSaveNeeded, 300);
   });
 }
 Blockscad.setNoSaveNeeded = function() {
@@ -1271,7 +1277,11 @@ Blockscad.workspaceChanged = function () {
   if (Blockscad.undo.yesthis) {
     //console.log("yesthis");
     // there has been a substantive change.  I need to update the
-    // undo/redo stacks, and enable the render button.
+    // undo/redo stacks, and enable the render button, and check save status.
+
+    // if no blocks in workspace, don't prompt for saves.
+    if (Blockscad.undo.needToSave && Blockscad.undo.blockCount == 0)
+      Blockscad.setNoSaveNeeded();
 
     $('#renderButton').prop('disabled', false); 
 
@@ -1299,8 +1309,8 @@ Blockscad.workspaceChanged = function () {
     }
 
 
-    // just for fun, lets render every time there is a real change.
-    Blockscad.doRender();
+    // to turn on real-time render, run this command:
+    // Blockscad.doRender();
   }
   // even though this isn't a real change, I want to accumulate moves
   // and field changes in the current state, which will then be pushed
@@ -1744,7 +1754,7 @@ Blockscad.saveBlocksLocal = function() {
   if (blocks_filename) {
     saveAs(blob, blocks_filename + ".xml");
     // console.log("SAVED locally: setting needToSave to 0");
-    Blockscad.undo.needToSave = 0;
+    Blockscad.setNoSaveNeeded();
   }
   else {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
