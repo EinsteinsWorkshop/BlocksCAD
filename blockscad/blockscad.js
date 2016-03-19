@@ -1177,7 +1177,7 @@ Blockscad.isRealChange = function() {
           // A field is changing.  I won't trigger undo yet to aggregate
           // the keypresses, but I do want to enable the renderButton already.
           $('#renderButton').prop('disabled', false); 
-          console.log("found a field changing");
+          // console.log("found a field changing");
           Blockscad.undo.fieldChanging = 1;
 
 

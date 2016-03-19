@@ -786,6 +786,114 @@ Blockly.Blocks['simplemirror_new'] = {
   } 
 };
 
+Blockly.Blocks['taper'] = {
+  init: function() {
+    this.category = 'TRANSFORM';
+    this.setHelpUrl('http://www.example.com/');
+    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.appendDummyInput()
+        .appendField('Taper');
+    this.appendDummyInput('3D')
+        .appendField('along ')
+        .appendField(new Blockly.FieldDropdown([['X', 'X'], ['Y', 'Y'], ['Z', 'Z']]), 'taperaxis')
+        .appendField('axis. ');
+    this.appendDummyInput('2D')
+        .appendField('along ')
+        .appendField(new Blockly.FieldDropdown([['X', 'X'], ['Y', 'Y']]), 'taperaxis_cag')
+        .appendField('axis. ')
+        .setVisible(false);
+    this.appendValueInput('FACTOR')
+        .setCheck('Number')
+        .appendField('Scale to:')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendStatementInput('A')
+        .setCheck(['CSG','CAG']);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, ['CSG','CAG']);
+    this.setTooltip('Scales shape along an axis.  Works best with scaling factors between zero and one.');
+    this.setWarningText('Not compatible with OpenSCAD!');
+    // try to set up a mutator - Jennie
+    this.setMutatorPlus(new Blockly.MutatorPlus(this));    
+    this.plusCount_ = 0;
+  },
+  mutationToDom: function() {
+    if (!this.plusCount_) {
+        return null;
+    }
+    var container = document.createElement('mutation');
+    if (this.plusCount_) {
+        container.setAttribute('plus',this.plusCount_);
+    }
+    return container;
+  },
+  domToMutation: function(xmlElement) {
+    this.plusCount_ = parseInt(xmlElement.getAttribute('plus'), 10);
+    var mytype = this.getInput('A').connection.check_;
+    for (var x = 1; x <= this.plusCount_; x++) {
+        this.appendStatementInput('PLUS' + x)
+            .setCheck(mytype);
+    }
+    if (this.plusCount_ >= 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+    }
+  }, 
+  updateShape_ : function(num) {
+    if (num == 1) {
+      this.plusCount_++;
+      var mytype = this.getInput('A').connection.check_;
+      var plusInput = this.appendStatementInput('PLUS' + this.plusCount_)
+          .setCheck(mytype); 
+    } else if (num == -1) {
+      this.removeInput('PLUS' + this.plusCount_); 
+      this.plusCount_--;
+    }
+    if (this.plusCount_ >= 1) {
+      if (this.plusCount_ == 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+        this.render();
+      }
+    } else {
+      this.mutatorMinus.dispose();
+      this.mutatorMinus = null;
+      this.render();
+    }
+  },   
+   /**
+   * If our parent or child is CSG or CAG, that sets our output type
+   * and whether ZVAL field exists.
+   * @this Blockly.Block
+   */
+  setType: function(type,drawMe) {
+    if (!this.workspace) {
+      // Block has been deleted.
+      return;
+    }
+
+    var csg = this.getInput('3D');
+    var cag = this.getInput('2D');
+    var next = this.getInput('A');
+
+    if (type == 'CAG') {      // parent wants a 2D shape
+      // csg.setVisible(false);
+      // cag.setVisible(true);
+      hideMyInput(csg,drawMe);
+      showMyInput(cag,drawMe);
+      if (drawMe) this.render();
+    }
+    else {                    // parent wants 3D or doesn't care
+      // csg.setVisible(true);
+      // cag.setVisible(false);
+      hideMyInput(cag,drawMe);
+      showMyInput(csg,drawMe);
+      if (drawMe) this.render();
+    } 
+    this.previousConnection.setCheck(type);
+    next.connection.setCheck(type);
+    for (var i = 1; i <= this.plusCount_; i++) {
+      this.getInput('PLUS' + i).connection.setCheck(type);
+    }   
+  } 
+};
 Blockly.Blocks['simplerotate'] = {
   init: function() {
     this.category = 'TRANSFORM';

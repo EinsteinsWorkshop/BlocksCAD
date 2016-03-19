@@ -167,6 +167,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
       wheelDelta = e.detail * -40;     
     }
     if(wheelDelta) {
+      wheelDelta /= 8;
       var factor = Math.pow(1.003, -wheelDelta);
       var coeff = _this.getZoom();
       coeff *= factor;

@@ -35,6 +35,8 @@ define("OpenjscadSolidFactory", ["Context", "Globals",  "PrimitiveModules", "Tra
                 return new TransformModules.Translate(this);
             case "scale":
                 return new TransformModules.Scale(this);
+            case "taper":
+                return new TransformModules.Taper(this);
             case "rotate":
                 return new TransformModules.Rotate(this);
             case "mirror":

@@ -355,6 +355,46 @@ Blockly.OpenSCAD['simplemirror_new'] = function(block) {
   return code;
 };
 
+Blockly.OpenSCAD['taper'] = function(block) {
+  var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
+  if (statements_a != '') statements_a += '\n';
+  for (var n = 0; n<= block.plusCount_; n++) {
+    var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
+    if (statements_b != '') statements_a += statements_b + '\n';
+  } 
+  var dropdown_axis = block.getFieldValue('taperaxis');
+  var dropdown_axis_cag = block.getFieldValue('taperaxis_cag');
+  var vec;
+  var factor = Blockly.OpenSCAD.valueToCode(block, 'FACTOR', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var type = block.previousConnection.check_[0]; 
+
+  // missing the factor field?  just set it to one.
+  if (!factor) factor = 1;
+
+  if (type != 'CAG') {
+    if (dropdown_axis == "Z") {
+        vec = "[0,0,1]";
+    }
+    else if (dropdown_axis == "X") {
+        vec = "[1,0,0]";
+    }
+    else if (dropdown_axis == "Y") {
+        vec = "[0,1,0]";
+    }
+    var code = 'taper(' + vec + ', ' + factor + '){\n' + statements_a + '}';
+  }
+  else {
+    if (dropdown_axis_cag == "X") {
+        vec = "[1,0,0]";
+    }
+    else if (dropdown_axis_cag == "Y") {
+        vec = "[0,1,0]";
+    }
+    var code = 'taper(' + vec + ', ' + factor + '){\n' + statements_a + '}'; 
+  }
+  return code;
+};
+
 Blockly.OpenSCAD['simplemirror'] = function(block) {
   var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
   if (statements_a != '') statements_a += '\n';
