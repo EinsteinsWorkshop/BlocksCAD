@@ -573,6 +573,8 @@ for solid CAD anyway.
             for (var i = 0; i < triangPolys.length; i++) {
                 newVert = [];
                 for (var j = 0; j < triangPolys[i].vertices.length; j++) {
+                    if (triangPolys[i].vertices.length > 3)
+                        console.log("bad facet - more than 3 vertices!");
                     var point = triangPolys[i].vertices[j].pos;
                     if (vector[0]) {
                         // Taper along the X-axis by "factor".
@@ -1246,6 +1248,18 @@ for solid CAD anyway.
             cut3d = cut3d.cutByPlane(plane2);
             return cut3d.projectToOrthoNormalBasis(orthobasis);
         },
+
+        // fixTJunctionsNew
+        // This TJunction fixer will add a new polygon into the TJunctions.
+        // I am trying to fix solids for taper and other non-linear transforms.
+
+        // Algorithm:
+        // get all unpaired edges.  (I'll steal this from old FixTJunctions).
+        // go through unpaired edges.  Look for a reverse edge that matches one side.  
+        // see if you can follow a chain that brings to you the original edge again.
+        // that chain becomes a new polygon.
+        // add that polygon onto the csg.
+
 
         /*
          fixTJunctions:

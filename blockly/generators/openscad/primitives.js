@@ -548,9 +548,7 @@ Blockly.OpenSCAD['rotateextrudetwist'] = function(block) {
 
 Blockly.OpenSCAD['stl_import'] = function(block) {
   var text_filename = block.getFieldValue('STL_FILENAME');
-  // TODO: Assemble JavaScript into code variable.
   var code = 'import("' + text_filename + '");\n';
-  //var code = block.getFieldValue('STL_CONTENTS');
   return code;
 };
 

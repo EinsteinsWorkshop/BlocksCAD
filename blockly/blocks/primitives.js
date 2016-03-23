@@ -810,7 +810,7 @@ Blockly.Blocks['taper'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Scales shape along an axis.  Works best with scaling factors between zero and one.');
+    this.setTooltip('Scales shape along an axis.  The smallest value along the select axis is scaled at one, and the largest value is scaled at user input scale value.');
     this.setWarningText('Not compatible with OpenSCAD!');
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
@@ -1498,7 +1498,7 @@ Blockly.Blocks['math_constant_bs'] = {
   }
 };
 
-// I want a "primitive" block for stl import. 
+// I want a block for stl import (file). 
 Blockly.Blocks['stl_import'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'

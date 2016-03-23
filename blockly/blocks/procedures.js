@@ -496,7 +496,7 @@ Blockly.Blocks['procedures_defreturn'] = {
       return;
     }
     var ret = this.getInput('RETURN');
-    console.log("in setType for function. here is the input:",ret);
+    // console.log("in setType for function. here is the input:",ret);
     if (ret.connection.targetConnection) {
       if (ret.connection.targetConnection.check_ == 'Number')
         this.myType_ = ret.connection.check_ = 'Number';

@@ -167,7 +167,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
       wheelDelta = e.detail * -40;     
     }
     if(wheelDelta) {
-      wheelDelta /= 8;
+      wheelDelta /= 2;
       var factor = Math.pow(1.003, -wheelDelta);
       var coeff = _this.getZoom();
       coeff *= factor;
@@ -1106,7 +1106,7 @@ Blockscad.Processor.prototype = {
   setError: function(txt) {
     this.hasError = (txt != "");
     $( "#error-message" ).text(txt);
-//    console.log("in setError with text", txt, "this.hasError is", this.hasError); 
+   console.log("in setError with text", txt, "this.hasError is", this.hasError); 
     this.enableItems();
   },
   
