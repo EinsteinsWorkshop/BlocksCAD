@@ -29,7 +29,7 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.2.1";
+Blockscad.version = "1.3.0";
 
 Blockscad.offline = false;  // true unless using a cloud service backend for file management
 
@@ -54,6 +54,12 @@ Blockscad.drawAxes = 1;       // start with axes drawn
  */
 Blockscad.init = function() {
   Blockscad.initLanguage();
+
+  // // start logging keypresses for undo.  I need to catch the enter key to know that
+  // // a field has been finished writing in.
+  // $(document).keypress(function(event){
+  //   alert(String.fromCharCode(event.which)); 
+  // });
 
   // version of input files/projects
   Blockscad.inputVersion = Blockscad.version;
@@ -228,7 +234,7 @@ Blockscad.init = function() {
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
   // this should fix that.
   // starts at 0 ("do not need to save") because the user hasn't done anything yet.
-  Blockscad.undo.needToSave = 0;
+  Blockscad.setNoSaveNeeded();
 
   // Set up an event listener to see when the Blockly workspace gets a change
   // TODO: Set up some "Undo_events" in Blockly that only trigger on the good stuff
@@ -334,12 +340,14 @@ Blockscad.loadLocalBlocks = function(e) {
   if (evt.target.files.length) {
     if (Blockscad.undo.needToSave) {
       promptForSave().then(function(wantToSave) {
-        if (wantToSave=="cancel") 
+        if (wantToSave=="cancel") { 
           return;
-        if (wantToSave=="save")
+        }
+        if (wantToSave=="nosave")
+          Blockscad.setNoSaveNeeded();
+        else if (wantToSave=="save")
           Blockscad.saveBlocks();
-        // else 
-        //   console.log("user didn't want to save." );
+
         // console.log("time to load the local blocks!");
         Blockscad.createNewProject();
         readSingleFile(evt,true);
@@ -593,12 +601,14 @@ Blockscad.newProject = function() {
   // console.log("needToSave is: ", Blockscad.undo.needToSave);
   if (Blockscad.undo.needToSave) {
     promptForSave().then(function(wantToSave) {
-      if (wantToSave=="cancel") 
+      if (wantToSave=="cancel") {
         return;
-      if (wantToSave=="save")
+      }
+      if (wantToSave=="nosave")
+        Blockscad.setNoSaveNeeded();      
+      else if (wantToSave=="save")
         Blockscad.saveBlocks();
-      // else 
-      //   console.log("user didn't want to save." );
+
       // console.log("time to get a new project!");
       Blockscad.createNewProject();
         
@@ -616,7 +626,7 @@ Blockscad.createNewProject = function() {
   Blockscad.clearProject();
   Blockscad.workspaceChanged();
   Blockscad.clearUndo();
-  setTimeout(Blockscad.setNoSaveNeeded, 100);
+  setTimeout(Blockscad.setNoSaveNeeded, 300);
   $('#displayBlocks').click();
 }
 // first attempt to use promises for async stuff!
@@ -671,12 +681,14 @@ Blockscad.showExample = function(e) {
   // console.log("in showExample");
   if (Blockscad.undo.needToSave) {
     promptForSave().then(function(wantToSave) {
-        if (wantToSave=="cancel") 
+        if (wantToSave=="cancel") {
           return;
-        if (wantToSave=="save")
+        }
+        if (wantToSave=="nosave")
+          Blockscad.setNoSaveNeeded();
+        else if (wantToSave=="save")
           Blockscad.saveBlocks();
-        // else 
-        //   console.log("user didn't want to save." );
+
         // console.log("i would try to show the example now!");
         Blockscad.getExample(example, name);
     }).catch(function(result) {
@@ -713,7 +725,7 @@ Blockscad.getExample = function(example, name) {
     // update project name
     $('#project-name').val(name + ' example');
     // we just got a new project.  It doesn't need saving yet.
-    setTimeout(Blockscad.setNoSaveNeeded, 200);
+    setTimeout(Blockscad.setNoSaveNeeded, 300);
   });
 }
 Blockscad.setNoSaveNeeded = function() {
@@ -990,6 +1002,7 @@ Blockscad.isRealChange = function() {
   Blockscad.undo.comment = [];
   Blockscad.undo.projectName = $('#project-name').val();
 
+  Blockscad.undo.triggerRender = false;   // should the change trigger a re-render?
 
   var deletedBlockPos = null;
   var addedBlockPos = null;
@@ -1003,6 +1016,7 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.needToSave = 1;
   }
 
+  // console.log("in realChange()");
   // console.log("in isRealChange with current",Blockscad.undo.blockList);
   // console.log("old at RealChange",Blockscad.undo.oldBlockList);
 
@@ -1063,6 +1077,7 @@ Blockscad.isRealChange = function() {
     }
     // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
+    Blockscad.undo.triggerRender = true;
     return true;
   }
   if (Blockscad.undo.blockCount < Blockscad.undo.blockList.length) {
@@ -1095,6 +1110,7 @@ Blockscad.isRealChange = function() {
     }
     // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
+    Blockscad.undo.triggerRender = true;
     return true;
   }
 
@@ -1124,6 +1140,7 @@ Blockscad.isRealChange = function() {
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
+          Blockscad.undo.triggerRender = true;
           // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
 
           // determine if we had a "plug" or an "unplug" event, and 
@@ -1158,38 +1175,54 @@ Blockscad.isRealChange = function() {
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
+          Blockscad.undo.triggerRender = true;
         }
         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
           // A field is changing.  I won't trigger undo yet to aggregate
           // the keypresses, but I do want to enable the renderButton already.
           $('#renderButton').prop('disabled', false); 
+          // console.log("found a field changing");
+          Blockscad.undo.fieldChanging = 1;
+
 
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
-          if (Blockscad.undo.fieldChanging != myid) {
-            Blockscad.undo.fieldChanging = myid;
-            // console.log("triggering field-change addition to undo stack");
-            return true; // found a real change - a field is changing!
+          // if (Blockscad.undo.fieldChanging != myid) {
+          //   Blockscad.undo.fieldChanging = myid;
+          //   console.log("triggering field-change addition to undo stack");
+          //   //return true; // found a real change - a field is changing!
+          // }
+          // if (Blockscad.undo.editorClosed) {
+          //   console.log("in isRealChange.  editor was closed.");
+          //   return true;
+          // }
+          // else return false; // this event should be ignored by undo.
+        }
+        if (Blockscad.undo.fieldChanging) {
+          // console.log("currently, blockscad thinks a field is changing");
+          if (Blockscad.undo.editorClosed) {
+            // console.log("editor was closed.  Field no longer changing.");
+            Blockscad.undo.fieldChanging = 0;
+            Blockscad.undo.triggerRender = true;
+            return true;
           }
-          else return false; // this event should be ignored by undo.
+          // else
+          //   console.log("editor was not closed, so the field is still changing.");
         }
         if (Blockscad.undo.isDisabled[i] != Blockscad.undo.oldDisabled[j]) {
           // some block has changed from disabled to enabled, or vice-versa.  Mark this
           // as an undoable change.
           // don't return from here though - I might need to enable/disable more math blocks.
           real_change = true;
+          Blockscad.undo.triggerRender = true;
         }
         if (Blockscad.undo.comment[i] != Blockscad.undo.oldComment[j]) {
           // a comment has been changed.  Note that this won't trigger if the comment icon is added.
-          // I don't want to set a real change here until the whole thing is done (??)
+          // detecting when a comment is finished being entered is hard.  I'll
+          // only set a need to save here, not bother to make the change undoable.
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
-          if (Blockscad.undo.fieldChanging != myid) {
-            Blockscad.undo.fieldChanging = myid;
-            return true;
-          }
-          else return false;
         }
       }
 
@@ -1248,7 +1281,11 @@ Blockscad.workspaceChanged = function () {
   if (Blockscad.undo.yesthis) {
     //console.log("yesthis");
     // there has been a substantive change.  I need to update the
-    // undo/redo stacks, and enable the render button.
+    // undo/redo stacks, and enable the render button, and check save status.
+
+    // if no blocks in workspace, don't prompt for saves.
+    if (Blockscad.undo.needToSave && Blockscad.undo.blockCount == 0)
+      Blockscad.setNoSaveNeeded();
 
     $('#renderButton').prop('disabled', false); 
 
@@ -1274,6 +1311,10 @@ Blockscad.workspaceChanged = function () {
         Blockscad.undo.undoStack.shift();
       }
     }
+
+
+    // to turn on real-time render, run this command:
+    // Blockscad.doRender();
   }
   // even though this isn't a real change, I want to accumulate moves
   // and field changes in the current state, which will then be pushed
@@ -1717,7 +1758,7 @@ Blockscad.saveBlocksLocal = function() {
   if (blocks_filename) {
     saveAs(blob, blocks_filename + ".xml");
     // console.log("SAVED locally: setting needToSave to 0");
-    Blockscad.undo.needToSave = 0;
+    Blockscad.setNoSaveNeeded();
   }
   else {
     alert("SAVE FAILED.  Please give your project a name, then try again.");

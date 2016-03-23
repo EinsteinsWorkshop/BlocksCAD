@@ -280,6 +280,13 @@ Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="taper">' +
+        '<value name="FACTOR">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' + 
+        '</value>' +
+      '</block>' +
       '<block type="linearextrude">' +
         '<value name="HEIGHT">' +
           '<block type="math_number">' +

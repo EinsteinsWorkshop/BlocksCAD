@@ -496,6 +496,7 @@ Blockly.Blocks['procedures_defreturn'] = {
       return;
     }
     var ret = this.getInput('RETURN');
+    // console.log("in setType for function. here is the input:",ret);
     if (ret.connection.targetConnection) {
       if (ret.connection.targetConnection.check_ == 'Number')
         this.myType_ = ret.connection.check_ = 'Number';
@@ -511,14 +512,20 @@ Blockly.Blocks['procedures_defreturn'] = {
     // I need to find out what my caller stacks think their types are.
     if (callers.length) {
       for (var i = 0; i < callers.length; i++) {
+        // console.log("callers.length is:",callers.length);
         // get caller's connection type here
         if (callers[i].outputConnection.targetConnection)
           conType = callers[i].outputConnection.targetConnection.check_;
-        //console.log("caller type is",conType);
-        if (this.myType_ && conType && conType != this.myType_) {
+
+        if (!goog.isArray(conType)) conType = [conType];
+        // conType is an array.  
+        // console.log("caller type is",conType);
+        // console.log(this.myType_);
+      if (this.myType_ && conType && conType.indexOf(this.myType_) == -1) {
+
           // call blocks are going to be kicked out.  
           console.log("warning message!  call block id", callers[i].id, "will be kicked out");
-          numBumped.push(callers[i]);
+          // numBumped.push(callers[i]);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
           var topBlock = callers[i].collapsedParents();
           if (topBlock)
@@ -542,7 +549,7 @@ Blockly.Blocks['procedures_defreturn'] = {
         else if (this.myType_ == 'Boolean')
           callers[i].category = 'BOOLEAN';
         else callers[i].category = 'UNKNOWN';
-        //console.log("tried to set caller type to ",this.myType_, callers[i]);
+        // console.log("tried to set caller type to ",this.myType_, callers[i]);
       }
     }
     // the system will be done now with unplugging all the blocks that need it.  

@@ -422,10 +422,10 @@ Blockly.Blocks['logic_ternary'] = {
         .setCheck('Boolean')
         .appendField(Blockly.Msg.LOGIC_TERNARY_CONDITION);
     this.appendValueInput('THEN')
-        .setCheck('Number')
+        // .setCheck('Number')
         .appendField(Blockly.Msg.LOGIC_TERNARY_IF_TRUE);
     this.appendValueInput('ELSE')
-        .setCheck('Number')
+        // .setCheck('Number')
         .appendField(Blockly.Msg.LOGIC_TERNARY_IF_FALSE);
     this.setOutput(true,'Number');
     this.setTooltip(Blockly.Msg.LOGIC_TERNARY_TOOLTIP);
