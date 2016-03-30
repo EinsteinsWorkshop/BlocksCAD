@@ -148,9 +148,9 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         var size = Context.contextVariableLookup(context,"size","20");
         var font = Context.contextVariableLookup(context,"font","");
 
-        var dummy_size = Math.ceil(size / 10);
+        // var dummy_size = Math.ceil(size / 100);
 
-        var resolution = Context.get_fragments_from_r(dummy_size, context);
+        var resolution = Context.get_font_resolution(context);
 
         if (Blockscad.fonts[font]) {
             // Use your font here.
