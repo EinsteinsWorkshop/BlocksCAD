@@ -33,6 +33,7 @@ Blockscad.fontList = ['/fonts/Roboto/Roboto-Bold.ttf',
                       '/fonts/nimbus/nimbus-sans-l_bold.ttf',
                       '/fonts/AverageMono/AverageMonoSimp.ttf',
                       '/fonts/Open_Sans/OpenSans-ExtraBold.ttf',
+                      '/fonts/stardos-stencil/StardosStencil-Bold.ttf',
                       '/fonts/Chewy/Chewy.ttf',
                       '/fonts/bangers/Bangers.ttf'];
 
@@ -42,6 +43,7 @@ Blockscad.fontName = ['Roboto',
                       'Nimbus Sans',
                       'Average Mono',
                       'Open Sans',
+                      'Stardos Stencil',
                       'Chewy',
                       'Bangers']; 
 

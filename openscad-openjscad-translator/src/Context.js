@@ -134,6 +134,16 @@ define("Context", ["Globals", "openscad-parser-support"], function(Globals, Open
         return parseInt(Math.ceil(Math.max(Math.min(360.0 / fa, r*2*Math.PI / fs), 5)));
     };
 
+    Context.get_font_resolution = function(context) {
+        var fn = Context.contextVariableLookup(context, "$fn", Globals.FN_DEFAULT);
+        var fs = Context.contextVariableLookup(context, "$fs", Globals.FS_DEFAULT);
+        var fa = Context.contextVariableLookup(context, "$fa", Globals.FA_DEFAULT);
+
+        if (fn > 0.0)
+            return parseInt(fn);
+        return 3;     
+    };
+
     function rad2deg(rad){
         return rad * (180/Math.PI);
     };
