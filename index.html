@@ -20,7 +20,11 @@
   <!-- Bootstrap -->
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="spectrum/spectrum.css">
   <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
+  <script src="spectrum/spectrum.js"></script>
+
+
   <!-- Lie (promises polyfill library) -->
   <script src="lie/lie.polyfill.min.js"></script>
   <!-- Bootbox (helper library for Bootstrap Modals) -->
@@ -207,6 +211,7 @@
 
             <div class='resizableDiv'>
               <div id="renderDiv">
+                <input type='text' id="defColor"/>
                 <select id="viewMenu" class="vmenu">
                   <option value="diagonal">diagonal</option>
                   <option value="front">front</option>
@@ -219,9 +224,13 @@
                 <button type="button" id="viewReset" class="vreset">
                   Reset View
                 </button>
+
                 <button type="button" id="axesButton" class="btn btn-default btn-pushed">
                   <img src="imgs/axes.png">
                 </button>
+
+                <!-- <input type='text' id="colorButton"/> -->
+
               </div> <!--renderDiv -->
 
               <div id="paneContainer">

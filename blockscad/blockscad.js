@@ -127,7 +127,6 @@ Blockscad.init = function() {
     BlocklyStorage.backupOnUnload();
   }
 
-
   // how about putting in the viewer?
 
   $(".resizableDiv").resizable({
@@ -150,6 +149,9 @@ Blockscad.init = function() {
           ui.position.top = 55;
       }
   });
+
+
+
 
   Blockly.fireUiEvent(window, 'resize');
 
@@ -298,6 +300,37 @@ Blockscad.init = function() {
     }
   });
 
+  // add "default color" picker to viewer
+
+Blockscad.setColor = function(r,g,b) {
+  // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
+  if (gProcessor && gProcessor.viewer){
+    gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
+    if (gProcessor.hasSolid()) {
+      // I have a solid already rendered - change its color!
+      gProcessor.viewer.setCsg(gProcessor.currentObject); 
+    }
+  }
+  Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
+  $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
+}
+
+$("#defColor").spectrum({
+  color: 'rgb(255,128,255)',    
+  showPalette: true,
+  className: "defaultColor",
+  appendTo: "#renderDiv",
+  hideAfterPaletteSelect:true,
+  showPaletteOnly: true,
+  change: function(color) {
+    Blockscad.setColor(color._r,color._g,color._b);
+
+  },
+    palette: [
+        ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,0,0);', 'rgb(255,102,0);'],
+        ['rgb(255,204,0);'  , 'rgb(0,153,0);'    ,'rgb(51,102,255);' , 'rgb(204,51,204);']
+    ]
+});
 
   // example handlers
   // to add an example, add a list item in index.html, add a click handler below, 
@@ -333,6 +366,8 @@ Blockscad.init = function() {
     });
   });
 }; // end Blockscad.init()
+
+
 
 
 Blockscad.loadLocalBlocks = function(e) {

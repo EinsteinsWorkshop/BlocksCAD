@@ -20,6 +20,8 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   this.viewpointX = 0;
   this.viewpointY = -5;
   this.viewpointZ = initialdepth;
+  this.defaultColor = [1,0.5,1,1];
+  // Blockscad.defaultColor = this.defaultColor.toString();
 
   this.touch = {
     lastX: 0,
@@ -186,7 +188,7 @@ Blockscad.Viewer.prototype = {
     // } else {
     //    this.meshes = OpenJsCad.Viewer.csgToMeshes(csg);
     // }
-      this.meshes = Blockscad.Viewer.csgToMeshes(csg);
+      this.meshes = Blockscad.Viewer.csgToMeshes(csg,this.defaultColor);
       this.onDraw();
   },
 
@@ -581,7 +583,7 @@ Blockscad.Viewer.prototype = {
 
 // Convert from CSG solid to an array of GL.Mesh objects
 // limiting the number of vertices per mesh to less than 2^16
-Blockscad.Viewer.csgToMeshes = function(initial_csg) {
+Blockscad.Viewer.csgToMeshes = function(initial_csg, defaultColor) {
   var csg = initial_csg.canonicalized();
   var mesh = new GL.Mesh({ normals: true, colors: true });
   var meshes = [ mesh ];
@@ -597,7 +599,7 @@ Blockscad.Viewer.csgToMeshes = function(initial_csg) {
   var numpolygons = polygons.length;
   for(var j = 0; j < numpolygons; j++) {
     var polygon = polygons[j];
-    var color = [1,0.5,1,1];      // -- default color
+    var color = defaultColor;      // -- default color
 
     if(polygon.shared && polygon.shared.color) {
       color = polygon.shared.color;
@@ -990,9 +992,9 @@ Blockscad.Processor.prototype = {
    // this code throws an error if I try to throw that child away. SO, I always leave the first
    // child.
    // JY - now there are lots of children - these are the resizable div's handles and such.  Argh! Leave 5.
-    while(this.containerdiv.children.length > 5)
+    while(this.containerdiv.children.length > 6)
       {
-        this.containerdiv.removeChild(5);
+        this.containerdiv.removeChild(6);
       }
 
     var viewerdiv = document.createElement("div");
