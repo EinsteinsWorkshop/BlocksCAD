@@ -365,10 +365,56 @@ $("#defColor").spectrum({
       root.find('.sub-menu:visible').hide();
     });
   });
+
+  // hook up the pic-taking button
+  $("#picButton").click(Blockscad.takePic);
+  $("#rPicButton").click(Blockscad.takeRPic);
 }; // end Blockscad.init()
 
+Blockscad.takeRPic = function() {
+  if (gProcessor) {
+    var thing = gProcessor.takeRotatingPic(0.7);
+    // console.log("got rotating pic");
 
+    // console.log(thing);
+    var gif = gifshot.createGIF({
+      'images': thing,
+      'interval': 0.4,
+      'gifWidth': 200,
+      'gifHeight': 200,
+      'sampleInterval': 7,
+    }, function(obj) {
+      if (!obj.error) {
+        var image = obj.image;
+        Blockscad.savePic(image, "bloop.gif");
+      }
+    });
+  }
+}
+Blockscad.savePic = function(image, name) {
+    var bytestream = atob(image.split(',')[1]);
+    var mimestring = image.split(',')[0].split(':')[1].split(';')[0];
 
+    // write the bytes of the string to an ArrayBuffer
+
+    var ab = new ArrayBuffer(bytestream.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < bytestream.length; i++) {
+      ia[i] = bytestream.charCodeAt(i);
+    }
+    // console.log("jpeg size: ", bytestream.length);
+
+    var blob = new Blob([ab], {type: "img/jpeg"});
+    saveAs(blob, name);
+}
+Blockscad.takePic = function() {
+  if (gProcessor.viewer) {
+    // the parameter here is the jpeg quality - between 0 and 1.
+    var image = gProcessor.viewer.takePic(0.7);
+    // console.log("image",image);
+    Blockscad.savePic(image, $('#project-name').val() + '.jpg');
+  }
+}
 
 Blockscad.loadLocalBlocks = function(e) {
   var evt = e;
@@ -1795,6 +1841,13 @@ Blockscad.saveBlocksLocal = function() {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
   }
 };
+
+Blockscad.savePicLocal = function(pic) {
+  var blob = new Blob([pic], {type: "img/jpeg"});
+
+  saveAs(blob, "tryThis.jpg");
+
+}
 
 /**
  * Save the openScad code for the current workspace to the local machine.

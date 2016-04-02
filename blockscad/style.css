@@ -158,6 +158,18 @@ html, body {
 	right: 20px;
 	z-index: 500;
 }
+#picButton {
+	position: absolute;
+	bottom: 0px;
+	left: 2px; 
+	z-index: 500;
+}
+#rPicButton {
+	position: absolute;
+	bottom: 0px;
+	left: 100px; 
+	z-index: 500;
+}
 .defaultColor {
 	position:relative;
 	z-index: 500;	

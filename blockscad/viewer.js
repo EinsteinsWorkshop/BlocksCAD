@@ -403,7 +403,7 @@ Blockscad.Viewer.prototype = {
       this.touch.scale = e.gesture.scale;
       return this;
   },
-  onDraw: function(e) {
+  onDraw: function(takePic) {
     var gl = this.gl;
     gl.makeCurrent();
 
@@ -578,7 +578,28 @@ Blockscad.Viewer.prototype = {
       gl.disable(gl.BLEND);
       // GL.Mesh.plane({ detailX: 20, detailY: 40 });
     }
+
+    // take a pic if needed
+    if (takePic) {
+      var resizedCanvas = document.createElement("canvas");
+      var resizedContext = resizedCanvas.getContext("2d");
+
+      resizedCanvas.height = "200";
+      resizedCanvas.width = "200";
+
+      var canvas = this.gl.canvas;
+
+      resizedContext.drawImage(canvas, 0, 0, 200, 200);
+      var image = resizedCanvas.toDataURL('image/jpeg', takePic);
+      return image;
+    }
+  },
+  // quality is the jpeg quality level (between 0 and 1).  Note that a value of 0
+  // won't take a pic at all, because it is used as a true/false to take the pic.
+  takePic: function(quality) {
+    return this.onDraw(quality);
   }
+
 };
 
 // Convert from CSG solid to an array of GL.Mesh objects
@@ -943,7 +964,9 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.containerdiv = containerdiv;
   this.onchange = onchange;
   this.viewerdiv = null;
+  this.picdiv = null;
   this.viewer = null;
+  this.picViewer = null;
   this.zoomControl = null;
   this.initialViewerDistance = 100;
   this.processing = false;
@@ -992,9 +1015,9 @@ Blockscad.Processor.prototype = {
    // this code throws an error if I try to throw that child away. SO, I always leave the first
    // child.
    // JY - now there are lots of children - these are the resizable div's handles and such.  Argh! Leave 5.
-    while(this.containerdiv.children.length > 6)
+    while(this.containerdiv.children.length > 7)
       {
-        this.containerdiv.removeChild(6);
+        this.containerdiv.removeChild(7);
       }
 
     var viewerdiv = document.createElement("div");
@@ -1003,7 +1026,7 @@ Blockscad.Processor.prototype = {
     viewerdiv.style.height = '100%'; 
     viewerdiv.style.top = '0px';
     viewerdiv.style.position = 'absolute';
-    viewerdiv.style.zIndex = '1';
+    viewerdiv.style.zIndex = '9';
     viewerdiv.style.backgroundColor = "rgb(255,255,255)";
     this.containerdiv.appendChild(viewerdiv);
     this.viewerdiv = viewerdiv;
@@ -1312,4 +1335,29 @@ Blockscad.Processor.prototype = {
      alert("Could not save" , this.selectedFormatInfo().displayName ," file.  Please give your project a name, then try again.");
    }
   },
+  takeRotatingPic: function(quality) {
+    // console.log("taking an animated gif!", this);
+    // here is what I want to do.  make a new canvas of the correct size.
+    // picViewer has a size set in createPicViewer.
+
+    var turnAxesOn = false;
+    if (Blockscad.drawAxes) {
+      Blockscad.drawAxes = 0;
+      turnAxesOn = true;
+    }
+    var frames = [];
+    var origAngle = this.viewer.angleZ;
+    
+    for (var i = 0; i < 9; i += 1) {
+      frames[i] = this.viewer.takePic(quality);
+      // change angle?
+      this.viewer.angleZ += 40;
+    }
+    if (turnAxesOn) {
+      Blockscad.drawAxes = 1;
+    }
+      this.viewer.angleZ = origAngle;
+      this.viewer.onDraw();
+    return frames;
+  }
 };
