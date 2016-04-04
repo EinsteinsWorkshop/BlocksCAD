@@ -70,6 +70,11 @@ Blockscad.init = function() {
   Blockscad.csg_filename = {}; // holds any converted stl file names
   Blockscad.csg_center = [0,0,0];
 
+  // keep track of resizing viewer dimensions to prevent resizes
+  // with every blockly update.
+  Blockscad.oldViewerH = 0;
+  Blockscad.oldViewerW = 0;
+
 
   var container = document.getElementById('main');
   var onresize = function(e) {
@@ -82,11 +87,16 @@ Blockscad.init = function() {
     el.style.height = bBox.height - 88 + 'px';
     el.style.width = bBox.width + 'px';
 
-    // resize the viewer  
-    if (gProcessor) {
+    // resize the viewer if it has actually changed size 
+    if (gProcessor && gProcessor.viewer) {
       var h = gProcessor.viewerdiv.offsetHeight;
       var w = gProcessor.viewerdiv.offsetWidth;
-      gProcessor.viewer.rendered_resize(w,h);
+      if (Blockscad.oldViewerW - w != 0 || Blockscad.oldViewerH - h != 0) {
+        // console.log("going to rendered resize from onresize");
+        gProcessor.viewer.rendered_resize(w,h);
+        Blockscad.oldViewerH = h;
+        Blockscad.oldViewerW = w;
+      }
     }
     // position the div using left and top (that's all I get!)
     if ($( '#main' ).height() - $( '.resizableDiv' ).height() < 70)
@@ -176,7 +186,8 @@ Blockscad.init = function() {
     // toggle whether or not we draw the axes, then redraw
     Blockscad.drawAxes = (Blockscad.drawAxes + 1) % 2;
     $( '#axesButton' ).toggleClass("btn-pushed");
-    gProcessor.viewer.onDraw();
+    // gProcessor.viewer.onDraw();
+    gProcessor.viewer.toggleAxes();
   });
 
   // can I bind a click to a tab?
@@ -189,6 +200,7 @@ Blockscad.init = function() {
       code = prettyPrintOne(code, 'js');
       content.innerHTML = code; 
     }
+    // console.log("calling resize from display code click");
     Blockly.fireUiEvent(window, 'resize');
   });
 
@@ -494,6 +506,7 @@ function readSingleFile(evt, replaceOld) {
       contents = e.target.result;  
       var xml = Blockly.Xml.textToDom(contents);
       Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
+      // console.log("calling resize from readSingleFile");
       Blockly.fireUiEvent(window, 'resize');
 
       Blockscad.clearStlBlocks();
@@ -515,6 +528,7 @@ function readSingleFile(evt, replaceOld) {
     $('#displayBlocks').click();
 
     // clear the render window
+    // console.log("calling clearViewer fram readSingleFile");
     gProcessor.clearViewer();
 
   } else { 
@@ -800,6 +814,7 @@ Blockscad.getExample = function(example, name) {
     // load xml blocks
     var xml = Blockly.Xml.textToDom(xmlString);
     Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
+    // console.log('calling resize from getExample');
     Blockly.fireUiEvent(window, 'resize');
     // update project name
     $('#project-name').val(name + ' example');
@@ -820,6 +835,7 @@ Blockscad.clearProject = function() {
     Blockscad.Auth.currentProjectKey = '';
   }
   Blockscad.workspace.clear();
+  // console.log("calling clearViewer from clearProject");
   gProcessor.clearViewer();  
 
   $('#project-name').val('Untitled');
@@ -930,6 +946,7 @@ Blockscad.doRender = function() {
   $('#renderButton').prop('disabled', true); 
 
   // Clear the previously rendered model
+  // console.log("calling clearViewer from Blockscad.doRender");
   gProcessor.clearViewer();
 
   // check to see if the code mixes 2D and 3D shapes to give a good error message
