@@ -923,7 +923,46 @@ for solid CAD anyway.
             }
             return this.cachedBoundingBox;
         },
+        // returns an object with a center (3D array) and radius (number)
+        getBoundingSphere: function() {
+            if (!this.cachedBoundingSphere) {
+                var aabb;
+                if (!this.cachedBoundingBox)
+                    aabb = this.getBounds();
+                else aabb = this.cachedBoundingBox;
+                var sphere = {center: aabb[0].plus(aabb[1]).dividedBy(2), radius: 0 };
+                for (var i = 0; i < this.polygons.length; i++) {
+                  for (var j = 0; j < this.polygons[i].vertices.length; j++) {
+                    var v = this.polygons[i].vertices[j];
+                    sphere.radius = Math.max(sphere.radius, 
+                      new CSG.Vector3D(v.pos.x, v.pos.y, v.pos.z).minus(sphere.center).lengthSquared());
+                  }
+                }
+                sphere.radius = Math.sqrt(sphere.radius);
+                this.cachedBoundingSphere = sphere;
 
+            }
+            return this.cachedBoundingSphere;
+        }
+
+  // getBoundingSphere: function(aabb) {
+  //   // console.log(aabb);
+  //   // the sphere center is halfway between the min and max points for each coordinate
+  //   // to get the radius, go through all vertices (yuck) and test their distance from the center
+  //   // pick the biggest, and that's the radius.
+  //   // I use lengthSquared for per-vertex calcualations to avoid doing a square root on each vertex.
+  //   var sphere = {center: aabb[0].plus(aabb[1]).dividedBy(2), radius: 0 };
+  //   for (var i = 0; i < this.currentObject.polygons.length; i++) {
+  //     for (var j = 0; j < this.currentObject.polygons[i].vertices.length; j++) {
+  //       var v = this.currentObject.polygons[i].vertices[j];
+  //       sphere.radius = Math.max(sphere.radius, 
+  //         new CSG.Vector3D(v.pos.x, v.pos.y, v.pos.z).minus(sphere.center).lengthSquared());
+  //     }
+  //   }
+  //   sphere.radius = Math.sqrt(sphere.radius);
+  //   return sphere;
+
+  // },
         // returns true if there is a possibility that the two solids overlap
         // returns false if we can be sure that they do not overlap
         mayOverlap: function(csg) {
