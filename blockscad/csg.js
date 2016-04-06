@@ -403,8 +403,9 @@ for solid CAD anyway.
 
             var getColor = function(csgs) {
                 // get the color from the first polygon of the first shape.
-                var color = csgs[0].polygons[0].shared.color;
-                return color;
+                if (csgs[0].polygons[0].shared)
+                    return csgs[0].polygons[0].shared.color;
+                else return null;
             }
           
             var top_guy = this;
@@ -449,7 +450,10 @@ for solid CAD anyway.
                 // console.log(pp);
                 // var thispoly = new CSG.Polygon.createFromPoints(pp).setColor(color);
 
-                polygons.push(new CSG.Polygon.createFromPoints(pp).setColor(color));
+                var np = new CSG.Polygon.createFromPoints(pp);
+                if (color)
+                    np.setColor(color);
+                polygons.push(np);
             }
             // console.log("polygons");
             // console.log(polygons);
@@ -953,7 +957,7 @@ for solid CAD anyway.
 
             }
             return this.cachedBoundingSphere;
-        }
+        },
 
   // getBoundingSphere: function(aabb) {
   //   // console.log(aabb);

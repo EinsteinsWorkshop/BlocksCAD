@@ -245,20 +245,21 @@ Blockly.OpenSCAD['color_rgb'] = function(block) {
   }  
 
   var code = '';
-  if ($.isNumeric(red)) {
-    if (red < 0) red = 0;   
-    if (red > 100) red = 100;
-  }
-  if ($.isNumeric(blue)) {
-    if (blue < 0) blue = 0;   
-    if (blue > 100) blue = 100;
-  }
-  if ($.isNumeric(green)) {
-    if (green < 0) green = 0;   
-    if (green > 100) green = 100;
-  }
+
 
   if (scheme == 'RGB') {
+    if ($.isNumeric(red)) {
+      if (red < 0) red = 0;   
+      if (red > 100) red = 100;
+    }
+    if ($.isNumeric(blue)) {
+      if (blue < 0) blue = 0;   
+      if (blue > 100) blue = 100;
+    }
+    if ($.isNumeric(green)) {
+      if (green < 0) green = 0;   
+      if (green > 100) green = 100;
+    }
     code += 'color([ .01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')]) ';
     code += '{\n' + statements_a + '}';
   }
