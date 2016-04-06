@@ -1200,6 +1200,7 @@ Blockly.Blocks['color_rgb'] = {
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
+    this.optUpdateShape_();
   },
    mutationToDom: function() {
     if (!this.plusCount_) {
