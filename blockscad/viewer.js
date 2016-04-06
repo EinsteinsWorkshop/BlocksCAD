@@ -51,7 +51,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
 
   // Set up WebGL state
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.clearColor(0.95,0.95,0.95, 1);
+  gl.clearColor(1,1,1, 1);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
   gl.polygonOffset(1, 1);
@@ -1336,13 +1336,13 @@ Blockscad.Processor.prototype = {
     }
     else if(format == "amf") {
       blob = this.currentObject.toAMFString({
-        producer: "OpenJSCAD.org "+version,
+        producer: "BlocksCAD "+Blockscad.version,
         date: new Date()
       });
       blob = new Blob([blob],{ type: this.formatInfo(format).mimetype });
     }  
     else if(format == "x3d") {
-      blob = this.currentObject.fixTJunctions().toX3D();
+      blob = this.currentObject.toX3D();
     }
     else if(format == "dxf") {
       blob = this.currentObject.toDxf();

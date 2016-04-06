@@ -1196,20 +1196,22 @@ Blockly.Blocks['color_rgb'] = {
         .setCheck('CSG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Apply a color by specifying the red, blue, and green components.  Each value should be between 0 and 100.');
+    this.setTooltip('Apply a color by specifying red, green, blue (RGB mode) or hue, saturation, value (HSV mode).  Each value should be between 0 and 100.');
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
-    this.optUpdateShape_();
   },
    mutationToDom: function() {
-    if (!this.plusCount_) {
-        return null;
-    }
+    // if (!this.plusCount_) {
+    //     return null;
+    // }
     var container = document.createElement('mutation');
     if (this.plusCount_) {
         container.setAttribute('plus',this.plusCount_);
     }
+    else container.setAttribute('plus', 0);
+    var isRGB = (this.getFieldValue('SCHEME') == 'RGB');
+    container.setAttribute('isrgb', isRGB);
     return container;
   },
   domToMutation: function(xmlElement) {
@@ -1222,6 +1224,8 @@ Blockly.Blocks['color_rgb'] = {
     if (this.plusCount_ >= 1) {
         this.setMutatorMinus(new Blockly.MutatorMinus(this));
     }
+    var isRGB = (xmlElement.getAttribute('isrgb') == 'true');
+    this.optUpdateShape_(isRGB);
   }, 
   updateShape_ : function(num) {
     if (num == 1) {
@@ -1239,7 +1243,7 @@ Blockly.Blocks['color_rgb'] = {
         this.render();
       }
     } else {
-      this.mutatorMinus.dispose();
+      if (this.mutatorMinus) this.mutatorMinus.dispose();
       this.mutatorMinus = null;
       this.render();
     }
@@ -1247,7 +1251,7 @@ Blockly.Blocks['color_rgb'] = {
 
   // if change the labels on the value inputs based on if this is RGB or HSV
   optUpdateShape_: function(isRGB) {
-    // Add or remove a Value Input.
+    // make labels match the color schema (RGB or HSV)
     var one = this.getField('1');
     var two = this.getField('2');
     var three = this.getField('3');

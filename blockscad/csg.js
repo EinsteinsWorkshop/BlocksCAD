@@ -1597,7 +1597,7 @@ for solid CAD anyway.
             }
             if (!sidemapisempty) {
                 // throw new Error("!sidemapisempty");
-            OpenJsCad.log("!sidemapisempty");
+            console.log("!sidemapisempty");
             }
             return csg;
         },

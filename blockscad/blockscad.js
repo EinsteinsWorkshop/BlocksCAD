@@ -390,7 +390,7 @@ Blockscad.takeRPic = function() {
       'interval': 0.4,
       'gifWidth': Blockscad.picSize[0],
       'gifHeight': Blockscad.picSize[1],
-      'sampleInterval': 5,
+      'sampleInterval': 1,
     }, function(obj) {
       if (!obj.error) {
         var image = obj.image;
