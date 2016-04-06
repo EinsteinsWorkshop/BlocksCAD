@@ -228,6 +228,62 @@ Blockly.OpenSCAD['color'] = function(block) {
   return code;
 };
 
+Blockly.OpenSCAD['color_rgb'] = function(block) {
+  var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
+  var scheme = block.getFieldValue('SCHEME');
+  var red = Blockly.OpenSCAD.valueToCode(block, 'RED',
+      Blockly.OpenSCAD.ORDER_COMMA) || 0;
+  var green = Blockly.OpenSCAD.valueToCode(block, 'GREEN',
+      Blockly.OpenSCAD.ORDER_COMMA) || 0;
+  var blue = Blockly.OpenSCAD.valueToCode(block, 'BLUE',
+      Blockly.OpenSCAD.ORDER_COMMA) || 0;
+
+  if (statements_a != '') statements_a += '\n';
+  for (var n = 0; n<= block.plusCount_; n++) {
+    var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
+    if (statements_b != '') statements_a += statements_b + '\n';
+  }  
+
+  var code = '';
+  if ($.isNumeric(red)) {
+    if (red < 0) red = 0;   
+    if (red > 100) red = 100;
+  }
+  if ($.isNumeric(blue)) {
+    if (blue < 0) blue = 0;   
+    if (blue > 100) blue = 100;
+  }
+  if ($.isNumeric(green)) {
+    if (green < 0) green = 0;   
+    if (green > 100) green = 100;
+  }
+
+  if (scheme == 'RGB') {
+    code += 'color([ .01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')]) ';
+    code += '{\n' + statements_a + '}';
+  }
+  
+  // Thanks to Hypher for the implementation of hsv to rgb in openscad!
+  // http://forum.openscad.org/An-HSV-HSB-to-RGB-Color-function-in-OpenSCAD-td9835.html
+
+  else if (scheme == 'HSV') {
+    var hsvHelper = Blockly.OpenSCAD.provideFunction_(
+      'doHsvMatrix',
+      [ 'function ' + Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_ +
+          '(h,s,v,p,q,t,a=1)=[h<1?v:h<2?q:h<3?p:h<4?p:h<5?t:v,h<1?t:h<2?v:h<3?v:h<4?q:h<5?p:p,h<1?p:h<2?p:h<3?t:h<4?v:h<5?v:q,a];']);
+
+    var hsvFunction = Blockly.OpenSCAD.provideFunction_(
+      'hsv',
+      ['function ' + Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_ +
+        '(h, s=1, v=1,a=1)=doHsvMatrix((h%1)*6,s<0?0:s>1?1:s,v<0?0:v>1?1:v,v*(1-s),v*(1-s*((h%1)*6-floor((h%1)*6))),v*(1-s*(1-((h%1)*6-floor((h%1)*6)))),a);']);
+
+    code += 'color(hsv(.01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')))';
+    code += '{\n' + statements_a + '}';
+
+  }
+  else console.log("got weirdo color scheme?");
+  return code;
+};
 Blockly.OpenSCAD['$fn'] = function(block) {
   var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
   var type = block.previousConnection.check_[0]; 

@@ -400,6 +400,12 @@ for solid CAD anyway.
                 }
                 return points;
             }
+
+            var getColor = function(csgs) {
+                // get the color from the first polygon of the first shape.
+                var color = csgs[0].polygons[0].shared.color;
+                return color;
+            }
           
             var top_guy = this;
             var other_csgs = csg;
@@ -422,6 +428,8 @@ for solid CAD anyway.
             var points = getPoints(csgs);
             // console.log("points for hull are:",points);
 
+            var color = getColor(csgs);
+
             var qhull = new CSG.quickHull3D();
 
             var faces = qhull.build(points);
@@ -439,7 +447,9 @@ for solid CAD anyway.
                 }
                 // console.log("points for polygons");
                 // console.log(pp);
-                polygons.push(new CSG.Polygon.createFromPoints(pp));
+                // var thispoly = new CSG.Polygon.createFromPoints(pp).setColor(color);
+
+                polygons.push(new CSG.Polygon.createFromPoints(pp).setColor(color));
             }
             // console.log("polygons");
             // console.log(polygons);
