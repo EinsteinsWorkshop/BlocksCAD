@@ -273,6 +273,23 @@ Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="color_rgb">' +
+        '<value name="RED">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="GREEN">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="BLUE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
       '<block type="$fn">' +
         '<value name="SIDES">' +
           '<block type="math_number">' +
