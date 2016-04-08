@@ -101,6 +101,7 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
   var increment = Blockly.OpenSCAD.valueToCode(block, 'BY',
       Blockly.OpenSCAD.ORDER_ASSIGNMENT);
   var branch = Blockly.OpenSCAD.statementToCode(block, 'DO');
+  var hull = block.getFieldValue('HULL');
 
   var miss = 0;
 
@@ -128,6 +129,8 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
 
   var code;
 
+  if (hull == 'FALSE') {
+
     // Jennie - OpenSCAD is weird - increments can never be negative, even 
     // when you are counting down in a loop.  I'll absolute value the increment 
     // given to make it make sense
@@ -136,8 +139,29 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
     code = 'for (' + variable0 + ' = [' + argument0 + ' : ' +
         'abs(' + increment + ') : ' + argument1 + ']';    
     code += ') {\n' + branch + '\n}';
-   
+  }
+  else {
+    // in chainhull, I want to actually loop through to argument1 - (increment),
+    // because chainhull involves doing a "step ahead" (hulling n with n+increment)
+    var query = "([^a-z|A-Z])" + variable0 + "(?![a-z|A-Z])"; 
+    var re = new RegExp(query, 'g');
+    // console.log("reg exp = ", re);
+    var new_string = "("+ variable0 + " + " + increment + ")";
+
+    var branch_next = branch.replace(re, "$1" + new_string); 
+    code = "// chain hull\n";
+
+      // Jennie - OpenSCAD is weird - increments can never be negative, even 
+      // when you are counting down in a loop.  I'll absolute value the increment 
+      // given to make it make sense
+
+      //increment = abs(increment);
+      code += 'for (' + variable0 + ' = [' + argument0 + ' : ' +
+          'abs(' + increment + ') : ' + argument1 + " - " + increment  + ']';    
+      code += ') {\n' +  '  hull() {\n' + branch + '\n' + branch_next + '\n  }' + '\n}';
+  } 
   return code;
+
 };
 
 Blockly.OpenSCAD['controls_for_chainhull'] = function(block) {
