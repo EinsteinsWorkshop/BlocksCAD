@@ -205,7 +205,7 @@ Blockscad.init = function() {
   $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
 
   // what size should pics be taken at?
-  Blockscad.picSize = [230,230];
+  Blockscad.picSize = [220,220];
   // hook up the pic-taking button
   $("#picButton").click(Blockscad.takePic);
   $("#rPicButton").click(Blockscad.takeRPic);
@@ -381,7 +381,7 @@ Blockscad.takeRPic = function() {
   if (gProcessor) {
     // takeRotatingPic(quality, numFrames)
     // leave quality at 1! 
-    var thing = gProcessor.takeRotatingPic(1,17);
+    var thing = gProcessor.takeRotatingPic(1,13);
     // console.log("got rotating pic");
 
     // console.log(thing);

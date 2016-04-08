@@ -1068,7 +1068,7 @@ Blockscad.Processor.prototype = {
     picdiv.style.bottom = '50px';
     picdiv.style.left = '200px';
     picdiv.style.position = 'absolute';
-    picdiv.style.zIndex = '9999';
+    picdiv.style.zIndex = '-1';
     document.getElementById("blocklyDiv").appendChild(picdiv);
     this.picdiv = picdiv;
 
