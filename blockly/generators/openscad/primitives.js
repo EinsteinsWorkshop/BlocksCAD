@@ -246,10 +246,7 @@ Blockly.OpenSCAD['color_rgb'] = function(block) {
 
   var code = '';
 
-
-
   if (scheme == 'RGB') {
-
     if ($.isNumeric(red)) {
       if (red < 0) red = 0;   
       if (red > 100) red = 100;
@@ -282,7 +279,7 @@ Blockly.OpenSCAD['color_rgb'] = function(block) {
     var hsvFunction = Blockly.OpenSCAD.provideFunction_(
       'hsv',
       ['function ' + Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_ +
-        '(h, s=1, v=1,a=1)=doHsvMatrix((h%1)*6,s<0?0:s>1?1:s,v<0?0:v>1?1:v,v*(1-s),v*(1-s*((h%1)*6-floor((h%1)*6))),v*(1-s*(1-((h%1)*6-floor((h%1)*6)))),a);']);
+        '(h, s=1, v=1,a=1)=doHsvMatrix((h%1)*6,s<0?0:s>1?1:s,v<0?0:v>1?1:v,v*(1-s),v*(1-s*((h%1)*6-floor((h%1)*6))),v*(1-s*(1-((h%1)*6-floor((h%1)*6)))),a);\n']);
 
     code += 'color(hsv(.01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')))';
     code += '{\n' + statements_a + '}';

@@ -46,12 +46,12 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
   gl.matrixMode(gl.PROJECTION);
   gl.loadIdentity();
   // console.log("am I getting this new code?");
-  gl.perspective(45, width / height, 0.5, 3000);
+  gl.perspective(45, width / height, 1, 3000);
   gl.matrixMode(gl.MODELVIEW);
 
   // Set up WebGL state
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.clearColor(0.93, 0.93, 0.93, 1);
+  gl.clearColor(1,1,1, 1);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
   gl.polygonOffset(1, 1);
@@ -86,7 +86,7 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
       'void main() {' +
         'vec3 n = normalize(normal);' +
         'float diffuse = max(0.0, dot(light, n));' +
-        'float specular = pow(max(0.0, -reflect(light, n).z), 10.0) * sqrt(diffuse);' +
+        'float specular = pow(max(0.0, -reflect(light, n).z), 18.0) * sqrt(diffuse);' +
         'gl_FragColor = vec4(mix(color * (0.3 + 0.7 * diffuse), vec3(1.0), specular), alpha);' +
       '}');
 
@@ -188,6 +188,7 @@ Blockscad.Viewer.prototype = {
     // } else {
     //    this.meshes = OpenJsCad.Viewer.csgToMeshes(csg);
     // }
+      this.gl.makeCurrent();
       this.meshes = Blockscad.Viewer.csgToMeshes(csg,this.defaultColor);
       this.onDraw();
   },
@@ -200,7 +201,7 @@ Blockscad.Viewer.prototype = {
     this.gl.viewport(0, 0, width, height);
     this.gl.matrixMode(this.gl.PROJECTION);
     this.gl.loadIdentity();
-    this.gl.perspective(45, width / height, 0.1, 3000);
+    this.gl.perspective(45, width / height, 1, 3000);
     this.gl.matrixMode(this.gl.MODELVIEW);
 
     this.onDraw();
@@ -210,39 +211,20 @@ Blockscad.Viewer.prototype = {
 
   viewReset: function() {
     var whichView = document.getElementById("viewMenu");
-
-    if (whichView.value == "top") {
+    if (whichView.value == "diagonal") {
+      // diagonal
+      this.angleX = -60;
+      this.angleY = 0;
+      this.angleZ = -45;
+      this.viewpointX = 0;
+      this.viewpointY = -5;
+      this.viewpointZ = 100;
+    }
+    else if (whichView.value == "top") {
       // top
       this.angleX = 0;
       this.angleY = 0;
       this.angleZ = 0;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
-    }
-    else if (whichView.value == "front") {
-      // front
-      this.angleX = -90;
-      this.angleY = 0;
-      this.angleZ = 0;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
-    }
-    else if (whichView.value == "left") {    
-      // left??
-      this.angleX = -90;
-      this.angleY = 0;
-      this.angleZ = 90;
-      this.viewpointX = 0;
-      this.viewpointY = 0;
-      this.viewpointZ = 100;
-    }
-    else if (whichView.value == "right") {
-      // right??
-      this.angleX = -90;
-      this.angleY = 0;
-      this.angleZ = -90;
       this.viewpointX = 0;
       this.viewpointY = 0;
       this.viewpointZ = 100;
@@ -256,7 +238,25 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = 0;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "back") {    
+    else if (whichView.value == "right") {
+      // front
+      this.angleX = -90;
+      this.angleY = 0;
+      this.angleZ = 0;
+      this.viewpointX = 0;
+      this.viewpointY = 0;
+      this.viewpointZ = 100;
+    }
+    else if (whichView.value == "front") {
+      // right??
+      this.angleX = -90;
+      this.angleY = 0;
+      this.angleZ = -90;
+      this.viewpointX = 0;
+      this.viewpointY = 0;
+      this.viewpointZ = 100;
+    }
+    else if (whichView.value == "left") {    
       // back
       this.angleX = -90;
       this.angleY = 0;
@@ -265,15 +265,17 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = 0;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "diagonal") {
-      // diagonal
-      this.angleX = -60;
+    else if (whichView.value == "back") {    
+      // left??
+      this.angleX = -90;
       this.angleY = 0;
-      this.angleZ = -45;
+      this.angleZ = 90;
       this.viewpointX = 0;
-      this.viewpointY = -5;
+      this.viewpointY = 0;
       this.viewpointZ = 100;
     }
+
+
 
     this.onDraw();
   },
@@ -403,17 +405,56 @@ Blockscad.Viewer.prototype = {
       this.touch.scale = e.gesture.scale;
       return this;
   },
-  onDraw: function(e) {
+  onDraw: function(takePic,angle) {
     var gl = this.gl;
     gl.makeCurrent();
 
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.loadIdentity();
-    gl.translate(this.viewpointX, this.viewpointY, -this.viewpointZ);
-    gl.rotate(this.angleX, 1, 0, 0);
-    gl.rotate(this.angleY, 0, 1, 0);
-    gl.rotate(this.angleZ, 0, 0, 1);
 
+
+    if (takePic)
+      gl.clearColor(1,1,1, 1);
+
+    if (takePic && this.meshes[0]) {
+    // I need to find out size and position of the object and position the camera accordingly.
+
+    // angle (in radians) of how far I've rotated around my object.
+    // console.log("this",this);
+
+    angle += 3*Math.PI/4;
+    var bsph = this.bsph;
+    var bbox = this.bbox;   // use bbox to see if this is a flat project or a tall one.
+
+    // console.log(bbox);
+    // var tallness = 1.2 ;
+    var tallness = 1.3 - (bbox[1].z - bbox[0].z)/(2*bsph.radius);
+
+    var r = 2.8 * bsph.radius;
+    gl.matrixMode(gl.PROJECTION);
+    gl.loadIdentity();
+    gl.perspective(45,gl.canvas.width / gl.canvas.height,1,3000);
+    gl.matrixMode(gl.MODELVIEW);
+    gl.loadIdentity();
+    gl.lookAt(bsph.center.x + r * Math.sin(angle), bsph.center.y + r * Math.cos(angle), bsph.center.z + tallness*r/2, 
+              bsph.center.x, bsph.center.y, bsph.center.z, 0,0,1);
+    }
+
+    else {
+      // console.log("setting normal camera position and angle");
+    // these values were getting corrupted in the picDiv.  Don't know why.
+      gl.matrixMode(gl.PROJECTION);
+      gl.loadIdentity();
+      gl.perspective(45, gl.canvas.width / gl.canvas.height, 1, 3000);
+      gl.matrixMode(gl.MODELVIEW);
+      gl.loadIdentity();
+      gl.translate(this.viewpointX, this.viewpointY, -this.viewpointZ);
+      gl.rotate(this.angleX, 1, 0, 0);
+      gl.rotate(this.angleY, 0, 1, 0);
+      gl.rotate(this.angleZ, 0, 0, 1);
+    }
+
+
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.BLEND);
     //gl.disable(gl.DEPTH_TEST);
     if (!this.lineOverlay) gl.enable(gl.POLYGON_OFFSET_FILL);
@@ -444,7 +485,8 @@ Blockscad.Viewer.prototype = {
     //EDW: axes
     // Jennie - I don't draw major or minor gridlines on X or Y axis, because they
     // cover up the colored axis lines drawn later.  That's the x!=0 part.
-    if (Blockscad.drawAxes) {
+    // if (Blockscad.drawAxes) {
+    if (Blockscad.drawAxes && !takePic) {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.begin(gl.LINES);
@@ -578,7 +620,20 @@ Blockscad.Viewer.prototype = {
       gl.disable(gl.BLEND);
       // GL.Mesh.plane({ detailX: 20, detailY: 40 });
     }
+
+    // take a pic if needed
+    if (takePic) {
+
+      var image = this.gl.canvas.toDataURL('image/jpeg', takePic);
+      return image;
+    }
+  },
+  // quality is the jpeg quality level (between 0 and 1).  Note that a value of 0
+  // won't take a pic at all, because it is used as a true/false to take the pic.
+  takePic: function(quality, angle) {
+      return this.onDraw(quality, angle);
   }
+
 };
 
 // Convert from CSG solid to an array of GL.Mesh objects
@@ -943,8 +998,9 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.containerdiv = containerdiv;
   this.onchange = onchange;
   this.viewerdiv = null;
+  this.picdiv = null;
   this.viewer = null;
-  this.zoomControl = null;
+  this.picviewer = null;
   this.initialViewerDistance = 100;
   this.processing = false;
   this.currentObject = null;
@@ -992,26 +1048,42 @@ Blockscad.Processor.prototype = {
    // this code throws an error if I try to throw that child away. SO, I always leave the first
    // child.
    // JY - now there are lots of children - these are the resizable div's handles and such.  Argh! Leave 5.
-    while(this.containerdiv.children.length > 6)
+    while(this.containerdiv.children.length > 7)
       {
-        this.containerdiv.removeChild(6);
+        this.containerdiv.removeChild(7);
       }
 
     var viewerdiv = document.createElement("div");
-    viewerdiv.className = "viewer";
     viewerdiv.style.width = '100%'; 
     viewerdiv.style.height = '100%'; 
     viewerdiv.style.top = '0px';
     viewerdiv.style.position = 'absolute';
-    viewerdiv.style.zIndex = '1';
-    viewerdiv.style.backgroundColor = "rgb(255,255,255)";
+    viewerdiv.style.zIndex = '9';
     this.containerdiv.appendChild(viewerdiv);
     this.viewerdiv = viewerdiv;
+
+    var picdiv = document.createElement("div");
+    picdiv.style.width = Blockscad.picSize[0] + 'px'; 
+    picdiv.style.height = Blockscad.picSize[1] + 'px'; 
+    picdiv.style.bottom = '50px';
+    picdiv.style.left = '200px';
+    picdiv.style.position = 'absolute';
+    picdiv.style.zIndex = '-1';
+    document.getElementById("blocklyDiv").appendChild(picdiv);
+    this.picdiv = picdiv;
+
+    try {
+      this.picviewer = new Blockscad.Viewer(this.picdiv, picdiv.offsetWidth, picdiv.offsetHeight, this.initialViewerDistance);
+    } catch(e) {
+      this.picdiv.innerHTML = "<b><br><br>Error: " + e.toString() + "</b><br><br>BlocksCAD currently requires Google Chrome or Firefox with WebGL enabled";
+    }
     try {
       this.viewer = new Blockscad.Viewer(this.viewerdiv, viewerdiv.offsetWidth, viewerdiv.offsetHeight, this.initialViewerDistance);
     } catch(e) {
       this.viewerdiv.innerHTML = "<b><br><br>Error: " + e.toString() + "</b><br><br>BlocksCAD currently requires Google Chrome or Firefox with WebGL enabled";
     }
+
+
 
     this.abortbutton = document.getElementById("abortButton");
     this.renderbutton = document.getElementById("renderButton");
@@ -1035,18 +1107,42 @@ Blockscad.Processor.prototype = {
     };
 
     this.enableItems();    
-    this.clearViewer();
+    // this.clearViewer();
   },
 
+  // // getSphere takes the axis-aligned bounding box of a csg object and returns a bounding sphere.
+  // // this isn't the minimal bounding sphere, but it is a good approximation.
+  // getBoundingSphere: function(aabb) {
+  //   // console.log(aabb);
+  //   // the sphere center is halfway between the min and max points for each coordinate
+  //   // to get the radius, go through all vertices (yuck) and test their distance from the center
+  //   // pick the biggest, and that's the radius.
+  //   // I use lengthSquared for per-vertex calcualations to avoid doing a square root on each vertex.
+  //   var sphere = {center: aabb[0].plus(aabb[1]).dividedBy(2), radius: 0 };
+  //   for (var i = 0; i < this.currentObject.polygons.length; i++) {
+  //     for (var j = 0; j < this.currentObject.polygons[i].vertices.length; j++) {
+  //       var v = this.currentObject.polygons[i].vertices[j];
+  //       sphere.radius = Math.max(sphere.radius, 
+  //         new CSG.Vector3D(v.pos.x, v.pos.y, v.pos.z).minus(sphere.center).lengthSquared());
+  //     }
+  //   }
+  //   sphere.radius = Math.sqrt(sphere.radius);
+  //   return sphere;
+
+  // },
   setCurrentObject: function(obj) {
-    this.currentObject = obj;                                  // CAG or CSG
-    if(this.viewer) {
-      var csg = Blockscad.Processor.convertToSolid(obj);       // enfore CSG to display
-      this.viewer.setCsg(csg);
-      if(obj.length)             // if it was an array (multiple CSG is now one CSG), we have to reassign currentObject
-         this.currentObject = csg;
-    }
+    var csg = Blockscad.Processor.convertToSolid(obj);       // enfore CSG to display
+    this.currentObject = csg;
     this.hasValidCurrentObject = true;
+
+    if (this.viewer) this.viewer.setCsg(csg);
+    // for taking pics I also need the bounds and bounding sphere
+    if (this.picviewer)  {
+      this.picviewer.bbox = csg.getBounds();
+      this.picviewer.bsph = csg.getBoundingSphere();
+      this.picviewer.setCsg(csg);
+    }
+
     // console.log("trying to turn on stl_buttons");
     $('#stl_buttons').show();
     
@@ -1108,7 +1204,7 @@ Blockscad.Processor.prototype = {
   setError: function(txt) {
     this.hasError = (txt != "");
     $( "#error-message" ).text(txt);
-   console.log("in setError with text", txt, "this.hasError is", this.hasError); 
+   // console.log("in setError with text", txt, "this.hasError is", this.hasError); 
     this.enableItems();
   },
   
@@ -1240,13 +1336,13 @@ Blockscad.Processor.prototype = {
     }
     else if(format == "amf") {
       blob = this.currentObject.toAMFString({
-        producer: "OpenJSCAD.org "+version,
+        producer: "BlocksCAD "+Blockscad.version,
         date: new Date()
       });
       blob = new Blob([blob],{ type: this.formatInfo(format).mimetype });
     }  
     else if(format == "x3d") {
-      blob = this.currentObject.fixTJunctions().toX3D();
+      blob = this.currentObject.toX3D();
     }
     else if(format == "dxf") {
       blob = this.currentObject.toDxf();
@@ -1312,4 +1408,16 @@ Blockscad.Processor.prototype = {
      alert("Could not save" , this.selectedFormatInfo().displayName ," file.  Please give your project a name, then try again.");
    }
   },
+  takeRotatingPic: function(quality, numframes) {
+
+    var frames = [];
+    
+    for (var i = 0; i < numframes; i += 1) {
+      var angle = -i * (2*Math.PI / numframes);
+      frames[i] = this.picviewer.takePic(quality,angle);
+      // change angle?
+    }
+      // this.picviewer.onDraw();
+    return frames;
+  }
 };

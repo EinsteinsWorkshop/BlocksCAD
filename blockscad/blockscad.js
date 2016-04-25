@@ -83,7 +83,7 @@ Blockscad.init = function() {
     el.style.width = bBox.width + 'px';
 
     // resize the viewer  
-    if (gProcessor) {
+    if (gProcessor && gProcessor.viewer) {
       var h = gProcessor.viewerdiv.offsetHeight;
       var w = gProcessor.viewerdiv.offsetWidth;
       gProcessor.viewer.rendered_resize(w,h);
@@ -208,6 +208,12 @@ Blockscad.init = function() {
   $('#file-menu').on('change', '#importLocal', function(e) { readSingleFile(e, false);});
   $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
 
+  // what size should pics be taken at?
+  Blockscad.picSize = [220,220];
+  // hook up the pic-taking button
+  $("#picButton").click(Blockscad.takePic);
+  $("#rPicButton").click(Blockscad.takeRPic);
+
   //Create the openjscad processing object instance
   gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
 
@@ -306,14 +312,15 @@ Blockscad.init = function() {
 
   // add "default color" picker to viewer
 
-  Blockscad.setColor = function(r,g,b) {
-    // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
-    if (gProcessor && gProcessor.viewer){
-      gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
-      if (gProcessor.hasSolid()) {
-        // I have a solid already rendered - change its color!
-        gProcessor.viewer.setCsg(gProcessor.currentObject); 
-      }
+Blockscad.setColor = function(r,g,b) {
+  // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
+  if (gProcessor && gProcessor.viewer){
+    gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
+    gProcessor.picviewer.defaultColor = [r/255,g/255,b/255,1];
+    if (gProcessor.hasSolid()) {
+      // I have a solid already rendered - change its color!
+      gProcessor.viewer.setCsg(gProcessor.currentObject); 
+      gProcessor.picviewer.setCsg(gProcessor.currentObject); 
     }
     Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
     $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
@@ -379,10 +386,59 @@ Blockscad.init = function() {
       root.find('.sub-menu:visible').hide();
     });
   });
+
+
 }; // end Blockscad.init()
 
+Blockscad.takeRPic = function() {
+  if (gProcessor) {
+    // takeRotatingPic(quality, numFrames)
+    // leave quality at 1! 
+    var thing = gProcessor.takeRotatingPic(1,13);
+    // console.log("got rotating pic");
 
+    // console.log(thing);
+    var gif = gifshot.createGIF({
+      'images': thing,
+      'interval': 0.4,
+      'gifWidth': Blockscad.picSize[0],
+      'gifHeight': Blockscad.picSize[1],
+      'sampleInterval': 1,
+    }, function(obj) {
+      if (!obj.error) {
+        var image = obj.image;
+        Blockscad.savePic(image, "bloop.gif");
+      }
+    });
+  }
+}
+Blockscad.savePic = function(image, name) {
+  if (image) {
+    var bytestream = atob(image.split(',')[1]);
+    var mimestring = image.split(',')[0].split(':')[1].split(';')[0];
 
+    // write the bytes of the string to an ArrayBuffer
+
+    var ab = new ArrayBuffer(bytestream.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < bytestream.length; i++) {
+      ia[i] = bytestream.charCodeAt(i);
+    }
+    // console.log("jpeg size: ", bytestream.length);
+
+    var blob = new Blob([ab], {type: "img/jpeg"});
+    saveAs(blob, name);
+  }
+}
+Blockscad.takePic = function() {
+  if (gProcessor.picviewer) {
+    // the parameter here is the jpeg quality - between 0 and 1.
+    var image = gProcessor.picviewer.takePic(0.85,0);
+    // console.log("image",image);
+    if (image)
+    Blockscad.savePic(image, $('#project-name').val() + '.jpg');
+  }
+}
 
 Blockscad.loadLocalBlocks = function(e) {
   var evt = e;
@@ -643,7 +699,7 @@ Blockscad.newProject = function() {
   $('#displayBlocks').click();
   // should I prompt a save here?  If I have a current project, I should just save it?  Or not?
   // if the user is logged in, I should auto-save to the backend.
-  console.log("in Blockscad.newProject");
+  // console.log("in Blockscad.newProject");
   // console.log("undo stack length is: ", Blockscad.undo.undoStack.length);
   // console.log("needToSave is: ", Blockscad.undo.needToSave);
   if (Blockscad.undo.needToSave) {
@@ -839,6 +895,9 @@ Blockscad.resetView = function() {
   if (gProcessor) {
     if (gProcessor.viewer) {
       gProcessor.viewer.viewReset();
+    }
+    if (gProcessor.picviewer) {
+      gProcessor.picviewer.viewReset();
     }
   } 
 };
@@ -1809,6 +1868,13 @@ Blockscad.saveBlocksLocal = function() {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
   }
 };
+
+Blockscad.savePicLocal = function(pic) {
+  var blob = new Blob([pic], {type: "img/jpeg"});
+
+  saveAs(blob, "tryThis.jpg");
+
+}
 
 /**
  * Save the openScad code for the current workspace to the local machine.
