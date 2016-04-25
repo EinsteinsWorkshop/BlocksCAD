@@ -158,6 +158,11 @@ html, body {
 	right: 20px;
 	z-index: 500;
 }
+.defaultColor {
+	position:relative;
+	z-index: 500;	
+	border: solid 1px #666;
+}
 
 .giant-yes {
 	padding-left: 45px;

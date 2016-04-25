@@ -1166,6 +1166,115 @@ Blockly.Blocks['color'] = {
   }   
 };
 
+Blockly.Blocks['color_rgb'] = {
+  init: function() {
+    this.category = 'COLOR';
+    this.setHelpUrl('http://www.example.com/');
+    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.appendDummyInput()
+        .appendField('Color ');
+    var dropdown = new Blockly.FieldDropdown([['HSV', 'HSV'],['RGB', 'RGB']], function(option) {
+      var isRGB = (option == 'RGB');
+      this.sourceBlock_.optUpdateShape_(isRGB);
+    });
+    this.appendDummyInput()
+        .appendField(dropdown, 'SCHEME')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('RED')
+        .setCheck('Number')
+        .appendField('red', '1')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('GREEN')
+        .setCheck('Number')
+        .appendField('green', '2')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('BLUE')
+        .setCheck('Number')
+        .appendField('blue','3')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendStatementInput('A')
+        .setCheck('CSG');
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, 'CSG');
+
+    var thisBlock = this;
+    this.setTooltip(function() {
+      var mode = thisBlock.getFieldValue('SCHEME');
+      var TOOLTIPS = {
+        'RGB': 'Apply a color by specifying the red, blue, and green components.  Each value should be between 0 and 100.',
+        'HSV': 'Apply a color by specifying the hue, saturation, and value components.  Each value should be between 0 and 100.'
+      }; 
+      return TOOLTIPS[mode];
+    });  
+
+    // try to set up a mutator - Jennie
+    this.setMutatorPlus(new Blockly.MutatorPlus(this));    
+    this.plusCount_ = 0;
+    this.optUpdateShape_();
+  },
+   mutationToDom: function() {
+    if (!this.plusCount_) {
+        return null;
+    }
+    var container = document.createElement('mutation');
+    if (this.plusCount_) {
+        container.setAttribute('plus',this.plusCount_);
+    }
+    return container;
+  },
+  domToMutation: function(xmlElement) {
+    this.plusCount_ = parseInt(xmlElement.getAttribute('plus'), 10);
+    var mytype = this.getInput('A').connection.check_;
+    for (var x = 1; x <= this.plusCount_; x++) {
+        this.appendStatementInput('PLUS' + x)
+            .setCheck(mytype);
+    }
+    if (this.plusCount_ >= 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+    }
+  }, 
+  updateShape_ : function(num) {
+    if (num == 1) {
+      this.plusCount_++;
+      var mytype = this.getInput('A').connection.check_;
+      var plusInput = this.appendStatementInput('PLUS' + this.plusCount_)
+          .setCheck(mytype); 
+    } else if (num == -1) {
+      this.removeInput('PLUS' + this.plusCount_); 
+      this.plusCount_--;
+    }
+    if (this.plusCount_ >= 1) {
+      if (this.plusCount_ == 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+        this.render();
+      }
+    } else {
+      this.mutatorMinus.dispose();
+      this.mutatorMinus = null;
+      this.render();
+    }
+  }  ,
+
+  // if change the labels on the value inputs based on if this is RGB or HSV
+  optUpdateShape_: function(isRGB) {
+    // Add or remove a Value Input.
+    var one = this.getField('1');
+    var two = this.getField('2');
+    var three = this.getField('3');
+    if (isRGB) {
+      one.setText('red');
+      two.setText('green');
+      three.setText('blue');
+    }
+    else {
+      one.setText('hue');
+      two.setText('saturation');
+      three.setText('value');
+    }
+
+
+  } 
+};
 Blockly.Blocks['$fn'] = {
   init: function() {
     this.category = 'TRANSFORM';

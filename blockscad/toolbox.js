@@ -273,6 +273,23 @@ Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="color_rgb">' +
+        '<value name="RED">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="GREEN">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="BLUE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
       '<block type="$fn">' +
         '<value name="SIDES">' +
           '<block type="math_number">' +
@@ -520,23 +537,23 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
           '</block>' +
         '</value>' +
       '</block>' +
-      '<block type="controls_for_chainhull">' +
-        '<value name="FROM">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block> ' +
-        '</value>' +
-        '<value name="TO">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="BY">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
+      // '<block type="controls_for_chainhull">' +
+      //   '<value name="FROM">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block> ' +
+      //   '</value>' +
+      //   '<value name="TO">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">10</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="BY">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      // '</block>' +
     '</category>';
 
 Blockscad.Toolbox.catOther = '<category name="Text">' +

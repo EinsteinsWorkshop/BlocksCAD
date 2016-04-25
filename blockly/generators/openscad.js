@@ -42,7 +42,7 @@ Blockly.OpenSCAD.addReservedWords(
     'Blockly,' +  // In case JS is evaled in the current window.
     // OpenSCAD reserved words 
     'break,delete,for,function,if,return,intersection_for,union,difference,intersection,module,' +
-    'rotate,translate,mirror,minkowski,scale,resize,hull,use,assign,color,$fn,linear_extrude,rotate_extrude,twist-rotate-extrude' +
+    'rotate,translate,mirror,minkowski,scale,resize,hull,use,assign,color,linear_extrude,rotate_extrude,twist-rotate-extrude' +
     'import,sphere,cylinder,cube,square,circle,torus,twistytorus,' +
     'null,true,false,undef' +
     // https://developer.mozilla.org/en/DOM/window

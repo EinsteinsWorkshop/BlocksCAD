@@ -400,6 +400,13 @@ for solid CAD anyway.
                 }
                 return points;
             }
+
+            var getColor = function(csgs) {
+                // get the color from the first polygon of the first shape.
+                if (csgs[0].polygons[0].shared)
+                    return csgs[0].polygons[0].shared.color;
+                else return null;
+            }
           
             var top_guy = this;
             var other_csgs = csg;
@@ -422,6 +429,8 @@ for solid CAD anyway.
             var points = getPoints(csgs);
             // console.log("points for hull are:",points);
 
+            var color = getColor(csgs);
+
             var qhull = new CSG.quickHull3D();
 
             var faces = qhull.build(points);
@@ -439,7 +448,12 @@ for solid CAD anyway.
                 }
                 // console.log("points for polygons");
                 // console.log(pp);
-                polygons.push(new CSG.Polygon.createFromPoints(pp));
+                // var thispoly = new CSG.Polygon.createFromPoints(pp).setColor(color);
+
+                var np = new CSG.Polygon.createFromPoints(pp);
+                if (color)
+                    np.setColor(color);
+                polygons.push(np);
             }
             // console.log("polygons");
             // console.log(polygons);
@@ -541,9 +555,15 @@ for solid CAD anyway.
             var triangPolys = [];
             var nVert = [];
             var nPoly = [];
+            var color = null;
 
-            // keep triangle polygons, otherwise triangulate.
+            // keep triangle polygons, otherwise triangulate. Make sure to save color information.
             for (var i = 0; i < this.polygons.length; i++) {
+                
+                if (this.polygons[i].shared)
+                    color = this.polygons[i].shared.color;
+                else color = null;
+
                 if (this.polygons[i].vertices.length > 3) {
                     // console.log("polygon of vertLength:", this.polygons[i].vertices.length);
                     var point = this.polygons[i].vertices;
@@ -560,7 +580,10 @@ for solid CAD anyway.
                         nVert[0] = point0;
                         nVert[1] = [point[j].pos.x, point[j].pos.y, point[j].pos.z];
                         nVert[2] = [point[j + 1].pos.x, point[j + 1].pos.y, point[j + 1].pos.z];
+
                         nPoly = new CSG.Polygon.createFromPoints(nVert);
+                        if (color)
+                            nPoly.setColor(color);
                         triangPolys.push(nPoly);
                     }
                 }
@@ -571,6 +594,9 @@ for solid CAD anyway.
             var newPolys = [];
             var newVert = [];
             for (var i = 0; i < triangPolys.length; i++) {
+                if (triangPolys[i].shared)
+                    color = triangPolys[i].shared.color;
+                else color = null;
                 newVert = [];
                 for (var j = 0; j < triangPolys[i].vertices.length; j++) {
                     if (triangPolys[i].vertices.length > 3)
@@ -597,6 +623,8 @@ for solid CAD anyway.
                     newVert[j] = [x,y,z];
                 }
                 newPolys[i] = new CSG.Polygon.createFromPoints(newVert);
+                if (color)
+                    newPolys[i].setColor(color);
             }
 
             return CSG.fromPolygons(newPolys);

@@ -20,7 +20,9 @@
   <!-- Bootstrap -->
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="spectrum/spectrum.css">
   <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
+  <script src="spectrum/spectrum.js"></script>
 
   <!-- Lie (promises polyfill library) -->
   <script src="lie/lie.polyfill.min.js"></script>
@@ -41,10 +43,19 @@
   -->
   <script type="text/javascript" src="blockly/openscad_compressed.js"></script>
 
-<!--    <script type="text/javascript" src="blockscad/utils.js"></script>
-   <script type="text/javascript" src="blockscad/storage.js"></script>
-   <script type="text/javascript" src="blockscad/FileSaver.js"></script>
-   <script type="text/javascript" src="blockscad/deflate.js"></script>
+  <!--
+  <script type="text/javascript" src="blockscad/utils.js"></script>
+  <script type="text/javascript" src="blockscad/storage.js"></script>
+  <script type="text/javascript" src="blockscad/FileSaver.js"></script>
+  <script type="text/javascript" src="blockscad/deflate.js"></script>
+  <script type="text/javascript" src="blockscad/predefinedVars.js"></script>
+
+  <script type="text/javascript" src="blockscad/blockscad.js"></script>
+  <script type="text/javascript" src="blockscad/stl.js"></script>
+  <script type="text/javascript" src="blockscad/toolbox.js"></script>
+  <script type="text/javascript" src="blockscad/text.js"></script>
+  <script src="blockscad/lightgl.js"></script>
+
 
    <script type="text/javascript" src="blockscad/blockscad.js"></script>
    <script type="text/javascript" src="blockscad/stl.js"></script>
@@ -131,6 +142,8 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help<span class="caret"></span></a>
             <ul id="help-menu" class="dropdown-menu" role="menu">
               <li><a href="/docs/" target="_blank">Documentation</a></li>
+<!--               <li class="divider"></li>
+              <li><a href="#" id="colorPicker">Color Picker</a></li> -->
               <li class="divider"></li>
               <li><a href="#" data-toggle="modal" data-target="#about-modal">About</a></li>
             </ul>
@@ -200,6 +213,7 @@
 
             <div class='resizableDiv'>
               <div id="renderDiv">
+                <input type='text' id="defColor"/>
                 <select id="viewMenu" class="vmenu">
                   <option value="diagonal">diagonal</option>
                   <option value="front">front</option>
@@ -212,9 +226,13 @@
                 <button type="button" id="viewReset" class="vreset">
                   Reset View
                 </button>
+
                 <button type="button" id="axesButton" class="btn btn-default btn-pushed">
                   <img src="imgs/axes.png">
                 </button>
+
+                <!-- <input type='text' id="colorButton"/> -->
+
               </div> <!--renderDiv -->
 
               <div id="paneContainer">
