@@ -31,7 +31,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.1.2";
 
-Blockscad.offline = false;  // true unless using a cloud service backend for file management
+Blockscad.offline = true;  // true unless using a cloud service backend for file management
 
 // -- BEGIN OPENJSCAD STUFF --
 
