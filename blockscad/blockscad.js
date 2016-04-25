@@ -31,7 +31,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.3.0";
 
-Blockscad.offline = true;  // true unless using a cloud service backend for file management
+Blockscad.offline = false;  // true unless using a cloud service backend for file management
 
 // -- BEGIN OPENJSCAD STUFF --
 
@@ -357,7 +357,7 @@ Blockscad.init = function() {
   $("#examples_rotate_extrude").click({msg: "rotate_extrude.xml"}, Blockscad.showExample);
   $("#examples_cube_with_cutouts").click({msg: "cube_with_cutouts.xml"}, Blockscad.showExample);
   $("#examples_anthias_fish").click({msg: "anthias_fish.xml"}, Blockscad.showExample);
-  $("#examples_chain_hull_sun").click({msg: "chain_hull_sun.xml"}, Blockscad.showExample);
+  $("#examples_hulled_loop_sun").click({msg: "hulled_loop_sun.xml"}, Blockscad.showExample);
   $("#examples_sine_function_with_loop").click({msg: "sine_function_with_loop.xml"}, Blockscad.showExample);
   $("#examples_trefoil_knot_param_eq").click({msg: "trefoil_knot_param_eq.xml"}, Blockscad.showExample);
 
