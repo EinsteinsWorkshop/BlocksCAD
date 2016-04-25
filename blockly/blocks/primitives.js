@@ -1173,7 +1173,7 @@ Blockly.Blocks['color_rgb'] = {
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField('Color ');
-    var dropdown = new Blockly.FieldDropdown([['RGB', 'RGB'], ['HSV', 'HSV']], function(option) {
+    var dropdown = new Blockly.FieldDropdown([['HSV', 'HSV'],['RGB', 'RGB']], function(option) {
       var isRGB = (option == 'RGB');
       this.sourceBlock_.optUpdateShape_(isRGB);
     });
@@ -1196,7 +1196,17 @@ Blockly.Blocks['color_rgb'] = {
         .setCheck('CSG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Apply a color by specifying the red, blue, and green components.  Each value should be between 0 and 100.');
+
+    var thisBlock = this;
+    this.setTooltip(function() {
+      var mode = thisBlock.getFieldValue('SCHEME');
+      var TOOLTIPS = {
+        'RGB': 'Apply a color by specifying the red, blue, and green components.  Each value should be between 0 and 100.',
+        'HSV': 'Apply a color by specifying the hue, saturation, and value components.  Each value should be between 0 and 100.'
+      }; 
+      return TOOLTIPS[mode];
+    });  
+
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;

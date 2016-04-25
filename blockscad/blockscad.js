@@ -104,6 +104,9 @@ Blockscad.init = function() {
   };
   window.addEventListener('resize', onresize, false);
 
+  // add a predefined variable to Blockly for a global "sides" variable
+
+
   Blockscad.workspace = Blockly.inject(document.getElementById('blocklyDiv'),
       {
        media: 'blockly/media/',
@@ -113,6 +116,7 @@ Blockscad.init = function() {
        trashcan: false,
        toolbox: Blockscad.Toolbox.adv});
 
+  // Blockly.Variables.addPredefinedVar( "global_sides" );
   // set the initial color scheme
   Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
   // color the initial toolbox
@@ -302,35 +306,45 @@ Blockscad.init = function() {
 
   // add "default color" picker to viewer
 
-Blockscad.setColor = function(r,g,b) {
-  // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
-  if (gProcessor && gProcessor.viewer){
-    gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
-    if (gProcessor.hasSolid()) {
-      // I have a solid already rendered - change its color!
-      gProcessor.viewer.setCsg(gProcessor.currentObject); 
+  Blockscad.setColor = function(r,g,b) {
+    // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
+    if (gProcessor && gProcessor.viewer){
+      gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
+      if (gProcessor.hasSolid()) {
+        // I have a solid already rendered - change its color!
+        gProcessor.viewer.setCsg(gProcessor.currentObject); 
+      }
     }
+    Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
+    $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
   }
-  Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
-  $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
-}
 
-$("#defColor").spectrum({
-  color: 'rgb(255,128,255)',    
-  showPalette: true,
-  className: "defaultColor",
-  appendTo: "#renderDiv",
-  hideAfterPaletteSelect:true,
-  showPaletteOnly: true,
-  change: function(color) {
-    Blockscad.setColor(color._r,color._g,color._b);
+  $("#defColor").spectrum({
+    color: 'rgb(255,128,255)',    
+    showPalette: true,
+    className: "defaultColor",
+    appendTo: "#renderDiv",
+    hideAfterPaletteSelect:true,
+    showPaletteOnly: true,
+    change: function(color) {
+      Blockscad.setColor(color._r,color._g,color._b);
 
-  },
-    palette: [
-        ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,0,0);', 'rgb(255,102,0);'],
-        ['rgb(255,204,0);'  , 'rgb(0,153,0);'    ,'rgb(51,102,255);' , 'rgb(204,51,204);']
-    ]
-});
+    },
+      palette: [
+          ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,0,0);', 'rgb(255,102,0);'],
+          ['rgb(255,204,0);'  , 'rgb(0,153,0);'    ,'rgb(51,102,255);' , 'rgb(204,51,204);']
+      ]
+  });
+
+  // // add color picker to help menu (for use with color rgb block)
+  // $("#colorPicker").spectrum({
+  //   color: 'rgb(255,128,255)',
+  //   showPalette: false,
+  //   className: "colSelect",
+  //   hideAfterPaletteSelect:false,
+  //   preferredFormat:'hsl',
+  //   showInput:true
+  // });
 
   // example handlers
   // to add an example, add a list item in index.html, add a click handler below, 
