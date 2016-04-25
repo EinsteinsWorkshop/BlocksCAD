@@ -121,6 +121,10 @@ Blockly.Blocks['controls_for'] = {
                         ['TO', 'Number', Blockly.ALIGN_RIGHT],
                         ['BY', 'Number', Blockly.ALIGN_RIGHT],
                         Blockly.ALIGN_RIGHT);
+    this.appendDummyInput()
+        .appendField("(hull")
+        .appendField(new Blockly.FieldCheckbox('FALSE'), 'HULL')
+        .appendField(")");
     this.appendStatementInput('DO')
         .appendField(Blockly.Msg.CONTROLS_FOR_INPUT_DO)
         .setCheck(['CSG','CAG']);

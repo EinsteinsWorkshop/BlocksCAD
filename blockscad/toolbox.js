@@ -537,23 +537,23 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
           '</block>' +
         '</value>' +
       '</block>' +
-      '<block type="controls_for_chainhull">' +
-        '<value name="FROM">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block> ' +
-        '</value>' +
-        '<value name="TO">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="BY">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
+      // '<block type="controls_for_chainhull">' +
+      //   '<value name="FROM">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block> ' +
+      //   '</value>' +
+      //   '<value name="TO">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">10</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="BY">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      // '</block>' +
     '</category>';
 
 Blockscad.Toolbox.catOther = '<category name="Text">' +
