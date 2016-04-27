@@ -29,23 +29,11 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.1.2";
+Blockscad.version = "1.3.3";
 
-Blockscad.offline = true;  // true unless using a cloud service backend for file management
-
-// -- BEGIN OPENJSCAD STUFF --
-
-var gProcessor = null;
-
-// var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
-// var gMemFsCount = 0;          // async reading: count of already read files
-// var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
-// var gMemFsChanged = 0;        // how many files have changed
-// var gRootFs = [];             // root(s) of folders 
-
+Blockscad.offline = false;  // true unless using a cloud service backend for file management
+Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
-// -- END OPENJSCAD STUFF --
-
 Blockscad.drawAxes = 1;       // start with axes drawn
 
 
@@ -54,12 +42,6 @@ Blockscad.drawAxes = 1;       // start with axes drawn
  */
 Blockscad.init = function() {
   Blockscad.initLanguage();
-
-  // // start logging keypresses for undo.  I need to catch the enter key to know that
-  // // a field has been finished writing in.
-  // $(document).keypress(function(event){
-  //   alert(String.fromCharCode(event.which)); 
-  // });
 
   // version of input files/projects
   Blockscad.inputVersion = Blockscad.version;
@@ -83,10 +65,10 @@ Blockscad.init = function() {
     el.style.width = bBox.width + 'px';
 
     // resize the viewer  
-    if (gProcessor && gProcessor.viewer) {
-      var h = gProcessor.viewerdiv.offsetHeight;
-      var w = gProcessor.viewerdiv.offsetWidth;
-      gProcessor.viewer.rendered_resize(w,h);
+    if (Blockscad.gProcessor != null && Blockscad.gProcessor.viewer) {
+      var h = Blockscad.gProcessor.viewerdiv.offsetHeight;
+      var w = Blockscad.gProcessor.viewerdiv.offsetWidth;
+      Blockscad.gProcessor.viewer.rendered_resize(w,h);
     }
     // position the div using left and top (that's all I get!)
     if ($( '#main' ).height() - $( '.resizableDiv' ).height() < 70)
@@ -104,9 +86,6 @@ Blockscad.init = function() {
   };
   window.addEventListener('resize', onresize, false);
 
-  // add a predefined variable to Blockly for a global "sides" variable
-
-
   Blockscad.workspace = Blockly.inject(document.getElementById('blocklyDiv'),
       {
        media: 'blockly/media/',
@@ -116,7 +95,7 @@ Blockscad.init = function() {
        trashcan: false,
        toolbox: Blockscad.Toolbox.adv});
 
-  // Blockly.Variables.addPredefinedVar( "global_sides" );
+
   // set the initial color scheme
   Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
   // color the initial toolbox
@@ -138,10 +117,10 @@ Blockscad.init = function() {
       resize: function(event, ui) {
           var h = $( window ).height();
           // resize the viewer
-          if (gProcessor) {
-            h = gProcessor.viewerdiv.offsetHeight;
-            var w = gProcessor.viewerdiv.offsetWidth;
-            gProcessor.viewer.rendered_resize(w,h);
+          if (Blockscad.gProcessor != null) {
+            h = Blockscad.gProcessor.viewerdiv.offsetHeight;
+            var w = Blockscad.gProcessor.viewerdiv.offsetWidth;
+            Blockscad.gProcessor.viewer.rendered_resize(w,h);
           }
           // position the div using left and top (that's all I get!)
           if ($( '#main' ).width() - ui.size.width < 20)
@@ -180,7 +159,7 @@ Blockscad.init = function() {
     // toggle whether or not we draw the axes, then redraw
     Blockscad.drawAxes = (Blockscad.drawAxes + 1) % 2;
     $( '#axesButton' ).toggleClass("btn-pushed");
-    gProcessor.viewer.onDraw();
+    Blockscad.gProcessor.viewer.onDraw();
   });
 
   // can I bind a click to a tab?
@@ -209,18 +188,19 @@ Blockscad.init = function() {
   $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
 
   // what size should pics be taken at?
-  Blockscad.picSize = [220,220];
+  Blockscad.picSize = [120,120];
+  Blockscad.picQuality = 0.85;    // JPEG quality level - must be between 0 and 1
   // hook up the pic-taking button
   $("#picButton").click(Blockscad.takePic);
   $("#rPicButton").click(Blockscad.takeRPic);
 
   //Create the openjscad processing object instance
-  gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
+  Blockscad.gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
 
   //render view reset button - JY
   BSUtils.bindClick('viewReset', Blockscad.resetView); 
   // $( '#viewMenu' ).change(function() {
-  //   gProcessor.viewer.viewReset();
+  //   Blockscad.gProcessor.viewer.viewReset();
   // });
 
   // a bunch of stuff to support Undo/Redo
@@ -312,18 +292,21 @@ Blockscad.init = function() {
 
   // add "default color" picker to viewer
 
-Blockscad.setColor = function(r,g,b) {
-  // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
-  if (gProcessor && gProcessor.viewer){
-    gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
-    gProcessor.picviewer.defaultColor = [r/255,g/255,b/255,1];
-    if (gProcessor.hasSolid()) {
-      // I have a solid already rendered - change its color!
-      gProcessor.viewer.setCsg(gProcessor.currentObject); 
-      gProcessor.picviewer.setCsg(gProcessor.currentObject); 
+  Blockscad.setColor = function(r,g,b) {
+    // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
+    if (Blockscad.gProcessor != null && Blockscad.gProcessor.viewer){
+      Blockscad.gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
+      Blockscad.gProcessor.picviewer.defaultColor = [r/255,g/255,b/255,1];
+      if (Blockscad.gProcessor.hasSolid()) {
+        // I have a solid already rendered - change its color!
+        Blockscad.gProcessor.viewer.setCsg(Blockscad.gProcessor.currentObject); 
+        Blockscad.gProcessor.picviewer.setCsg(Blockscad.gProcessor.currentObject); 
+        // update the thumbnail
+        Blockscad.gProcessor.thumbnail = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+      }
+      Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
+      $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
     }
-    Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
-    $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
   }
 
   $("#defColor").spectrum({
@@ -386,15 +369,16 @@ Blockscad.setColor = function(r,g,b) {
       root.find('.sub-menu:visible').hide();
     });
   });
+  $('#stl_buttons').hide();
 
 
 }; // end Blockscad.init()
 
 Blockscad.takeRPic = function() {
-  if (gProcessor) {
+  if (Blockscad.gProcessor != null) {
     // takeRotatingPic(quality, numFrames)
     // leave quality at 1! 
-    var thing = gProcessor.takeRotatingPic(1,13);
+    var thing = Blockscad.gProcessor.takeRotatingPic(1,13);
     // console.log("got rotating pic");
 
     // console.log(thing);
@@ -407,7 +391,7 @@ Blockscad.takeRPic = function() {
     }, function(obj) {
       if (!obj.error) {
         var image = obj.image;
-        Blockscad.savePic(image, "bloop.gif");
+        Blockscad.savePic(image, $('#project-name').val() + '.gif');
       }
     });
   }
@@ -431,9 +415,11 @@ Blockscad.savePic = function(image, name) {
   }
 }
 Blockscad.takePic = function() {
-  if (gProcessor.picviewer) {
+  if (Blockscad.gProcessor.picviewer) {
     // the parameter here is the jpeg quality - between 0 and 1.
-    var image = gProcessor.picviewer.takePic(0.85,0);
+    var image = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+    // Blockscad.gProcessor.thumbnail = image;
+
     // console.log("image",image);
     if (image)
     Blockscad.savePic(image, $('#project-name').val() + '.jpg');
@@ -534,12 +520,13 @@ function readSingleFile(evt, replaceOld) {
     // I should hide the projView, and show the editView.
     $('#projView').hide();
     $('#editView').show();
-
+    // turn the big save button back on.
+    if (!Blockscad.offline) $('#bigsavebutton').show();
     // switch us back to the blocks tab in case we were on the code tabe.
     $('#displayBlocks').click();
 
     // clear the render window
-    gProcessor.clearViewer();
+    Blockscad.gProcessor.clearViewer();
 
   } else { 
     // alert("Failed to load file");
@@ -731,6 +718,8 @@ Blockscad.createNewProject = function() {
   Blockscad.clearUndo();
   setTimeout(Blockscad.setNoSaveNeeded, 300);
   $('#displayBlocks').click();
+  if (!Blockscad.offline)
+        $('#bigsavebutton').show(); 
 }
 // first attempt to use promises for async stuff!
 function promptForSave() {
@@ -844,7 +833,7 @@ Blockscad.clearProject = function() {
     Blockscad.Auth.currentProjectKey = '';
   }
   Blockscad.workspace.clear();
-  gProcessor.clearViewer();  
+  Blockscad.gProcessor.clearViewer();  
 
   $('#project-name').val('Untitled');
   $('#projectView').hide();
@@ -892,12 +881,12 @@ Blockscad.discard = function() {
 /* reset the rendering view */
 
 Blockscad.resetView = function() {
-  if (gProcessor) {
-    if (gProcessor.viewer) {
-      gProcessor.viewer.viewReset();
+  if (Blockscad.gProcessor != null) {
+    if (Blockscad.gProcessor.viewer) {
+      Blockscad.gProcessor.viewer.viewReset();
     }
-    if (gProcessor.picviewer) {
-      gProcessor.picviewer.viewReset();
+    if (Blockscad.gProcessor.picviewer) {
+      Blockscad.gProcessor.picviewer.viewReset();
     }
   } 
 };
@@ -957,7 +946,7 @@ Blockscad.doRender = function() {
   $('#renderButton').prop('disabled', true); 
 
   // Clear the previously rendered model
-  gProcessor.clearViewer();
+  Blockscad.gProcessor.clearViewer();
 
   // check to see if the code mixes 2D and 3D shapes to give a good error message
   var mixes = Blockscad.mixes2and3D();
@@ -1076,7 +1065,7 @@ Blockscad.renderCode = function(code) {
   }
   if (code_good) {
     window.setTimeout(function () 
-      { gProcessor.setBlockscad(csgcode); 
+      { Blockscad.gProcessor.setBlockscad(csgcode); 
         // console.log("code is now",code); 
       }, 0);
   }

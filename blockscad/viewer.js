@@ -428,7 +428,7 @@ Blockscad.Viewer.prototype = {
     // var tallness = 1.2 ;
     var tallness = 1.3 - (bbox[1].z - bbox[0].z)/(2*bsph.radius);
 
-    var r = 2.8 * bsph.radius;
+    var r = 2.6 * bsph.radius;
     gl.matrixMode(gl.PROJECTION);
     gl.loadIdentity();
     gl.perspective(45,gl.canvas.width / gl.canvas.height,1,3000);
@@ -1012,6 +1012,7 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.script = null;
   this.hasError = false;
   this.debugging = false;
+  this.thumbnail = "none";
   this.createElements();
 };
 
@@ -1063,10 +1064,11 @@ Blockscad.Processor.prototype = {
     this.viewerdiv = viewerdiv;
 
     var picdiv = document.createElement("div");
+    picdiv.setAttribute('id','picdiv');
     picdiv.style.width = Blockscad.picSize[0] + 'px'; 
     picdiv.style.height = Blockscad.picSize[1] + 'px'; 
-    picdiv.style.bottom = '50px';
-    picdiv.style.left = '200px';
+    picdiv.style.top = '0px';
+    picdiv.style.right = '10px';
     picdiv.style.position = 'absolute';
     picdiv.style.zIndex = '-1';
     document.getElementById("blocklyDiv").appendChild(picdiv);
@@ -1077,6 +1079,8 @@ Blockscad.Processor.prototype = {
     } catch(e) {
       this.picdiv.innerHTML = "<b><br><br>Error: " + e.toString() + "</b><br><br>BlocksCAD currently requires Google Chrome or Firefox with WebGL enabled";
     }
+    $("#picdiv").hide();
+
     try {
       this.viewer = new Blockscad.Viewer(this.viewerdiv, viewerdiv.offsetWidth, viewerdiv.offsetHeight, this.initialViewerDistance);
     } catch(e) {
@@ -1177,6 +1181,7 @@ Blockscad.Processor.prototype = {
     this.clearOutputFile();
     this.setCurrentObject(new CSG());
     this.hasValidCurrentObject = false;
+    this.thumbnail = "none";
     // console.log('trying to hid stl_buttons');
     $('#stl_buttons').hide();
     this.enableItems();
@@ -1212,7 +1217,7 @@ Blockscad.Processor.prototype = {
     this.debugging = debugging;
   },
   
-  // script: javascript code
+  // clear the viewer, build/display a mesh
   setBlockscad: function(script) {
     this.abort();
     this.clearViewer();
@@ -1254,6 +1259,8 @@ Blockscad.Processor.prototype = {
           {
 //            console.log("no error in proc");
             that.setCurrentObject(obj);
+            // console.log(that);
+            that.thumbnail = that.picviewer.takePic(Blockscad.picQuality,0);
           }
 
           if(that.onchange) that.onchange();

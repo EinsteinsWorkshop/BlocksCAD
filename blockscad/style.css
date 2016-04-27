@@ -287,10 +287,10 @@ body .modal-md {
 
 #projectView {
 	display:block;
-	position:absolute;
 	overflow-y: scroll;
+	margin: 0 auto;
 	height: 92%;
-	width:98%;
+	width:90%;
 	left:1%;
 }
 
@@ -299,12 +299,33 @@ body .modal-md {
 }
 
 .proj-header {
-	margin: 8px;
+	margin-left: 8px;
+	margin-right: 10%;
 	padding: 4px;
 	font-size: 24px;
 }
+
 .table-striped>tbody>tr:nth-of-type(odd) {
   background-color: #f6f6ff;
+}
+.table>tbody>tr>td {
+	vertical-align : middle;
+}
+#projTable td > * {
+  vertical-align : middle;
+}
+/* Sortable tables */
+table.sortable thead {
+    background-color:#eee;
+    color:#666666;
+    font-weight: bold;
+    cursor: default;
+}
+table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
+    content: " \25B4\25BE" 
+}
+th {
+	border: solid 1px #d0d0d0;
 }
 
 .vcenter {
@@ -313,7 +334,33 @@ body .modal-md {
 	margin-right: 5%;
 	float: right;
 }
-
+.spacey {
+	vertical-align: top;
+	margin-top: 0;
+	margin-left:30px;
+}
+.search {
+	vertical-align: top;
+	height:33px;
+	border-radius:15px;
+	margin-left:30px;
+	text-indent:5px;
+  background-image: url('../imgs/mag.jpg');
+  background-repeat: no-repeat;
+  background-position: 96% 50%;
+}
+input.search:focus {
+    outline-width: 0;
+}
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
 .form-error-message {
 	display: inline-block;
 	padding: 3px;
