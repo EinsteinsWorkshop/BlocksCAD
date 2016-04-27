@@ -23,6 +23,8 @@
   <link rel="stylesheet" href="spectrum/spectrum.css">
   <script src="bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
   <script src="spectrum/spectrum.js"></script>
+  <script src="gifshot/gifshot.min.js"></script>
+
 
   <!-- Lie (promises polyfill library) -->
   <script src="lie/lie.polyfill.min.js"></script>
@@ -43,25 +45,19 @@
   -->
   <script type="text/javascript" src="blockly/openscad_compressed.js"></script>
 
+
   <!--
+
+  <script src="blockscad/sorttable.js"></script>
   <script type="text/javascript" src="blockscad/utils.js"></script>
   <script type="text/javascript" src="blockscad/storage.js"></script>
   <script type="text/javascript" src="blockscad/FileSaver.js"></script>
   <script type="text/javascript" src="blockscad/deflate.js"></script>
-  <script type="text/javascript" src="blockscad/predefinedVars.js"></script>
-
   <script type="text/javascript" src="blockscad/blockscad.js"></script>
   <script type="text/javascript" src="blockscad/stl.js"></script>
   <script type="text/javascript" src="blockscad/toolbox.js"></script>
   <script type="text/javascript" src="blockscad/text.js"></script>
-  <script src="blockscad/lightgl.js"></script>
-
-
-   <script type="text/javascript" src="blockscad/blockscad.js"></script>
-   <script type="text/javascript" src="blockscad/stl.js"></script>
-   <script type="text/javascript" src="blockscad/toolbox.js"></script>
-   <script type="text/javascript" src="blockscad/text.js"></script>
-   <script src="blockscad/lightgl.js"></script> -->
+  <script src="blockscad/lightgl.js"></script> -->
 
   <script type="text/javascript" src="backend_compressed.js"></script> 
 
@@ -226,10 +222,16 @@
                 <button type="button" id="viewReset" class="vreset">
                   Reset View
                 </button>
-
+<!--                 <button type="button" id="picButton" class="btn btn-default btn-pushed">
+                  Pic
+                </button>
+                <button type="button" id="rPicButton" class="btn btn-default btn-pushed">
+                  Rotating Pic
+                </button> -->
                 <button type="button" id="axesButton" class="btn btn-default btn-pushed">
                   <img src="imgs/axes.png">
                 </button>
+
 
                 <!-- <input type='text' id="colorButton"/> -->
 
@@ -261,23 +263,26 @@
       <!-- first row - a "my projects" label, a "New" button on the right -->
       <div style="width:100%; background-color:#bbbbff;">
         <span class="proj-header">My Projects</span>
-        <button type="button" class="btn btn-default plist-cancel vcenter">Cancel</button>
-        <button type="button" class="btn btn-default new-project vcenter">New Project</button>
+        <button type="button" class="btn btn-default new-project spacey">New Project</button>
+        <input type="text" class="search noselect" title="Filter" placeholder="Filter"  id="ptsearch"/>
+        <button type="button" class="btn btn-default plist-cancel spacey">Cancel</button>
       </div>
-        <table class="table table-striped">
+        <table id="projTable" class="table table-striped sortable" style="padding:0px">
           <colgroup>
+            <col style="width:80px">
             <col class="col-md-4">
             <col class="col-md-4">
             <!-- this was the column for shared attribute <col class="col-md-2"> -->
             <col class="col-md-4">
           </colgroup>
           <thead>
-            <tr>
-              <th>Project Name</th>
-              <th>Last Modified</th>
+            <!-- <tr> -->
+              <th class="sorttable_nosort" style="width:80px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+              <th class="noselect">Project Name</th>
+              <th class="noselect">Last Modified</th>
               <!-- this is the shared column <th>Shared</th> -->
-              <th></th>
-            </tr>
+              <th class="sorttable_nosort"></th>
+         <!--    </tr> -->
           </thead> 
           <tbody id="projList">
           </tbody>
@@ -618,7 +623,7 @@
     </div>
     <div class="modal-body">
       <div>
-        <p>Version <script type="text/javascript">document.write(Blockscad.version);</script> (2016/04/25)</p>
+        <p>Version <script type="text/javascript">document.write(Blockscad.version);</script> (2016/04/27)</p>
         <br>
         <p>Want to help? <a href="https://github.com/EinsteinsWorkshop/BlocksCAD">Get involved!</a></p>
         <p>Have feedback? <a href="mailto://blockscad@einsteinsworkshop.com">blockscad@einsteinsworkshop.com</a>
