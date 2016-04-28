@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 
 Blockscad.version = "1.3.3";
 
-Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
