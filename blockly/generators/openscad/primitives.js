@@ -630,8 +630,9 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
 
   if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
     this_text = 'str(' + this_text + ')';
-  var code = 'text(' + this_text + ', font = "' + this_font +
-             '", size = ' + value_size + ');\n';
+  var code = "// size is multiplied by 0.75 because openScad fonts size is in points, not pixels\n";
+  code += 'text(' + this_text + ', font = "' + this_font +
+             '", size = ' + value_size + '* 0.75);\n';
   return code;
 }
 
@@ -658,9 +659,10 @@ Blockly.OpenSCAD['bs_3dtext'] = function(block) {
 
   if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
     this_text = 'str(' + this_text + ')';
-  var code = 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
+  var code = "// size is multiplied by 0.75 because openScad fonts size is in points, not pixels\n";
+  code += 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
              '  text(' + this_text + ', font = "' + this_font +
-             '", size = ' + value_size + ');\n}\n';
+             '", size = ' + value_size + '*0.75);\n}\n';
   return code;
 }
 

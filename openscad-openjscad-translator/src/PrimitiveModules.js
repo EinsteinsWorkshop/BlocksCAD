@@ -152,6 +152,10 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
 
         var resolution = Context.get_font_resolution(context);
 
+        // Blockscad font library expects size in pixels units, not points (like openscad).
+        // so we convert.
+        size *= 1.33333333333333333333333333;
+
         if (Blockscad.fonts[font]) {
             // Use your font here.
             var path = Blockscad.fonts[font].getPath(str,0,0,size);
