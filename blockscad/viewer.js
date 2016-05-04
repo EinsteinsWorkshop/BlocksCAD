@@ -1405,15 +1405,17 @@ Blockscad.Processor.prototype = {
     var ext = this.selectedFormatInfo().extension;
 
     // I want the user to be able to enter a filename for the stl download - JY
-   // pull a filename entered by the user
-   var filename = $('#project-name').val();
-   // don't save without a filename.  Name isn't checked for quality.
-   if (filename) {
-     saveAs(blob, filename + "." + ext);
-   }
-   else {
-     alert("Could not save" , this.selectedFormatInfo().displayName ," file.  Please give your project a name, then try again.");
-   }
+    // pull a filename entered by the user
+    var filename = $('#project-name').val();
+    // don't save without a filename.  Name isn't checked for quality.
+    if (filename) {
+      saveAs(blob, filename + "." + ext);
+    }
+    else {
+      $('#message-text').html("<h4>Could not save.  Please name your project and try again.</h4>");
+      $('#message-modal').modal();
+      // alert("Could not save.  Please give your project a name, then try again.");
+    }
   },
   takeRotatingPic: function(quality, numframes) {
 
