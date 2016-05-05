@@ -1,0 +1,10 @@
+{
+	"PROJECT_MENU": "User Interface Project Menu title",
+	"NEW": "Menu title to create a new project",
+	"SAVE_BLOCKS_LOCAL": "Menu title to save xml block file to the local machine",
+	"LOAD_BLOCKS_LOCAL": "Menu title to load xml blocks from the local machine and put them in a new project",
+	"IMPORT_BLOCKS_LOCAL": "Menu title to import xml blocks into the current project (keeping any current blocks)",
+	"IMPORT_STL": "Menu title to import an .stl file from the local machine into the current project",
+	"SAVE_SCAD_LOCAL": "Menu title to export Openscad code (.scad file) to the local machine",
+	"OPTIONS_MENU": "Options Menu Title"
+}

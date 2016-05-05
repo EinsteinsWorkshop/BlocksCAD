@@ -1,0 +1,16 @@
+{
+	"@metadata": {
+		"author": "Jennie Yoder <jennie@einsteinsworkshop.com>",
+		"lastupdated": "2016-05-04 13:10:14.493000",
+		"locale": "en",
+		"messagedocumentation" : "qqq"
+	},
+	"PROJECT_MENU": "Project",
+	"NEW": "New",
+	"SAVE_BLOCKS_LOCAL": "Save Blocks to your Computer",
+	"LOAD_BLOCKS_LOCAL": "Load Blocks from your Computer",
+	"IMPORT_BLOCKS_LOCAL": "Import Blocks into Current Project",
+	"IMPORT_STL": "Import STL file into Current Project",
+	"SAVE_SCAD_LOCAL": "Save OpenSCAD code to your Computer",
+	"OPTIONS_MENU": "Options"
+}

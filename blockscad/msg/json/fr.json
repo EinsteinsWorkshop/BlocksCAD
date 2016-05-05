@@ -1,0 +1,15 @@
+{
+	"@metadata": {
+		"authors": [
+			"SebCanet"
+		]
+	},
+	"PROJECT_MENU": "Projet",
+	"NEW": "Nouveau",
+	"SAVE_BLOCKS_LOCAL": "Sauver en fichier xml",
+	"LOAD_BLOCKS_LOCAL": "Charger un fichier xml",
+	"IMPORT_BLOCKS_LOCAL": "Importer des blocs dans le projet en cours",
+	"IMPORT_STL": "Importer STL dans le projet en cours",
+	"SAVE_SCAD_LOCAL": "Sauver le code Openscad",
+	"OPTIONS_MENU": "Options"
+}

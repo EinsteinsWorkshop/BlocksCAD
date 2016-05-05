@@ -104,7 +104,7 @@ Blockscad.init = function() {
   // hide "switch to advanced toolbox" because that's where we'll start
   $('#advancedToolbox').hide();
 
-  BSUtils.loadBlocks('');
+  BSUtils.loadBlocks();
 
   if ('BlocklyStorage' in window) {
     // Hook a save function onto unload.
@@ -627,8 +627,10 @@ Blockscad.readStlFile = function(evt) {
   }
 };
 
-// Load Blockly's language strings.
+// Load Blockly's (and Blockscad's) language strings.
+console.log("trying to include message strings");
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
+document.write('<script src="blockscad/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 
 // on page load, call blockscad init function.
 window.addEventListener('load', Blockscad.init);
@@ -1798,6 +1800,8 @@ Blockscad.initLanguage = function() {
   document.head.parentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
   document.head.parentElement.setAttribute('lang', BSUtils.LANG);
 
+  console.log("lang is:",BSUtils.LANG);
+
   // Sort languages alphabetically.
   var languages = [];
   var lang;
@@ -1887,3 +1891,4 @@ Blockscad.saveOpenscadLocal = function() {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
   }
 };
+

@@ -34,7 +34,8 @@ html, body {
 	display: none;
 }
 #languageMenu {
-	display:none;
+	/*display:none;*/
+	margin-top: 20;
 }
 
 
@@ -328,6 +329,9 @@ th {
 	border: solid 1px #d0d0d0;
 }
 
+.vc {
+	margin-top:15px;
+}
 .vcenter {
 	vertical-align: top;
 	margin-top: 0;
