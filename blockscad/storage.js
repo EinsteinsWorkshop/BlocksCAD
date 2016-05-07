@@ -147,7 +147,6 @@ BlocklyStorage.restoreBlocks = function() {
             // Then I'd make the filename field invisible.
           }
         }
-
       }
     }
 

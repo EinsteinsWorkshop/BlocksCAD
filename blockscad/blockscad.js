@@ -31,6 +31,7 @@ var BSUtils = BSUtils || {};
 
 
 Blockscad.version = "1.3.3";
+Blockscad.releaseDate = "2016/04/27";
 
 Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
@@ -221,7 +222,7 @@ Blockscad.init = function() {
     oldFieldValues:[],
     oldParentIds:[],
     just_did_undo:0,
-    oldProjectName:'Untitled'
+    oldProjectName: Blockscad.Msg.PROJECT_NAME_DEFAULT
   };
 
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
@@ -840,7 +841,7 @@ Blockscad.clearProject = function() {
   Blockscad.workspace.clear();
   Blockscad.gProcessor.clearViewer();  
 
-  $('#project-name').val('Untitled');
+  $('#project-name').val(Blockscad.Msg.PROJECT_NAME_DEFAULT);
   $('#projectView').hide();
   $('#editView').show();
   // turn the big save button back on.

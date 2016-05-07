@@ -14,11 +14,11 @@ Blockly.Blocks['union'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
-        .appendField("Union");
+        .appendField(Blockscad.Msg.UNION);
     this.appendStatementInput("A")
         .setCheck(["CSG","CAG"]);
     this.appendStatementInput("PLUS0")
-        .appendField('Plus')
+        .appendField(Blockscad.Msg.PLUS)
         .setCheck(["CSG","CAG"]);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ["CSG","CAG"]);
@@ -42,7 +42,7 @@ Blockly.Blocks['union'] = {
     var mytype = this.getInput('A').connection.check_;
     for (var x = 1; x <= this.plusCount_; x++) {
         this.appendStatementInput('PLUS' + x)
-            .appendField('Plus')
+            .appendField(Blockscad.Msg.PLUS)
             .setCheck(mytype);
     }
     if (this.plusCount_ >= 1) {
@@ -54,7 +54,7 @@ Blockly.Blocks['union'] = {
       this.plusCount_++;
       var mytype = this.getInput('A').connection.check_;
       var plusInput = this.appendStatementInput('PLUS' + this.plusCount_)
-          .appendField('Plus')
+          .appendField(Blockscad.Msg.PLUS)
           .setCheck(mytype); 
     } else if (num == -1) {
       this.removeInput('PLUS' + this.plusCount_); 
@@ -91,11 +91,11 @@ Blockly.Blocks['difference'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
-        .appendField("Difference");
+        .appendField(Blockscad.Msg.DIFFERENCE);
     this.appendStatementInput("A")
         .setCheck(["CSG",'CAG']);
     this.appendStatementInput("MINUS0")
-        .appendField('minus')
+        .appendField(Blockscad.Msg.MINUS)
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
@@ -119,7 +119,7 @@ Blockly.Blocks['difference'] = {
     var mytype = this.getInput('A').connection.check_;
     for (var x = 1; x <= this.minusCount_; x++) {
         this.appendStatementInput('MINUS' + x)
-            .appendField('minus')
+            .appendField(Blockscad.Msg.MINUS)
             .setCheck(mytype);
     }
     if (this.minusCount_ >= 1) {
@@ -131,7 +131,7 @@ Blockly.Blocks['difference'] = {
       this.minusCount_++;
       var mytype = this.getInput('A').connection.check_;
       var minusInput = this.appendStatementInput('MINUS' + this.minusCount_)
-          .appendField('minus')
+          .appendField(Blockscad.Msg.MINUS)
           .setCheck(mytype); 
     } else if (num == -1) {
       this.removeInput('MINUS' + this.minusCount_); 
@@ -169,11 +169,11 @@ Blockly.Blocks['intersection'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
-        .appendField("Intersection");
+        .appendField(Blockscad.Msg.INTERSECTION);
     this.appendStatementInput("A")
         .setCheck(["CSG","CAG"]);
     this.appendStatementInput("WITH0")
-        .appendField('with')
+        .appendField(Blockscad.Msg.WITH)
         .setCheck(["CSG","CAG"]);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ["CSG",'CAG']);
@@ -196,7 +196,7 @@ Blockly.Blocks['intersection'] = {
     var mytype = this.getInput('A').connection.check_;
     for (var x = 1; x <= this.withCount_; x++) {
         this.appendStatementInput('WITH' + x)
-            .appendField('with')
+            .appendField(Blockscad.Msg.WITH)
             .setCheck(mytype);
     }
     if (this.withCount_ >= 1) {
@@ -208,7 +208,7 @@ Blockly.Blocks['intersection'] = {
       this.withCount_++;
       var mytype = this.getInput('A').connection.check_;
       var withInput = this.appendStatementInput('WITH' + this.withCount_)
-          .appendField('with')
+          .appendField(Blockscad.Msg.WITH)
           .setCheck(mytype); 
     } else if (num == -1) {
       this.removeInput('WITH' + this.withCount_); 
@@ -247,11 +247,11 @@ Blockly.Blocks['hull'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
-        .appendField("Hull");
+        .appendField(Blockscad.Msg.CONVEX_HULL);
     this.appendStatementInput("A")
         .setCheck(["CSG","CAG"]);
     this.appendStatementInput("WITH0")
-        .appendField('with')
+        .appendField(Blockscad.Msg.WITH)
         .setCheck(["CSG","CAG"]);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ["CSG","CAG"]);
@@ -275,7 +275,7 @@ Blockly.Blocks['hull'] = {
     var mytype = this.getInput('A').connection.check_;
     for (var x = 1; x <= this.withCount_; x++) {
         this.appendStatementInput('WITH' + x)
-            .appendField('with')
+            .appendField(Blockscad.Msg.WITH)
             .setCheck(mytype);
     }
     if (this.withCount_ >= 1) {
@@ -287,7 +287,7 @@ Blockly.Blocks['hull'] = {
       this.withCount_++;
       var mytype = this.getInput('A').connection.check_;
       var withInput = this.appendStatementInput('WITH' + this.withCount_)
-          .appendField('with')
+          .appendField(Blockscad.Msg.WITH)
           .setCheck(mytype); 
     } else if (num == -1) {
       this.removeInput('WITH' + this.withCount_); 

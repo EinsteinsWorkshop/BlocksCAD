@@ -103,6 +103,7 @@ html, body {
 	width: 93px;
 	height: 46px;
 	margin: 0 auto;	
+	white-space: normal;
 }
 /*#abortButton {
 	position: absolute;

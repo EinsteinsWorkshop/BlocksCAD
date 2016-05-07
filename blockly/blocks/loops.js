@@ -122,7 +122,7 @@ Blockly.Blocks['controls_for'] = {
                         ['BY', 'Number', Blockly.ALIGN_RIGHT],
                         Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField("(hull")
+        .appendField("(" + Blockscad.Msg.LOOP_HULL)
         .appendField(new Blockly.FieldCheckbox('FALSE'), 'HULL')
         .appendField(")");
     this.appendStatementInput('DO')
