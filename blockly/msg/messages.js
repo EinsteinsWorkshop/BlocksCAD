@@ -172,7 +172,6 @@ Blockly.Msg.CONTROLS_WHILEUNTIL_TOOLTIP_UNTIL = 'While a value is false, then do
 Blockly.Msg.CONTROLS_FOR_HELPURL = 'https://github.com/google/blockly/wiki/Loops#count-with';
 /// tooltip - See [https://github.com/google/blockly/wiki/Loops#count-with https://github.com/google/blockly/wiki/Loops#count-with].\n\nParameters:\n* %1 - the name of the loop variable.
 Blockly.Msg.CONTROLS_FOR_TOOLTIP = 'Have the variable %1 take on the values from the start number to the end number, counting by the specified interval, and do the specified blocks.';
-Blockly.Msg.CONTROLS_FOR_TOOLTIP_CHAINHULL = 'Return the convex hull of each shape in the loop with the next shape';
 Blockly.Msg.CONTROLS_FOR_INPUT_WITH_CHAINHULL = 'Chain Hull: count with'
 /// [[File:Blockly-count-with.png]]
 Blockly.Msg.CONTROLS_FOR_INPUT_WITH = 'count with';

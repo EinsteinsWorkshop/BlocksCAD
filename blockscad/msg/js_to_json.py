@@ -49,7 +49,7 @@ import re
 from common import write_files
 
 
-_INPUT_DEF_PATTERN = re.compile("""Blockscad.Msg.(\w*)\s*=\s*'([^']*)';""")
+_INPUT_DEF_PATTERN = re.compile("""Blockscad.Msg.(\w*)\s*=\s*'(.*)';""")
 
 _INPUT_SYN_PATTERN = re.compile(
     """Blockscad.Msg.(\w*)\s*=\s*Blockscad.Msg.(\w*);""")
@@ -84,12 +84,12 @@ def main():
         description = description + ' ' + line[3:].strip()
       else:
         description = line[3:].strip()
-      print(description)
+      # print(description)
     else:
       match = _INPUT_DEF_PATTERN.match(line)
-      print(match)
+      # print(match)
       if match:
-        print('Found a match')
+        # print('Found a match')
         result = {}
         result['meaning'] = match.group(1)
         result['source'] = match.group(2)

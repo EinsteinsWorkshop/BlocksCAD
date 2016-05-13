@@ -22,7 +22,7 @@ Blockly.Blocks['union'] = {
         .setCheck(["CSG","CAG"]);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ["CSG","CAG"]);
-    this.setTooltip('Combines two or more objects into one.');
+    this.setTooltip(Blockscad.Msg.UNION_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -99,7 +99,7 @@ Blockly.Blocks['difference'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Subtracts one or more objects from the first object in the list.');
+    this.setTooltip(Blockscad.Msg.DIFFERENCE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.minusCount_ = 0;
@@ -177,7 +177,7 @@ Blockly.Blocks['intersection'] = {
         .setCheck(["CSG","CAG"]);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ["CSG",'CAG']);
-    this.setTooltip('Returns the intersection (shared space) of two or more objects.');
+    this.setTooltip(Blockscad.Msg.INTERSECTION_TOOLTIP);
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.withCount_ = 0;
   },
@@ -255,7 +255,7 @@ Blockly.Blocks['hull'] = {
         .setCheck(["CSG","CAG"]);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ["CSG","CAG"]);
-    this.setTooltip('Combines two or more objects by "wrapping" them together in a hull.');
+    this.setTooltip(Blockscad.Msg.HULL_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.withCount_ = 0;

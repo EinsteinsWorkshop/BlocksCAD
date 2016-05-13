@@ -1174,7 +1174,7 @@ Blockscad.Processor.prototype = {
   
   updateDownloadLink: function() {
     var ext = this.selectedFormatInfo().extension;
-    this.generateOutputFileButton.innerHTML = "Generate "+ext.toUpperCase();
+    this.generateOutputFileButton.innerHTML = Blockscad.Msg.GENERATE_STL + " "+ext.toUpperCase();
   },
   
   clearViewer: function() {
@@ -1200,9 +1200,9 @@ Blockscad.Processor.prototype = {
   },
   
   enableItems: function() {
-    this.abortbutton.style.display = this.processing? "block":"none";
-    this.renderbutton.style.display = this.processing? "none":"block";
-    this.ongoingrender.style.display = this.processing? "block":"none";
+    this.abortbutton.style.display = this.processing? "inline-block":"none";
+    this.renderbutton.style.display = this.processing? "none":"inline-block";
+    this.ongoingrender.style.display = this.processing? "inline-block":"none";
   },
 
  
@@ -1412,9 +1412,8 @@ Blockscad.Processor.prototype = {
       saveAs(blob, filename + "." + ext);
     }
     else {
-      $('#message-text').html("<h4>Could not save.  Please name your project and try again.</h4>");
+      $('#message-text').html("<h4>" + Blockscad.Msg.SAVE_FAILED + ' ' + Blockscad.Msg.SAVE_FAILED_PROJECT_NAME + ".</h4>");
       $('#message-modal').modal();
-      // alert("Could not save.  Please give your project a name, then try again.");
     }
   },
   takeRotatingPic: function(quality, numframes) {

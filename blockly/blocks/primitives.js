@@ -14,7 +14,7 @@ Blockly.Blocks['sphere'] = {
         .setAlign(Blockly.ALIGN_RIGHT);
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a sphere with a specified radius.');
+    this.setTooltip(Blockscad.Msg.SPHERE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -71,7 +71,7 @@ Blockly.Blocks['cylinder'] = {
         .appendField(new Blockly.FieldDropdown([[Blockscad.Msg.NOT_CENTERED, 'false'], [Blockscad.Msg.CENTERED, 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a cylinder with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
+    this.setTooltip(Blockscad.Msg.CYLINDER_TOOLTIP);
   },
   onchange: function() {
     if (!this.workspace) {
@@ -158,7 +158,7 @@ Blockly.Blocks['cube'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
     //this.setNextStatement(true, 'CSG');
-    this.setTooltip('Creates a rectangular prism of specified dimensions x, y, and z. Primitive may optionally be centered around the origin.');
+    this.setTooltip(Blockscad.Msg.CUBE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -200,7 +200,7 @@ Blockly.Blocks['torus'] = {
         .setAlign(Blockly.ALIGN_RIGHT);
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a torus with a ring of specified distance on-center from the origin (radius1), with a specified radius (radius2), a specified number of sides and faces.');
+    this.setTooltip(Blockscad.Msg.TORUS_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -280,7 +280,7 @@ Blockly.Blocks['circle'] = {
         .setAlign(Blockly.ALIGN_RIGHT);
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
-    this.setTooltip('Creates a circle with a specified radius.');
+    this.setTooltip(Blockscad.Msg.CIRCLE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -314,7 +314,7 @@ Blockly.Blocks['square'] = {
         .appendField(new Blockly.FieldDropdown([[Blockscad.Msg.NOT_CENTERED, 'false'], [Blockscad.Msg.CENTERED, 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
-    this.setTooltip('Creates a square of specified dimensions x and y. Primitive may optionally be centered around the origin.');
+    this.setTooltip(Blockscad.Msg.SQUARE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -352,7 +352,7 @@ Blockly.Blocks['translate'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Translates (moves) one or more objects in specified dimensions x, y, and z.');
+    this.setTooltip(Blockscad.Msg.TRANSLATE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -453,7 +453,7 @@ Blockly.Blocks['scale'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Scales one or more objects by specified amount in dimensions x, y, and z.');
+    this.setTooltip(Blockscad.Msg.SCALE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -579,7 +579,7 @@ Blockly.Blocks['fancymirror'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Mirrors one or more objects across specified plane defined by the provided normal vector.');
+    this.setTooltip(Blockscad.Msg.FANCYMIRROR_TOOLTIP);
        // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0; 
@@ -665,7 +665,7 @@ Blockly.Blocks['simplemirror'] = {
         .setCheck('CSG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Mirrors one or more objects across a specified plane.');
+    this.setTooltip(Blockscad.Msg.SIMPLEMIRROR_TOOLTIP);
   },
     /**
    * If our parent or child is CSG or CAG, that sets our output type
@@ -700,7 +700,7 @@ Blockly.Blocks['simplemirror_new'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Mirrors one or more objects across a specified plane.');
+    this.setTooltip(Blockscad.Msg.SIMPLEMIRROR_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -810,8 +810,8 @@ Blockly.Blocks['taper'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Scales shape along an axis.  The smallest value along the select axis is scaled at one, and the largest value is scaled at user input scale value.');
-    this.setWarningText('Not compatible with OpenSCAD!');
+    this.setTooltip(Blockscad.Msg.TAPER_TOOLTIP);
+    this.setWarningText(Blockscad.Msg.NOT_COMPATIBLE_WITH_OPENSCAD);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -917,7 +917,7 @@ Blockly.Blocks['simplerotate'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Rotates one or more objects around specified axes x, y, and z.');
+    this.setTooltip(Blockscad.Msg.SIMPLEROTATE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1022,7 +1022,7 @@ Blockly.Blocks['fancyrotate'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Rotates one or more objects around a vector from the origin (0,0,0) to the point (x,y,z)');
+    this.setTooltip(Blockscad.Msg.FANCYROTATE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1117,7 +1117,7 @@ Blockly.Blocks['color'] = {
         .setCheck('CSG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Applies the color to the child object, which must be 3D.');
+    this.setTooltip(Blockscad.Msg.COLOR_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1200,8 +1200,8 @@ Blockly.Blocks['color_rgb'] = {
     this.setTooltip(function() {
       var mode = thisBlock.getFieldValue('SCHEME');
       var TOOLTIPS = {
-        'RGB': 'Apply a color by specifying the red, blue, and green components.  Each value should be between 0 and 100.',
-        'HSV': 'Apply a color by specifying the hue, saturation, and value components.  Each value should be between 0 and 100.'
+        'RGB': Blockscad.Msg.COLOR_RGB_TOOLTIP,
+        'HSV': Blockscad.Msg.COLOR_HSV_TOOLTIP
       }; 
       return TOOLTIPS[mode];
     });  
@@ -1290,7 +1290,7 @@ Blockly.Blocks['$fn'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Sets the number of sides for one or more objects using approximated arcs (sphere, cylinder, circle, torus).');
+    this.setTooltip(Blockscad.Msg.FN_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1385,7 +1385,7 @@ Blockly.Blocks['linearextrude'] = {
         .setCheck('CAG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Extrudes one or more 2-dimensional objects by a specified height with a specified twist. Shape can be scaled as it extrudes in both x and y. Resulting extrusion may optionally be centered around the origin.');
+    this.setTooltip(Blockscad.Msg.LINEAREXTRUDE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1449,7 +1449,7 @@ Blockly.Blocks['rotateextrude'] = {
         .setCheck('CAG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Rotate extrudes one or more 2-dimensional objects around the Z axis with a specified number of sides.');
+    this.setTooltip(Blockscad.Msg.ROTATEEXTRUDE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1629,7 +1629,7 @@ Blockly.Blocks['stl_import'] = {
     this.setPreviousStatement(true);
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.setTooltip('');
-    this.setWarningText('STL files are not saved with your blocks.');
+    this.setWarningText(Blockscad.Msg.STL_IMPORT_WARNING);
     this.setHelpUrl('http://www.example.com/');
   },
   onchange: function() {
@@ -1665,22 +1665,22 @@ Blockly.Blocks['bs_text'] = {
     this.category = 'PRIMITIVE_CAG'
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
-        .appendField(Blockscad.Msg.TEXT + ' 2D  ')
+        .appendField(Blockscad.Msg.BLOCK_TEXT_2D)
         // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendValueInput("SIZE")
         .setCheck("Number")
-        .appendField(" size")
+        .appendField(" " + Blockscad.Msg.FONT_SIZE)
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendDummyInput()
-        .appendField(" font")
+        .appendField(" " + Blockscad.Msg.FONT_NAME)
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
     this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
-    this.setTooltip("A 2D rendering of text with a given size and font");
+    this.setTooltip(Blockscad.Msg.BS_TEXT_TOOLTIP);
   },
   /**
    * Create an image of an open or closed quote.
@@ -1715,28 +1715,28 @@ Blockly.Blocks['bs_3dtext'] = {
     this.category = 'PRIMITIVE_CSG'
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
-        .appendField("3D Text  ")
+        .appendField(Blockscad.Msg.BLOCK_TEXT_3D)
         // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendValueInput("SIZE")
         .setCheck("Number")
-        .appendField(" size")
+        .appendField(" " + Blockscad.Msg.FONT_SIZE)
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendDummyInput()
-        .appendField(" font")
+        .appendField(" " + Blockscad.Msg.FONT_NAME)
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
 
     this.appendValueInput('THICKNESS')
-        .appendField(" thickness")
+        .appendField(" " + Blockscad.Msg.TEXT_THICKNESS)
         .setCheck('Number')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
-    this.setTooltip("A 3D rendering of text with a given size and font, and thickness");
+    this.setTooltip(Blockscad.Msg.BS_3DTEXT_TOOLTIP);
   },
   /**
    * Create an image of an open or closed quote.

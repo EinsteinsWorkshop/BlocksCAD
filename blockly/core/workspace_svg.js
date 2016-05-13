@@ -740,7 +740,7 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function(e) {
   if (Blockly.backlight.length) {
     // Option to unbacklight all backlit blocks.  For BlocksCAD.
     var unbacklightOption = {enabled: true};
-    unbacklightOption.text = "Remove block highlighting";
+    unbacklightOption.text = Blockscad.Msg.REMOVE_BLOCK_HIGHLIGHTING;
     unbacklightOption.callback = function() {
       Blockly.mainWorkspace.clearBacklight();
     };
@@ -768,7 +768,7 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function(e) {
     }
 
     var disableAllOption = {enabled: hasEnabledBlocks};
-    disableAllOption.text = "Disable All Blocks";
+    disableAllOption.text = Blockscad.Msg.DISABLE_ALL;
     disableAllOption.callback = function() {
       for (var i = 0; i < topBlocks.length; i++) {
         var block = topBlocks[i];
@@ -783,7 +783,7 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function(e) {
     menuOptions.push(disableAllOption);
 
     var enableAllOption = {enabled: hasDisabledBlocks};
-    enableAllOption.text = "Enable All Blocks";
+    enableAllOption.text = Blockscad.Msg.ENABLE_ALL;
     enableAllOption.callback = function() {
       for (var i = 0; i < topBlocks.length; i++) {
         var block = topBlocks[i];
