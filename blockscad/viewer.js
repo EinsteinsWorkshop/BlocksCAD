@@ -1174,7 +1174,7 @@ Blockscad.Processor.prototype = {
   
   updateDownloadLink: function() {
     var ext = this.selectedFormatInfo().extension;
-    this.generateOutputFileButton.innerHTML = "Generate "+ext.toUpperCase();
+    this.generateOutputFileButton.innerHTML = Blockscad.Msg.GENERATE_STL + " "+ext.toUpperCase();
   },
   
   clearViewer: function() {
@@ -1200,9 +1200,9 @@ Blockscad.Processor.prototype = {
   },
   
   enableItems: function() {
-    this.abortbutton.style.display = this.processing? "block":"none";
-    this.renderbutton.style.display = this.processing? "none":"block";
-    this.ongoingrender.style.display = this.processing? "block":"none";
+    this.abortbutton.style.display = this.processing? "inline-block":"none";
+    this.renderbutton.style.display = this.processing? "none":"inline-block";
+    this.ongoingrender.style.display = this.processing? "inline-block":"none";
   },
 
  
@@ -1232,7 +1232,7 @@ Blockscad.Processor.prototype = {
     this.setError("");
     this.clearViewer();
     this.processing = true;
-    $( '#renderButton' ).html("Render");
+    $( '#renderButton' ).html(Blockscad.Msg.RENDER_BUTTON);
     $( '#renderButton' ).prop('disabled', false);
     //this.statusspan.innerHTML = "Rendering code <img id=busy src='imgs/busy.gif'>";
     this.enableItems();
@@ -1405,15 +1405,16 @@ Blockscad.Processor.prototype = {
     var ext = this.selectedFormatInfo().extension;
 
     // I want the user to be able to enter a filename for the stl download - JY
-   // pull a filename entered by the user
-   var filename = $('#project-name').val();
-   // don't save without a filename.  Name isn't checked for quality.
-   if (filename) {
-     saveAs(blob, filename + "." + ext);
-   }
-   else {
-     alert("Could not save" , this.selectedFormatInfo().displayName ," file.  Please give your project a name, then try again.");
-   }
+    // pull a filename entered by the user
+    var filename = $('#project-name').val();
+    // don't save without a filename.  Name isn't checked for quality.
+    if (filename) {
+      saveAs(blob, filename + "." + ext);
+    }
+    else {
+      $('#message-text').html("<h4>" + Blockscad.Msg.SAVE_FAILED + ' ' + Blockscad.Msg.SAVE_FAILED_PROJECT_NAME + ".</h4>");
+      $('#message-modal').modal();
+    }
   },
   takeRotatingPic: function(quality, numframes) {
 

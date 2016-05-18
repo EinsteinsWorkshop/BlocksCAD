@@ -120,7 +120,7 @@ Blockly.Blocks['variables_get'] = {
   
     // for BlocksCAD, 
     var option = {enabled: true};
-    option.text = "Highlight " + name + " Instances";
+    option.text = Blockscad.Msg.HIGHLIGHT_INSTANCES.replace("%1", name);
     var workspace = this.workspace;
     var thisVar = this;
     option.callback = function() {
@@ -238,12 +238,11 @@ Blockly.Blocks['variables_set'] = {
 
     if (numBumped.length) {
       var text = '';
-      text += numBumped.length + " ";
+      // text += numBumped.length + " ";
       // took out the name so I wouldn't have to deal with renaming the proc.
-      //text += this.getFieldValue('NAME') + " ";
-      text += "variable blocks were displaced due to type mismatches\nvariable \"";
-      text += this.getFieldValue('VAR') + "\" had its type changed from ";
-      text += parentAccepts + " to " + type[0];
+      text += Blockscad.Msg.VARIABLES_BUMPED_ONE.replace("%1", numBumped.length) + '\n';
+      text += Blockscad.Msg.VARIABLES_BUMPED_TWO.replace("%1",this.getFieldValue('VAR')).replace("%2", parentAccepts).replace("%3", type[0]);
+
       this.setWarningText(text);
     }
     else

@@ -34,7 +34,8 @@ html, body {
 	display: none;
 }
 #languageMenu {
-	display:none;
+	/*display:none;*/
+	margin-top: 20;
 }
 
 
@@ -94,14 +95,23 @@ html, body {
 	height: 100%;
 	overflow: hidden;
 }
+/*.changeable {
+	display: inline-block;
+	text-align: center;
+}*/
 #renderButton, #abortButton {
 	position: absolute;
 	left: 5px;
-	top: 6px;
-	display: block;
-	width: 93px;
-	height: 46px;
+	top: 3px;
+	width: 96px;
+	height: 52px;
 	margin: 0 auto;	
+	white-space: normal;
+	padding: 2px 6px;
+}
+
+#abortButton {
+	text-shadow: none;
 }
 /*#abortButton {
 	position: absolute;
@@ -177,13 +187,20 @@ html, body {
 }
 
 .giant-yes {
-	padding-left: 45px;
-	padding-right: 45px;
+	width:125px;
+	white-space: normal;
+	height: 52px;
+	display: inline-block;
+	text-align: center;
+	padding: 2px 6px;
+/*	padding-left: 45px;
+	padding-right: 45px;*/
 }
 
 .confirm-yes {
-	padding-left: 30px;
-	padding-right: 30px;
+	width:80px;
+	white-space: normal;
+	display: inline-block;
 } 
 .save-message {
 	position:relative;
@@ -328,6 +345,9 @@ th {
 	border: solid 1px #d0d0d0;
 }
 
+.vc {
+	margin-top:15px;
+}
 .vcenter {
 	vertical-align: top;
 	margin-top: 0;
@@ -384,6 +404,7 @@ input.search:focus {
 }
 .mycl {
 	display: inline-block;
+	margin-right:20px;
   float: left;
   clear: left;
   width: 30%;

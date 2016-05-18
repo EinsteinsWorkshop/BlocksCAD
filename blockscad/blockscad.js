@@ -30,7 +30,9 @@ var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
 
-Blockscad.version = "1.3.4";
+Blockscad.version = "1.4.0";
+Blockscad.releaseDate = "2016/05/18";
+
 
 Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
@@ -87,6 +89,8 @@ Blockscad.init = function() {
   };
   window.addEventListener('resize', onresize, false);
 
+  Blockscad.Toolbox.createToolbox();
+
   Blockscad.workspace = Blockly.inject(document.getElementById('blocklyDiv'),
       {
        media: 'blockly/media/',
@@ -104,7 +108,7 @@ Blockscad.init = function() {
   // hide "switch to advanced toolbox" because that's where we'll start
   $('#advancedToolbox').hide();
 
-  BSUtils.loadBlocks('');
+  BSUtils.loadBlocks();
 
   if ('BlocklyStorage' in window) {
     // Hook a save function onto unload.
@@ -221,7 +225,7 @@ Blockscad.init = function() {
     oldFieldValues:[],
     oldParentIds:[],
     just_did_undo:0,
-    oldProjectName:'Untitled'
+    oldProjectName: Blockscad.Msg.PROJECT_NAME_DEFAULT
   };
 
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
@@ -601,7 +605,7 @@ Blockscad.readStlFile = function(evt) {
         // lets make some xml and load a block into the workspace.
         // console.log("making block from xml");
         var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
-        f.name + '</field>' + '<field name="STL_BUTTON">Browse</field>' + 
+        f.name + '</field>' + '<field name="STL_BUTTON">' + Blockscad.Msg.BROWSE + '</field>' + 
         '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
         //console.log("xml is:",xml);
         var stuff = Blockly.Xml.textToDom(xml);
@@ -627,8 +631,10 @@ Blockscad.readStlFile = function(evt) {
   }
 };
 
-// Load Blockly's language strings.
+// Load Blockly's (and Blockscad's) language strings.
+console.log("trying to include message strings");
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
+document.write('<script src="blockscad/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 
 // on page load, call blockscad init function.
 window.addEventListener('load', Blockscad.init);
@@ -677,7 +683,7 @@ Blockscad.clearStlBlocks = function() {
       blocks[i].render();
 
       // Add warning to render pane: Hey, you have a file import block that needs reloading!
-      $( '#error-message' ).html("Warning: re-load your STL file block");
+      $( '#error-message' ).html(Blockscad.Msg.WARNING_RELOAD_STL);
     }
   }
 };
@@ -727,14 +733,15 @@ Blockscad.createNewProject = function() {
 // first attempt to use promises for async stuff!
 function promptForSave() {
   // console.log("in promptForSave()");
+  var message = '<h4>' + Blockscad.Msg.SAVE_PROMPT + '</h4>';
   return new Promise(function(resolve, reject) {
     bootbox.dialog({
-      message: "<h4>Want to save your stuff?</h4>",
+      message: message,
       backdrop: true,
       size: "small",
       buttons: {
         save: {
-          label: "Save",
+          label: Blockscad.Msg.SAVE_PROMPT_YES,
           className: "btn-default btn-lg primary pull-right giant-yes",
           callback: function(result) {
             // console.log("save clicked.  Result was: ", result);
@@ -742,8 +749,8 @@ function promptForSave() {
           }
         },
         dont_save: {
-          label: "Don't Save",
-          className: "btn-default btn-lg primary pull-left",
+          label: Blockscad.Msg.SAVE_PROMPT_NO,
+          className: "btn-default btn-lg primary pull-left giant-yes",
           callback: function(result) {
             // console.log("don't save clicked.  Result was: ", result);
             resolve("nosave");
@@ -838,7 +845,7 @@ Blockscad.clearProject = function() {
   Blockscad.workspace.clear();
   Blockscad.gProcessor.clearViewer();  
 
-  $('#project-name').val('Untitled');
+  $('#project-name').val(Blockscad.Msg.PROJECT_NAME_DEFAULT);
   $('#projectView').hide();
   $('#editView').show();
   // turn the big save button back on.
@@ -865,13 +872,19 @@ Blockscad.discard = function() {
     window.location.hash = '';
   }
   else {
+    var message = Blockscad.Msg.DISCARD_ALL.replace("%1", count);
     bootbox.confirm({
       size: "small",
-      message: "Delete all " + count + " blocks?", 
+      message: message, 
       buttons: {
         confirm: {
+          label: Blockscad.Msg.CONFIRM_DIALOG_YES,
           className: "btn-default confirm-yes"
-        }
+        },
+        cancel: {
+            label: Blockscad.Msg.CONFIRM_DIALOG_NO,
+            className: "btn-default confirm-yes"
+        },
       },
       callback: function(result) { 
         if (result) {
@@ -957,7 +970,7 @@ Blockscad.doRender = function() {
   var mixes = Blockscad.mixes2and3D();
 
   if (mixes[1] === 0) { // doesn't have any CSG or CAG shapes at all!
-    $( '#error-message' ).html("Error: Nothing to Render");
+    $( '#error-message' ).html(Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.RENDER_ERROR_EMPTY);
     $( '#error-message' ).addClass("has-error");
     // enable the render button.
     $('#renderButton').prop('disabled', false);
@@ -968,7 +981,7 @@ Blockscad.doRender = function() {
   }
 
   if (mixes[0]) {    // has both 2D and 3D shapes
-    $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
+    $( '#error-message' ).html(Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.RENDER_ERROR_MIXED);
     $( '#error-message' ).addClass("has-error");
     // enable the render button.
     $('#renderButton').prop('disabled', false);
@@ -1019,12 +1032,17 @@ Blockscad.doRender = function() {
   }
   if (gotErr) {
     var errText = '';
-      if (Blockscad.missingFields.length) 
-        errText += "ERROR: " + Blockscad.missingFields.length + " blocks are missing fields.";
+    var error = '';
+      if (Blockscad.missingFields.length) { 
+        error = Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.PARSING_ERROR_MISSING_FIELDS;
+        errText = error.replace("%1", Blockscad.missingFields.length + " ");
+      }
       if (Blockscad.missingFields.length && Blockscad.illegalValue.length) 
         errText += "<br>";
-      if (Blockscad.illegalValue.length)
-        errText += "ERROR: " + Blockscad.illegalValue.length + " blocks have an illegal negative or zero value";
+      if (Blockscad.illegalValue.length) {
+        error = Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.PARSING_ERROR_ILLEGAL_VALUE;
+        errText += error.replace("%1", Blockscad.illegalValue.length + " ");
+      }
 
     $( '#error-message' ).html(errText);
     $( '#error-message' ).addClass("has-error");
@@ -1075,7 +1093,7 @@ Blockscad.renderCode = function(code) {
       }, 0);
   }
   else {
-    $('#renderButton').html('Render'); 
+    $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
 
   }
 };
@@ -1798,6 +1816,8 @@ Blockscad.initLanguage = function() {
   document.head.parentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
   document.head.parentElement.setAttribute('lang', BSUtils.LANG);
 
+  console.log("lang is:",BSUtils.LANG);
+
   // Sort languages alphabetically.
   var languages = [];
   var lang;
@@ -1812,32 +1832,16 @@ Blockscad.initLanguage = function() {
   };
   languages.sort(comp);
   // Populate the language selection menu.
-  var languageMenu = document.getElementById('languageMenu');
-  languageMenu.options.length = 0;
-  for (var i = 0; i < languages.length; i++) {
-    var tuple = languages[i];
-    lang = tuple[tuple.length - 1];
-    var option = new Option(tuple[0], lang);
-    if (lang == BSUtils.LANG) {
-      option.selected = true;
-    }
-    languageMenu.options.add(option);
-  }
-  languageMenu.addEventListener('change', BSUtils.changeLanguage, true);
+  // languageMenu is a <ul>, populate it with <li>s
 
-  // var categories = ['catLogic', 'catLoops', 'catMath', 
-  //                   'catVariables', 'catFunctions'];
-  // for (var i = 0, cat; cat = categories[i]; i++) {
-  //   document.getElementById(cat).setAttribute('name', MSG[cat]);
-  // }
-  // var textVars = document.getElementsByClassName('textVar');
-  // for (var i = 0, textVar; textVar = textVars[i]; i++) {
-  //   textVar.textContent = MSG['textVariable'];
-  // }
-  // var listVars = document.getElementsByClassName('listVar');
-  // for (var i = 0, listVar; listVar = listVars[i]; i++) {
-  //   listVar.textContent = MSG['listVariable'];
-  // }
+  var items = [];
+
+  for (var i = 0; i < languages.length; i++) {
+    items.push('<li><a href="#" class="lang-option" data-lang="' + languages[i][1] + '"</a>' + languages[i][0] + '</li>');
+  }
+  $('#languageMenu').append( items.join('') );
+
+  $('.lang-option').on("click", BSUtils.changeLanguage);
 };
 /**
  * Save the workspace to an XML file.
@@ -1859,7 +1863,7 @@ Blockscad.saveBlocksLocal = function() {
     Blockscad.setNoSaveNeeded();
   }
   else {
-    alert("SAVE FAILED.  Please give your project a name, then try again.");
+    alert(Blockscad.Msg.SAVE_FAILED + '!\n' + Blockscad.Msg.SAVE_FAILED_PROJECT_NAME);
   }
 };
 
@@ -1887,3 +1891,4 @@ Blockscad.saveOpenscadLocal = function() {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
   }
 };
+

@@ -7,14 +7,14 @@ Blockly.Blocks['sphere'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField("Sphere   ");
+        .appendField(Blockscad.Msg.SPHERE + "  ");
     this.appendValueInput("RAD")
         .setCheck("Number")
-        .appendField("radius")
+        .appendField(Blockscad.Msg.RADIUS)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a sphere with a specified radius.');
+    this.setTooltip(Blockscad.Msg.SPHERE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -28,6 +28,23 @@ Blockly.Blocks['sphere'] = {
   //   else this.setWarningText(null);
   // }
 };
+Blockly.Blocks['sphere'] = {
+  init: function() {
+    this.category = 'PRIMITIVE_CSG'
+    this.setHelpUrl('http://www.example.com/');
+    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.appendDummyInput()
+        .appendField(Blockscad.Msg.SPHERE + "  ");
+    this.appendValueInput("RAD")
+        .setCheck("Number")
+        .appendField(Blockscad.Msg.RADIUS)
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, 'CSG');
+    this.setTooltip(Blockscad.Msg.SPHERE_TOOLTIP);
+  }//,
+};
+
 
 Blockly.Blocks['cylinder'] = {
   init: function() {
@@ -40,10 +57,10 @@ Blockly.Blocks['cylinder'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Cylinder  ');
+        .appendField(Blockscad.Msg.CYLINDER + '  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
-        .appendField('radius1')
+        .appendField(Blockscad.Msg.RADIUS + '1')
         .setAlign(Blockly.ALIGN_RIGHT);
     // handle backwards compatibility for cylinders created before locking.
     if (Blockscad.inputVersion == null || Blockscad.inputVersion == "1.0.0"
@@ -61,17 +78,17 @@ Blockly.Blocks['cylinder'] = {
     }
     this.appendValueInput('RAD2')
         .setCheck('Number')
-        .appendField('radius2')
+        .appendField(Blockscad.Msg.RADIUS + '2')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('HEIGHT')
         .setCheck('Number')
-        .appendField('height')
+        .appendField(Blockscad.Msg.HEIGHT)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField(new Blockly.FieldDropdown([['not centered', 'false'], ['centered', 'true']]), 'CENTERDROPDOWN');
+        .appendField(new Blockly.FieldDropdown([[Blockscad.Msg.NOT_CENTERED, 'false'], [Blockscad.Msg.CENTERED, 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a cylinder with a specified bottom radius, top radius, and height. Primitive may optionally be centered at the origin.');
+    this.setTooltip(Blockscad.Msg.CYLINDER_TOOLTIP);
   },
   onchange: function() {
     if (!this.workspace) {
@@ -117,17 +134,17 @@ Blockly.Blocks['simple_cylinder'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Cylinder  ');
+        .appendField(Blockscad.Msg.CYLINDER + '  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
-        .appendField('radius')
+        .appendField(Blockscad.Msg.RADIUS)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('HEIGHT')
         .setCheck('Number')
-        .appendField('height')
+        .appendField(Blockscad.Msg.HEIGHT)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField(new Blockly.FieldDropdown([['not centered', 'false'], ['centered', 'true']]), 'CENTERDROPDOWN');
+        .appendField(new Blockly.FieldDropdown([[Blockscad.Msg.NOT_CENTERED, 'false'], [Blockscad.Msg.CENTERED, 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
     this.setTooltip('Creates a cylinder with a specified radius and height.  It may optionally be centered at the origin.');
@@ -140,7 +157,7 @@ Blockly.Blocks['cube'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Cube   ');
+        .appendField(Blockscad.Msg.CUBE + '   ');
     this.appendValueInput('XVAL')
         .setCheck('Number')
         .appendField('X')
@@ -154,11 +171,11 @@ Blockly.Blocks['cube'] = {
         .appendField('Z')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField(new Blockly.FieldDropdown([['not centered', 'false'], ['centered', 'true']]), 'CENTERDROPDOWN');
+        .appendField(new Blockly.FieldDropdown([[Blockscad.Msg.NOT_CENTERED, 'false'], [Blockscad.Msg.CENTERED, 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
     //this.setNextStatement(true, 'CSG');
-    this.setTooltip('Creates a rectangular prism of specified dimensions x, y, and z. Primitive may optionally be centered around the origin.');
+    this.setTooltip(Blockscad.Msg.CUBE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -181,26 +198,26 @@ Blockly.Blocks['torus'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Torus  ');
+        .appendField(Blockscad.Msg.TORUS + '  ');
     this.appendValueInput('RAD1')
         .setCheck('Number')    
-        .appendField('radius1')
+        .appendField( Blockscad.Msg.RADIUS + '1')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('RAD2')
         .setCheck('Number')
-        .appendField('radius2')
+        .appendField(Blockscad.Msg.RADIUS + '2')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('SIDES')
         .setCheck('Number')
-        .appendField('sides')
+        .appendField(Blockscad.Msg.SIDES)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('FACES')
         .setCheck('Number')
-        .appendField('faces')
+        .appendField(Blockscad.Msg.FACES)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Creates a torus with a ring of specified distance on-center from the origin (radius1), with a specified radius (radius2), a specified number of sides and faces.');
+    this.setTooltip(Blockscad.Msg.TORUS_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -273,14 +290,14 @@ Blockly.Blocks['circle'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Circle   ');
+        .appendField(Blockscad.Msg.CIRCLE + '   ');
     this.appendValueInput('RAD')
         .setCheck('Number')
-        .appendField('radius')
+        .appendField(Blockscad.Msg.RADIUS)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
-    this.setTooltip('Creates a circle with a specified radius.');
+    this.setTooltip(Blockscad.Msg.CIRCLE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -301,7 +318,7 @@ Blockly.Blocks['square'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
     this.appendDummyInput()
-        .appendField('Square   ');
+        .appendField(Blockscad.Msg.SQUARE + '   ');
     this.appendValueInput('XVAL')
         .setCheck('Number')
         .appendField('X')
@@ -311,10 +328,10 @@ Blockly.Blocks['square'] = {
         .appendField('Y')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField(new Blockly.FieldDropdown([['not centered', 'false'], ['centered', 'true']]), 'CENTERDROPDOWN');
+        .appendField(new Blockly.FieldDropdown([[Blockscad.Msg.NOT_CENTERED, 'false'], [Blockscad.Msg.CENTERED, 'true']]), 'CENTERDROPDOWN');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
-    this.setTooltip('Creates a square of specified dimensions x and y. Primitive may optionally be centered around the origin.');
+    this.setTooltip(Blockscad.Msg.SQUARE_TOOLTIP);
   }//,
   // onchange: function() {
   //   if (!this.workspace) {
@@ -335,7 +352,7 @@ Blockly.Blocks['translate'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Translate');
+        .appendField(Blockscad.Msg.TRANSLATE);
     this.appendValueInput('XVAL')
         .setCheck('Number')
         .appendField('X')
@@ -352,7 +369,7 @@ Blockly.Blocks['translate'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Translates (moves) one or more objects in specified dimensions x, y, and z.');
+    this.setTooltip(Blockscad.Msg.TRANSLATE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -436,7 +453,7 @@ Blockly.Blocks['scale'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Scale');
+        .appendField(Blockscad.Msg.SCALE);
     this.appendValueInput('XVAL')
         .setCheck('Number')
         .appendField('X')
@@ -453,7 +470,7 @@ Blockly.Blocks['scale'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Scales one or more objects by specified amount in dimensions x, y, and z.');
+    this.setTooltip(Blockscad.Msg.SCALE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -562,7 +579,7 @@ Blockly.Blocks['fancymirror'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Fancy Mirror');
+        .appendField(Blockscad.Msg.MIRROR_ADVANCED);
     this.appendValueInput('XVAL')
         .setCheck('Number')
         .appendField('X')
@@ -579,7 +596,7 @@ Blockly.Blocks['fancymirror'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Mirrors one or more objects across specified plane defined by the provided normal vector.');
+    this.setTooltip(Blockscad.Msg.FANCYMIRROR_TOOLTIP);
        // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0; 
@@ -665,7 +682,7 @@ Blockly.Blocks['simplemirror'] = {
         .setCheck('CSG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Mirrors one or more objects across a specified plane.');
+    this.setTooltip(Blockscad.Msg.SIMPLEMIRROR_TOOLTIP);
   },
     /**
    * If our parent or child is CSG or CAG, that sets our output type
@@ -688,19 +705,19 @@ Blockly.Blocks['simplemirror_new'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Mirror');
+        .appendField(Blockscad.Msg.MIRROR);
     this.appendDummyInput('3D')
-        .appendField('across')
+        .appendField(Blockscad.Msg.ACROSS)
         .appendField(new Blockly.FieldDropdown([['XY', 'XY'], ['YZ', 'YZ'], ['XZ', 'XZ']]), 'mirrorplane');
     this.appendDummyInput('2D')
-        .appendField('across')
+        .appendField(Blockscad.Msg.ACROSS)
         .appendField(new Blockly.FieldDropdown([['YZ', 'YZ'], ['XZ', 'XZ']]), 'mirrorplane_cag')
         .setVisible(false);
     this.appendStatementInput('A')
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Mirrors one or more objects across a specified plane.');
+    this.setTooltip(Blockscad.Msg.SIMPLEMIRROR_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -792,26 +809,26 @@ Blockly.Blocks['taper'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Taper');
+        .appendField(Blockscad.Msg.TAPER);
     this.appendDummyInput('3D')
-        .appendField('along ')
+        .appendField(Blockscad.Msg.ALONG + ' ')
         .appendField(new Blockly.FieldDropdown([['X', 'X'], ['Y', 'Y'], ['Z', 'Z']]), 'taperaxis')
-        .appendField('axis. ');
+        .appendField(Blockscad.Msg.AXIS);
     this.appendDummyInput('2D')
-        .appendField('along ')
+        .appendField(Blockscad.Msg.ALONG + ' ')
         .appendField(new Blockly.FieldDropdown([['X', 'X'], ['Y', 'Y']]), 'taperaxis_cag')
-        .appendField('axis. ')
+        .appendField(Blockscad.Msg.AXIS)
         .setVisible(false);
     this.appendValueInput('FACTOR')
         .setCheck('Number')
-        .appendField('Scale to:')
+        .appendField(Blockscad.Msg.SCALE)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendStatementInput('A')
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Scales shape along an axis.  The smallest value along the select axis is scaled at one, and the largest value is scaled at user input scale value.');
-    this.setWarningText('Not compatible with OpenSCAD!');
+    this.setTooltip(Blockscad.Msg.TAPER_TOOLTIP);
+    this.setWarningText(Blockscad.Msg.NOT_COMPATIBLE_WITH_OPENSCAD);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -900,7 +917,7 @@ Blockly.Blocks['simplerotate'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Rotate');
+        .appendField(Blockscad.Msg.ROTATE);
     this.appendValueInput('XVAL')
         .setCheck('Number')
         .appendField('X')
@@ -917,7 +934,7 @@ Blockly.Blocks['simplerotate'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Rotates one or more objects around specified axes x, y, and z.');
+    this.setTooltip(Blockscad.Msg.SIMPLEROTATE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1003,12 +1020,12 @@ Blockly.Blocks['fancyrotate'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Fancy Rotate');
+        .appendField(Blockscad.Msg.ROTATE_ADVANCED);
     this.appendValueInput('AVAL')
         .setCheck('Number'); 
     this.appendValueInput('XVAL')
         .setCheck('Number')
-        .appendField('around X')
+        .appendField(Blockscad.Msg.AROUND + ' X')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('YVAL')
         .setCheck('Number')
@@ -1022,7 +1039,7 @@ Blockly.Blocks['fancyrotate'] = {
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Rotates one or more objects around a specified angle, scaled by x, y, and z.');
+    this.setTooltip(Blockscad.Msg.FANCYROTATE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1110,14 +1127,14 @@ Blockly.Blocks['color'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Color');
+        .appendField(Blockscad.Msg.COLOR);
     this.appendValueInput('COLOR')
         .setCheck('Colour');
     this.appendStatementInput('A')
         .setCheck('CSG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Applies the color to the child object, which must be 3D.');
+    this.setTooltip(Blockscad.Msg.COLOR_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1172,8 +1189,8 @@ Blockly.Blocks['color_rgb'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Color ');
-    var dropdown = new Blockly.FieldDropdown([['HSV', 'HSV'],['RGB', 'RGB']], function(option) {
+        .appendField(Blockscad.Msg.COLOR + '  ');
+    var dropdown = new Blockly.FieldDropdown([[Blockscad.Msg.HSV_COLOR_MODEL, 'HSV'],[Blockscad.Msg.RGB_COLOR_MODEL, 'RGB']], function(option) {
       var isRGB = (option == 'RGB');
       this.sourceBlock_.optUpdateShape_(isRGB);
     });
@@ -1182,15 +1199,15 @@ Blockly.Blocks['color_rgb'] = {
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('RED')
         .setCheck('Number')
-        .appendField('red', '1')
+        .appendField(Blockscad.Msg.COLOR_HUE, '1')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('GREEN')
         .setCheck('Number')
-        .appendField('green', '2')
+        .appendField(Blockscad.Msg.COLOR_SATURATION, '2')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('BLUE')
         .setCheck('Number')
-        .appendField('blue','3')
+        .appendField(Blockscad.Msg.COLOR_VALUE,'3')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendStatementInput('A')
         .setCheck('CSG');
@@ -1200,8 +1217,8 @@ Blockly.Blocks['color_rgb'] = {
     this.setTooltip(function() {
       var mode = thisBlock.getFieldValue('SCHEME');
       var TOOLTIPS = {
-        'RGB': 'Apply a color by specifying the red, blue, and green components.  Each value should be between 0 and 100.',
-        'HSV': 'Apply a color by specifying the hue, saturation, and value components.  Each value should be between 0 and 100.'
+        'RGB': Blockscad.Msg.COLOR_RGB_TOOLTIP,
+        'HSV': Blockscad.Msg.COLOR_HSV_TOOLTIP
       }; 
       return TOOLTIPS[mode];
     });  
@@ -1265,14 +1282,14 @@ Blockly.Blocks['color_rgb'] = {
     var two = this.getField('2');
     var three = this.getField('3');
     if (isRGB) {
-      one.setText('red');
-      two.setText('green');
-      three.setText('blue');
+      one.setText(Blockly.Msg.COLOUR_RGB_RED);
+      two.setText(Blockly.Msg.COLOUR_RGB_GREEN);
+      three.setText(Blockly.Msg.COLOUR_RGB_BLUE);
     }
     else {
-      one.setText('hue');
-      two.setText('saturation');
-      three.setText('value');
+      one.setText(Blockscad.Msg.COLOR_HUE);
+      two.setText(Blockscad.Msg.COLOR_SATURATION);
+      three.setText(Blockscad.Msg.COLOR_VALUE);
     }
 
 
@@ -1285,12 +1302,12 @@ Blockly.Blocks['$fn'] = {
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendValueInput('SIDES')
         .setCheck('Number')
-        .appendField('Sides');
+        .appendField(Blockscad.Msg.SIDES);
     this.appendStatementInput('A')
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
     this.setPreviousStatement(true, ['CSG','CAG']);
-    this.setTooltip('Sets the number of sides for one or more objects using approximated arcs (sphere, cylinder, circle, torus).');
+    this.setTooltip(Blockscad.Msg.FN_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1357,35 +1374,35 @@ Blockly.Blocks['linearextrude'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Linear Extrude   ');
+        .appendField(Blockscad.Msg.LINEAR_EXTRUDE + '  ');
     this.appendValueInput('HEIGHT')
         .setCheck('Number')
-        .appendField('height')
+        .appendField(Blockscad.Msg.HEIGHT)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('TWIST')
         .setCheck('Number')
-        .appendField('twist')
+        .appendField(Blockscad.Msg.TWIST)
         .setAlign(Blockly.ALIGN_RIGHT);
     // this.appendDummyInput()
     //     .appendField('scale: ')
     //     .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('XSCALE')
         .setCheck('Number')
-        .appendField('scale: x')
+        .appendField(Blockscad.Msg.SCALE + ': x')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendValueInput('YSCALE')
         .setCheck('Number')
         .appendField('y')
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField(new Blockly.FieldDropdown([['is not centered', 'false'], ['is centered', 'true']]), 'CENTERDROPDOWN')
+        .appendField(new Blockly.FieldDropdown([[Blockscad.Msg.NOT_CENTERED, 'false'], [Blockscad.Msg.CENTERED, 'true']]), 'CENTERDROPDOWN')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendStatementInput('A')
         .setCheck('CAG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Extrudes one or more 2-dimensional objects by a specified height with a specified twist. Shape can be scaled as it extrudes in both x and y. Resulting extrusion may optionally be centered around the origin.');
+    this.setTooltip(Blockscad.Msg.LINEAREXTRUDE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1440,16 +1457,16 @@ Blockly.Blocks['rotateextrude'] = {
     this.setHelpUrl('http://www.example.com/');
     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
-        .appendField('Rotate Extrude   ');
+        .appendField(Blockscad.Msg.ROTATE_EXTRUDE + '  ');
     this.appendValueInput('FACES')
         .setCheck('Number')
-        .appendField('sides')
+        .appendField(Blockscad.Msg.SIDES)
         .setAlign(Blockly.ALIGN_RIGHT);
     this.appendStatementInput('A')
         .setCheck('CAG');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setTooltip('Rotate extrudes one or more 2-dimensional objects around the Z axis with a specified number of sides.');
+    this.setTooltip(Blockscad.Msg.ROTATEEXTRUDE_TOOLTIP);
     // try to set up a mutator - Jennie
     this.setMutatorPlus(new Blockly.MutatorPlus(this));    
     this.plusCount_ = 0;
@@ -1615,13 +1632,13 @@ Blockly.Blocks['stl_import'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
     this.appendDummyInput()
-        .appendField("STL Import");
+        .appendField(Blockscad.Msg.IMPORT_STL);
     this.appendDummyInput('')
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(new Blockly.FieldLabel(""),'STL_FILENAME');
     this.appendDummyInput('')
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField(new Blockly.FieldButton("Browse"),'STL_BUTTON');
+        .appendField(new Blockly.FieldButton(Blockscad.Msg.BROWSE),'STL_BUTTON');
     this.appendDummyInput('C')
         .appendField(new Blockly.FieldLabel(""),'STL_CONTENTS')
         .setVisible(false);
@@ -1629,7 +1646,7 @@ Blockly.Blocks['stl_import'] = {
     this.setPreviousStatement(true);
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.setTooltip('');
-    this.setWarningText('STL files are not saved with your blocks.');
+    this.setWarningText(Blockscad.Msg.STL_IMPORT_WARNING);
     this.setHelpUrl('http://www.example.com/');
   },
   onchange: function() {
@@ -1665,22 +1682,22 @@ Blockly.Blocks['bs_text'] = {
     this.category = 'PRIMITIVE_CAG'
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
-        .appendField("2D Text  ")
+        .appendField(Blockscad.Msg.BLOCK_TEXT_2D)
         // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendValueInput("SIZE")
         .setCheck("Number")
-        .appendField(" size")
+        .appendField(" " + Blockscad.Msg.FONT_SIZE)
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendDummyInput()
-        .appendField(" font")
+        .appendField(" " + Blockscad.Msg.FONT_NAME)
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
     this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
-    this.setTooltip("A 2D rendering of text with a given size and font");
+    this.setTooltip(Blockscad.Msg.BS_TEXT_TOOLTIP);
   },
   /**
    * Create an image of an open or closed quote.
@@ -1715,28 +1732,28 @@ Blockly.Blocks['bs_3dtext'] = {
     this.category = 'PRIMITIVE_CSG'
     this.setHelpUrl(Blockly.Msg.TEXT_TEXT_HELPURL);
     this.appendValueInput('TEXT')
-        .appendField("3D Text  ")
+        .appendField(Blockscad.Msg.BLOCK_TEXT_3D)
         // .setCheck('String')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendValueInput("SIZE")
         .setCheck("Number")
-        .appendField(" size")
+        .appendField(" " + Blockscad.Msg.FONT_SIZE)
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.appendDummyInput()
-        .appendField(" font")
+        .appendField(" " + Blockscad.Msg.FONT_NAME)
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
 
     this.appendValueInput('THICKNESS')
-        .appendField(" thickness")
+        .appendField(" " + Blockscad.Msg.TEXT_THICKNESS)
         .setCheck('Number')
         .setAlign(Blockly.ALIGN_RIGHT);
 
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
-    this.setTooltip("A 3D rendering of text with a given size and font, and thickness");
+    this.setTooltip(Blockscad.Msg.BS_3DTEXT_TOOLTIP);
   },
   /**
    * Create an image of an open or closed quote.

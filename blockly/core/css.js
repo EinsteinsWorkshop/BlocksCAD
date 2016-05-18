@@ -158,7 +158,7 @@ Blockly.Css.CONTENT = [
   '  display: none;',
   '  font-family: sans-serif;',
   '  font-size: 9pt;',
-  '  opacity: 0.9;',
+  '  opacity: 0.94;',
   '  padding: 2px;',
   '  position: absolute;',
   '  z-index: 1000;',

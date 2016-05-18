@@ -122,7 +122,7 @@ Blockly.Blocks['controls_for'] = {
                         ['BY', 'Number', Blockly.ALIGN_RIGHT],
                         Blockly.ALIGN_RIGHT);
     this.appendDummyInput()
-        .appendField("(hull")
+        .appendField("(" + Blockscad.Msg.CONVEX_HULL)
         .appendField(new Blockly.FieldCheckbox('FALSE'), 'HULL')
         .appendField(")");
     this.appendStatementInput('DO')
@@ -135,7 +135,7 @@ Blockly.Blocks['controls_for'] = {
     var thisBlock = this;
     this.setTooltip(function() {
       return Blockly.Msg.CONTROLS_FOR_TOOLTIP.replace('%1',
-          thisBlock.getFieldValue('VAR'));
+          thisBlock.getFieldValue('VAR')) + "\n" + Blockscad.Msg.CONTROLS_FOR_TOOLTIP_CHAINHULL;
     });
   },
   /**
@@ -214,8 +214,7 @@ Blockly.Blocks['controls_for_chainhull'] = {
     // Assign 'this' to a variable for use in the tooltip closure below.
     var thisBlock = this;
     this.setTooltip(function() {
-      return Blockly.Msg.CONTROLS_FOR_TOOLTIP_CHAINHULL.replace('%1',
-          thisBlock.getFieldValue('VAR'));
+      return Blockscad.Msg.CONTROLS_FOR_TOOLTIP_CHAINHULL;
     });
   },
   /**

@@ -23,6 +23,7 @@ BlocklyStorage.backupBlocks_ = function() {
     var xml = Blockly.Xml.workspaceToDom(Blockscad.workspace);
     // Gets the current URL, not including the hash.
     var url = window.location.href.split('#')[0];
+    url = url.split('?lang')[0];
     var url2 = url + "proj_name";
     var url3 = url + "current_project";
     var url4 = url + "current_project_key";
@@ -69,6 +70,8 @@ BlocklyStorage.backupOnUnload = function() {
  */
 BlocklyStorage.restoreBlocks = function() {
   var url = window.location.href.split('#')[0];
+  url = url.split('?lang')[0];
+  console.log("url for restoring blocks is:",url);
   var url2 = url + "proj_name";
   var url3 = url + "current_project";
   var url4 = url + "current_project_key";
@@ -144,7 +147,6 @@ BlocklyStorage.restoreBlocks = function() {
             // Then I'd make the filename field invisible.
           }
         }
-
       }
     }
 

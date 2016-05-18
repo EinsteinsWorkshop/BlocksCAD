@@ -96,10 +96,10 @@ Blockly.Blocks['procedures_defnoreturn'] = {
 
     if (numBumped.length) {
       var text = '';
-      text += numBumped.length + " ";
+      // text += numBumped.length + " ";
       // took out the name so I wouldn't have to deal with renaming the proc.
       //text += this.getFieldValue('NAME') + " ";
-      text += "calling blocks were displaced: 2D and 3D shapes cannot be together";
+      text += Blockscad.Msg.BLOCKS_BUMPED_OUT_DIMENSIONS.replace("%1", numBumped.length);
       this.setWarningText(text);
     }
 
@@ -431,8 +431,8 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     }
     // for BlocksCAD, 
     var option = {enabled: true};
-    option.text = "Highlight function Instances";
     var name = this.getFieldValue('NAME');
+    option.text = Blockscad.Msg.HIGHLIGHT_INSTANCES.replace("%1", name);
     var workspace = this.workspace;
     option.callback = function() {
       var def = Blockly.Procedures.getDefinition(name, workspace);
@@ -525,6 +525,8 @@ Blockly.Blocks['procedures_defreturn'] = {
 
           // call blocks are going to be kicked out.  
           console.log("warning message!  call block id", callers[i].id, "will be kicked out");
+          // there is a bug here - if we add to the numBumped stack, then we get an infinite loop. ???
+          // if (numBumped[numBumped.length] != callers[i]) 
           // numBumped.push(callers[i]);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
           var topBlock = callers[i].collapsedParents();
@@ -535,10 +537,12 @@ Blockly.Blocks['procedures_defreturn'] = {
       }
     }
     if (numBumped.length) {
+      // console.log("blah");
       var text = '';
-      text += numBumped.length + " ";
-      text += this.getFieldValue('NAME') + " ";
-      text += "calling blocks were displaced: type mismatch between numbers and Booleans";
+      // text += numBumped.length + " ";
+      // text += this.getFieldValue('NAME') + " ";
+      text += Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES.replace("%1", numBumped.length + " " + this.getFieldValue('NAME'));
+
       this.setWarningText(text);
     }
     if (callers.length > 0) {
@@ -878,8 +882,9 @@ Blockly.Blocks['procedures_callnoreturn'] = {
 
     // for BlocksCAD, 
     var option = {enabled: true};
-    option.text = "Highlight function Instances";
     var name = this.getProcedureCall();
+    option.text = Blockscad.Msg.HIGHLIGHT_INSTANCES.replace("%1", name);
+
     var workspace = this.workspace;
     option.callback = function() {
       var def = Blockly.Procedures.getDefinition(name, workspace);
@@ -962,9 +967,10 @@ Blockly.Blocks['procedures_callreturn'] = {
     options.push(option);
 
     // for BlocksCAD, 
-    var option = {enabled: true};
-    option.text = "Highlight function Instances";
     var name = this.getProcedureCall();
+    var option = {enabled: true};
+    option.text = Blockscad.Msg.HIGHLIGHT_INSTANCES.replace("%1",name);
+
     var workspace = this.workspace;
     option.callback = function() {
       var def = Blockly.Procedures.getDefinition(name, workspace);

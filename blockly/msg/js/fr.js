@@ -287,7 +287,7 @@ Blockly.Msg.PROCEDURES_DEFRETURN_HELPURL = "https://en.wikipedia.org/wiki/Proced
 Blockly.Msg.PROCEDURES_DEFRETURN_RETURN = "retour";
 Blockly.Msg.PROCEDURES_DEFRETURN_TOOLTIP = "Crée une fonction avec une sortie.";
 Blockly.Msg.PROCEDURES_DEF_DUPLICATE_WARNING = "Attention : Cette fonction a des paramètres dupliqués.";
-Blockly.Msg.PROCEDURES_HIGHLIGHT_CALLERS = "Highlight function instances";  // untranslated
+
 Blockly.Msg.PROCEDURES_HIGHLIGHT_DEF = "Surligner la définition de la fonction";
 Blockly.Msg.PROCEDURES_IFRETURN_TOOLTIP = "Si une valeur est vraie, alors renvoyer une seconde valeur.";
 Blockly.Msg.PROCEDURES_IFRETURN_WARNING = "Attention : Ce bloc pourrait n’être utilisé que dans une définition de fonction.";
