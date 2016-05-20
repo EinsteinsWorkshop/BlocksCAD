@@ -246,7 +246,7 @@ Blockly.Tooltip.show_ = function() {
     var tmp = document.createElement('div');
     tmp.innerHTML = tip;
     var elem = tmp.getElementsByTagName('img')[0];
-    // if elem contains a src attribute I'll guess that it is a valid img
+    // if elem contains a src attribute I'll use it
     if (elem['src']) {
       div.appendChild(elem);
       tooltip_is_image = 1;
