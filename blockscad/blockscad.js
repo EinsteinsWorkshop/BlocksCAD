@@ -30,8 +30,8 @@ var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
 
-Blockscad.version = "1.4.0";
-Blockscad.releaseDate = "2016/05/18";
+Blockscad.version = "1.4.1";
+Blockscad.releaseDate = "2016/05/20";
 
 
 Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
