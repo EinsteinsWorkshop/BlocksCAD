@@ -9,7 +9,8 @@ var BSUtils = BSUtils || {};
  */
 BSUtils.LANGUAGE_NAME = {
   'en': 'English',
-  'fr': 'French'
+  'de': 'Deutsch',
+  'fr': 'Français'
   // 'es': 'Español'
 };
 // BSUtils.LANGUAGE_NAME = {
@@ -19,12 +20,12 @@ BSUtils.LANGUAGE_NAME = {
 //   'ca': 'Català',
 //   'cs': 'Česky',
 //   'da': 'Dansk',
-//   'de': 'Deutsch',
+
 //   'el': 'Ελληνικά',
 //   'en': 'English',
 //   'es': 'Español',
 //   'fa': 'فارسی',
-//   'fr': 'Français',
+
 //   'he': 'עברית',
 //   'hrx': 'Hunsrik',
 //   'hu': 'Magyar',
