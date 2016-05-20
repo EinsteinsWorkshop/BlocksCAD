@@ -265,8 +265,13 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
     if (xmlChild.nodeName.toLowerCase() == 'color') {
       var col = xmlChild.getAttribute('rgba');
       var colA = col.split(',');
-      Blockscad.setColor(colA[0],colA[1],colA[2]);
-      found_color = true;
+      if (colA.length == 3)
+      if (colA[0] >= 0 && colA[0] < 255)
+      if (colA[1] >= 0 && colA[1] < 255)
+      if (colA[2] >= 0 && colA[2] < 255) {
+        Blockscad.setColor(colA[0],colA[1],colA[2]);
+        found_color = true;
+      }
     }
     if (xmlChild.nodeName.toLowerCase() == 'block') {
       var block = Blockly.Xml.domToBlock(workspace, xmlChild);

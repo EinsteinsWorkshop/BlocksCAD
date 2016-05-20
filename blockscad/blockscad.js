@@ -293,6 +293,7 @@ Blockscad.init = function() {
   });
 
   // add "default color" picker to viewer
+  // r,g,b is expecting to get color values between 0 and 255 for r,g,b
 
   Blockscad.setColor = function(r,g,b) {
     // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
