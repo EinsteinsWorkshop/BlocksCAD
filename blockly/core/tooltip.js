@@ -245,16 +245,12 @@ Blockly.Tooltip.show_ = function() {
     var div = document.createElement('div');
     var tmp = document.createElement('div');
     tmp.innerHTML = tip;
-    console.log("tmp is:",tmp);
     var elem = tmp.getElementsByTagName('img')[0];
-    console.log("elem is:", elem);
-    // if elem contains a src attribute I'll 
+    // if elem contains a src attribute I'll use it
     if (elem['src']) {
       div.appendChild(elem);
-      console.log("div is:",div);
       tooltip_is_image = 1;
       Blockly.Tooltip.DIV.appendChild(div);
-    console.log("tmp is:",tmp);
     }
   }
   // else if (tip.match(/^<object type/)){

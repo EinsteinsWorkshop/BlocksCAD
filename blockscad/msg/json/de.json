@@ -177,7 +177,7 @@
 	"SPHERE_TOOLTIP": "<img src='imgs/en/sphere.svg' width='65'>",
 	"CUBE_TOOLTIP": "<img src='imgs/en/cube.svg' width='100px'>",
 	"CYLINDER_TOOLTIP": "<img src='imgs/en/cylinder.svg' width='90px'>",
-	"TORUS_TOOLTIP": "<img src='imgs/en/torus.svg' width='250px'>",
+	"TORUS_TOOLTIP": "<img src='imgs/de/torus.svg' width='250px'>",
 	"CIRCLE_TOOLTIP": "<img src='imgs/en/circle.svg' width='65'>",
 	"SQUARE_TOOLTIP": "<img src='imgs/en/square.svg' width='65'>",
 	"TRANSLATE_TOOLTIP": "Translates (moves) one or more objects in specified dimensions x, y, and z.",

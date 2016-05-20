@@ -19,8 +19,7 @@
  * @fileoverview English strings.
  * @author J. Yoder
  *
- * After modifying this file, either run 'build.py' from the parent directory,
- * or run (from this directory):
+ * After modifying this file, either run (from this directory):
  * js_to_json.py
  * to regenerate json/{en,qqq,synonyms}.json.
  *
