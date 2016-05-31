@@ -1855,7 +1855,12 @@ Blockscad.saveBlocksLocal = function() {
   // don't save without a filename.  Name isn't checked for quality.
   // console.log("in SaveBlocksLocal with: ", blocks_filename);
   if (blocks_filename) {
-    saveAs(blob, blocks_filename + ".xml");
+    if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) 
+      {
+        console.log("found Safari");
+        saveAs(blob, blocks_filename + ".txt");
+      }
+    else saveAs(blob, blocks_filename + ".xml");
     // console.log("SAVED locally: setting needToSave to 0");
     Blockscad.setNoSaveNeeded();
   }
