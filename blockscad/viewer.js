@@ -1332,8 +1332,9 @@ Blockscad.Processor.prototype = {
 
     var blob;
     if(format == "stla") {      
-      blob = this.currentObject.toStlString();        
-      blob = new Blob([blob],{ type: this.formatInfo(format).mimetype });
+      blob = this.currentObject.toStlString();      
+      // console.log("this format mimetype is:", this.formatInfo(format).mimetype); 
+      blob = new Blob([blob],{ type: "text/plain; charset=utf-8"});
     }
     else if(format == "stlb") {      
       blob = this.currentObject.toStlBinary({webBlob: true});     
@@ -1346,13 +1347,15 @@ Blockscad.Processor.prototype = {
         producer: "BlocksCAD "+Blockscad.version,
         date: new Date()
       });
-      blob = new Blob([blob],{ type: this.formatInfo(format).mimetype });
+      blob = new Blob([blob],{ type: "text/plain; charset=utf-8"});
     }  
     else if(format == "x3d") {
       blob = this.currentObject.toX3D();
+      blob = new Blob([blob],{ type: "text/plain; charset=utf-8"});
     }
     else if(format == "dxf") {
       blob = this.currentObject.toDxf();
+      blob = new Blob([blob],{ type: "text/plain; charset=utf-8"});
     }
     else {
       throw new Error("Not supported");
@@ -1362,6 +1365,9 @@ Blockscad.Processor.prototype = {
   
   supportedFormatsForCurrentObject: function() {
     if (this.currentObject instanceof CSG) {
+      // if safari, don't let them save stlb
+      if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) 
+        return ["stla", "amf", "x3d"];
       return ["stlb", "stla", "amf", "x3d"];
     } else if (this.currentObject instanceof CAG) {
       return ["dxf"];
