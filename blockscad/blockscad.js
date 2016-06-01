@@ -629,7 +629,7 @@ Blockscad.readStlFile = function(evt) {
 };
 
 // Load Blockly's (and Blockscad's) language strings.
-console.log("trying to include message strings");
+// console.log("trying to include message strings");
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 document.write('<script src="blockscad/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 
@@ -1813,7 +1813,7 @@ Blockscad.initLanguage = function() {
   document.head.parentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
   document.head.parentElement.setAttribute('lang', BSUtils.LANG);
 
-  console.log("lang is:",BSUtils.LANG);
+  // console.log("lang is:",BSUtils.LANG);
 
   // Sort languages alphabetically.
   var languages = [];
@@ -1855,12 +1855,10 @@ Blockscad.saveBlocksLocal = function() {
   // don't save without a filename.  Name isn't checked for quality.
   // console.log("in SaveBlocksLocal with: ", blocks_filename);
   if (blocks_filename) {
-    if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) 
-      {
-        console.log("found Safari");
-        saveAs(blob, blocks_filename + ".txt");
-      }
-    else saveAs(blob, blocks_filename + ".xml");
+    // if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) 
+    //   {
+    //   }
+    saveAs(blob, blocks_filename + ".xml");
     // console.log("SAVED locally: setting needToSave to 0");
     Blockscad.setNoSaveNeeded();
   }

@@ -264,9 +264,16 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
     // read in default color information.
     if (xmlChild.nodeName.toLowerCase() == 'color') {
       var col = xmlChild.getAttribute('rgba');
-      var colA = col.split(',');
-      Blockscad.setColor(colA[0],colA[1],colA[2]);
-      found_color = true;
+      if (col == "undefined") {
+        // set color to default
+        found_color = true;
+        Blockscad.setColor(255, 128, 255);
+      }
+      else {
+        var colA = col.split(',');
+        Blockscad.setColor(colA[0],colA[1],colA[2]);
+        found_color = true;
+      }
     }
     if (xmlChild.nodeName.toLowerCase() == 'block') {
       var block = Blockly.Xml.domToBlock(workspace, xmlChild);

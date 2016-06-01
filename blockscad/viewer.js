@@ -1406,7 +1406,7 @@ Blockscad.Processor.prototype = {
     }[format];
   },
 
-  generateAndSaveRenderedFile: function() {
+  generateAndSvaeRenderedFile: function() {
     var blob = this.currentObjectToBlob();
     var ext = this.selectedFormatInfo().extension;
 
