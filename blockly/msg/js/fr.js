@@ -59,6 +59,7 @@ Blockly.Msg.CONTROLS_IF_TOOLTIP_3 = "Si la première valeur est vraie, alors ex�
 Blockly.Msg.CONTROLS_IF_TOOLTIP_4 = "Si la première valeur est vraie, alors exécuter le premier bloc d’ordres. Sinon, si la seconde valeur est vraie, exécuter le second bloc d’ordres. Si aucune des valeurs n’est vraie, exécuter le dernier bloc d’ordres.";
 Blockly.Msg.CONTROLS_REPEAT_HELPURL = "https://en.wikipedia.org/wiki/For_loop";
 Blockly.Msg.CONTROLS_REPEAT_INPUT_DO = "faire";
+Blockly.Msg.CONTROLS_FOR_INPUT_WITH = "compter avec";
 Blockly.Msg.CONTROLS_REPEAT_TITLE = "répéter %1 fois";
 Blockly.Msg.CONTROLS_REPEAT_TITLE_REPEAT = "répéter";
 Blockly.Msg.CONTROLS_REPEAT_TITLE_TIMES = "fois";
