@@ -16,7 +16,7 @@ Blockly.Xml = Blockly.Xml || {};
  * @private
  */
 BlocklyStorage.backupBlocks_ = function() {
-  console.log("in backupBlocks");
+  // console.log("in backupBlocks");
   if ('localStorage' in window) {
     // clear out old stuff from localStorage
     localStorage.clear();
@@ -71,7 +71,7 @@ BlocklyStorage.backupOnUnload = function() {
 BlocklyStorage.restoreBlocks = function() {
   var url = window.location.href.split('#')[0];
   url = url.split('?lang')[0];
-  console.log("url for restoring blocks is:",url);
+  // console.log("url for restoring blocks is:",url);
   var url2 = url + "proj_name";
   var url3 = url + "current_project";
   var url4 = url + "current_project_key";

@@ -633,7 +633,7 @@ Blockscad.readStlFile = function(evt) {
 };
 
 // Load Blockly's (and Blockscad's) language strings.
-console.log("trying to include message strings");
+// console.log("trying to include message strings");
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 document.write('<script src="blockscad/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 
@@ -1817,7 +1817,7 @@ Blockscad.initLanguage = function() {
   document.head.parentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
   document.head.parentElement.setAttribute('lang', BSUtils.LANG);
 
-  console.log("lang is:",BSUtils.LANG);
+  // console.log("lang is:",BSUtils.LANG);
 
   // Sort languages alphabetically.
   var languages = [];

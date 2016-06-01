@@ -264,11 +264,13 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
     // read in default color information.
     if (xmlChild.nodeName.toLowerCase() == 'color') {
       var col = xmlChild.getAttribute('rgba');
-      var colA = col.split(',');
-      if (colA.length == 3)
-      if (colA[0] >= 0 && colA[0] < 255)
-      if (colA[1] >= 0 && colA[1] < 255)
-      if (colA[2] >= 0 && colA[2] < 255) {
+      if (col == "undefined") {
+        // set color to default
+        found_color = true;
+        Blockscad.setColor(255, 128, 255);
+      }
+      else {
+        var colA = col.split(',');
         Blockscad.setColor(colA[0],colA[1],colA[2]);
         found_color = true;
       }
