@@ -424,7 +424,7 @@ Blockscad.Viewer.prototype = {
     var bsph = this.bsph;
     var bbox = this.bbox;   // use bbox to see if this is a flat project or a tall one.
 
-     console.log(bbox);
+    // console.log(bbox);
     // var tallness = 1.2 ;
     var tallness = 1.3 - (bbox[1].z - bbox[0].z)/(2*bsph.radius);
 
