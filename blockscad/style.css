@@ -165,7 +165,13 @@ html, body {
 #axesButton {
 	position:absolute;
 	bottom: 0px;
-	right: 20px;
+	right: 3px;
+	z-index: 500;
+}
+#cameraButton {
+	position:absolute;
+	bottom: 0px;
+	right: 53px;
 	z-index: 500;
 }
 #picButton {
