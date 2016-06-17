@@ -23,9 +23,11 @@ BlocklyStorage.backupBlocks_ = function() {
     var xml = Blockly.Xml.workspaceToDom(Blockscad.workspace);
     // Gets the current URL, not including the hash.
     var url = window.location.href.split('#')[0];
+    url = url.split('?lang')[0];
     var url2 = url + "proj_name";
     var url3 = url + "current_project";
     var url4 = url + "current_project_key";
+    var url5 = url + "needToSave";
 
     // do I have any stl files (converted to CSG commands) I want to save?
     // TO-DO: don't do this unless you find it in the xml you're saving.  
@@ -51,6 +53,7 @@ BlocklyStorage.backupBlocks_ = function() {
     window.localStorage.setItem(url2, $('#project-name').val());
     window.localStorage.setItem(url3, Blockscad.Auth.currentProject);
     window.localStorage.setItem(url4, Blockscad.Auth.currentProjectKey);
+    window.localStorage.setItem(url5, Blockscad.undo.needToSave);
   }
 };
 /**
@@ -94,9 +97,13 @@ BlocklyStorage.backupOnUnload = function() {
  */
 BlocklyStorage.restoreBlocks = function() {
   var url = window.location.href.split('#')[0];
+  url = url.split('?lang')[0];
+  // console.log("url for restoring blocks is:",url);
   var url2 = url + "proj_name";
   var url3 = url + "current_project";
   var url4 = url + "current_project_key";
+  var url5 = url + "needToSave";
+
   console.log(window.localStorage);
   if ('localStorage' in window && window.localStorage[url]) {
     var xml = Blockly.Xml.textToDom(window.localStorage[url]);
@@ -167,7 +174,6 @@ BlocklyStorage.restoreBlocks = function() {
             // Then I'd make the filename field invisible.
           }
         }
-
       }
     }
 
@@ -184,6 +190,12 @@ BlocklyStorage.restoreBlocks = function() {
     var current_project_key = window.localStorage[url4];
     if (current_project_key != "undefined") {
       Blockscad.Auth.currentProjectKey = current_project_key;
+    }
+    var needToSave = Number(window.localStorage[url5]);
+    if (needToSave != "undefined" && (needToSave == 1 || needToSave == 0)) {
+      setTimeout(function() {
+        Blockscad.undo.needToSave = needToSave;
+      }, 300);
     }
 
   }

@@ -34,6 +34,33 @@ goog.require('goog.ui.ColorPicker');
 
 
 /**
+ * Array of colors for a 7-cell wide simple-grid color picker.
+ * @type {Array.<string>}
+ */
+Blockly.SIMPLE_GRID_COLORS = [
+  // grays
+  '#ffffff', '#cccccc', '#c0c0c0', '#999999', '#666666', '#333333', '#000000',
+  // reds
+  '#ffcccc', '#ff6666', '#ee0000', '#cc0000', '#990000', '#660000', '#330000',
+  // oranges
+  '#ffcc99', '#ff9966', '#ff9900', '#ff6600', '#cc6600', '#993300', '#663300',
+  // yellows
+  '#ffff99', '#ffff66', '#ffcc66', '#ffcc33', '#cc9933', '#996633', '#663333',
+  // olives
+  '#e2c48c', '#ffff33', '#ffff00', '#ffcc00', '#999900', '#666600', '#333300',
+  // greens
+  '#99ff99', '#66ff99', '#33ff33', '#33cc00', '#009900', '#006600', '#003300',
+  // turquoises
+  '#99ffff', '#33ffff', '#66cccc', '#00cccc', '#339999', '#336666', '#003333',
+  // blues
+  '#ccffff', '#66ffff', '#33ccff', '#3366ff', '#3333ff', '#000099', '#000066',
+  // purples
+  '#ccccff', '#9999ff', '#6666cc', '#6633ff', '#6600cc', '#333399', '#330099',
+  // violets
+  '#ffccff', '#ff80ff', '#cc66cc', '#cc33cc', '#993399', '#663366', '#330033'
+];
+
+/**
  * Class for a colour input field.
  * @param {string} colour The initial colour in '#rrggbb' format.
  * @param {Function=} opt_changeHandler A function that is executed when a new
@@ -124,7 +151,7 @@ Blockly.FieldColour.prototype.getText = function() {
  * http://docs.closure-library.googlecode.com/git/closure_goog_ui_colorpicker.js.source.html
  * @type {!Array.<string>}
  */
-Blockly.FieldColour.COLOURS = goog.ui.ColorPicker.SIMPLE_GRID_COLORS;
+Blockly.FieldColour.COLOURS = Blockly.SIMPLE_GRID_COLORS;
 
 /**
  * Number of columns in the palette.
@@ -229,3 +256,4 @@ Blockly.FieldColour.widgetDispose_ = function() {
     goog.events.unlistenByKey(Blockly.FieldColour.changeEventKey_);
   }
 };
+

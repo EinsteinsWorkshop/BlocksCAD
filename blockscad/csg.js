@@ -400,6 +400,13 @@ for solid CAD anyway.
                 }
                 return points;
             }
+
+            var getColor = function(csgs) {
+                // get the color from the first polygon of the first shape.
+                if (csgs[0].polygons[0].shared)
+                    return csgs[0].polygons[0].shared.color;
+                else return null;
+            }
           
             var top_guy = this;
             var other_csgs = csg;
@@ -422,6 +429,8 @@ for solid CAD anyway.
             var points = getPoints(csgs);
             // console.log("points for hull are:",points);
 
+            var color = getColor(csgs);
+
             var qhull = new CSG.quickHull3D();
 
             var faces = qhull.build(points);
@@ -439,7 +448,12 @@ for solid CAD anyway.
                 }
                 // console.log("points for polygons");
                 // console.log(pp);
-                polygons.push(new CSG.Polygon.createFromPoints(pp));
+                // var thispoly = new CSG.Polygon.createFromPoints(pp).setColor(color);
+
+                var np = new CSG.Polygon.createFromPoints(pp);
+                if (color)
+                    np.setColor(color);
+                polygons.push(np);
             }
             // console.log("polygons");
             // console.log(polygons);
@@ -510,6 +524,110 @@ for solid CAD anyway.
             result.isRetesselated = this.isRetesselated;
             result.isCanonicalized = this.isCanonicalized;
             return result;
+        },
+
+        taper: function(vector, factor) {
+            // tapering to 0 leads to bad shapes.  Negative numbers are right out.
+            if (factor <= 0)
+                factor = 0.0001;
+
+            var bounds = this.getBounds();
+            var max_distance = 0;
+            var start_pos = 0;
+
+            // bounds[0] contains maximum coordinates, bounds[1] is a vector with min.
+            // calculate the total distance of the model along the relevant axis,
+            // and the lowest value along that axis.
+            if (vector[0]) {
+                max_distance = bounds[1].x - bounds[0].x;
+                start_pos = bounds[0].x
+            }
+            else if (vector[1]) {
+                max_distance = bounds[1].y - bounds[0].y;
+                start_pos = bounds[0].y
+            }
+            else if (vector[2]) {
+                max_distance = bounds[1].z - bounds[0].z;
+                start_pos = bounds[0].z
+            }
+
+            // I have to triangulate the polygons to prevent non-planar faces.
+            var triangPolys = [];
+            var nVert = [];
+            var nPoly = [];
+            var color = null;
+
+            // keep triangle polygons, otherwise triangulate. Make sure to save color information.
+            for (var i = 0; i < this.polygons.length; i++) {
+                
+                if (this.polygons[i].shared)
+                    color = this.polygons[i].shared.color;
+                else color = null;
+
+                if (this.polygons[i].vertices.length > 3) {
+                    // console.log("polygon of vertLength:", this.polygons[i].vertices.length);
+                    var point = this.polygons[i].vertices;
+                    var point0 = [point[0].pos.x, point[0].pos.y,point[0].pos.z];
+                    // console.log(point);
+                    nVert = [];
+                    nPoly = [];
+
+                    // if verts of a polygon are numbered 0,1,2,...,length-1
+                    // my triangles have verts [0,1,2], [0,2,3], ..., [0,length-2,length-1]
+                    for (var j = 1; j < this.polygons[i].vertices.length - 1; j++) {
+                        nVert = [];
+                        nPoly = [];
+                        nVert[0] = point0;
+                        nVert[1] = [point[j].pos.x, point[j].pos.y, point[j].pos.z];
+                        nVert[2] = [point[j + 1].pos.x, point[j + 1].pos.y, point[j + 1].pos.z];
+
+                        nPoly = new CSG.Polygon.createFromPoints(nVert);
+                        if (color)
+                            nPoly.setColor(color);
+                        triangPolys.push(nPoly);
+                    }
+                }
+                else triangPolys.push(this.polygons[i]);
+            }
+
+            // now go through all the triangles and scale the vertices.
+            var newPolys = [];
+            var newVert = [];
+            for (var i = 0; i < triangPolys.length; i++) {
+                if (triangPolys[i].shared)
+                    color = triangPolys[i].shared.color;
+                else color = null;
+                newVert = [];
+                for (var j = 0; j < triangPolys[i].vertices.length; j++) {
+                    if (triangPolys[i].vertices.length > 3)
+                        console.log("bad facet - more than 3 vertices!");
+                    var point = triangPolys[i].vertices[j].pos;
+                    if (vector[0]) {
+                        // Taper along the X-axis by "factor".
+                        var x = point.x;
+                        var y = point.y * (1 + (factor - 1) * (point.x - start_pos)/max_distance);
+                        var z = point.z * (1 + (factor - 1) * (point.x - start_pos)/max_distance);
+                    }
+                    else if (vector[1]) {
+                        // Taper along the Y-axis by "factor".
+                        var y = point.y;
+                        var x = point.x * (1 + (factor - 1) * (point.y - start_pos)/max_distance);
+                        var z = point.z * (1 + (factor - 1) * (point.y - start_pos)/max_distance);
+                    }
+                    else {
+                        // Taper along the Z-axis by "factor".
+                        var z = point.z;
+                        var y = point.y * (1 + (factor - 1) * (point.z - start_pos)/max_distance);
+                        var x = point.x * (1 + (factor - 1) * (point.z - start_pos)/max_distance);
+                    }
+                    newVert[j] = [x,y,z];
+                }
+                newPolys[i] = new CSG.Polygon.createFromPoints(newVert);
+                if (color)
+                    newPolys[i].setColor(color);
+            }
+
+            return CSG.fromPolygons(newPolys);
         },
 
         toString: function() {
@@ -833,7 +951,46 @@ for solid CAD anyway.
             }
             return this.cachedBoundingBox;
         },
+        // returns an object with a center (3D array) and radius (number)
+        getBoundingSphere: function() {
+            if (!this.cachedBoundingSphere) {
+                var aabb;
+                if (!this.cachedBoundingBox)
+                    aabb = this.getBounds();
+                else aabb = this.cachedBoundingBox;
+                var sphere = {center: aabb[0].plus(aabb[1]).dividedBy(2), radius: 0 };
+                for (var i = 0; i < this.polygons.length; i++) {
+                  for (var j = 0; j < this.polygons[i].vertices.length; j++) {
+                    var v = this.polygons[i].vertices[j];
+                    sphere.radius = Math.max(sphere.radius, 
+                      new CSG.Vector3D(v.pos.x, v.pos.y, v.pos.z).minus(sphere.center).lengthSquared());
+                  }
+                }
+                sphere.radius = Math.sqrt(sphere.radius);
+                this.cachedBoundingSphere = sphere;
 
+            }
+            return this.cachedBoundingSphere;
+        },
+
+  // getBoundingSphere: function(aabb) {
+  //   // console.log(aabb);
+  //   // the sphere center is halfway between the min and max points for each coordinate
+  //   // to get the radius, go through all vertices (yuck) and test their distance from the center
+  //   // pick the biggest, and that's the radius.
+  //   // I use lengthSquared for per-vertex calcualations to avoid doing a square root on each vertex.
+  //   var sphere = {center: aabb[0].plus(aabb[1]).dividedBy(2), radius: 0 };
+  //   for (var i = 0; i < this.currentObject.polygons.length; i++) {
+  //     for (var j = 0; j < this.currentObject.polygons[i].vertices.length; j++) {
+  //       var v = this.currentObject.polygons[i].vertices[j];
+  //       sphere.radius = Math.max(sphere.radius, 
+  //         new CSG.Vector3D(v.pos.x, v.pos.y, v.pos.z).minus(sphere.center).lengthSquared());
+  //     }
+  //   }
+  //   sphere.radius = Math.sqrt(sphere.radius);
+  //   return sphere;
+
+  // },
         // returns true if there is a possibility that the two solids overlap
         // returns false if we can be sure that they do not overlap
         mayOverlap: function(csg) {
@@ -1159,6 +1316,18 @@ for solid CAD anyway.
             return cut3d.projectToOrthoNormalBasis(orthobasis);
         },
 
+        // fixTJunctionsNew
+        // This TJunction fixer will add a new polygon into the TJunctions.
+        // I am trying to fix solids for taper and other non-linear transforms.
+
+        // Algorithm:
+        // get all unpaired edges.  (I'll steal this from old FixTJunctions).
+        // go through unpaired edges.  Look for a reverse edge that matches one side.  
+        // see if you can follow a chain that brings to you the original edge again.
+        // that chain becomes a new polygon.
+        // add that polygon onto the csg.
+
+
         /*
          fixTJunctions:
 
@@ -1442,7 +1611,7 @@ for solid CAD anyway.
             }
             if (!sidemapisempty) {
                 // throw new Error("!sidemapisempty");
-            OpenJsCad.log("!sidemapisempty");
+            console.log("!sidemapisempty");
             }
             return csg;
         },
@@ -1654,7 +1823,7 @@ for solid CAD anyway.
         if (radius < 0) {
             throw new Error("Radius should be positive");
         }
-        if(radius < 0.0005) {
+        if(radius < 0.000001) {
             console.log("Throwing out a zero-radius sphere.")
             return(new CSG);
         }
@@ -1708,6 +1877,8 @@ for solid CAD anyway.
             }
             prevcylinderpoint = cylinderpoint;
         }
+
+
         var result = CSG.fromPolygons(polygons);
         result.properties.sphere = new CSG.Properties();
         result.properties.sphere.center = new CSG.Vector3D(center);
@@ -7357,6 +7528,45 @@ for solid CAD anyway.
                 result = result.flipped();
             }
             return result;
+        },
+
+        taper: function(vector, factor) {
+
+            if (factor <= 0)
+                factor = 0.0001;
+
+            var bounds = this.getBounds();
+            var max_distance = 0;
+            var start_pos = 0;
+
+            if (vector[0]) {
+                max_distance = bounds[1].x - bounds[0].x;
+                start_pos = bounds[0].x
+            }
+            else {
+                max_distance = bounds[1].y - bounds[0].y;
+                start_pos = bounds[0].y;
+            }
+            var newSides = [];
+            var newVert = [];
+            for (var i = 0; i < this.sides.length; i++) {
+                var pt = this.sides[i];
+                if (vector[0]) {
+                    // taper along X axis
+                    newVert[0] = [pt.vertex0.pos.x, pt.vertex0.pos.y * (1 + (factor - 1) * (pt.vertex0.pos.x - start_pos)/max_distance)];
+                    newVert[1] = [pt.vertex1.pos.x, pt.vertex1.pos.y * (1 + (factor - 1) * (pt.vertex1.pos.x - start_pos)/max_distance)];
+                }
+                if (vector[1]) {
+                    // taper along Y axis
+                    newVert[0] = [pt.vertex0.pos.x * (1 + (factor - 1) * (pt.vertex0.pos.y - start_pos)/max_distance), pt.vertex0.pos.y];
+                    newVert[1] = [pt.vertex1.pos.x * (1 + (factor - 1) * (pt.vertex1.pos.y - start_pos)/max_distance), pt.vertex1.pos.y];
+                }       
+                var newSide = new CAG.Side(new CAG.Vertex(new CSG.Vector2D(newVert[0])), new CAG.Vertex(new CSG.Vector2D(newVert[1])));
+                newSides.push(newSide);
+            }
+            
+            var newCAG = CAG.fromSides(newSides);
+            return newCAG;
         },
 
         // see http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/ :

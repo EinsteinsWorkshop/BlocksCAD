@@ -55,6 +55,10 @@ Blockly.Xml.workspaceToDom = function(workspace) {
   element.setAttribute('num', Blockscad.version);
   xml.appendChild(element);
 
+  var colorEl = goog.dom.createDom('color');
+  colorEl.setAttribute('rgba', Blockscad.defaultColor);
+  xml.appendChild(colorEl);
+
   for (var i = 0, block; block = blocks[i]; i++) {
     var element = Blockly.Xml.blockToDom_(block);
     var xy = block.getRelativeToSurfaceXY();
@@ -178,6 +182,7 @@ Blockly.Xml.domToText = function(dom) {
   // for BlocksCAD, change the xml namespace in the saved file
   xml_text = xml_text.replace('xmlns="http://www.w3.org/1999/xhtml"',
                               'xmlns="http://blockscad.einsteinsworkshop.com"');
+
   return xml_text;
 };
 
@@ -243,6 +248,8 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
   }
   // FOR BLOCKSCAD: set version of input file to null so we can read the input xml version.
   Blockscad.inputVersion = null;
+  // FOR BLOCKSCAD: if an old project didn't have a "default color" set, set to pink.
+  var found_color = false;
   // Safari 7.1.3 is known to provide node lists with extra references to
   // children beyond the lists' length.  Trust the length, do not use the
   // looping pattern of checking the index for an object.
@@ -253,6 +260,20 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
     if (xmlChild.nodeName.toLowerCase() == 'version') {
       Blockscad.inputVersion = xmlChild.getAttribute('num');
       // console.log("inputVersion is:",Blockscad.inputVersion);
+    }
+    // read in default color information.
+    if (xmlChild.nodeName.toLowerCase() == 'color') {
+      var col = xmlChild.getAttribute('rgba');
+      if (col == "undefined") {
+        // set color to default
+        found_color = true;
+        Blockscad.setColor(255, 128, 255);
+      }
+      else {
+        var colA = col.split(',');
+        Blockscad.setColor(colA[0],colA[1],colA[2]);
+        found_color = true;
+      }
     }
     if (xmlChild.nodeName.toLowerCase() == 'block') {
       var block = Blockly.Xml.domToBlock(workspace, xmlChild);
@@ -266,6 +287,8 @@ Blockly.Xml.domToWorkspace = function(workspace, xml) {
   // Set blockscad version back to current tool version now that the input file is done
   Blockscad.inputVersion = Blockscad.version;
   // console.log("resetting inputversion to current: ",Blockscad.inputVersion);
+  if (!found_color)
+    Blockscad.setColor(255,128,255);
 };
 
 /**

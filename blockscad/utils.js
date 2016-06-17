@@ -9,7 +9,9 @@ var BSUtils = BSUtils || {};
  */
 BSUtils.LANGUAGE_NAME = {
   'en': 'English',
-  'es': 'Español'
+  'de': 'Deutsch',
+  'fr': 'Français'
+  // 'es': 'Español'
 };
 // BSUtils.LANGUAGE_NAME = {
 //   'ar': 'العربية',
@@ -18,12 +20,12 @@ BSUtils.LANGUAGE_NAME = {
 //   'ca': 'Català',
 //   'cs': 'Česky',
 //   'da': 'Dansk',
-//   'de': 'Deutsch',
+
 //   'el': 'Ελληνικά',
 //   'en': 'English',
 //   'es': 'Español',
 //   'fa': 'فارسی',
-//   'fr': 'Français',
+
 //   'he': 'עברית',
 //   'hrx': 'Hunsrik',
 //   'hu': 'Magyar',
@@ -109,60 +111,6 @@ BSUtils.isRtl = function() {
 };
 
 /**
- * Common startup tasks for all apps.
- */
-BSUtils.init = function() {
-
-  // Set the HTML's language and direction.
-  // document.dir fails in Mozilla, use document.body.parentNode.dir instead.
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=151407
-  var rtl = BSUtils.isRtl();
-  document.head.parentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
-  document.head.parentElement.setAttribute('lang', BSUtils.LANG);
-
-  // Sort languages alphabetically.
-  var languages = [];
-  var lang;
-  for (var i = 0; i < BSUtils.LANGUAGES.length; i++) {
-    lang = BSUtils.LANGUAGES[i];
-    languages.push([BSUtils.LANGUAGE_NAME[lang], lang]);
-  }
-  var comp = function(a, b) {
-    // Sort based on first argument ('English', 'Русский', '简体字', etc).
-    if (a[0] > b[0]) return 1;
-    if (a[0] < b[0]) return -1;
-    return 0;
-  };
-  languages.sort(comp);
-  // Populate the language selection menu.
-  var languageMenu = document.getElementById('languageMenu');
-  languageMenu.options.length = 0;
-  for (var i = 0; i < languages.length; i++) {
-    var tuple = languages[i];
-    lang = tuple[tuple.length - 1];
-    var option = new Option(tuple[0], lang);
-    if (lang == BSUtils.LANG) {
-      option.selected = true;
-    }
-    languageMenu.options.add(option);
-  }
-  languageMenu.addEventListener('change', BSUtils.changeLanguage, true);
-
-
-
-  if (document.getElementById('codeButton')) {
-    BSUtils.bindClick('codeButton', BSUtils.showCode);
-  }
-
-  // Fixes viewport for small screens.
-  var viewport = document.querySelector('meta[name="viewport"]');
-  if (viewport && screen.availWidth < 725) {
-    viewport.setAttribute('content',
-        'width=725, initial-scale=.35, user-scalable=no');
-  }
-};
-
-/**
  * Initialize Blockly for a readonly iframe.  Called on page load.
  * XML argument may be generated from the console with:
  * encodeURIComponent(Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)).slice(5, -6))
@@ -185,22 +133,7 @@ BSUtils.initReadonly = function() {
  * @param {string} defaultXml Text representation of default blocks.
  */
 BSUtils.loadBlocks = function(defaultXml) {
-  try {
-    var loadOnce = window.sessionStorage.loadOnceBlocks;
-  } catch(e) {
-    // Firefox sometimes throws a SecurityError when accessing sessionStorage.
-    // Restarting Firefox fixes this, so it looks like a bug.
-    var loadOnce = null;
-  }
-  if ('BlocklyStorage' in window && window.location.hash.length > 1) {
-    // An href with #key trigers an AJAX call to retrieve saved blocks.
-    BlocklyStorage.retrieveXml(window.location.hash.substring(1));
-  } else if (loadOnce) {
-    // Language switching stores the blocks during the reload.
-    delete window.sessionStorage.loadOnceBlocks;
-    var xml = Blockly.Xml.textToDom(loadOnce);
-    Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xml);
-  } else if (defaultXml) {
+ if (defaultXml) {
     // Load the editor with default starting blocks.
     var xml = Blockly.Xml.textToDom(defaultXml);
     Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xml);
@@ -216,18 +149,16 @@ BSUtils.loadBlocks = function(defaultXml) {
  */
 BSUtils.changeLanguage = function() {
   // Store the blocks for the duration of the reload.
-  // This should be skipped for the index page, which has no blocks and does
-  // not load Blockly.
-  // MSIE 11 does not support sessionStorage on file:// URLs.
-  if (typeof Blockly != 'undefined' && window.sessionStorage) {
-    var xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
-    var text = Blockly.Xml.domToText(xml);
-    window.sessionStorage.loadOnceBlocks = text;
-  }
 
-  var languageMenu = document.getElementById('languageMenu');
-  var newLang = encodeURIComponent(
-      languageMenu.options[languageMenu.selectedIndex].value);
+
+  console.log("in changeLanguage");
+  BlocklyStorage.backupBlocks_();
+
+  var newLang = encodeURIComponent($(this).data("lang"));
+  console.log("newLang is:",newLang);
+  // var newLang = encodeURIComponent(
+  //     languageMenu.options[languageMenu.selectedIndex].value);
+  // console.log("newLang is:",newLang);
   var search = window.location.search;
   if (search.length <= 1) {
     search = '?lang=' + newLang;
@@ -239,6 +170,7 @@ BSUtils.changeLanguage = function() {
 
   window.location = window.location.protocol + '//' +
       window.location.host + window.location.pathname + search;
+
 };
 
 /**

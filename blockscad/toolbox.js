@@ -80,7 +80,7 @@ Blockscad.Toolbox.setCatColors = function() {
   }
 }
 
-Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
+Blockscad.Toolbox.cat_3D = '<category name="' + Blockscad.Msg.CATEGORY_3D_SHAPES + '">' +
       '<block type="sphere">' +
         '<value name="RAD">' +
           '<block type="math_number">' +
@@ -146,7 +146,7 @@ Blockscad.Toolbox.cat_3D = '<category name="3D Shapes">' +
       '</block>' +
     '</category>';
 
-Blockscad.Toolbox.cat_3D_sim = '<category name="3D Shapes">' +
+Blockscad.Toolbox.cat_3D_sim = '<category name="' + Blockscad.Msg.CATEGORY_3D_SHAPES + '">' +
       '<block type="sphere">' +
         '<value name="RAD">' +
           '<block type="math_number">' +
@@ -190,7 +190,7 @@ Blockscad.Toolbox.cat_3D_sim = '<category name="3D Shapes">' +
       '</block>' +
     '</category>';
 
-Blockscad.Toolbox.cat2D = '<category name="2D Shapes">' +
+Blockscad.Toolbox.cat2D = '<category name="' + Blockscad.Msg.CATEGORY_2D_SHAPES + '">' +
       '<block type="circle">' +
         '<value name="RAD">' +
           '<block type="math_number">' +
@@ -213,7 +213,7 @@ Blockscad.Toolbox.cat2D = '<category name="2D Shapes">' +
     '</category>';
 
 
-Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
+Blockscad.Toolbox.catTransform = '<category name="' + Blockscad.Msg.CATEGORY_TRANSFORMATIONS + '">' +
       '<block type="translate">' +
         '<value name="XVAL">' +
           '<block type="math_number">' +
@@ -273,11 +273,35 @@ Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
           '</block>' +
         '</value>' +
       '</block>' +
+      '<block type="color_rgb">' +
+        '<value name="RED">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="GREEN">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+        '<value name="BLUE">' +
+          '<block type="math_number">' +
+            '<field name="NUM">100</field>' +
+          '</block>' +
+        '</value>' +
+      '</block>' +
       '<block type="$fn">' +
         '<value name="SIDES">' +
           '<block type="math_number">' +
             '<field name="NUM">8</field>' +
           '</block>' +
+        '</value>' +
+      '</block>' +
+      '<block type="taper">' +
+        '<value name="FACTOR">' +
+          '<block type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</block>' + 
         '</value>' +
       '</block>' +
       '<block type="linearextrude">' +
@@ -350,7 +374,7 @@ Blockscad.Toolbox.catTransform = '<category name="Transforms">' +
       '</block>' +
     '</category>';
 
-Blockscad.Toolbox.catTransform_sim = '<category name="Transforms">' +
+Blockscad.Toolbox.catTransform_sim = '<category name="' + Blockscad.Msg.CATEGORY_TRANSFORMATIONS + '">' +
       '<block type="translate">' +
         '<value name="XVAL">' +
           '<block type="math_number">' +
@@ -418,20 +442,20 @@ Blockscad.Toolbox.catTransform_sim = '<category name="Transforms">' +
       '</block>' +
     '</category>';
 
-Blockscad.Toolbox.catSetOps=   '<category name="Set Ops">' +
+Blockscad.Toolbox.catSetOps=   '<category name="' + Blockscad.Msg.CATEGORY_SET_OPERATIONS + '">' +
       '<block type="union"></block>' +
       '<block type="difference"></block>' +
       '<block type="intersection"></block>' +
       '<block type="hull"></block>' +
     '</category>';
 
-Blockscad.Toolbox.catSetOps_sim = '<category name="Set Ops">' +
+Blockscad.Toolbox.catSetOps_sim = '<category name="' + Blockscad.Msg.CATEGORY_SET_OPERATIONS + '">' +
       '<block type="union"></block>' +
       '<block type="difference"></block>' +
       '<block type="intersection"></block>' +
     '</category>';
 
-Blockscad.Toolbox.catMathLogic= '<category name="Math">' +
+Blockscad.Toolbox.catMathLogic= '<category name="' + Blockscad.Msg.CATEGORY_MATH + '">' +
       '<block type="math_number"></block>' +
       '<block type="math_angle"></block>' +
       '<block type="math_arithmetic"></block>' +
@@ -467,7 +491,7 @@ Blockscad.Toolbox.catMathLogic= '<category name="Math">' +
       '</block>' +
       '<block type="math_random_float"></block>' +
     '</category>' +
-    '<category name="Logic">' +
+    '<category name="' + Blockscad.Msg.CATEGORY_LOGIC + '">' +
       '<block type="controls_if"></block>' +
       '<block type="logic_compare"></block>' +
       '<block type="logic_operation"></block>' +
@@ -476,7 +500,7 @@ Blockscad.Toolbox.catMathLogic= '<category name="Math">' +
       '<block type="logic_ternary"></block>' +
     '</category>';
 
-Blockscad.Toolbox.catMathLogic_sim= '<category name="Math">' +
+Blockscad.Toolbox.catMathLogic_sim= '<category name="' + Blockscad.Msg.CATEGORY_MATH + '">' +
       '<block type="math_number"></block>' +
       '<block type="math_angle"></block>' +
       '<block type="math_arithmetic"></block>' +
@@ -495,7 +519,7 @@ Blockscad.Toolbox.catMathLogic_sim= '<category name="Math">' +
       '</block>' +
     '</category>';
 
-Blockscad.Toolbox.catLoops = '<category name="Loops">' +
+Blockscad.Toolbox.catLoops = '<category name="' + Blockscad.Msg.CATEGORY_LOOPS + '">' +
       '<block type="controls_for">' +
         '<value name="FROM">' +
           '<block type="math_number">' +
@@ -513,29 +537,27 @@ Blockscad.Toolbox.catLoops = '<category name="Loops">' +
           '</block>' +
         '</value>' +
       '</block>' +
-      '<block type="controls_for_chainhull">' +
-        '<value name="FROM">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block> ' +
-        '</value>' +
-        '<value name="TO">' +
-          '<block type="math_number">' +
-            '<field name="NUM">10</field>' +
-          '</block>' +
-        '</value>' +
-        '<value name="BY">' +
-          '<block type="math_number">' +
-            '<field name="NUM">1</field>' +
-          '</block>' +
-        '</value>' +
-      '</block>' +
+      // '<block type="controls_for_chainhull">' +
+      //   '<value name="FROM">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block> ' +
+      //   '</value>' +
+      //   '<value name="TO">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">10</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      //   '<value name="BY">' +
+      //     '<block type="math_number">' +
+      //       '<field name="NUM">1</field>' +
+      //     '</block>' +
+      //   '</value>' +
+      // '</block>' +
     '</category>';
 
 
-Blockscad.Toolbox.catOther = 
-      '<category name="Text">' +
-      '<block type="text"></block>' +
+Blockscad.Toolbox.catOther = '<category name="' + Blockscad.Msg.CATEGORY_TEXT + '">' +
       '<block type="bs_text">' + 
         '<value name="TEXT">' + 
           '<block type="text">' +
@@ -616,13 +638,13 @@ Blockscad.Toolbox.catOther =
 
       // '<block type="stl_import"></block>' +
     '</category>' +
-    '<category name="Variables" custom="VARIABLE"></category>' +
-    '<category name="Modules" custom="PROCEDURE"></category>' +
+    '<category name="' + Blockscad.Msg.CATEGORY_VARIBLES + '" custom="VARIABLE"></category>' +
+    '<category name="' + Blockscad.Msg.CATEGORY_PROCEDURES + '" custom="PROCEDURE"></category>' +
   '</xml>'; 
 
 Blockscad.Toolbox.catOther_sim = 
-    '<category name="Variables" custom="VARIABLE"></category>' +
-    '<category name="Modules" custom="PROCEDURE"></category>' +
+    '<category name="' + Blockscad.Msg.CATEGORY_VARIBLES + '" custom="VARIABLE"></category>' +
+    '<category name="' + Blockscad.Msg.CATEGORY_PROCEDURES + '" custom="PROCEDURE"></category>' +
     '</xml>';
 
 Blockscad.Toolbox.adv =  '<xml id="toolbox" style="display: none">';

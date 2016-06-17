@@ -149,6 +149,33 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
         });
     };
 
+    function TaperTransform(a){
+        TransformModule.call(this, a);
+    };
+
+    TaperTransform.prototype.evaluate = function(parentContext, inst){
+
+        inst.argvalues = [];
+
+        _.each(inst.argexpr, function(expr,index,list) {
+            inst.argvalues.push(expr.evaluate(parentContext));
+        });
+
+        var context = Context.newContext(parentContext, ["v","a"], [], inst);
+
+        var a = Context.contextVariableLookup(context, "a", 1);
+
+        var v = Context.contextVariableLookup(context, "v", [0,0,0]);
+
+        if (!(v instanceof Array)){
+            var val = v;
+            v = [val,val,val];
+        }
+
+        return this.transformChildren(inst.children, context, function(){
+            return _.template('.taper([<%=v%>], <%=a%>)', {v:v, a:a});
+        });
+    };
 
     function TranslateTransform(a){
         TransformModule.call(this, a);
@@ -311,6 +338,7 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
 	return {
 		Translate: TranslateTransform,
 		Scale: ScaleTransform,
+        Taper: TaperTransform,
 		Rotate: RotateTransform,
 		Mirror: MirrorTransform,
 		Color: ColorTransform,

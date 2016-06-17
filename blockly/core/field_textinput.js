@@ -129,6 +129,10 @@ Blockly.FieldTextInput.prototype.showEditor_ = function(opt_quietInput) {
     return;
   }
 
+  // for Blockscad undo, the editor is open. (used to aggregate keystrokes)
+  // console.log("setting editorClosed to false");
+  Blockscad.undo.editorClosed = false;
+
   Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL, this.widgetDispose_());
   var div = Blockly.WidgetDiv.DIV;
   // Create the input.
@@ -176,11 +180,14 @@ Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = function(e) {
   var tabKey = 9, enterKey = 13, escKey = 27;
   if (e.keyCode == enterKey) {
     Blockly.WidgetDiv.hide();
+    Blockscad.workspaceChanged();
   } else if (e.keyCode == escKey) {
     this.setText(htmlInput.defaultValue);
     Blockly.WidgetDiv.hide();
+    // Blockscad.workspaceChanged(); // this already gets called here.  Don't need it.
   } else if (e.keyCode == tabKey) {
     Blockly.WidgetDiv.hide();
+    Blockscad.workspaceChanged();
     this.sourceBlock_.tab(this, !e.shiftKey);
     e.preventDefault();
   }
@@ -298,6 +305,10 @@ Blockly.FieldTextInput.prototype.widgetDispose_ = function() {
     // I can re-set the ratio of the radii.  Can I trigger a call to that function here?
     if (thisField.sourceBlock_.workspace)
       thisField.sourceBlock_.workspace.fireEditorEvent();
+    // for undo purposes, I want to set a field as "updated" on editor dispose.
+    // console.log("setting editorClosed to true");
+    Blockscad.undo.editorClosed = true;
+    // Blockscad.workspaceChanged();
   };
 };
 

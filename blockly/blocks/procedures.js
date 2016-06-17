@@ -96,10 +96,10 @@ Blockly.Blocks['procedures_defnoreturn'] = {
 
     if (numBumped.length) {
       var text = '';
-      text += numBumped.length + " ";
+      // text += numBumped.length + " ";
       // took out the name so I wouldn't have to deal with renaming the proc.
       //text += this.getFieldValue('NAME') + " ";
-      text += "calling blocks were displaced: 2D and 3D shapes cannot be together";
+      text += Blockscad.Msg.BLOCKS_BUMPED_OUT_DIMENSIONS.replace("%1", numBumped.length);
       this.setWarningText(text);
     }
 
@@ -431,8 +431,8 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     }
     // for BlocksCAD, 
     var option = {enabled: true};
-    option.text = "Highlight function Instances";
     var name = this.getFieldValue('NAME');
+    option.text = Blockscad.Msg.HIGHLIGHT_INSTANCES.replace("%1", name);
     var workspace = this.workspace;
     option.callback = function() {
       var def = Blockly.Procedures.getDefinition(name, workspace);
@@ -496,6 +496,7 @@ Blockly.Blocks['procedures_defreturn'] = {
       return;
     }
     var ret = this.getInput('RETURN');
+    // console.log("in setType for function. here is the input:",ret);
     if (ret.connection.targetConnection) {
       if (ret.connection.targetConnection.check_ == 'Number')
         this.myType_ = ret.connection.check_ = 'Number';
@@ -511,14 +512,22 @@ Blockly.Blocks['procedures_defreturn'] = {
     // I need to find out what my caller stacks think their types are.
     if (callers.length) {
       for (var i = 0; i < callers.length; i++) {
+        // console.log("callers.length is:",callers.length);
         // get caller's connection type here
         if (callers[i].outputConnection.targetConnection)
           conType = callers[i].outputConnection.targetConnection.check_;
-        //console.log("caller type is",conType);
-        if (this.myType_ && conType && conType != this.myType_) {
+
+        if (!goog.isArray(conType)) conType = [conType];
+        // conType is an array.  
+        // console.log("caller type is",conType);
+        // console.log(this.myType_);
+      if (this.myType_ && conType && conType.indexOf(this.myType_) == -1) {
+
           // call blocks are going to be kicked out.  
           console.log("warning message!  call block id", callers[i].id, "will be kicked out");
-          numBumped.push(callers[i]);
+          // there is a bug here - if we add to the numBumped stack, then we get an infinite loop. ???
+          // if (numBumped[numBumped.length] != callers[i]) 
+          // numBumped.push(callers[i]);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
           var topBlock = callers[i].collapsedParents();
           if (topBlock)
@@ -528,10 +537,12 @@ Blockly.Blocks['procedures_defreturn'] = {
       }
     }
     if (numBumped.length) {
+      // console.log("blah");
       var text = '';
-      text += numBumped.length + " ";
-      text += this.getFieldValue('NAME') + " ";
-      text += "calling blocks were displaced: type mismatch between numbers and Booleans";
+      // text += numBumped.length + " ";
+      // text += this.getFieldValue('NAME') + " ";
+      text += Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES.replace("%1", numBumped.length + " " + this.getFieldValue('NAME'));
+
       this.setWarningText(text);
     }
     if (callers.length > 0) {
@@ -542,7 +553,7 @@ Blockly.Blocks['procedures_defreturn'] = {
         else if (this.myType_ == 'Boolean')
           callers[i].category = 'BOOLEAN';
         else callers[i].category = 'UNKNOWN';
-        //console.log("tried to set caller type to ",this.myType_, callers[i]);
+        // console.log("tried to set caller type to ",this.myType_, callers[i]);
       }
     }
     // the system will be done now with unplugging all the blocks that need it.  
@@ -871,8 +882,9 @@ Blockly.Blocks['procedures_callnoreturn'] = {
 
     // for BlocksCAD, 
     var option = {enabled: true};
-    option.text = "Highlight function Instances";
     var name = this.getProcedureCall();
+    option.text = Blockscad.Msg.HIGHLIGHT_INSTANCES.replace("%1", name);
+
     var workspace = this.workspace;
     option.callback = function() {
       var def = Blockly.Procedures.getDefinition(name, workspace);
@@ -955,9 +967,10 @@ Blockly.Blocks['procedures_callreturn'] = {
     options.push(option);
 
     // for BlocksCAD, 
-    var option = {enabled: true};
-    option.text = "Highlight function Instances";
     var name = this.getProcedureCall();
+    var option = {enabled: true};
+    option.text = Blockscad.Msg.HIGHLIGHT_INSTANCES.replace("%1",name);
+
     var workspace = this.workspace;
     option.callback = function() {
       var def = Blockly.Procedures.getDefinition(name, workspace);

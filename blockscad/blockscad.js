@@ -29,23 +29,13 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.2.1";
 
-Blockscad.offline = false;  // true unless using a cloud service backend for file management
+Blockscad.version = "1.4.2";
+Blockscad.releaseDate = "2016/06/17";
 
-// -- BEGIN OPENJSCAD STUFF --
-
-var gProcessor = null;
-
-// var gMemFs = [];              // associated array, contains file content in source gMemFs[i].{name,source}
-// var gMemFsCount = 0;          // async reading: count of already read files
-// var gMemFsTotal = 0;          // async reading: total files to read (Count==Total => all files read)
-// var gMemFsChanged = 0;        // how many files have changed
-// var gRootFs = [];             // root(s) of folders 
-
+Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
-// -- END OPENJSCAD STUFF --
-
 Blockscad.drawAxes = 1;       // start with axes drawn
 
 
@@ -77,10 +67,10 @@ Blockscad.init = function() {
     el.style.width = bBox.width + 'px';
 
     // resize the viewer  
-    if (gProcessor) {
-      var h = gProcessor.viewerdiv.offsetHeight;
-      var w = gProcessor.viewerdiv.offsetWidth;
-      gProcessor.viewer.rendered_resize(w,h);
+    if (Blockscad.gProcessor != null && Blockscad.gProcessor.viewer) {
+      var h = Blockscad.gProcessor.viewerdiv.offsetHeight;
+      var w = Blockscad.gProcessor.viewerdiv.offsetWidth;
+      Blockscad.gProcessor.viewer.rendered_resize(w,h);
     }
     // position the div using left and top (that's all I get!)
     if ($( '#main' ).height() - $( '.resizableDiv' ).height() < 70)
@@ -107,6 +97,7 @@ Blockscad.init = function() {
        trashcan: false,
        toolbox: Blockscad.Toolbox.adv});
 
+
   // set the initial color scheme
   Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
   // color the initial toolbox
@@ -114,16 +105,17 @@ Blockscad.init = function() {
   // hide "switch to advanced toolbox" because that's where we'll start
   $('#advancedToolbox').hide();
 
+
   // BSUtils.loadBlocks('');
   // for standalone, just call restoreBlocks directly
   console.log("trying to restore blocks");
   BlocklyStorage.standaloneRestoreBlocks();
 
+
   if ('BlocklyStorage' in window) {
     // Hook a save function onto unload.
     BlocklyStorage.backupOnUnload();
   }
-
 
   // how about putting in the viewer?
 
@@ -132,10 +124,10 @@ Blockscad.init = function() {
       resize: function(event, ui) {
           var h = $( window ).height();
           // resize the viewer
-          if (gProcessor) {
-            h = gProcessor.viewerdiv.offsetHeight;
-            var w = gProcessor.viewerdiv.offsetWidth;
-            gProcessor.viewer.rendered_resize(w,h);
+          if (Blockscad.gProcessor != null) {
+            h = Blockscad.gProcessor.viewerdiv.offsetHeight;
+            var w = Blockscad.gProcessor.viewerdiv.offsetWidth;
+            Blockscad.gProcessor.viewer.rendered_resize(w,h);
           }
           // position the div using left and top (that's all I get!)
           if ($( '#main' ).width() - ui.size.width < 20)
@@ -147,6 +139,9 @@ Blockscad.init = function() {
           ui.position.top = 55;
       }
   });
+
+
+
 
   Blockly.fireUiEvent(window, 'resize');
 
@@ -174,7 +169,7 @@ Blockscad.init = function() {
     // toggle whether or not we draw the axes, then redraw
     Blockscad.drawAxes = (Blockscad.drawAxes + 1) % 2;
     $( '#axesButton' ).toggleClass("btn-pushed");
-    gProcessor.viewer.onDraw();
+    Blockscad.gProcessor.viewer.onDraw();
   });
 
   // can I bind a click to a tab?
@@ -202,13 +197,20 @@ Blockscad.init = function() {
   $('#file-menu').on('change', '#importLocal', function(e) { readSingleFile(e, false);});
   $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
 
+  // what size should pics be taken at?
+  Blockscad.picSize = [120,120];
+  Blockscad.picQuality = 0.85;    // JPEG quality level - must be between 0 and 1
+  // hook up the pic-taking button
+  $("#picButton").click(Blockscad.takePic);
+  $("#rPicButton").click(Blockscad.takeRPic);
+
   //Create the openjscad processing object instance
-  gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
+  Blockscad.gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
 
   //render view reset button - JY
   BSUtils.bindClick('viewReset', Blockscad.resetView); 
   // $( '#viewMenu' ).change(function() {
-  //   gProcessor.viewer.viewReset();
+  //   Blockscad.gProcessor.viewer.viewReset();
   // });
 
   // a bunch of stuff to support Undo/Redo
@@ -228,13 +230,13 @@ Blockscad.init = function() {
     oldFieldValues:[],
     oldParentIds:[],
     just_did_undo:0,
-    oldProjectName:'Untitled'
+    oldProjectName: Blockscad.Msg.PROJECT_NAME_DEFAULT
   };
 
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
   // this should fix that.
   // starts at 0 ("do not need to save") because the user hasn't done anything yet.
-  Blockscad.undo.needToSave = 0;
+  Blockscad.setNoSaveNeeded();
 
   // Set up an event listener to see when the Blockly workspace gets a change
   // TODO: Set up some "Undo_events" in Blockly that only trigger on the good stuff
@@ -298,6 +300,51 @@ Blockscad.init = function() {
     }
   });
 
+  // add "default color" picker to viewer
+
+  Blockscad.setColor = function(r,g,b) {
+    // console.log("in setColor.  rgb:" + r + ";" + g + ';' + b);
+    if (Blockscad.gProcessor != null && Blockscad.gProcessor.viewer){
+      Blockscad.gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
+      Blockscad.gProcessor.picviewer.defaultColor = [r/255,g/255,b/255,1];
+      if (Blockscad.gProcessor.hasSolid()) {
+        // I have a solid already rendered - change its color!
+        Blockscad.gProcessor.viewer.setCsg(Blockscad.gProcessor.currentObject); 
+        Blockscad.gProcessor.picviewer.setCsg(Blockscad.gProcessor.currentObject); 
+        // update the thumbnail
+        Blockscad.gProcessor.thumbnail = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+      }
+      Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
+      $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
+    }
+  }
+
+  $("#defColor").spectrum({
+    color: 'rgb(255,128,255)',    
+    showPalette: true,
+    className: "defaultColor",
+    appendTo: "#renderDiv",
+    hideAfterPaletteSelect:true,
+    showPaletteOnly: true,
+    change: function(color) {
+      Blockscad.setColor(color._r,color._g,color._b);
+
+    },
+      palette: [
+          ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,0,0);', 'rgb(255,102,0);'],
+          ['rgb(255,204,0);'  , 'rgb(0,153,0);'    ,'rgb(51,102,255);' , 'rgb(204,51,204);']
+      ]
+  });
+
+  // // add color picker to help menu (for use with color rgb block)
+  // $("#colorPicker").spectrum({
+  //   color: 'rgb(255,128,255)',
+  //   showPalette: false,
+  //   className: "colSelect",
+  //   hideAfterPaletteSelect:false,
+  //   preferredFormat:'hsl',
+  //   showInput:true
+  // });
 
   // example handlers
   // to add an example, add a list item in index.html, add a click handler below, 
@@ -310,7 +357,7 @@ Blockscad.init = function() {
   $("#examples_rotate_extrude").click({msg: "rotate_extrude.xml"}, Blockscad.showExample);
   $("#examples_cube_with_cutouts").click({msg: "cube_with_cutouts.xml"}, Blockscad.showExample);
   $("#examples_anthias_fish").click({msg: "anthias_fish.xml"}, Blockscad.showExample);
-  $("#examples_chain_hull_sun").click({msg: "chain_hull_sun.xml"}, Blockscad.showExample);
+  $("#examples_hulled_loop_sun").click({msg: "hulled_loop_sun.xml"}, Blockscad.showExample);
   $("#examples_sine_function_with_loop").click({msg: "sine_function_with_loop.xml"}, Blockscad.showExample);
   $("#examples_trefoil_knot_param_eq").click({msg: "trefoil_knot_param_eq.xml"}, Blockscad.showExample);
 
@@ -332,20 +379,76 @@ Blockscad.init = function() {
       root.find('.sub-menu:visible').hide();
     });
   });
+  $('#stl_buttons').hide();
+
+
 }; // end Blockscad.init()
 
+Blockscad.takeRPic = function() {
+  if (Blockscad.gProcessor != null) {
+    // takeRotatingPic(quality, numFrames)
+    // leave quality at 1! 
+    var thing = Blockscad.gProcessor.takeRotatingPic(1,13);
+    // console.log("got rotating pic");
+
+    // console.log(thing);
+    var gif = gifshot.createGIF({
+      'images': thing,
+      'interval': 0.4,
+      'gifWidth': Blockscad.picSize[0],
+      'gifHeight': Blockscad.picSize[1],
+      'sampleInterval': 1,
+    }, function(obj) {
+      if (!obj.error) {
+        var image = obj.image;
+        Blockscad.savePic(image, $('#project-name').val() + '.gif');
+      }
+    });
+  }
+}
+Blockscad.savePic = function(image, name) {
+  if (image) {
+    var bytestream = atob(image.split(',')[1]);
+    var mimestring = image.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to an ArrayBuffer
+
+    var ab = new ArrayBuffer(bytestream.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < bytestream.length; i++) {
+      ia[i] = bytestream.charCodeAt(i);
+    }
+    // console.log("jpeg size: ", bytestream.length);
+
+    var blob = new Blob([ab], {type: "img/jpeg"});
+    saveAs(blob, name);
+  }
+}
+Blockscad.takePic = function() {
+  if (Blockscad.gProcessor.picviewer) {
+    // the parameter here is the jpeg quality - between 0 and 1.
+    var image = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+    // Blockscad.gProcessor.thumbnail = image;
+
+    // console.log("image",image);
+    if (image)
+    Blockscad.savePic(image, $('#project-name').val() + '.jpg');
+  }
+}
 
 Blockscad.loadLocalBlocks = function(e) {
   var evt = e;
   if (evt.target.files.length) {
     if (Blockscad.undo.needToSave) {
       promptForSave().then(function(wantToSave) {
-        if (wantToSave=="cancel") 
+        if (wantToSave=="cancel") { 
           return;
-        if (wantToSave=="save")
+        }
+        if (wantToSave=="nosave")
+          Blockscad.setNoSaveNeeded();
+        else if (wantToSave=="save")
           Blockscad.saveBlocks();
-        // else 
-        //   console.log("user didn't want to save." );
+
         // console.log("time to load the local blocks!");
         Blockscad.createNewProject();
         readSingleFile(evt,true);
@@ -428,13 +531,14 @@ function readSingleFile(evt, replaceOld) {
     $('#projView').hide();
     $('#editView').show();
     // turn the big save button back on.
-    $('#bigsavebutton').show();
+
+    if (!Blockscad.offline) $('#bigsavebutton').show();
 
     // switch us back to the blocks tab in case we were on the code tabe.
     $('#displayBlocks').click();
 
     // clear the render window
-    gProcessor.clearViewer();
+    Blockscad.gProcessor.clearViewer();
 
   } else { 
     // alert("Failed to load file");
@@ -506,7 +610,7 @@ Blockscad.readStlFile = function(evt) {
         // lets make some xml and load a block into the workspace.
         // console.log("making block from xml");
         var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
-        f.name + '</field>' + '<field name="STL_BUTTON">Browse</field>' + 
+        f.name + '</field>' + '<field name="STL_BUTTON">' + Blockscad.Msg.BROWSE + '</field>' + 
         '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
         //console.log("xml is:",xml);
         var stuff = Blockly.Xml.textToDom(xml);
@@ -532,8 +636,10 @@ Blockscad.readStlFile = function(evt) {
   }
 };
 
-// Load Blockly's language strings.
+// Load Blockly's (and Blockscad's) language strings.
+// console.log("trying to include message strings");
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
+document.write('<script src="blockscad/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 
 // on page load, call blockscad init function.
 window.addEventListener('load', Blockscad.init);
@@ -582,7 +688,7 @@ Blockscad.clearStlBlocks = function() {
       blocks[i].render();
 
       // Add warning to render pane: Hey, you have a file import block that needs reloading!
-      $( '#error-message' ).html("Warning: re-load your STL file block");
+      $( '#error-message' ).html(Blockscad.Msg.WARNING_RELOAD_STL);
     }
   }
 };
@@ -599,12 +705,14 @@ Blockscad.newProject = function() {
   // console.log("needToSave is: ", Blockscad.undo.needToSave);
   if (Blockscad.undo.needToSave) {
     promptForSave().then(function(wantToSave) {
-      if (wantToSave=="cancel") 
+      if (wantToSave=="cancel") {
         return;
-      if (wantToSave=="save")
+      }
+      if (wantToSave=="nosave")
+        Blockscad.setNoSaveNeeded();      
+      else if (wantToSave=="save")
         Blockscad.saveBlocks();
-      // else 
-      //   console.log("user didn't want to save." );
+
       // console.log("time to get a new project!");
       Blockscad.createNewProject();
         
@@ -622,20 +730,23 @@ Blockscad.createNewProject = function() {
   Blockscad.clearProject();
   Blockscad.workspaceChanged();
   Blockscad.clearUndo();
-  setTimeout(Blockscad.setNoSaveNeeded, 100);
+  setTimeout(Blockscad.setNoSaveNeeded, 300);
   $('#displayBlocks').click();
+  if (!Blockscad.offline)
+        $('#bigsavebutton').show(); 
 }
 // first attempt to use promises for async stuff!
 function promptForSave() {
   // console.log("in promptForSave()");
+  var message = '<h4>' + Blockscad.Msg.SAVE_PROMPT + '</h4>';
   return new Promise(function(resolve, reject) {
     bootbox.dialog({
-      message: "<h4>Want to save your stuff?</h4>",
+      message: message,
       backdrop: true,
       size: "small",
       buttons: {
         save: {
-          label: "Save",
+          label: Blockscad.Msg.SAVE_PROMPT_YES,
           className: "btn-default btn-lg primary pull-right giant-yes",
           callback: function(result) {
             // console.log("save clicked.  Result was: ", result);
@@ -643,8 +754,8 @@ function promptForSave() {
           }
         },
         dont_save: {
-          label: "Don't Save",
-          className: "btn-default btn-lg primary pull-left",
+          label: Blockscad.Msg.SAVE_PROMPT_NO,
+          className: "btn-default btn-lg primary pull-left giant-yes",
           callback: function(result) {
             // console.log("don't save clicked.  Result was: ", result);
             resolve("nosave");
@@ -684,12 +795,14 @@ Blockscad.showExample = function(e) {
   // console.log("in showExample");
   if (Blockscad.undo.needToSave) {
     promptForSave().then(function(wantToSave) {
-        if (wantToSave=="cancel") 
+        if (wantToSave=="cancel") {
           return;
-        if (wantToSave=="save")
+        }
+        if (wantToSave=="nosave")
+          Blockscad.setNoSaveNeeded();
+        else if (wantToSave=="save")
           Blockscad.saveBlocks();
-        // else 
-        //   console.log("user didn't want to save." );
+
         // console.log("i would try to show the example now!");
         Blockscad.getExample(example, name,fn);
     }).catch(function(result) {
@@ -718,7 +831,7 @@ Blockscad.getExample = function(example, name, fn) {
     // update project name
     $('#project-name').val(name + ' example');
     // we just got a new project.  It doesn't need saving yet.
-    setTimeout(Blockscad.setNoSaveNeeded, 200);
+    setTimeout(Blockscad.setNoSaveNeeded, 300);
   });
 }
 Blockscad.setNoSaveNeeded = function() {
@@ -734,9 +847,9 @@ Blockscad.clearProject = function() {
     Blockscad.Auth.currentProjectKey = '';
   }
   Blockscad.workspace.clear();
-  gProcessor.clearViewer();  
+  Blockscad.gProcessor.clearViewer();  
 
-  $('#project-name').val('Untitled');
+  $('#project-name').val(Blockscad.Msg.PROJECT_NAME_DEFAULT);
   $('#projectView').hide();
   $('#editView').show();
   // turn the big save button back on.
@@ -763,13 +876,19 @@ Blockscad.discard = function() {
     window.location.hash = '';
   }
   else {
+    var message = Blockscad.Msg.DISCARD_ALL.replace("%1", count);
     bootbox.confirm({
       size: "small",
-      message: "Delete all " + count + " blocks?", 
+      message: message, 
       buttons: {
         confirm: {
+          label: Blockscad.Msg.CONFIRM_DIALOG_YES,
           className: "btn-default confirm-yes"
-        }
+        },
+        cancel: {
+            label: Blockscad.Msg.CONFIRM_DIALOG_NO,
+            className: "btn-default confirm-yes"
+        },
       },
       callback: function(result) { 
         if (result) {
@@ -784,9 +903,12 @@ Blockscad.discard = function() {
 /* reset the rendering view */
 
 Blockscad.resetView = function() {
-  if (gProcessor) {
-    if (gProcessor.viewer) {
-      gProcessor.viewer.viewReset();
+  if (Blockscad.gProcessor != null) {
+    if (Blockscad.gProcessor.viewer) {
+      Blockscad.gProcessor.viewer.viewReset();
+    }
+    if (Blockscad.gProcessor.picviewer) {
+      Blockscad.gProcessor.picviewer.viewReset();
     }
   } 
 };
@@ -846,13 +968,13 @@ Blockscad.doRender = function() {
   $('#renderButton').prop('disabled', true); 
 
   // Clear the previously rendered model
-  gProcessor.clearViewer();
+  Blockscad.gProcessor.clearViewer();
 
   // check to see if the code mixes 2D and 3D shapes to give a good error message
   var mixes = Blockscad.mixes2and3D();
 
   if (mixes[1] === 0) { // doesn't have any CSG or CAG shapes at all!
-    $( '#error-message' ).html("Error: Nothing to Render");
+    $( '#error-message' ).html(Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.RENDER_ERROR_EMPTY);
     $( '#error-message' ).addClass("has-error");
     // enable the render button.
     $('#renderButton').prop('disabled', false);
@@ -863,7 +985,7 @@ Blockscad.doRender = function() {
   }
 
   if (mixes[0]) {    // has both 2D and 3D shapes
-    $( '#error-message' ).html("Error: both 2D and 3D objects are present.  There can be only one.");
+    $( '#error-message' ).html(Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.RENDER_ERROR_MIXED);
     $( '#error-message' ).addClass("has-error");
     // enable the render button.
     $('#renderButton').prop('disabled', false);
@@ -914,12 +1036,17 @@ Blockscad.doRender = function() {
   }
   if (gotErr) {
     var errText = '';
-      if (Blockscad.missingFields.length) 
-        errText += "ERROR: " + Blockscad.missingFields.length + " blocks are missing fields.";
+    var error = '';
+      if (Blockscad.missingFields.length) { 
+        error = Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.PARSING_ERROR_MISSING_FIELDS;
+        errText = error.replace("%1", Blockscad.missingFields.length + " ");
+      }
       if (Blockscad.missingFields.length && Blockscad.illegalValue.length) 
         errText += "<br>";
-      if (Blockscad.illegalValue.length)
-        errText += "ERROR: " + Blockscad.illegalValue.length + " blocks have an illegal negative or zero value";
+      if (Blockscad.illegalValue.length) {
+        error = Blockscad.Msg.ERROR_MESSAGE + ": " + Blockscad.Msg.PARSING_ERROR_ILLEGAL_VALUE;
+        errText += error.replace("%1", Blockscad.illegalValue.length + " ");
+      }
 
     $( '#error-message' ).html(errText);
     $( '#error-message' ).addClass("has-error");
@@ -965,12 +1092,12 @@ Blockscad.renderCode = function(code) {
   }
   if (code_good) {
     window.setTimeout(function () 
-      { gProcessor.setBlockscad(csgcode); 
+      { Blockscad.gProcessor.setBlockscad(csgcode); 
         // console.log("code is now",code); 
       }, 0);
   }
   else {
-    $('#renderButton').html('Render'); 
+    $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
 
   }
 };
@@ -995,6 +1122,7 @@ Blockscad.isRealChange = function() {
   Blockscad.undo.comment = [];
   Blockscad.undo.projectName = $('#project-name').val();
 
+  Blockscad.undo.triggerRender = false;   // should the change trigger a re-render?
 
   var deletedBlockPos = null;
   var addedBlockPos = null;
@@ -1008,6 +1136,7 @@ Blockscad.isRealChange = function() {
     Blockscad.undo.needToSave = 1;
   }
 
+  // console.log("in realChange()");
   // console.log("in isRealChange with current",Blockscad.undo.blockList);
   // console.log("old at RealChange",Blockscad.undo.oldBlockList);
 
@@ -1068,6 +1197,7 @@ Blockscad.isRealChange = function() {
     }
     // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
+    Blockscad.undo.triggerRender = true;
     return true;
   }
   if (Blockscad.undo.blockCount < Blockscad.undo.blockList.length) {
@@ -1100,6 +1230,7 @@ Blockscad.isRealChange = function() {
     }
     // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
+    Blockscad.undo.triggerRender = true;
     return true;
   }
 
@@ -1129,6 +1260,7 @@ Blockscad.isRealChange = function() {
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
+          Blockscad.undo.triggerRender = true;
           // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
 
           // determine if we had a "plug" or an "unplug" event, and 
@@ -1163,38 +1295,54 @@ Blockscad.isRealChange = function() {
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
+          Blockscad.undo.triggerRender = true;
         }
         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
           // A field is changing.  I won't trigger undo yet to aggregate
           // the keypresses, but I do want to enable the renderButton already.
           $('#renderButton').prop('disabled', false); 
+          // console.log("found a field changing");
+          Blockscad.undo.fieldChanging = 1;
+
 
 
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
-          if (Blockscad.undo.fieldChanging != myid) {
-            Blockscad.undo.fieldChanging = myid;
-            // console.log("triggering field-change addition to undo stack");
-            return true; // found a real change - a field is changing!
+          // if (Blockscad.undo.fieldChanging != myid) {
+          //   Blockscad.undo.fieldChanging = myid;
+          //   console.log("triggering field-change addition to undo stack");
+          //   //return true; // found a real change - a field is changing!
+          // }
+          // if (Blockscad.undo.editorClosed) {
+          //   console.log("in isRealChange.  editor was closed.");
+          //   return true;
+          // }
+          // else return false; // this event should be ignored by undo.
+        }
+        if (Blockscad.undo.fieldChanging) {
+          // console.log("currently, blockscad thinks a field is changing");
+          if (Blockscad.undo.editorClosed) {
+            // console.log("editor was closed.  Field no longer changing.");
+            Blockscad.undo.fieldChanging = 0;
+            Blockscad.undo.triggerRender = true;
+            return true;
           }
-          else return false; // this event should be ignored by undo.
+          // else
+          //   console.log("editor was not closed, so the field is still changing.");
         }
         if (Blockscad.undo.isDisabled[i] != Blockscad.undo.oldDisabled[j]) {
           // some block has changed from disabled to enabled, or vice-versa.  Mark this
           // as an undoable change.
           // don't return from here though - I might need to enable/disable more math blocks.
           real_change = true;
+          Blockscad.undo.triggerRender = true;
         }
         if (Blockscad.undo.comment[i] != Blockscad.undo.oldComment[j]) {
           // a comment has been changed.  Note that this won't trigger if the comment icon is added.
-          // I don't want to set a real change here until the whole thing is done (??)
+          // detecting when a comment is finished being entered is hard.  I'll
+          // only set a need to save here, not bother to make the change undoable.
           // console.log("setting needToSave to 1");
           Blockscad.undo.needToSave = 1;
-          if (Blockscad.undo.fieldChanging != myid) {
-            Blockscad.undo.fieldChanging = myid;
-            return true;
-          }
-          else return false;
         }
       }
 
@@ -1253,7 +1401,11 @@ Blockscad.workspaceChanged = function () {
   if (Blockscad.undo.yesthis) {
     //console.log("yesthis");
     // there has been a substantive change.  I need to update the
-    // undo/redo stacks, and enable the render button.
+    // undo/redo stacks, and enable the render button, and check save status.
+
+    // if no blocks in workspace, don't prompt for saves.
+    if (Blockscad.undo.needToSave && Blockscad.undo.blockCount == 0)
+      Blockscad.setNoSaveNeeded();
 
     $('#renderButton').prop('disabled', false); 
 
@@ -1279,11 +1431,13 @@ Blockscad.workspaceChanged = function () {
         Blockscad.undo.undoStack.shift();
       }
     }
+
     // lets autosave the new blocks to local storage in case of crashes.
     // console.log("trying to autosave blocks");
     var blocks_to_autosave = Blockly.Xml.domToText(Blockscad.undo.current_xml);
     // console.log(blocks_to_autosave);
     BlocklyStorage.autosaveBlocks(Blockly.Xml.domToText(Blockscad.undo.current_xml));
+
   }
   // even though this isn't a real change, I want to accumulate moves
   // and field changes in the current state, which will then be pushed
@@ -1669,6 +1823,8 @@ Blockscad.initLanguage = function() {
   document.head.parentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
   document.head.parentElement.setAttribute('lang', BSUtils.LANG);
 
+  // console.log("lang is:",BSUtils.LANG);
+
   // Sort languages alphabetically.
   var languages = [];
   var lang;
@@ -1683,32 +1839,16 @@ Blockscad.initLanguage = function() {
   };
   languages.sort(comp);
   // Populate the language selection menu.
-  var languageMenu = document.getElementById('languageMenu');
-  languageMenu.options.length = 0;
-  for (var i = 0; i < languages.length; i++) {
-    var tuple = languages[i];
-    lang = tuple[tuple.length - 1];
-    var option = new Option(tuple[0], lang);
-    if (lang == BSUtils.LANG) {
-      option.selected = true;
-    }
-    languageMenu.options.add(option);
-  }
-  languageMenu.addEventListener('change', BSUtils.changeLanguage, true);
+  // languageMenu is a <ul>, populate it with <li>s
 
-  // var categories = ['catLogic', 'catLoops', 'catMath', 
-  //                   'catVariables', 'catFunctions'];
-  // for (var i = 0, cat; cat = categories[i]; i++) {
-  //   document.getElementById(cat).setAttribute('name', MSG[cat]);
-  // }
-  // var textVars = document.getElementsByClassName('textVar');
-  // for (var i = 0, textVar; textVar = textVars[i]; i++) {
-  //   textVar.textContent = MSG['textVariable'];
-  // }
-  // var listVars = document.getElementsByClassName('listVar');
-  // for (var i = 0, listVar; listVar = listVars[i]; i++) {
-  //   listVar.textContent = MSG['listVariable'];
-  // }
+  var items = [];
+
+  for (var i = 0; i < languages.length; i++) {
+    items.push('<li><a href="#" class="lang-option" data-lang="' + languages[i][1] + '"</a>' + languages[i][0] + '</li>');
+  }
+  $('#languageMenu').append( items.join('') );
+
+  $('.lang-option').on("click", BSUtils.changeLanguage);
 };
 /**
  * Save the workspace to an XML file.
@@ -1725,14 +1865,24 @@ Blockscad.saveBlocksLocal = function() {
   // don't save without a filename.  Name isn't checked for quality.
   // console.log("in SaveBlocksLocal with: ", blocks_filename);
   if (blocks_filename) {
+    // if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) 
+    //   {
+    //   }
     saveAs(blob, blocks_filename + ".xml");
     // console.log("SAVED locally: setting needToSave to 0");
-    Blockscad.undo.needToSave = 0;
+    Blockscad.setNoSaveNeeded();
   }
   else {
-    alert("SAVE FAILED.  Please give your project a name, then try again.");
+    alert(Blockscad.Msg.SAVE_FAILED + '!\n' + Blockscad.Msg.SAVE_FAILED_PROJECT_NAME);
   }
 };
+
+Blockscad.savePicLocal = function(pic) {
+  var blob = new Blob([pic], {type: "img/jpeg"});
+
+  saveAs(blob, "tryThis.jpg");
+
+}
 
 /**
  * Save the openScad code for the current workspace to the local machine.

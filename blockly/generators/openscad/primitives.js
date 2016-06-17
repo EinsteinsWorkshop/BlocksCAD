@@ -228,6 +228,66 @@ Blockly.OpenSCAD['color'] = function(block) {
   return code;
 };
 
+Blockly.OpenSCAD['color_rgb'] = function(block) {
+  var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
+  var scheme = block.getFieldValue('SCHEME');
+  var red = Blockly.OpenSCAD.valueToCode(block, 'RED',
+      Blockly.OpenSCAD.ORDER_COMMA) || 0;
+  var green = Blockly.OpenSCAD.valueToCode(block, 'GREEN',
+      Blockly.OpenSCAD.ORDER_COMMA) || 0;
+  var blue = Blockly.OpenSCAD.valueToCode(block, 'BLUE',
+      Blockly.OpenSCAD.ORDER_COMMA) || 0;
+
+  if (statements_a != '') statements_a += '\n';
+  for (var n = 0; n<= block.plusCount_; n++) {
+    var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
+    if (statements_b != '') statements_a += statements_b + '\n';
+  }  
+
+  var code = '';
+
+  if (scheme == 'RGB') {
+    if ($.isNumeric(red)) {
+      if (red < 0) red = 0;   
+      if (red > 100) red = 100;
+    }
+    if ($.isNumeric(blue)) {
+      if (blue < 0) blue = 0;   
+      if (blue > 100) blue = 100;
+    }
+    if ($.isNumeric(green)) {
+      if (green < 0) green = 0;   
+      if (green > 100) green = 100;
+    }
+    code += 'color([ .01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')]) ';
+    code += '{\n' + statements_a + '}';
+  }
+  
+  // Thanks to Hypher for the implementation of hsv to rgb in openscad!
+  // http://forum.openscad.org/An-HSV-HSB-to-RGB-Color-function-in-OpenSCAD-td9835.html
+
+  else if (scheme == 'HSV') {
+    if($.isNumeric(red)) {
+      // make sure that the mod returns a positive number
+      red = ((red % 100) + 100) % 100;
+    }
+    var hsvHelper = Blockly.OpenSCAD.provideFunction_(
+      'doHsvMatrix',
+      [ 'function ' + Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_ +
+          '(h,s,v,p,q,t,a=1)=[h<1?v:h<2?q:h<3?p:h<4?p:h<5?t:v,h<1?t:h<2?v:h<3?v:h<4?q:h<5?p:p,h<1?p:h<2?p:h<3?t:h<4?v:h<5?v:q,a];']);
+
+    var hsvFunction = Blockly.OpenSCAD.provideFunction_(
+      'hsv',
+      ['function ' + Blockly.OpenSCAD.FUNCTION_NAME_PLACEHOLDER_ +
+        '(h, s=1, v=1,a=1)=doHsvMatrix((h%1)*6,s<0?0:s>1?1:s,v<0?0:v>1?1:v,v*(1-s),v*(1-s*((h%1)*6-floor((h%1)*6))),v*(1-s*(1-((h%1)*6-floor((h%1)*6)))),a);\n']);
+
+    code += 'color(hsv(.01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')))';
+    code += '{\n' + statements_a + '}';
+
+  }
+  else console.log("got weirdo color scheme?");
+  return code;
+};
 Blockly.OpenSCAD['$fn'] = function(block) {
   var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
   var type = block.previousConnection.check_[0]; 
@@ -351,6 +411,46 @@ Blockly.OpenSCAD['simplemirror_new'] = function(block) {
         vec = "[0,1,0]";
     }
     var code = 'mirror(' + vec + '){\n' + statements_a + '}'; 
+  }
+  return code;
+};
+
+Blockly.OpenSCAD['taper'] = function(block) {
+  var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
+  if (statements_a != '') statements_a += '\n';
+  for (var n = 0; n<= block.plusCount_; n++) {
+    var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
+    if (statements_b != '') statements_a += statements_b + '\n';
+  } 
+  var dropdown_axis = block.getFieldValue('taperaxis');
+  var dropdown_axis_cag = block.getFieldValue('taperaxis_cag');
+  var vec;
+  var factor = Blockly.OpenSCAD.valueToCode(block, 'FACTOR', Blockly.OpenSCAD.ORDER_ATOMIC);
+  var type = block.previousConnection.check_[0]; 
+
+  // missing the factor field?  just set it to one.
+  if (!factor) factor = 1;
+
+  if (type != 'CAG') {
+    if (dropdown_axis == "Z") {
+        vec = "[0,0,1]";
+    }
+    else if (dropdown_axis == "X") {
+        vec = "[1,0,0]";
+    }
+    else if (dropdown_axis == "Y") {
+        vec = "[0,1,0]";
+    }
+    var code = 'taper(' + vec + ', ' + factor + '){\n' + statements_a + '}';
+  }
+  else {
+    if (dropdown_axis_cag == "X") {
+        vec = "[1,0,0]";
+    }
+    else if (dropdown_axis_cag == "Y") {
+        vec = "[0,1,0]";
+    }
+    var code = 'taper(' + vec + ', ' + factor + '){\n' + statements_a + '}'; 
   }
   return code;
 };
@@ -508,9 +608,7 @@ Blockly.OpenSCAD['rotateextrudetwist'] = function(block) {
 
 Blockly.OpenSCAD['stl_import'] = function(block) {
   var text_filename = block.getFieldValue('STL_FILENAME');
-  // TODO: Assemble JavaScript into code variable.
   var code = 'import("' + text_filename + '");\n';
-  //var code = block.getFieldValue('STL_CONTENTS');
   return code;
 };
 
@@ -532,8 +630,9 @@ Blockly.OpenSCAD['bs_text'] = function(block) {
 
   if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
     this_text = 'str(' + this_text + ')';
-  var code = 'text(' + this_text + ', font = "' + this_font +
-             '", size = ' + value_size + ');\n';
+  var code = "// size is multiplied by 0.75 because openScad fonts size is in points, not pixels\n";
+  code += 'text(' + this_text + ', font = "' + this_font +
+             '", size = ' + value_size + '* 0.75);\n';
   return code;
 }
 
@@ -560,9 +659,10 @@ Blockly.OpenSCAD['bs_3dtext'] = function(block) {
 
   if (this_text && (this_text[0] != '"' || this_text[this_text.length - 1] != '"'))
     this_text = 'str(' + this_text + ')';
-  var code = 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
+  var code = "// size is multiplied by 0.75 because openScad fonts size is in points, not pixels\n";
+  code += 'linear_extrude( height=' + value_thickness + ', twist=0, center=false){\n' + 
              '  text(' + this_text + ', font = "' + this_font +
-             '", size = ' + value_size + ');\n}\n';
+             '", size = ' + value_size + '*0.75);\n}\n';
   return code;
 }
 
