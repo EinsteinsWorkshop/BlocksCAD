@@ -34,7 +34,8 @@ Blockscad.version = "1.4.2";
 Blockscad.releaseDate = "2016/06/1";
 
 
-Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.standalone = false; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
@@ -108,7 +109,7 @@ Blockscad.init = function() {
   // hide "switch to advanced toolbox" because that's where we'll start
   $('#advancedToolbox').hide();
 
-  BSUtils.loadBlocks();
+
 
   if ('BlocklyStorage' in window) {
     // Hook a save function onto unload.
@@ -377,6 +378,14 @@ Blockscad.init = function() {
   });
   $('#stl_buttons').hide();
 
+  if (!Blockscad.standalone) {
+    BSUtils.loadBlocks('');
+  }
+  else {
+    // for standalone, just call restoreBlocks directly
+    // console.log("calling standalone restore");
+    BlocklyStorage.standaloneRestoreBlocks();
+  }
 
 }; // end Blockscad.init()
 
@@ -1127,6 +1136,7 @@ Blockscad.isRealChange = function() {
   var addedBlockParent = null;
   var real_change = false;
 
+
   // I'm not going to make a project name change an undoable change, but it will trigger needing to save.
   if (Blockscad.undo.projectName != Blockscad.undo.oldProjectName) {
     // console.log("projname: setting needToSave to 1");
@@ -1356,6 +1366,8 @@ Blockscad.isRealChange = function() {
 
     // console.log("setting needToSave to 1");
     Blockscad.undo.needToSave = 1;
+
+
     return true;
   } 
   return false;
@@ -1418,6 +1430,11 @@ Blockscad.workspaceChanged = function () {
       }
       // refill current_xml with the new, changed, xml state
       Blockscad.undo.current_xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+      if (Blockscad.standalone) {
+        //for standalone, save blocks to localStorage
+        //lets autosave the new blocks to local storage in case of crashes.
+        BlocklyStorage.autosaveBlocks(Blockly.Xml.domToText(Blockscad.undo.current_xml));
+      }
 
       // clear redo list
       while(Blockscad.undo.redoStack.length > 0) {

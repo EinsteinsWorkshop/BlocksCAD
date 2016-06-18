@@ -1,0 +1,34 @@
+{
+  "name": "blockscad",
+  "version": "1.0.1",
+  "description": "BlocksCAD - Easy, Open-Source Solid CAD for Everyone!",
+  "main": "app://blockscad/index.html",
+  "chromium-args": "--data-path='data/' --enable-webgl --ignore-gpu-blacklist",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "node_modules/.bin/jshint blockly blockscad",
+    "build-standalone": "node build-standalone.js",
+    "clean-standalone": "rm -rf node_modules build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/einsteinsworkshop/blockscad.git"
+  },
+  "bugs": {
+    "url": "https://github.com/einsteinsworkshop/blockscad/project/issues"
+  },
+  "author": "",
+  "single-instance": true,
+  "window": {
+    "toolbar": false,
+    "title": "BlocksCAD",
+    "width": 1900,
+    "height": 1200,
+    "icon": "ewicon.png"
+  },
+  "license": "GPL-3.0+",
+  "devDependencies": {
+    "jshint": "^2.8.0",
+    "nw-builder": "^2.0.2"
+  }
+}

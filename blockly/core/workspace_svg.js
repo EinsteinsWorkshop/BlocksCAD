@@ -38,6 +38,7 @@ goog.require('goog.dom');
 goog.require('goog.math.Coordinate');
 goog.require('goog.userAgent');
 
+var Blockscad = Blockscad || {};
 
 /**
  * Class for a workspace.  This is an onscreen area with optional trashcan,
@@ -858,24 +859,34 @@ Blockly.WorkspaceSvg.prototype.preloadAudio_ = function() {
  * @param {number=} opt_volume Volume of sound (0-1).
  */
 Blockly.WorkspaceSvg.prototype.playAudio = function(name, opt_volume) {
-  var sound = this.SOUNDS_[name];
-  if (sound) {
-    var mySound;
-    var ie9 = goog.userAgent.DOCUMENT_MODE &&
-              goog.userAgent.DOCUMENT_MODE === 9;
-    if (ie9 || goog.userAgent.IPAD || goog.userAgent.ANDROID) {
-      // Creating a new audio node causes lag in IE9, Android and iPad. Android
-      // and IE9 refetch the file from the server, iPad uses a singleton audio
-      // node which must be deleted and recreated for each new audio tag.
-      mySound = sound;
-    } else {
-      mySound = sound.cloneNode();
+  // console.log("in playAudio.  standalone is:", Blockscad.standalone);
+  if (!Blockscad.standalone) {
+    var sound = this.SOUNDS_[name];
+    if (sound) {
+      var mySound;
+      var ie9 = goog.userAgent.DOCUMENT_MODE &&
+                goog.userAgent.DOCUMENT_MODE === 9;
+      if (ie9 || goog.userAgent.IPAD || goog.userAgent.ANDROID) {
+        // Creating a new audio node causes lag in IE9, Android and iPad. Android
+        // and IE9 refetch the file from the server, iPad uses a singleton audio
+        // node which must be deleted and recreated for each new audio tag.
+        mySound = sound;
+      } else {
+        mySound = sound.cloneNode();
+      }
+      mySound.volume = (opt_volume === undefined ? 1 : opt_volume);
+      mySound.play();
+    } else if (this.options.parentWorkspace) {
+      // Maybe a workspace on a lower level knows about this sound.
+      this.options.parentWorkspace.playAudio(name, opt_volume);
     }
-    mySound.volume = (opt_volume === undefined ? 1 : opt_volume);
-    mySound.play();
-  } else if (this.options.parentWorkspace) {
-    // Maybe a workspace on a lower level knows about this sound.
-    this.options.parentWorkspace.playAudio(name, opt_volume);
+  }
+  else {
+    // can I play audio directly? needed for standalone.
+    var audio = document.getElementById("audio_" + name);
+    // console.log("trying to play ")
+    // console.log(audio);
+    audio.play();
   }
 };
 

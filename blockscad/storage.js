@@ -11,6 +11,28 @@ Blockscad.Auth = Blockscad.Auth || {};
 var Blockly = Blockly || {};
 Blockly.Xml = Blockly.Xml || {};
 
+BlocklyStorage.autosaveBlocks = function(xml_text) {
+  if ('localStorage' in window) {
+
+    // in standalone, the "url" scheme doesn't work.  Have to name the
+    // items in localStorage directly.
+
+    localStorage.xml = xml_text;
+    localStorage.proj_name = $('#project-name').val();
+  }
+};
+BlocklyStorage.standaloneRestoreBlocks = function() {
+  if (localStorage.xml) {
+
+    var xml = Blockly.Xml.textToDom(localStorage.xml);
+    Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xml);
+    var project_name = localStorage.proj_name;
+    if (project_name != "undefined") {
+      $('#project-name').val(project_name);
+    }
+    else $('#project-name').val('Untitled');
+  }
+}
 /**
  * Backup code blocks to localStorage.
  * @private
