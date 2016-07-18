@@ -30,8 +30,8 @@ var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
 
-Blockscad.version = "1.3.3";
-Blockscad.releaseDate = "2016/04/27";
+Blockscad.version = "1.4.2";
+Blockscad.releaseDate = "2016/06/01";
 
 Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
