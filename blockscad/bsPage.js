@@ -76,7 +76,7 @@ output += '          </li>\n';
 output += '          <li class="dropdown">\n';
 output += '            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' + Blockscad.Msg.HELP_MENU + '<span class="caret"></span></a>\n';
 output += '            <ul id="help-menu" class="dropdown-menu" role="menu">\n';
-output += '              <li><a href="/docs/" target="_blank">' + Blockscad.Msg.DOCUMENTATION_LINK + '</a></li>\n';
+output += '              <li><a href="docs/" target="_blank">' + Blockscad.Msg.DOCUMENTATION_LINK + '</a></li>\n';
 // output += '<!--               <li class="divider"></li>\n';
 // output += '              <li><a href="#" id="colorPicker">Color Picker</a></li> -->\n';
 output += '              <li class="divider"></li>\n';
