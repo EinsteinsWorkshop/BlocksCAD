@@ -1487,7 +1487,7 @@ Blockly.Block.prototype.interpolateMsg = function(msg, var_args) {
 
   // Validate the msg at the start and the dummy alignment at the end,
   // and remove the latter.
-  console.log("in interpolate: here is msg:",msg);
+  // console.log("in interpolate: here is msg:",msg);
   goog.asserts.assertString(msg);
   var dummyAlign = arguments[arguments.length - 1];
   goog.asserts.assert(
