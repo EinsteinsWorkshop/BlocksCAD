@@ -720,6 +720,8 @@ Blockly.WorkspaceSvg.prototype.moveDrag = function(e) {
  */
 Blockly.WorkspaceSvg.prototype.isDragging = function() {
   return Blockly.dragMode_ == Blockly.DRAG_FREE ||
+      (Blockly.Flyout.startFlyout_ &&
+          Blockly.Flyout.startFlyout_.dragMode_ == Blockly.DRAG_FREE) ||
       this.dragMode_ == Blockly.DRAG_FREE;
 };
 

@@ -304,8 +304,10 @@ Blockly.Connection.prototype.canConnectWithReason_ = function(target) {
     return Blockly.Connection.REASON_WRONG_TYPE;
   } else if (blockA && blockB && blockA.workspace !== blockB.workspace) {
     return Blockly.Connection.REASON_DIFFERENT_WORKSPACES;
-  } else if (!this.checkType_(target)) {
-    return Blockly.Connection.REASON_CHECKS_FAILED;
+  // for BlocksCAD, turn off type checking so we can highlight bad connections too.
+  // call checkType_ later to distinguish this condition.
+  // } else if (!this.checkType_(target)) {
+  //   return Blockly.Connection.REASON_CHECKS_FAILED;
   } else if (blockA.isShadow() && !blockB.isShadow()) {
     return Blockly.Connection.REASON_SHADOW_PARENT;
   }
@@ -345,6 +347,9 @@ Blockly.Connection.prototype.checkConnection_ = function(target) {
  * Check if the two connections can be dragged to connect to each other.
  * @param {!Blockly.Connection} candidate A nearby connection to check.
  * @return {boolean} True if the connection is allowed, false otherwise.
+ * For BlocksCAD: note that isConnectionAllowed no longer does type checking
+ * so that we can highlight both legal and illegal connections.
+ * CAN_CONNECT will not check to see if you have text going into a number block.
  */
 Blockly.Connection.prototype.isConnectionAllowed = function(candidate) {
   // Type checking.

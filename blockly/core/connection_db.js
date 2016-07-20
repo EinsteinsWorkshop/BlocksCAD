@@ -264,8 +264,12 @@ Blockly.ConnectionDB.prototype.searchForClosest = function(conn, maxRadius,
   var pointerMin = closestIndex - 1;
   while (pointerMin >= 0 && this.isInYRange_(pointerMin, conn.y_, maxRadius)) {
     temp = this[pointerMin];
-    bestConnection = temp;
-    bestRadius = temp.distanceFrom(conn);
+    if (conn.isConnectionAllowed(temp, bestRadius)) {
+      bestConnection = temp;
+      bestRadius = temp.distanceFrom(conn);
+      // check the type to distinguish legal from illegal connections
+      legal = conn.checkType_(temp);
+    }
     pointerMin--;
   }
 
@@ -273,17 +277,22 @@ Blockly.ConnectionDB.prototype.searchForClosest = function(conn, maxRadius,
   while (pointerMax < this.length && this.isInYRange_(pointerMax, conn.y_,
       maxRadius)) {
     temp = this[pointerMax];
-    if (!conn.isConnectionAllowed(temp, bestRadius)) {
-      legal = false;
+    if (conn.isConnectionAllowed(temp, bestRadius)) {
+      bestConnection = temp;
+      bestRadius = temp.distanceFrom(conn);
+      // check the type to distinguish legal from illegal connections
+      legal = conn.checkType_(temp);
+
     }
-    bestConnection = temp;
-    bestRadius = temp.distanceFrom(conn);
     pointerMax++;
   }
+
 
   // Reset the values of x and y.
   conn.x_ = baseX;
   conn.y_ = baseY;
+
+
 
   // If there were no valid connections, bestConnection will be null.
   return {connection: bestConnection, radius: bestRadius, allowed: legal};
