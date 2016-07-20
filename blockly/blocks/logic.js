@@ -36,7 +36,7 @@ Blockly.Blocks['controls_if'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.CONTROLS_IF_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.appendValueInput('IF0')
         .setCheck(['Boolean','Number'])
         .appendField(Blockly.Msg.CONTROLS_IF_MSG_IF);
@@ -220,7 +220,7 @@ Blockly.Blocks['controls_if_if'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.appendDummyInput()
         .appendField(Blockly.Msg.CONTROLS_IF_IF_TITLE_IF);
     this.appendStatementInput('STACK');
@@ -235,7 +235,7 @@ Blockly.Blocks['controls_if_elseif'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.appendDummyInput()
         .appendField(Blockly.Msg.CONTROLS_IF_ELSEIF_TITLE_ELSEIF);
     this.setPreviousStatement(true);
@@ -251,7 +251,7 @@ Blockly.Blocks['controls_if_else'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.appendDummyInput()
         .appendField(Blockly.Msg.CONTROLS_IF_ELSE_TITLE_ELSE);
     this.setPreviousStatement(true);
@@ -282,7 +282,7 @@ Blockly.Blocks['logic_compare'] = {
           ['\u2265', 'GTE']
         ];
     this.setHelpUrl(Blockly.Msg.LOGIC_COMPARE_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.setOutput(true, 'Boolean');
     this.appendValueInput('A');
      this.appendValueInput('B')
@@ -340,7 +340,7 @@ Blockly.Blocks['logic_operation'] = {
         [[Blockly.Msg.LOGIC_OPERATION_AND, 'AND'],
          [Blockly.Msg.LOGIC_OPERATION_OR, 'OR']];
     this.setHelpUrl(Blockly.Msg.LOGIC_OPERATION_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.setOutput(true, 'Boolean');
     this.appendValueInput('A')
         .setCheck('Boolean');
@@ -368,7 +368,7 @@ Blockly.Blocks['logic_negate'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.LOGIC_NEGATE_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.setOutput(true, 'Boolean');
     this.interpolateMsg(Blockly.Msg.LOGIC_NEGATE_TITLE,
                         ['BOOL', 'Boolean', Blockly.ALIGN_RIGHT],
@@ -387,7 +387,7 @@ Blockly.Blocks['logic_boolean'] = {
         [[Blockly.Msg.LOGIC_BOOLEAN_TRUE, 'TRUE'],
          [Blockly.Msg.LOGIC_BOOLEAN_FALSE, 'FALSE']];
     this.setHelpUrl(Blockly.Msg.LOGIC_BOOLEAN_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.setOutput(true, 'Boolean');
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown(BOOLEANS), 'BOOL');
@@ -402,7 +402,7 @@ Blockly.Blocks['logic_null'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.LOGIC_NULL_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.setOutput(true,'Boolean');
     this.appendDummyInput()
         .appendField(Blockly.Msg.LOGIC_NULL);
@@ -417,7 +417,7 @@ Blockly.Blocks['logic_ternary'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.LOGIC_TERNARY_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_LOGIC);
+    this.setColour(Blockscad.Toolbox.HEX_LOGIC);
     this.appendValueInput('IF')
         .setCheck('Boolean')
         .appendField(Blockly.Msg.LOGIC_TERNARY_CONDITION);

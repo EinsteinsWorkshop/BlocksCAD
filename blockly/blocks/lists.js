@@ -39,7 +39,7 @@ Blockly.Blocks['lists_create_empty'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.LISTS_CREATE_EMPTY_HELPURL);
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.setOutput(true, 'Array');
     this.appendDummyInput()
         .appendField(Blockly.Msg.LISTS_CREATE_EMPTY_TITLE);
@@ -54,7 +54,7 @@ Blockly.Blocks['lists_create_with'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.LISTS_CREATE_WITH_HELPURL);
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, 'Array');
@@ -177,7 +177,7 @@ Blockly.Blocks['lists_create_with_container'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.appendDummyInput()
         .appendField(Blockly.Msg.LISTS_CREATE_WITH_CONTAINER_TITLE_ADD);
     this.appendStatementInput('STACK');
@@ -192,7 +192,7 @@ Blockly.Blocks['lists_create_with_item'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.appendDummyInput()
         .appendField(Blockly.Msg.LISTS_CREATE_WITH_ITEM_TITLE);
     this.setPreviousStatement(true);
@@ -285,7 +285,7 @@ Blockly.Blocks['lists_indexOf'] = {
         [[Blockly.Msg.LISTS_INDEX_OF_FIRST, 'FIRST'],
          [Blockly.Msg.LISTS_INDEX_OF_LAST, 'LAST']];
     this.setHelpUrl(Blockly.Msg.LISTS_INDEX_OF_HELPURL);
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.setOutput(true, 'Number');
     this.appendValueInput('VALUE')
         .setCheck('Array')
@@ -314,7 +314,7 @@ Blockly.Blocks['lists_getIndex'] = {
          [Blockly.Msg.LISTS_GET_INDEX_LAST, 'LAST'],
          [Blockly.Msg.LISTS_GET_INDEX_RANDOM, 'RANDOM']];
     this.setHelpUrl(Blockly.Msg.LISTS_GET_INDEX_HELPURL);
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     var modeMenu = new Blockly.FieldDropdown(MODE, function(value) {
       var isStatement = (value == 'REMOVE');
       this.sourceBlock_.updateStatement_(isStatement);
@@ -445,7 +445,7 @@ Blockly.Blocks['lists_setIndex'] = {
          [Blockly.Msg.LISTS_GET_INDEX_LAST, 'LAST'],
          [Blockly.Msg.LISTS_GET_INDEX_RANDOM, 'RANDOM']];
     this.setHelpUrl(Blockly.Msg.LISTS_SET_INDEX_HELPURL);
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.appendValueInput('LIST')
         .setCheck('Array')
         .appendField(Blockly.Msg.LISTS_SET_INDEX_INPUT_IN_LIST);
@@ -546,7 +546,7 @@ Blockly.Blocks['lists_getSublist'] = {
          [Blockly.Msg.LISTS_GET_SUBLIST_END_FROM_END, 'FROM_END'],
          [Blockly.Msg.LISTS_GET_SUBLIST_END_LAST, 'LAST']];
     this.setHelpUrl(Blockly.Msg.LISTS_GET_SUBLIST_HELPURL);
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.appendValueInput('LIST')
         .setCheck('Array')
         .appendField(Blockly.Msg.LISTS_GET_SUBLIST_INPUT_IN_LIST);
@@ -651,7 +651,7 @@ Blockly.Blocks['lists_split'] = {
           thisBlock.updateType_(newMode);
         });
     this.setHelpUrl(Blockly.Msg.LISTS_SPLIT_HELPURL);
-    this.setColourHex(Blockly.Blocks.lists.HUE);
+    this.setColour(Blockly.Blocks.lists.HUE);
     this.appendValueInput('INPUT')
         .setCheck('String')
         .appendField(dropdown, 'MODE');

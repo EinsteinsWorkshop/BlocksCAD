@@ -99,8 +99,8 @@ function updateLanguage() {
  */
 function formatJson_(blockType, rootBlock) {
   var JS = {};
-  // ID is not used by Blockly, but may be used by a loader.
-  JS.id = blockType;
+  // Type is not used by Blockly, but may be used by a loader.
+  JS.type = blockType;
   // Generate inputs.
   var message = [];
   var args = [];
@@ -151,7 +151,9 @@ function formatJson_(blockType, rootBlock) {
     }
   }
   JS.message0 = message.join(' ');
-  JS.args0 = args;
+  if (args.length) {
+    JS.args0 = args;
+  }
   // Generate inline/external switch.
   if (rootBlock.getFieldValue('INLINE') == 'EXT') {
     JS.inputsInline = false;
@@ -258,7 +260,9 @@ function formatJavaScript_(blockType, rootBlock) {
   var colourBlock = rootBlock.getInputTargetBlock('COLOUR');
   if (colourBlock && !colourBlock.disabled) {
     var hue = parseInt(colourBlock.getFieldValue('HUE'), 10);
-    code.push('    this.setColour(' + hue + ');');
+    if (!isNaN(hue)) {
+      code.push('    this.setColour(' + hue + ');');
+    }
   }
   code.push("    this.setTooltip('');");
   code.push("    this.setHelpUrl('http://www.example.com/');");
@@ -305,10 +309,31 @@ function getFieldsJs_(block) {
               escapeString(block.getFieldValue('TEXT')) + '), ' +
               escapeString(block.getFieldValue('FIELDNAME')));
           break;
+        case 'field_number':
+          // Result: new Blockly.FieldNumber(10, 0, 100, 1), 'NUMBER'
+          var args = [
+            Number(block.getFieldValue('VALUE')),
+            Number(block.getFieldValue('MIN')),
+            Number(block.getFieldValue('MAX')),
+            Number(block.getFieldValue('PRECISION'))
+          ];
+          // Remove any trailing arguments that aren't needed.
+          if (args[3] == 0) {
+            args.pop();
+            if (args[2] == Infinity) {
+              args.pop();
+              if (args[1] == -Infinity) {
+                args.pop();
+              }
+            }
+          }
+          fields.push('new Blockly.FieldNumber(' + args.join(', ') + '), ' +
+              escapeString(block.getFieldValue('FIELDNAME')));
+          break;
         case 'field_angle':
           // Result: new Blockly.FieldAngle(90), 'ANGLE'
           fields.push('new Blockly.FieldAngle(' +
-              escapeString(block.getFieldValue('ANGLE')) + '), ' +
+              Number(block.getFieldValue('ANGLE')) + '), ' +
               escapeString(block.getFieldValue('FIELDNAME')));
           break;
         case 'field_checkbox':
@@ -350,7 +375,7 @@ function getFieldsJs_(block) {
           }
           break;
         case 'field_image':
-          // Result: new Blockly.FieldImage('http://...', 80, 60)
+          // Result: new Blockly.FieldImage('http://...', 80, 60, '*')
           var src = escapeString(block.getFieldValue('SRC'));
           var width = Number(block.getFieldValue('WIDTH'));
           var height = Number(block.getFieldValue('HEIGHT'));
@@ -386,6 +411,26 @@ function getFieldsJson_(block) {
             name: block.getFieldValue('FIELDNAME'),
             text: block.getFieldValue('TEXT')
           });
+          break;
+        case 'field_number':
+          var obj = {
+            type: block.type,
+            name: block.getFieldValue('FIELDNAME'),
+            value: parseFloat(block.getFieldValue('VALUE'))
+          };
+          var min = parseFloat(block.getFieldValue('MIN'));
+          if (min > -Infinity) {
+            obj.min = min;
+          }
+          var max = parseFloat(block.getFieldValue('MAX'));
+          if (max < Infinity) {
+            obj.max = max;
+          }
+          var precision = parseFloat(block.getFieldValue('PRECISION'));
+          if (precision) {
+            obj.precision = precision;
+          }
+          fields.push(obj);
           break;
         case 'field_angle':
           fields.push({
@@ -497,8 +542,8 @@ function getTypesFrom_(block, name) {
     types = [escapeString(typeBlock.getFieldValue('TYPE'))];
   } else if (typeBlock.type == 'type_group') {
     types = [];
-    for (var n = 0; n < typeBlock.typeCount_; n++) {
-      types = types.concat(getTypesFrom_(typeBlock, 'TYPE' + n));
+    for (var i = 0; i < typeBlock.typeCount_; i++) {
+      types = types.concat(getTypesFrom_(typeBlock, 'TYPE' + i));
     }
     // Remove duplicates.
     var hash = Object.create(null);
@@ -558,6 +603,9 @@ function updateGenerator(block) {
       } else if (field instanceof Blockly.FieldDropdown) {
         code.push(makeVar('dropdown', name) +
                   " = block.getFieldValue('" + name + "');");
+      } else if (field instanceof Blockly.FieldNumber) {
+        code.push(makeVar('number', name) +
+                  " = block.getFieldValue('" + name + "');");
       } else if (field instanceof Blockly.FieldTextInput) {
         code.push(makeVar('text', name) +
                   " = block.getFieldValue('" + name + "');");
@@ -576,12 +624,20 @@ function updateGenerator(block) {
       }
     }
   }
+  // Most languages end lines with a semicolon.  Python does not.
+  var lineEnd = {
+    'JavaScript': ';',
+    'Python': '',
+    'PHP': ';',
+    'Dart': ';'
+  };
   code.push("  // TODO: Assemble " + language + " into code variable.");
-  code.push("  var code = \'...\';");
   if (block.outputConnection) {
+    code.push("  var code = '...';");
     code.push("  // TODO: Change ORDER_NONE to the correct strength.");
     code.push("  return [code, Blockly." + language + ".ORDER_NONE];");
   } else {
+    code.push("  var code = '..." + (lineEnd[language] || '') + "\\n';");
     code.push("  return code;");
   }
   code.push("};");
@@ -644,7 +700,7 @@ function updatePreview() {
 
     if (format == 'JSON') {
       var json = JSON.parse(code);
-      Blockly.Blocks[json.id || UNNAMED] = {
+      Blockly.Blocks[json.type || UNNAMED] = {
         init: function() {
           this.jsonInit(json);
         }
@@ -669,12 +725,13 @@ function updatePreview() {
     }
 
     // Create the preview block.
-    var previewBlock = Blockly.Block.obtain(previewWorkspace, blockType);
+    var previewBlock = previewWorkspace.newBlock(blockType);
     previewBlock.initSvg();
     previewBlock.render();
     previewBlock.setMovable(false);
     previewBlock.setDeletable(false);
     previewBlock.moveBy(15, 10);
+    previewWorkspace.clearUndo();
 
     updateGenerator(previewBlock);
   } finally {
@@ -689,7 +746,6 @@ function updatePreview() {
  * @param {string} id ID of <pre> element to inject into.
  */
 function injectCode(code, id) {
-  Blockly.removeAllRanges();
   var pre = document.getElementById(id);
   pre.textContent = code;
   code = pre.innerHTML;
@@ -741,7 +797,7 @@ function init() {
 
   document.getElementById('helpButton').addEventListener('click',
     function() {
-      open('https://developers.google.com/blockly/custom-blocks/block-factory',
+      open('https://developers.google.com/blockly/guides/create-custom-blocks/block-factory',
            'BlockFactoryHelp');
     });
 
@@ -764,20 +820,21 @@ function init() {
 
   var toolbox = document.getElementById('toolbox');
   mainWorkspace = Blockly.inject('blockly',
-      {toolbox: toolbox, media: '../../media/'});
+      {collapse: false,
+       toolbox: toolbox,
+       media: '../../media/'});
 
   // Create the root block.
   if ('BlocklyStorage' in window && window.location.hash.length > 1) {
     BlocklyStorage.retrieveXml(window.location.hash.substring(1),
                                mainWorkspace);
   } else {
-    var rootBlock = Blockly.Block.obtain(mainWorkspace, 'factory_base');
-    rootBlock.initSvg();
-    rootBlock.render();
-    rootBlock.setMovable(false);
-    rootBlock.setDeletable(false);
+    var xml = '<xml><block type="factory_base" deletable="false" movable="false"></block></xml>';
+    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xml), mainWorkspace);
   }
+  mainWorkspace.clearUndo();
 
+  mainWorkspace.addChangeListener(Blockly.Events.disableOrphans);
   mainWorkspace.addChangeListener(updateLanguage);
   document.getElementById('direction')
       .addEventListener('change', updatePreview);

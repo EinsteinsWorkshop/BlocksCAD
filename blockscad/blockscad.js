@@ -138,7 +138,8 @@ Blockscad.init = function() {
 
 
 
-  Blockly.fireUiEvent(window, 'resize');
+  Blockly.svgResize(Blockscad.workspace);
+  window.dispatchEvent(new Event('resize'));
 
   if (!Blockscad.offline) {
     // init the user auth stuff
@@ -174,7 +175,7 @@ Blockscad.init = function() {
       code = prettyPrintOne(code, 'js');
       content.innerHTML = code; 
     }
-    Blockly.fireUiEvent(window, 'resize');
+    Blockly.svgResize(Blockscad.workspace);
   });
 
 
@@ -232,7 +233,7 @@ Blockscad.init = function() {
 
   // Set up an event listener to see when the Blockly workspace gets a change
   // TODO: Set up some "Undo_events" in Blockly that only trigger on the good stuff
-  Blockscad.workspace.addUndoListener(Blockscad.workspaceChanged);
+  // Blockscad.workspace.addUndoListener(Blockscad.workspaceChanged);
 
     // test to see if a user is logged in - use this to populate the login-area.
   if (!Blockscad.offline) {
@@ -278,7 +279,7 @@ Blockscad.init = function() {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
       Blockscad.Toolbox.setCatColors();
       Blockscad.workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+      Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml,Blockscad.workspace);
     }
 
   });
@@ -288,7 +289,7 @@ Blockscad.init = function() {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['two']);
       Blockscad.Toolbox.setCatColors();
       Blockscad.workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+      Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml,Blockscad.workspace);
     }
   });
 
@@ -372,7 +373,8 @@ Blockscad.init = function() {
     });
   });
   $('#stl_buttons').hide();
-
+  
+  onresize();
 
 }; // end Blockscad.init()
 
@@ -505,8 +507,8 @@ function readSingleFile(evt, replaceOld) {
 
       contents = e.target.result;  
       var xml = Blockly.Xml.textToDom(contents);
-      Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
-      Blockly.fireUiEvent(window, 'resize');
+      Blockly.Xml.domToWorkspace(xml, Blockscad.workspace); 
+      Blockly.svgResize(Blockscad.workspace);
 
       Blockscad.clearStlBlocks();
     };
@@ -819,8 +821,8 @@ Blockscad.getExample = function(example, name) {
     // console.log(xmlString);
     // load xml blocks
     var xml = Blockly.Xml.textToDom(xmlString);
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
-    Blockly.fireUiEvent(window, 'resize');
+    Blockly.Xml.domToWorkspace(xml, Blockscad.workspace); 
+    Blockly.svgResize(Blockscad.workspace);
     // update project name
     $('#project-name').val(name + ' example');
     // we just got a new project.  It doesn't need saving yet.
@@ -1536,7 +1538,7 @@ Blockscad.onUndo = function() {
     Blockly.mainWorkspace.clear();
     //console.log("loading workspace");
 
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+    Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml,Blockscad.workspace);
     //console.log("rendering workspace");
     // trigger re-render
     Blockly.mainWorkspace.render();
@@ -1562,7 +1564,7 @@ Blockscad.onRedo = function() {
     Blockscad.undo.current_xml = Blockscad.undo.redoStack.pop();
     // set workspace xml to current xml (do I need to clear it first?)
     Blockly.mainWorkspace.clear();
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+    Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml, Blockscad.workspace);
 
     // trigger re-render
     Blockly.mainWorkspace.render();
