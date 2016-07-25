@@ -892,7 +892,7 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function(e) {
     var unbacklightOption = {enabled: true};
     unbacklightOption.text = Blockscad.Msg.REMOVE_BLOCK_HIGHLIGHTING;
     unbacklightOption.callback = function() {
-      Blockly.mainWorkspace.clearBacklight();
+      Blockscad.workspace.clearBacklight();
     };
     menuOptions.push(unbacklightOption);
   }
@@ -982,11 +982,13 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function(e) {
         Blockly.Msg.DELETE_X_BLOCKS.replace('%1', String(deleteList.length)),
     enabled: deleteList.length > 0,
     callback: function() {
-      if (deleteList.length < 2 ||
-          window.confirm(Blockly.Msg.DELETE_ALL_BLOCKS.replace('%1',
-          String(deleteList.length)))) {
-        deleteNext();
-      }
+      // use BlocksCAD's nice dialog to delete all.  
+      Blockscad.discard();
+      // if (deleteList.length < 2 ||
+      //     window.confirm(Blockly.Msg.DELETE_ALL_BLOCKS.replace('%1',
+      //     String(deleteList.length)))) {
+      //   deleteNext();
+      // }
     }
   };
   menuOptions.push(deleteOption);

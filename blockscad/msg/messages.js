@@ -478,7 +478,7 @@ Blockscad.Msg.BLOCKS_BUMPED_OUT_DIMENSIONS = '%1 calling blocks were displaced: 
 /// error message: if a function which returns a value has that value in a place where one type is expected (numbers vs booleans),
 /// the function caller will get bumped out and the function block will display a warning message:
 /// '%1 calling blocks were displaced: type mismatch between numbers and Booleans'
-Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES = '%1 calling blocks were displaced: type mismatch between numbers and Booleans';
+Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES = '%1 calling blocks were displaced: type mismatch between %2 and %3';
 /// error message: if a variable definition changes type (from a number to a true/false to a string), there may be instances of that variable that now have 
 /// an illegal type.  They are disconnected from their positions in the code and highlighted, and the variable definition displays a warning message:
 /// %1 variable blocks were displaced due to type mismatches

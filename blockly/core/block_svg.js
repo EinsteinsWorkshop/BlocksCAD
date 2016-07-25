@@ -180,6 +180,7 @@ Blockly.BlockSvg.prototype.select = function() {
   Blockly.selected = this;
   this.addSelect();
   // for BlocksCAD - I want to turn off backlighting when the user selects the block
+  // console.log("in select: turning off any backlighting");
   this.unbacklight();
 };
 
@@ -1094,11 +1095,9 @@ Blockly.BlockSvg.prototype.setMovable = function(movable) {
  */
 Blockly.BlockSvg.prototype.setEditable = function(editable) {
   Blockly.BlockSvg.superClass_.setEditable.call(this, editable);
-  if (this.rendered) {
-    var icons = this.getIcons();
-    for (var i = 0; i < icons.length; i++) {
-      icons[i].updateEditable();
-    }
+  var icons = this.getIcons();
+  for (var i = 0; i < icons.length; i++) {
+    icons[i].updateEditable();
   }
 };
 

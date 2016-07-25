@@ -254,7 +254,7 @@ Blockly.Tooltip.show_ = function() {
     }
   }
   if (!tooltip_is_image) {
-    tip = Blockly.utils.wrap_(tip, Blockly.Tooltip.LIMIT);
+    tip = Blockly.utils.wrap(tip, Blockly.Tooltip.LIMIT);
     // Create new text, line by line.
     var lines = tip.split('\n');
     for (var i = 0; i < lines.length; i++) {

@@ -80,6 +80,11 @@ Blockly.Events.MOVE = 'move';
 Blockly.Events.UI = 'ui';
 
 /**
+ * Name of event that records a typing change (for blockscad).
+ * @const
+ */
+Blockly.Events.TYPING = 'typing';
+/**
  * List of events queued for firing.
  * @private
  */
@@ -590,6 +595,95 @@ Blockly.Events.Change.prototype.run = function(forward) {
     default:
       console.warn('Unknown change type: ' + this.element);
   }
+};
+
+/**
+ * Class for a block typing event. FOR BLOCKSCAD
+ * @param {Blockly.Block} block The changed block.  Null for a blank event.
+ * @param {string} oldValue Previous value of type.
+ * @param {string} newValue New value of type.
+ * @extends {Blockly.Events.Abstract}
+ * @constructor
+ */
+Blockly.Events.Typing = function(block, oldValue, newValue) {
+  if (!block) {
+    return;  // Blank event to be populated by fromJson.
+  }
+  console.log("in typing event constructor with:" + oldValue + "," + newValue);
+  Blockly.Events.Change.superClass_.constructor.call(this, block);
+  this.oldValue = oldValue;
+  this.newValue = newValue;
+};
+goog.inherits(Blockly.Events.Typing, Blockly.Events.Abstract);
+
+/**
+ * Type of this event.
+ * @type {string}
+ */
+Blockly.Events.Typing.prototype.type = Blockly.Events.TYPING;
+
+/**
+ * Encode the event as JSON.
+ * @return {!Object} JSON representation.
+ */
+Blockly.Events.Typing.prototype.toJson = function() {
+  var json = Blockly.Events.Typing.superClass_.toJson.call(this);
+  json['newValue'] = this.newValue;
+  return json;
+};
+
+/**
+ * Decode the JSON event.
+ * @param {!Object} json JSON representation.
+ */
+Blockly.Events.Typing.prototype.fromJson = function(json) {
+  Blockly.Events.Typing.superClass_.fromJson.call(this, json);
+  this.newValue = json['newValue'];
+};
+
+/**
+ * Does this event record any change of state?
+ * @return {boolean} True if something changed.
+ */
+Blockly.Events.Typing.prototype.isNull = function() {
+  // return this.oldValue == this.newValue;
+  return false;
+};
+
+/**
+ * Run a typing event.
+ * @param {boolean} forward True if run forward, false if run backward (undo).
+ */
+Blockly.Events.Typing.prototype.run = function(forward) {
+  var workspace = Blockly.Workspace.getById(this.workspaceId);
+  var block = workspace.getBlockById(this.blockId);
+  if (!block) {
+    console.warn("Can't change type on non-existant block: " + this.blockId);
+    return;
+  }
+  if (block.mutator) {
+    // Close the mutator (if open) since we don't want to update it.
+    block.mutator.setVisible(false);
+  }
+  var value = forward ? this.newValue : this.oldValue;
+
+  // this could be a procedure caller (with a previousConnection)
+  // this could be a variable getter (with an outputConnection)
+  // it should only have one or the other.
+
+  if (block.previousConnection) {
+    block.previousConnection.setCheck(value);
+    if (value == 'CSG')
+      block.category = 'PRIMITIVE_CSG';
+    else if (value == 'CAG')
+      block.category = 'PRIMITIVE_CAG';
+    else block.category = 'UNKNOWN';
+  }
+  else if (block.outputConnection) {
+    block.outputConnection.setCheck(value);
+  }
+
+  block.unbacklight();
 };
 
 /**

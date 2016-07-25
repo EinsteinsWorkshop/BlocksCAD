@@ -95,6 +95,8 @@ Blockly.Variables.renameVariable = function(oldName, newName, workspace) {
  * @param {!Blockly.Workspace} workspace Workspace to find variables in.
  */
 Blockly.Variables.getInstances = function(name, workspace) {
+  if (!workspace)
+    return;
   var blocks = workspace.getAllBlocks();
   var instances = [];
   // Iterate through every block.

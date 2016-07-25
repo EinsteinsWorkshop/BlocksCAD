@@ -210,7 +210,7 @@
 	"REMOVE_HIGHLIGHTING_INSTANCES": "Remove highlighting",
 	"REMOVE_BLOCK_HIGHLIGHTING": "Remove block highlighting",
 	"BLOCKS_BUMPED_OUT_DIMENSIONS": "%1 calling blocks were displaced: 2D and 3D shapes cannot be together",
-	"BLOCKS_BUMPED_OUT_TYPES": "%1 calling blocks were displaced: type mismatch between numbers and Booleans",
+	"BLOCKS_BUMPED_OUT_TYPES": "%1 calling blocks were displaced: type mismatch between %2 and %3",
 	"VARIABLES_BUMPED_ONE": "%1 variable blocks were displaced due to type mismatches",
 	"VARIABLES_BUMPED_TWO": "variable '%1': type changed from %2 to %3",
 	"EXAMPLE_CUBE_WITH_CUTOUTS": "cube avec découpe",
