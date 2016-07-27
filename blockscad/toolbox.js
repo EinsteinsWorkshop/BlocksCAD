@@ -83,65 +83,65 @@ Blockscad.Toolbox.setCatColors = function() {
 Blockscad.Toolbox.cat_3D = '<category name="' + Blockscad.Msg.CATEGORY_3D_SHAPES + '">' +
       '<block type="sphere">' +
         '<value name="RAD">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="cube">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="cylinder">' +
         '<value name="RAD1">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="RAD2">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
        '</value>' +
          '<value name="HEIGHT">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="torus">' +
         '<value name="RAD1">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">4</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="RAD2">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="SIDES">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">8</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="FACES">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">16</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
     '</category>';
@@ -149,43 +149,43 @@ Blockscad.Toolbox.cat_3D = '<category name="' + Blockscad.Msg.CATEGORY_3D_SHAPES
 Blockscad.Toolbox.cat_3D_sim = '<category name="' + Blockscad.Msg.CATEGORY_3D_SHAPES + '">' +
       '<block type="sphere">' +
         '<value name="RAD">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="cube">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="cylinder">' +
         '<value name="RAD1">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="RAD2">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
        '</value>' +
          '<value name="HEIGHT">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
     '</category>';
@@ -193,21 +193,21 @@ Blockscad.Toolbox.cat_3D_sim = '<category name="' + Blockscad.Msg.CATEGORY_3D_SH
 Blockscad.Toolbox.cat2D = '<category name="' + Blockscad.Msg.CATEGORY_2D_SHAPES + '">' +
       '<block type="circle">' +
         '<value name="RAD">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="square">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
     '</category>';
@@ -216,160 +216,160 @@ Blockscad.Toolbox.cat2D = '<category name="' + Blockscad.Msg.CATEGORY_2D_SHAPES 
 Blockscad.Toolbox.catTransform = '<category name="' + Blockscad.Msg.CATEGORY_TRANSFORMATIONS + '">' +
       '<block type="translate">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="simplerotate">' +
         '<value name="XVAL">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="simplemirror_new"></block>' +
       '<block type="scale">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="color">' +
         '<value name="COLOR">' +
-          '<block type="colour_picker">' +
+          '<shadow type="colour_picker">' +
             '<field name="COLOUR">#ffcc00</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="color_rgb">' +
         '<value name="RED">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">100</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="GREEN">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">100</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="BLUE">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">100</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="$fn">' +
         '<value name="SIDES">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">8</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="taper">' +
         '<value name="FACTOR">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' + 
+          '</shadow>' + 
         '</value>' +
       '</block>' +
       '<block type="linearextrude">' +
         '<value name="HEIGHT">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="TWIST">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="XSCALE">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YSCALE">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="rotateextrude">' +
         '<value name="FACES">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">5</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="fancyrotate">' +
         '<value name="AVAL">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="fancymirror">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
     '</category>';
@@ -377,67 +377,67 @@ Blockscad.Toolbox.catTransform = '<category name="' + Blockscad.Msg.CATEGORY_TRA
 Blockscad.Toolbox.catTransform_sim = '<category name="' + Blockscad.Msg.CATEGORY_TRANSFORMATIONS + '">' +
       '<block type="translate">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="simplerotate">' +
         '<value name="XVAL">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_angle">' +
+          '<shadow type="math_angle">' +
             '<field name="NUM">0</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="scale">' +
         '<value name="XVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="YVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="ZVAL">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="color">' +
         '<value name="COLOR">' +
-          '<block type="colour_picker">' +
+          '<shadow type="colour_picker">' +
             '<field name="COLOUR">#ffcc00</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="$fn">' +
         '<value name="SIDES">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">8</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
     '</category>';
@@ -458,7 +458,18 @@ Blockscad.Toolbox.catSetOps_sim = '<category name="' + Blockscad.Msg.CATEGORY_SE
 Blockscad.Toolbox.catMathLogic= '<category name="' + Blockscad.Msg.CATEGORY_MATH + '">' +
       '<block type="math_number"></block>' +
       '<block type="math_angle"></block>' +
-      '<block type="math_arithmetic"></block>' +
+      '<block type="math_arithmetic">' +
+        '<value name="A">' +
+          '<shadow type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</shadow>' +
+        '</value>' +
+        '<value name="B">' +
+          '<shadow type="math_number">' +
+            '<field name="NUM">1</field>' +
+          '</shadow>' + 
+        '</value>' +
+      '</block>' +
       '<block type="math_single"></block>' +
       '<block type="math_trig"></block>' +
       '<block type="math_constant_bs"></block>' +
@@ -467,26 +478,26 @@ Blockscad.Toolbox.catMathLogic= '<category name="' + Blockscad.Msg.CATEGORY_MATH
       '<block type="math_modulo"></block>' +
       '<block type="math_constrain">' +
         '<value name="LOW">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="HIGH">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">100</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="math_random_int">' +
         '<value name="FROM">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="TO">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">100</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="math_random_float"></block>' +
@@ -507,14 +518,14 @@ Blockscad.Toolbox.catMathLogic_sim= '<category name="' + Blockscad.Msg.CATEGORY_
       '<block type="math_single"></block>' +
       '<block type="math_random_int">' +
         '<value name="FROM">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="TO">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">100</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
     '</category>';
@@ -522,19 +533,19 @@ Blockscad.Toolbox.catMathLogic_sim= '<category name="' + Blockscad.Msg.CATEGORY_
 Blockscad.Toolbox.catLoops = '<category name="' + Blockscad.Msg.CATEGORY_LOOPS + '">' +
       '<block type="controls_for">' +
         '<value name="FROM">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block> ' +
+          '</shadow> ' +
         '</value>' +
         '<value name="TO">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
         '<value name="BY">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       // '<block type="controls_for_chainhull">' +
@@ -559,29 +570,29 @@ Blockscad.Toolbox.catLoops = '<category name="' + Blockscad.Msg.CATEGORY_LOOPS +
 Blockscad.Toolbox.catOther = '<category name="' + Blockscad.Msg.CATEGORY_TEXT + '">' +
       '<block type="bs_text">' + 
         '<value name="TEXT">' + 
-          '<block type="text">' +
-          '</block>' +
+          '<shadow type="text">' +
+          '</shadow>' +
         '</value>' +
         '<value name="SIZE">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' + 
       '</block>' +
       '<block type="bs_3dtext">' + 
         '<value name="TEXT">' + 
-          '<block type="text">' +
-          '</block>' +
+          '<shadow type="text">' +
+          '</shadow>' +
         '</value>' +
         '<value name="SIZE">' +
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">10</field>' +
-          '</block>' +
+          '</shadow>' +
         '</value>' + 
         '<value name="THICKNESS">' + 
-          '<block type="math_number">' +
+          '<shadow type="math_number">' +
             '<field name="NUM">2</field>' + 
-          '</block>' +
+          '</shadow>' +
         '</value>' +
       '</block>' +
       '<block type="text"></block>' +

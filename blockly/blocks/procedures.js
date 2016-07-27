@@ -218,20 +218,19 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       // Block has been deleted.
       return;
     }
-    console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
+    // console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
+    // console.log("arrays: " + goog.isArray(this.myType_) + ', ' + goog.isArray(type));
+    if (!goog.isArray(type))
+      type = [type];
     // compare to see if type matches this.myType_
-    if (goog.isArray(type) && goog.isArray(this.myType_)) {
-      var same = 1;
-      for (var i = 0; i < type.length; i++) {
-        if (!this.myType_ || this.myType_[i] != type[i])
-          same = 0;
-      }
-      if (same) return;
+
+    var same = 1;
+    for (var i = 0; i < type.length; i++) {
+      if (!this.myType_ || this.myType_[i] != type[i])
+        same = 0;
     }
-    else if (this.myType_ == type) {
-      console.log("in proc ST.  returning because types didn't change.");
-      return;
-    }
+    if (same) return;
+
     // console.log("in modules's setType");
 
     var oldtype = this.myType_;
@@ -255,7 +254,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         var areaType = Blockscad.findBlockType(callers[i],callers);
         // if the stack's type doesn't match the caller's new type, bumpage!
         // mark that block that will be bumped
-        if (!goog.isArray(type) && areaType != 'EITHER' && areaType != type) {
+        if (areaType != 'EITHER' && areaType != type[0]) {
           // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
           numBumped.push(callers[i]);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
@@ -273,9 +272,9 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         }
         // procedure callers also have a "category" because once typed they are a shape
         // CSG, CAG, or UNKNOWN.
-        if (type == 'CSG')
+        if (type[0] == 'CSG' && type.length == 1)
           callers[i].category = 'PRIMITIVE_CSG'
-        else if (type == 'CAG')
+        else if (type[0] == 'CAG')
           callers[i].category = 'PRIMITIVE_CAG';
         else callers[i].category = 'UNKNOWN';
 
@@ -288,7 +287,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         var setterParent = Blockscad.hasParentOfType(callers[i], "procedures_defnoreturn");
         if (setterParent) {
           setTimeout(function() {
-            console.log("this caller is inside a setter: ", setterParent.id);
+            // console.log("this caller is inside a setter: ", setterParent.id);
             setterParent.setType(type);
           }, 0);
         }
@@ -303,7 +302,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     // just immediately turn the backlighting off.
 
     for (var k = 0; k < numBumped.length; k++) {
-      console.log("backlighting a block:", numBumped[k].id);
+      // console.log("backlighting a block:", numBumped[k].id);
       numBumped[k].backlight();
       this.backlightBlocks.push(numBumped[k].id);
       // finally, set a warning message on the procedure definition that counts how many callers were bumped.
@@ -715,7 +714,6 @@ Blockly.Blocks['procedures_defreturn'] = {
 
     // // compare to see if type matches this.myType_
 
-
     var oldtype = this.myType_;
 
     var ret = this.getInput('RETURN');
@@ -795,7 +793,10 @@ Blockly.Blocks['procedures_defreturn'] = {
           callers[i].category = 'BOOLEAN';
         else if (this.myType_ == 'String')
           callers[i].category == 'STRING';
-        else callers[i].category = 'UNKNOWN';
+        else {
+          callers[i].category = 'UNKNOWN';
+          // console.log("function caller with type UNKNOWN");
+        }
         // console.log("tried to set caller type to ",this.myType_, callers[i]);
         // if it was a bumping change, fire a typing event
         if (Blockly.Events.isEnabled() && numBumped.length) {
@@ -815,7 +816,7 @@ Blockly.Blocks['procedures_defreturn'] = {
           setterParent = Blockscad.hasParentOfType(callers[i],"variables_set");
         if (setterParent) {
           setTimeout(function() {
-            console.log("this caller function is inside a setter.  Set its type to: ",type);
+            // console.log("this caller function is inside a setter.  Set its type to: ",type);
             setterParent.setType(type);
           }, 0);
         }

@@ -609,7 +609,7 @@ Blockly.Events.Typing = function(block, oldValue, newValue) {
   if (!block) {
     return;  // Blank event to be populated by fromJson.
   }
-  console.log("in typing event constructor with:" + oldValue + "," + newValue);
+  // console.log("in typing event constructor with:" + oldValue + "," + newValue);
   Blockly.Events.Change.superClass_.constructor.call(this, block);
   this.oldValue = oldValue;
   this.newValue = newValue;
@@ -658,7 +658,7 @@ Blockly.Events.Typing.prototype.run = function(forward) {
   var workspace = Blockly.Workspace.getById(this.workspaceId);
   var block = workspace.getBlockById(this.blockId);
   if (!block) {
-    console.warn("Can't change type on non-existant block: " + this.blockId);
+    // console.warn("Can't change type on non-existant block: " + this.blockId);
     return;
   }
   if (block.mutator) {

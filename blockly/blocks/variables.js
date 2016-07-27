@@ -318,9 +318,9 @@ Blockly.Blocks['variables_set'] = {
     if (type != null && !goog.isArray(type)) {
       type = [type];
     }
-    console.log("in variable_set setType:  old:" + this.myType_ + "  and new:" + type);
+    // console.log("in variable_set setType:  old:" + this.myType_ + "  and new:" + type);
     if (this.myType_ == type) {
-      console.log("type didn't actually change.  Returning without doing work.");
+      // console.log("type didn't actually change.  Returning without doing work.");
       return;
     }
     var oldtype = this.myType_;
@@ -357,10 +357,10 @@ Blockly.Blocks['variables_set'] = {
             parentAccepts = instances[i].outputConnection.targetConnection.check_;
             if (parentAccepts != null)
               parentAccepts = parentAccepts[0];
-            console.log("Test for bumping. types were: " + parentAccepts + " and " + type[0]);
+            // console.log("Test for bumping. types were: " + parentAccepts + " and " + type[0]);
             // take care of bumps
             if (parentAccepts != null && type != null && parentAccepts != type[0]) {
-              console.log("block " + instances[i].id + " will be kicked out.");
+              // console.log("block " + instances[i].id + " will be kicked out.");
               numBumped.push(instances[i]);
               // if the instance is in a collapsed stack, find collapsed parent and expand
               var topBlock = instances[i].collapsedParents();
@@ -373,7 +373,7 @@ Blockly.Blocks['variables_set'] = {
         }  // end if type == null
 
         // actually set the caller's type here
-        console.log("setting block :" + instances[i].id + " to type " + type);
+        // console.log("setting block :" + instances[i].id + " to type " + type);
         instances[i].outputConnection.setCheck(type);
         if (Blockly.Events.isEnabled() && numBumped.length) {
           Blockly.Events.fire(new Blockly.Events.Typing(instances[i], oldtype,type));
@@ -383,12 +383,10 @@ Blockly.Blocks['variables_set'] = {
         var setterParent = Blockscad.hasParentOfType(instances[i], "procedures_defreturn");
         if (!setterParent)
           setterParent = Blockscad.hasParentOfType(instances[i],"variables_set");
-        if (setterParent) {
-          setTimeout(function() {
-            console.log("this caller function is inside a setter.  Set its type to: ",type);
-            setterParent.setType(type);
-          }, 0);
-        }
+        setTimeout(function() {
+          // console.log("this caller function is inside a setter.  Set its type to: ",type);
+          if (setterParent) setterParent.setType(type);
+        }, 0);
       }  // end looping through instances
     }  // end if instances.length > 0
 

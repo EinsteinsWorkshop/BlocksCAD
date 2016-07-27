@@ -29,7 +29,7 @@ goog.provide('Blockly.FieldCheckbox');
 goog.require('Blockly.Field');
 
 // how big should toggleable images be?
-var sz = 27;
+var sz = 28;
 
 /**
  * Class for a checkbox field.
@@ -47,9 +47,10 @@ Blockly.FieldCheckbox = function(state, opt_validator,img1,img2) {
   if (img1 && img2) {
     this.img1 = img1;
     this.img2 = img2;
-    this.size_ = new goog.math.Size(sz, sz);
+    this.size_ = new goog.math.Size(sz, sz * 1.1);
   }
   // Set the initial state.
+  // console.log("setting fieldCheckbox initial state to:",state);
   this.setValue(state);
 };
 goog.inherits(Blockly.FieldCheckbox, Blockly.Field);
@@ -63,6 +64,8 @@ Blockly.FieldCheckbox.CHECK_CHAR = '\u2713';
  * Mouse cursor style when over the hotspot that initiates editability.
  */
 Blockly.FieldCheckbox.prototype.CURSOR = 'default';
+
+Blockly.FieldCheckbox.prototype.EDITABLE = true;
 
 /**
  * Install this checkbox on a block.
@@ -90,26 +93,30 @@ Blockly.FieldCheckbox.prototype.init = function() {
     // console.log("got some images");
     // Build the DOM.
     this.fieldGroup_ = Blockly.createSvgElement('g', {}, null);
-
-    var offsetY = 1 - Blockly.BlockSvg.FIELD_HEIGHT;
+    if (!this.visible_) {
+      this.fieldGroup_.style.display = 'none';
+    }
 
     this.imageElement_ = Blockly.createSvgElement('image',
         {'height': sz + 'px',
-         'width': sz + 'px'}, this.fieldGroup_);
+         'width': sz * 1.1 + 'px',
+         'x': 5, 'y': -5}, this.fieldGroup_);
     this.imageElement_.setAttributeNS('http://www.w3.org/1999/xlink',
         'xlink:href', (this.state_)  ? this.img1 : this.img2);
 
-    /// also try this??
-    // this.setValue((this.state_) ? this.img1 : this.img2);
-    if (goog.userAgent.GECKO) {
-      // Due to a Firefox bug which eats mouse events on image elements,
-      // a transparent rectangle needs to be placed on top of the image.
-      this.rectElement_ = Blockly.createSvgElement('rect',
-          {'height': sz + 'px',
-           'width': sz + 'px',
-           'fill-opacity': 0}, this.fieldGroup_);
-    }
+    // if (goog.userAgent.GECKO) {
+    //   // Due to a Firefox bug which eats mouse events on image elements,
+    //   // a transparent rectangle needs to be placed on top of the image.
+    //   this.rectElement_ = Blockly.createSvgElement('rect',
+    //       {'height': sz + 'px',
+    //        'width': sz + 'px',
+    //        'fill-opacity': 0}, this.fieldGroup_);
+    // }
+
+    this.updateEditable();
     this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
+    this.mouseUpWrapper_ =
+        Blockly.bindEvent_(this.fieldGroup_, 'mouseup', this, this.onMouseUp_);
   }
 };
 
@@ -128,8 +135,6 @@ Blockly.FieldCheckbox.prototype.getValue = function() {
  */
 Blockly.FieldCheckbox.prototype.setValue = function(strBool) {
   var newState = (strBool == 'TRUE');
-  // console.log("this.state_:",this.state_);
-  // console.log("newState:",newState);
 
   if (this.state_ !== newState) {
     if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
@@ -145,6 +150,7 @@ Blockly.FieldCheckbox.prototype.setValue = function(strBool) {
       this.imageElement_.setAttributeNS('http://www.w3.org/1999/xlink',
           'xlink:href', newState ? this.img1 : this.img2);
     }
+
   }
 };
 

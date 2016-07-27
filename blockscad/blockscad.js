@@ -33,7 +33,7 @@ var BSUtils = BSUtils || {};
 Blockscad.version = "1.4.2";
 Blockscad.releaseDate = "2016/06/01";
 
-Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
@@ -53,6 +53,8 @@ Blockscad.init = function() {
   Blockscad.csg_commands = {}; // holds any converted stl file contents
   Blockscad.csg_filename = {}; // holds any converted stl file names
   Blockscad.csg_center = [0,0,0];
+
+  Blockscad.renderActions = [];
 
 
   var container = document.getElementById('main');
@@ -409,7 +411,7 @@ Blockscad.typeWorkspace = function() {
 
   for (var i = 0; i < topBlocks.length; i++) {
     if (topBlocks[i].category && topBlocks[i].category == 'PROCEDURE') {
-      console.log("found a procedure to type");
+      // console.log("found a procedure to type");
       Blockscad.assignBlockTypes([topBlocks[i]]);
     }
   }
@@ -419,6 +421,30 @@ Blockscad.typeWorkspace = function() {
     }
   }
   Blockscad.assignBlockTypes(Blockscad.workspace.getTopBlocks());
+}
+
+// type a new block stack.  block is not guaranteed to be the top block in the stack.
+Blockscad.typeNewStack = function(block) {
+  // three passes - variables, procedures, then the rest.
+  // this is called when blocks are created (think duplicated block stacks with callers in it)
+  var topBlock = block.getRootBlock();
+  var blockStack = topBlock.getDescendants();
+  for (var i = 0; blockStack && i < blockStack.length; i++) {
+    if (blockStack[i].type == 'variables_set' || blockStack[i].type == 'variables_get')
+      Blockscad.assignVarTypes(blockStack[i]);
+  }
+  for (var i = 0; blockStack && i < blockStack.length; i++) {
+    if (blockStack[i].category == 'PROCEDURE') {
+      Blockscad.assignBlockTypes([blockStack[i]]);
+    } 
+  }
+  for (var i = 0; blockStack && i < blockStack.length; i++) {
+    if (blockStack[i].category == 'SET_OP' ||
+        blockStack[i].category == 'TRANSFORM' ||
+        blockStack[i].category == 'LOOP') {
+      Blockscad.assignBlockTypes([blockStack[i]]);
+    } 
+  }
 }
 
 Blockscad.takeRPic = function() {
@@ -646,12 +672,14 @@ Blockscad.readStlFile = function(evt) {
       else {
         // lets make some xml and load a block into the workspace.
         // console.log("making block from xml");
-        var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
+        var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="0" y="0"><field name="STL_FILENAME">' +
         f.name + '</field>' + '<field name="STL_BUTTON">' + Blockscad.Msg.BROWSE + '</field>' + 
         '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
         //console.log("xml is:",xml);
         var stuff = Blockly.Xml.textToDom(xml);
         var newblock = Blockly.Xml.domToBlock(Blockscad.workspace, stuff.firstChild);
+        newblock.moveBy(20 + Blockscad.workspace.getMetrics().viewLeft / Blockscad.workspace.scale, 
+          20 + Blockscad.workspace.getMetrics().viewTop / Blockscad.workspace.scale);
         bt_input = newblock.getField('STL_BUTTON');
         bt_input.setVisible(false);
         newblock.setCommentText(f.name + '\ncenter:(' + center + ')');
@@ -1670,7 +1698,7 @@ Blockscad.assignVarTypes = function(blk, name_change) {
       }
     }
     else if (blk && blk.type == "variables_set") {
-      console.log("in assignVarTypes with var_set named: ", blk.getFieldValue('VAR'));
+      // console.log("in assignVarTypes with var_set named: ", blk.getFieldValue('VAR'));
       var children = blk.getChildren();
       if (children.length == 0)
         blk.setType(null);
@@ -1683,7 +1711,7 @@ Blockscad.assignVarTypes = function(blk, name_change) {
           if (children[i].outputConnection) {
             var childType = children[i].outputConnection.check_;
             // console.log("child " + i + "has an output connection of type " + childType);
-            console.log(childType + " is this type an array?: " + goog.isArray(childType));
+            // console.log(childType + " is this type an array?: " + goog.isArray(childType));
             if (name_change)
               blk.myType_ = "FALSE";
             blk.setType(childType);
@@ -1698,99 +1726,106 @@ Blockscad.assignVarTypes = function(blk, name_change) {
   },0);
 }
 Blockscad.handleWorkspaceEvents = function(event) {
-  // if (event.type == Blockly.Events.UI) {
-  //   return;  // Don't care about UI events
-  // }
-  // if (event.type == Blockly.Events.CREATE || 
-  //     event.type == Blockly.Events.DELETE) {
-  //   // this should trigger needing to save, but not a type change
-  //   Blockscad.undo.needToSave = 1; 
-  //   // eventually I may want to parse these farther to trigger an automatic render.  Not now.
-  // }
-  // else if (event.type == Blockly.Events.CHANGE) {
-  //   // trigger a need to save
-  //   Blockscad.undo.needToSave = 1;
+  if (event.type == Blockly.Events.UI) {
+    return;  // Don't care about UI events
+  }
+  if (event.type == Blockly.Events.CREATE || 
+      event.type == Blockly.Events.DELETE) {
+    // this should trigger needing to save and a type change!  I could duplicate a stack 
+    // that needs typing, or delete a setter that would set its getters to null type.
+    // console.log("create or delete event:",event);
+    Blockscad.undo.needToSave = 1; 
 
-  //   // This could be variable name changes (getter or setter), which trigger typing.
-  //   // console.log(event);
-  //   if (event.element == 'field' && event.name == 'VAR') {
-  //     // a variable has changed name.
-  //     var oldName = event.oldValue;
-  //     console.log("old variable name was:", oldName);
-  //     // var newName = event.newValue;
+    var block = Blockscad.workspace.getBlockById(event.ids[0]);
+    if (block)
+      Blockscad.typeNewStack(block);
+  }
+  else if (event.type == Blockly.Events.CHANGE) {
+    // trigger a need to save
+    Blockscad.undo.needToSave = 1;
 
-  //     var block = Blockscad.workspace.getBlockById(event.blockId);
+    // This could be variable name changes (getter or setter), which trigger typing.
+    // console.log(event);
+    if (event.element == 'field' && event.name == 'VAR') {
+      // a variable has changed name.
+      var oldName = event.oldValue;
+      // console.log("old variable name was:", oldName);
+      // var newName = event.newValue;
 
-  //     if (block && block.type == 'variables_set') {
-  //       // variables_set has changed name.  Go through instances of the old name.  If there is a 
-  //       // variables_set, use that to type the rest.  Otherwise, type the getters individually.
-  //       var instances = Blockly.Variables.getInstances(oldName,Blockscad.workspace);
-  //       console.log("instances:", instances);
-  //       var found_it = 0;
-  //       for (var k = 0; instances && k < instances.length; k++) {
-  //         if (instances[k].type == 'variables_set')
-  //           Blockscad.assignVarTypes(instances[k]);
-  //         found_it = 1;
-  //       }
-  //       if (!found_it) {
-  //         for (var k = 0; instances && k < instances.length; k++) {
-  //           if (instances[k].type == 'variables_get')
-  //             Blockscad.assignVarTypes(instances[k]);
+      var block = Blockscad.workspace.getBlockById(event.blockId);
 
-  //         }  
-  //       }
-  //     }
-  //     // also type the block associated with the new name.  If this is a getter, it gets typed.
-  //     // if it is a setter, it needs to be typed and have all its new getters typed.
-  //     Blockscad.assignVarTypes(block);
-  //   }
+      if (block && block.type == 'variables_set') {
+        // variables_set has changed name.  Go through instances of the old name.  If there is a 
+        // variables_set, use that to type the rest.  Otherwise, type the getters individually.
+        var instances = Blockly.Variables.getInstances(oldName,Blockscad.workspace);
+        // console.log("instances:", instances);
+        var found_it = 0;
+        for (var k = 0; instances && k < instances.length; k++) {
+          if (instances[k].type == 'variables_set')
+            Blockscad.assignVarTypes(instances[k],true);
+          found_it = 1;
+        }
+        if (!found_it) {
+          for (var k = 0; instances && k < instances.length; k++) {
+            if (instances[k].type == 'variables_get')
+              Blockscad.assignVarTypes(instances[k],true);
 
-  // }
-  // else if (event.type == Blockly.Events.MOVE) {
-  //   // this holds plug/unplug events.  
-  //   // plug event: has newParentID.  trigger type change on new parents block stack.
-  //   // unplug event: has oldParentID.  trigger type change on current block and old parent's stack.
-  //   if (event.oldParentId) {
-  //     // unplug event.  call typing on old parent stack and current stack.
-  //     // console.log("unplug event");
+          }  
+        }
+      }
+      // also type the block associated with the new name.  If this is a getter, it gets typed.
+      // if it is a setter, it needs to be typed and have all its new getters typed.
+      Blockscad.assignVarTypes(block, true);
+    }
 
-  //     var block = Blockscad.workspace.getBlockById(event.blockId);
-  //     var oldParent = Blockscad.workspace.getBlockById(event.oldParentId);
-  //     Blockscad.assignBlockTypes([block]);
-  //     Blockscad.assignBlockTypes([oldParent]);
+  }
+  else if (event.type == Blockly.Events.MOVE) {
+    // this holds plug/unplug events.  
+    // plug event: has newParentID.  trigger type change on new parents block stack.
+    // unplug event: has oldParentID.  trigger type change on current block and old parent's stack.
+    if (event.oldParentId) {
+      // unplug event.  call typing on old parent stack and current stack.
+      // console.log("unplug event");
 
-  //     if (block && block.type == 'variables_set')
-  //       Blockscad.assignVarTypes(block);
-  //     else if (oldParent && oldParent.type == 'variables_set')
-  //       Blockscad.assignVarTypes(oldParent);
+      var block = Blockscad.workspace.getBlockById(event.blockId);
+      var oldParent = Blockscad.workspace.getBlockById(event.oldParentId);
+      Blockscad.assignBlockTypes([block]);
+      Blockscad.assignBlockTypes([oldParent]);
+
+      if (block && block.type == 'variables_set')
+        Blockscad.assignVarTypes(block);
+      else if (oldParent && oldParent.type == 'variables_set')
+        Blockscad.assignVarTypes(oldParent);
  
-  //   }
-  //   else if (event.newParentId) {
-  //     // plug event.  call typing on the stack.
-  //     // console.log("plug event");
-  //     var block = Blockscad.workspace.getBlockById(event.blockId);
-  //     var newParent = Blockscad.workspace.getBlockById(event.newParentId);
-  //     Blockscad.assignBlockTypes([block]);
-  //     if (newParent && newParent.type == 'variables_set')
-  //       Blockscad.assignVarTypes(newParent);
+    }
+    else if (event.newParentId) {
+      // plug event.  call typing on the stack.
+      // console.log("plug event");
+      var block = Blockscad.workspace.getBlockById(event.blockId);
+      var newParent = Blockscad.workspace.getBlockById(event.newParentId);
+      Blockscad.assignBlockTypes([block]);
+      if (newParent && newParent.type == 'variables_set')
+        Blockscad.assignVarTypes(newParent);
 
-  //   }
+    }
 
-  //   if (event.oldParentId || event.newParentId) {
-  //     // either a plug or an unplug
-  //     Blockscad.undo.needToSave = 1;
-  //   }
+    if (event.oldParentId || event.newParentId) {
+      // either a plug or an unplug
+      Blockscad.undo.needToSave = 1;
+    }
 
-  // }
+  }
 }
 // Blockscad.assignBlockTypes
 // input: array of blocks whose trees need typing
 // schedule typing to be done so that scheduled events have
 // already been fired by the time typing is done.
 Blockscad.assignBlockTypes = function(blocks) {
+  if (!goog.isArray(blocks))
+    blocks = [blocks];
   setTimeout(function() {
     // console.log(blocks);
-    for (var i=0; blocks[i] && i < blocks.length; i++) {
+    for (var i=0; blocks && blocks[i] && i < blocks.length; i++) {
       var topBlock = blocks[i].getRootBlock();
       var blockStack = topBlock.getDescendants();
       var foundCSG = 0;
@@ -1806,14 +1841,11 @@ Blockscad.assignBlockTypes = function(blocks) {
           if (cat == 'PRIMITIVE_CAG') foundCAG = 1;
         }
       }
-
       // For assigning types, use the following algorithm:
       // Go down the list of blocks.  if foundCSG:
       //    if block has an EXTRUDE parent, set to CAG, otherwise CSG
       //    else if found CAG, set to CAG
       //    else set to EITHER.
-
-
       for(j = 0; j < blockStack.length; j++) {
         if (blockStack[j].category)
           if (blockStack[j].category == 'TRANSFORM' || 
@@ -1821,14 +1853,15 @@ Blockscad.assignBlockTypes = function(blocks) {
               blockStack[j].category == 'PROCEDURE' ||
               blockStack[j].category == 'LOOP')  {
             var drawMe = !blockStack[j].collapsedParents();
+            // var drawMe = 0;
             // console.log(blockStack[j].type,"drawMe is", drawMe);
             if (foundCSG) {
               if (Blockscad.hasExtrudeParent(blockStack[j])) 
-                blockStack[j].setType('CAG',drawMe);
-              else blockStack[j].setType('CSG',drawMe);
+                blockStack[j].setType(['CAG'],drawMe);
+              else blockStack[j].setType(['CSG'],drawMe);
             }
             else if (foundCAG) {
-              blockStack[j].setType('CAG',drawMe);
+              blockStack[j].setType(['CAG'],drawMe);
             }
             else blockStack[j].setType(['CSG','CAG'],drawMe);
           }
@@ -1904,7 +1937,7 @@ Blockscad.saveBlocksLocal = function() {
     //   {
     //   }
     saveAs(blob, blocks_filename + ".xml");
-    // console.log("SAVED locally: setting needToSave to 0");
+    console.log("SAVED locally: setting needToSave to 0");
     Blockscad.setNoSaveNeeded();
   }
   else {
@@ -1934,6 +1967,26 @@ Blockscad.saveOpenscadLocal = function() {
   }
   else {
     alert("SAVE FAILED.  Please give your project a name, then try again.");
+  }
+};
+
+
+// execute_ will delay a given action until Blockly is no longer in drag mode.
+// code courtesy of miguel.ceriani@gmail.com (Miguel Ceriani)
+// released under the Apache 2.0 license
+
+Blockscad.executeAfterDrag_ = function(action, thisArg) {
+  Blockscad.renderActions.push( { action: action, thisArg: thisArg } );
+  if (Blockscad.renderActions.length === 1) {
+    var functId = window.setInterval(function() {
+      if (!Blockly.dragMode_) {
+        while (Blockscad.renderActions.length > 0) {
+          var actionItem = Blockscad.renderActions.shift();
+          actionItem.action.call(Blockscad.renderActions.thisArg);
+        }
+        window.clearInterval(functId);
+      }
+    }, 10);
   }
 };
 

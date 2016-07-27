@@ -229,8 +229,37 @@ Blockly.BlockSvg.prototype.unbacklight = function() {
     }
   }
   if (found_it && this) {
-   this.removeBacklight();
-   // if (this.workspace) this.workspace.fireChangeEvent();
+    this.removeBacklight();
+    // Take this id off the internal backlight list, id applicable
+    // console.log("in unbacklight with:",this);
+    // need to get the setter block to clear the block off of the list there, too.
+    if (this.type == 'varibles_get') {
+      var all_of_them = Blockly.Variables.getInstances(this.getFieldValue('VAR'), this.workspace);
+      var setters = [];
+      for (var i = 0; i < all_of_them.length; i++) {
+        if (all_of_them[i].type == 'variables_set')
+          setters.push(all_of_them[i]);
+      }
+      for (var i = 0; i < setters.length; i++) {
+        for (var j = 0; j < setters[i].backlightBlocks.length; j++) 
+          if (setters[i].backlightBlocks[j] == this.id) {
+            setters[i].backlightBlocks.splice(j,1);
+            if (setters[i].backlightBlocks.length == 0)
+              setters[i].setWarningText(null);
+          }
+      }
+    }
+    else if (this.type == 'procedures_callnoreturn' || this.type == 'procedures_callreturn') {
+      var defBlock = Blockly.Procedures.getDefinition(this.getProcedureCall(),
+      this.workspace);
+      for (var i = 0; i < defBlock.backlightBlocks.length; i++) {
+        if (defBlock.backlightBlocks[i] == this.id) { 
+          defBlock.backlightBlocks.splice(i,1);
+          if (defBlock.backlightBlocks.length == 0)
+            defBlock.setWarningText(null);
+        }
+      }
+    }
   }
 }
 
