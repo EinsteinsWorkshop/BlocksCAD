@@ -1777,6 +1777,12 @@ Blockscad.handleWorkspaceEvents = function(event) {
       // if it is a setter, it needs to be typed and have all its new getters typed.
       Blockscad.assignVarTypes(block, true);
     }
+    if (event.element == 'field' && event.name == 'NUM')  {
+      var block = Blockscad.workspace.getBlockById(event.blockId);
+      var parent = block.getParent();
+      if (parent && parent.type == 'cylinder')
+        parent.updateRadii();
+    }
 
   }
   else if (event.type == Blockly.Events.MOVE) {

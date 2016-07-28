@@ -203,7 +203,7 @@ Blockscad.Msg.SQUARE_TOOLTIP = "<img src='imgs/en/square.svg' width='65'>";
 Blockscad.Msg.STL_IMPORT_WARNING = "STL files are not saved with your blocks.";
 Blockscad.Msg.TAPER = "taper";
 Blockscad.Msg.TAPER_TOOLTIP = "Scales shape along an axis.  The smallest value along the select axis is scaled at one, and the largest value is scaled at user input scale value.";
-Blockscad.Msg.TEXT_DEFAULT_VALUE = "hello";
+Blockscad.Msg.TEXT_DEFAULT_VALUE = "abc";
 Blockscad.Msg.TEXT_THICKNESS = "thickness";
 Blockscad.Msg.TORUS = "torus";
 Blockscad.Msg.TORUS_TOOLTIP = "<img src='imgs/en/torus.svg' width='250px'>";

@@ -27,7 +27,7 @@ Blockscad.Toolbox.colorScheme['one'] =  // classic
         '#209303',  // 2D
         '#26549E',  // Transform
         '#7450E2',  // Set Ops
-        '#0186E2',  // Math
+        '#0185E1',  // Math
         '#BF6920',  // Logic
         '#612485',  // Loops
         '#727272',  // Advanced (or Text)
@@ -470,13 +470,53 @@ Blockscad.Toolbox.catMathLogic= '<category name="' + Blockscad.Msg.CATEGORY_MATH
           '</shadow>' + 
         '</value>' +
       '</block>' +
-      '<block type="math_single"></block>' +
-      '<block type="math_trig"></block>' +
+      '<block type="math_single">' +
+        '<value name="NUM">' + 
+          '<shadow type="math_number">' + 
+            '<field name="NUM">9</field>' + 
+          '</shadow>' + 
+        '</value>' + 
+      '</block>' +
+      '<block type="math_trig">' +
+        '<value name="NUM">' + 
+          '<shadow type="math_number">' + 
+            '<field name="NUM">45</field>' + 
+          '</shadow>' + 
+        '</value>' + 
+      '</block>' +
       '<block type="math_constant_bs"></block>' +
-      '<block type="math_number_property"></block>' +
-      '<block type="math_round"></block>' +
-      '<block type="math_modulo"></block>' +
+      '<block type="math_number_property">' +
+        '<value name="NUMBER_TO_CHECK">' + 
+          '<shadow type="math_number">' + 
+            '<field name="NUM">0</field>' + 
+          '</shadow>' + 
+        '</value>' + 
+      '</block>' +
+      '<block type="math_round">' +
+        '<value name="NUM">' + 
+          '<shadow type="math_number">' + 
+            '<field name="NUM">3.1</field>' + 
+          '</shadow>' + 
+        '</value>' + 
+      '</block>' +
+      '<block type="math_modulo">' +
+        '<value name="DIVIDEND">' + 
+          '<shadow type="math_number">' + 
+            '<field name="NUM">64</field>' + 
+          '</shadow>' + 
+        '</value>' + 
+        '<value name="DIVISOR">' + 
+          '<shadow type="math_number">' + 
+            '<field name="NUM">10</field>' + 
+          '</shadow>' + 
+        '</value>' + 
+      '</block>' +
       '<block type="math_constrain">' +
+        '<value name="VALUE">' + 
+          '<shadow type="math_number">' + 
+            '<field name="NUM">50</field>' + 
+          '</shadow>' + 
+        '</value>' + 
         '<value name="LOW">' +
           '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
@@ -596,7 +636,13 @@ Blockscad.Toolbox.catOther = '<category name="' + Blockscad.Msg.CATEGORY_TEXT + 
         '</value>' +
       '</block>' +
       '<block type="text"></block>' +
-      '<block type="bs_text_length"></block>' +
+      '<block type="bs_text_length">' +
+        '<value name="VALUE">' + 
+          '<shadow type="text">' + 
+            '<field name="TEXT">abc</field>' + 
+          '</shadow>' + 
+        '</value>' + 
+      '</block>' +
       // '<block type="rotateextrudetwist">' +
       //   '<value name="RAD">' +
       //     '<block type="math_number">' +

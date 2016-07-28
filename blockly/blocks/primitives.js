@@ -75,13 +75,17 @@ Blockly.Blocks['cylinder'] = {
     this.setPreviousStatement(true, 'CSG');
     this.setTooltip(Blockscad.Msg.CYLINDER_TOOLTIP);
   },
-  onchange: function() {
+  updateRadii: function() {
     if (!this.workspace) {
       // Block has been deleted.
       return;
     }
-    // console.log("calling cylinder onchange");
+    // console.log('in updateRadii');
     var locked = this.getField("LOCKED").getValue();
+
+    if (locked == 'FALSE') {
+      return;
+    }
 
     var R1 = null;
     var R2 = null;

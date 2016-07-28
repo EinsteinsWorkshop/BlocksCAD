@@ -117,7 +117,7 @@
 	"FONT_SIZE": "size",
 	"FONT_NAME": "font",
 	"TEXT_THICKNESS": "thickness",
-	"TEXT_DEFAULT_VALUE": "hello",
+	"TEXT_DEFAULT_VALUE": "abc",
 	"CONVEX_HULL": "hull",
 	"DIFFERENCE": "difference",
 	"UNION": "union",

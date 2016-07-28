@@ -264,8 +264,8 @@ Blockscad.Msg.FONT_SIZE = 'size';
 Blockscad.Msg.FONT_NAME = 'font';
 /// Thickness: when letters are printed on the XY plane, 'thickness' is how high the letter model is in the Z direction. 
 Blockscad.Msg.TEXT_THICKNESS = 'thickness';
-/// Default Text:  the default text in a text block.  A conversational greeting word is a good choice.  In English this is 'hello'.
-Blockscad.Msg.TEXT_DEFAULT_VALUE = 'hello';
+/// Default Text:  the default text in a text block.  English uses the first three letters of the alphabet.
+Blockscad.Msg.TEXT_DEFAULT_VALUE = 'abc';
 /// Convex Hull: this block computes the convex hull of the set of points of all the shapes given to it.  The effect is to wrap the objects together into a single convex object (with no parts that dip inward). This is a mathematical term.  
 Blockscad.Msg.CONVEX_HULL = 'hull';
 /// Difference: takes one object and subtracts away another. This is a term from set theory in mathematics.
