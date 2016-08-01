@@ -209,9 +209,14 @@ Blockscad.Viewer.prototype = {
 
   },
 
-  viewReset: function() {
-    var whichView = document.getElementById("viewMenu");
-    if (whichView.value == "diagonal") {
+  // str is an optional string input that can be used to override the viewMenu position.
+  viewReset: function(str) {
+    if (str) {
+      var whichView = str;
+    }
+    else
+      var whichView = document.getElementById("viewMenu").value;
+    if (whichView == "diagonal") {
       // diagonal
       this.angleX = -60;
       this.angleY = 0;
@@ -220,7 +225,7 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = -5;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "top") {
+    else if (whichView == "top") {
       // top
       this.angleX = 0;
       this.angleY = 0;
@@ -229,7 +234,7 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = 0;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "bottom") {
+    else if (whichView == "bottom") {
       // bottom
       this.angleX = 180;
       this.angleY = 0;
@@ -238,7 +243,7 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = 0;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "right") {
+    else if (whichView == "right") {
       // front
       this.angleX = -90;
       this.angleY = 0;
@@ -247,7 +252,7 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = 0;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "front") {
+    else if (whichView == "front") {
       // right??
       this.angleX = -90;
       this.angleY = 0;
@@ -256,7 +261,7 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = 0;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "left") {    
+    else if (whichView == "left") {    
       // back
       this.angleX = -90;
       this.angleY = 0;
@@ -265,7 +270,7 @@ Blockscad.Viewer.prototype = {
       this.viewpointY = 0;
       this.viewpointZ = 100;
     }
-    else if (whichView.value == "back") {    
+    else if (whichView == "back") {    
       // left??
       this.angleX = -90;
       this.angleY = 0;
@@ -309,6 +314,17 @@ Blockscad.Viewer.prototype = {
     var coeff = (this.viewpointZ-this.ZOOM_MIN) / (this.ZOOM_MAX - this.ZOOM_MIN);
     //console.log("zoom is: ",this.viewpointZ);
     return coeff;
+  },
+
+  zoomOut: function() {
+    var coeff = this.getZoom();
+    coeff *= 1.15;
+    this.setZoom(coeff);
+  },
+  zoomIn: function() {
+    var coeff = this.getZoom();
+    coeff *= 0.85;
+    this.setZoom(coeff);
   },
   
   onMouseMove: function(e) {

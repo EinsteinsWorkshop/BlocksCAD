@@ -725,6 +725,7 @@ Blockly.Block.prototype.renameVar = function(oldName, newName) {
     }
   }
 };
+
 /**
  * Returns the language-neutral value from the field of a block.
  * @param {string} name The name of the field.

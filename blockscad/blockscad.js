@@ -179,6 +179,16 @@ Blockscad.init = function() {
     Blockscad.gProcessor.viewer.onDraw();
   });
 
+  $( '#zInButton' ).click(function() {
+    Blockscad.gProcessor.viewer.zoomIn();
+  });
+  $( '#zOutButton' ).click(function() {
+    Blockscad.gProcessor.viewer.zoomOut();
+  });
+  $( '#zResetButton' ).click(function() {
+    Blockscad.gProcessor.viewer.viewReset();
+  });
+
   // can I bind a click to a tab?
   $( '#displayCode' ).click(  function() {
     var content = document.getElementById('openScadPre');
@@ -215,7 +225,7 @@ Blockscad.init = function() {
   Blockscad.gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
 
   //render view reset button - JY
-  BSUtils.bindClick('viewReset', Blockscad.resetView); 
+  // BSUtils.bindClick('viewReset', Blockscad.resetView); 
   // $( '#viewMenu' ).change(function() {
   //   Blockscad.gProcessor.viewer.viewReset();
   // });
@@ -330,7 +340,7 @@ Blockscad.init = function() {
     color: 'rgb(255,128,255)',    
     showPalette: true,
     className: "defaultColor",
-    appendTo: "#renderDiv",
+    appendTo: "#viewerButtons",
     hideAfterPaletteSelect:true,
     showPaletteOnly: true,
     change: function(color) {
@@ -338,8 +348,8 @@ Blockscad.init = function() {
 
     },
       palette: [
-          ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,0,0);', 'rgb(255,102,0);'],
-          ['rgb(255,204,0);'  , 'rgb(0,153,0);'    ,'rgb(51,102,255);' , 'rgb(204,51,204);']
+          ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,60,60);', 'rgb(250,150,0);'],
+          ['rgb(250,214,0);'  , 'rgb(50,220,50);'    ,'rgb(20,150,255);' , 'rgb(180,85,254);']
       ]
   });
 
@@ -976,9 +986,9 @@ Blockscad.resetView = function() {
     if (Blockscad.gProcessor.viewer) {
       Blockscad.gProcessor.viewer.viewReset();
     }
-    if (Blockscad.gProcessor.picviewer) {
-      Blockscad.gProcessor.picviewer.viewReset();
-    }
+    // if (Blockscad.gProcessor.picviewer) {
+    //   Blockscad.gProcessor.picviewer.viewReset();
+    // }
   } 
 };
 

@@ -378,6 +378,16 @@ Blockscad.Msg.MOUSEOVER_REDO = 'Redo';
 Blockscad.Msg.MOUSEOVER_TRASHCAN = 'Delete all blocks';
 /// Delete all blocks message box: ask user if they want to delete some number of blocks
 Blockscad.Msg.DISCARD_ALL = 'Delete all %1 blocks?';
+/// Toggle display of X, Y, Z axes in the render window
+Blockscad.Msg.AXES_BUTTON = 'Toggle axes display';
+/// Set default color of rendered meshes button
+Blockscad.Msg.DEFAULT_COLOR_BUTTON = 'Set default render color';
+/// Zoom in button for render window
+Blockscad.Msg.ZOOM_IN_BUTTON = 'Zoom in';
+/// Zoom out button for render window
+Blockscad.Msg.ZOOM_OUT_BUTTON = 'Zoom out';
+/// Reset zoom and view to default diagonal view
+Blockscad.Msg.ZOOM_RESET_BUTTON = 'Reset view';
 
 // Parsing/Rendering error messages
 /// Warning: STL file block needs to re-load.  Blockscad doesn't store STL files along with projects.  When a project is loaded that had an STL file, BlocksCAD prompts the user to re-load the STL file.

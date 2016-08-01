@@ -1,7 +1,7 @@
 {
 	"@metadata": {
 		"author": "Jennie Yoder <jennie@einsteinsworkshop.com>",
-		"lastupdated": "2016-05-13 11:34:32.458000",
+		"lastupdated": "2016-07-29 07:40:11.754000",
 		"locale": "en",
 		"messagedocumentation" : "qqq"
 	},
@@ -168,6 +168,11 @@
 	"MOUSEOVER_REDO": "Redo",
 	"MOUSEOVER_TRASHCAN": "Delete all blocks",
 	"DISCARD_ALL": "Delete all %1 blocks?",
+	"AXES_BUTTON": "Toggle axes display",
+	"DEFAULT_COLOR_BUTTON": "Set default render color",
+	"ZOOM_IN_BUTTON": "Zoom in",
+	"ZOOM_OUT_BUTTON": "Zoom out",
+	"ZOOM_RESET_BUTTON": "Reset view",
 	"WARNING_RELOAD_STL": "Warning: re-load your STL file block",
 	"ERROR_MESSAGE": "Error",
 	"RENDER_ERROR_EMPTY": "Nothing to Render",

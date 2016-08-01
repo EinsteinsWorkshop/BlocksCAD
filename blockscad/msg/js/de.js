@@ -11,6 +11,7 @@ Blockscad.Msg.ACROSS = "quer";
 Blockscad.Msg.ADVANCED_TOOLBOX = "Erweiterte Toolbox";
 Blockscad.Msg.ALONG = "längs";
 Blockscad.Msg.AROUND = "um";
+Blockscad.Msg.AXES_BUTTON = "Toggle axes display";  // untranslated
 Blockscad.Msg.AXIS = "achse";
 Blockscad.Msg.BLOCKS_BUMPED_OUT_DIMENSIONS = "%1 Blöcke wurden verschoben: 2D- und 3D-Objekte passen nicht zusammen.";
 Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES = "%1 Blöcke wurden verschoben: %2 und %3 passen nicht zusammen";
@@ -58,6 +59,7 @@ Blockscad.Msg.CUBE = "würfel";
 Blockscad.Msg.CUBE_TOOLTIP = "<img src='imgs/en/cube.svg' width='100px'>";
 Blockscad.Msg.CYLINDER = "zylinder";
 Blockscad.Msg.CYLINDER_TOOLTIP = "<img src='imgs/en/cylinder.svg' width='90px'>";
+Blockscad.Msg.DEFAULT_COLOR_BUTTON = "Set default render color";  // untranslated
 Blockscad.Msg.DELETE_ACCOUNT = "Benutzerkonto löschen";
 Blockscad.Msg.DELETE_ACCOUNT_BUTTON = "Lösche dein Benutzerkonto und melde dich ab";
 Blockscad.Msg.DELETE_ACCOUNT_CONFIRM = "Bist du sicher, dass du dein BlocksCAD Benutzerkonto löschen möchtest?";
@@ -217,3 +219,6 @@ Blockscad.Msg.VARIABLES_BUMPED_ONE = "%1 Variablen-Blöcke wurden verschoben weg
 Blockscad.Msg.VARIABLES_BUMPED_TWO = "Variable '%1': Typ wurde von '%2' zu '%3' geändert";
 Blockscad.Msg.WARNING_RELOAD_STL = "Achtung: Lade deinen STL Dateiblock erneut";
 Blockscad.Msg.WITH = "mit";
+Blockscad.Msg.ZOOM_IN_BUTTON = "Zoom in";  // untranslated
+Blockscad.Msg.ZOOM_OUT_BUTTON = "Zoom out";  // untranslated
+Blockscad.Msg.ZOOM_RESET_BUTTON = "Reset view";  // untranslated

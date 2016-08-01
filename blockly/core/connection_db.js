@@ -287,12 +287,9 @@ Blockly.ConnectionDB.prototype.searchForClosest = function(conn, maxRadius,
     pointerMax++;
   }
 
-
   // Reset the values of x and y.
   conn.x_ = baseX;
   conn.y_ = baseY;
-
-
 
   // If there were no valid connections, bestConnection will be null.
   return {connection: bestConnection, radius: bestRadius, allowed: legal};

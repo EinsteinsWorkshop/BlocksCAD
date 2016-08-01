@@ -29,7 +29,7 @@ goog.provide('Blockly.FieldCheckbox');
 goog.require('Blockly.Field');
 
 // how big should toggleable images be?
-var sz = 28;
+var sz = 25;
 
 /**
  * Class for a checkbox field.

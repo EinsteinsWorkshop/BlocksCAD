@@ -174,7 +174,7 @@ Blockly.Flyout.prototype.dragMode_ = Blockly.DRAG_NONE;
  * @type {number}
  * @private
 */
-Blockly.Flyout.prototype.dragAngleRange_ = 70;
+Blockly.Flyout.prototype.dragAngleRange_ = 80;
 
 /**
  * Creates the flyout's DOM.  Only needs to be called once.
