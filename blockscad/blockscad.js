@@ -30,10 +30,10 @@ var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
 
-Blockscad.version = "1.4.2";
-Blockscad.releaseDate = "2016/06/01";
+Blockscad.version = "1.5.0";
+Blockscad.releaseDate = "2016/08/07";
 
-Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
