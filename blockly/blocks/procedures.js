@@ -218,20 +218,26 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       // Block has been deleted.
       return;
     }
-    // console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
-    // console.log("arrays: " + goog.isArray(this.myType_) + ', ' + goog.isArray(type));
+    console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
+    console.log("arrays: " + goog.isArray(this.myType_) + ', ' + goog.isArray(type));
     if (!goog.isArray(type))
       type = [type];
     // compare to see if type matches this.myType_
 
     var same = 1;
-    for (var i = 0; i < type.length; i++) {
-      if (!this.myType_ || this.myType_[i] != type[i])
-        same = 0;
+
+    if (type.length != this.myType_.length){
+      same = 0;
+    }
+    else {
+      for (var i = 0; i < type.length; i++) {
+        if (!this.myType_ || this.myType_[i] != type[i])
+          same = 0;
+      }
     }
     if (same) return;
 
-    // console.log("in modules's setType");
+    console.log("in modules's setType");
 
     var oldtype = this.myType_;
     var callers = Blockly.Procedures.getCallers(this.getFieldValue('NAME'), this.workspace);
@@ -255,7 +261,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         // if the stack's type doesn't match the caller's new type, bumpage!
         // mark that block that will be bumped
         if (areaType != 'EITHER' && areaType != type[0]) {
-          // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
+          console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
           numBumped.push(callers[i]);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
           var topBlock = callers[i].collapsedParents();
@@ -288,7 +294,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         if (setterParent) {
           setTimeout(function() {
             // console.log("this caller is inside a setter: ", setterParent.id);
-            setterParent.setType(type);
+            if (setterParent) setterParent.setType(type);
           }, 0);
         }
       }

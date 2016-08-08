@@ -1801,7 +1801,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
     // unplug event: has oldParentID.  trigger type change on current block and old parent's stack.
     if (event.oldParentId) {
       // unplug event.  call typing on old parent stack and current stack.
-      // console.log("unplug event");
+      console.log("unplug event");
 
       var block = Blockscad.workspace.getBlockById(event.blockId);
       var oldParent = Blockscad.workspace.getBlockById(event.oldParentId);
@@ -1816,7 +1816,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
     }
     else if (event.newParentId) {
       // plug event.  call typing on the stack.
-      // console.log("plug event");
+      console.log("plug event");
       var block = Blockscad.workspace.getBlockById(event.blockId);
       var newParent = Blockscad.workspace.getBlockById(event.newParentId);
       Blockscad.assignBlockTypes([block]);
@@ -1882,7 +1882,7 @@ Blockscad.assignBlockTypes = function(blocks) {
             else blockStack[j].setType(['CSG','CAG'],drawMe);
           }
       }
-      //console.log("in assignBlockTypes(foundCSG,foundCAG)",foundCSG,foundCAG);
+      // console.log("in assignBlockTypes(foundCSG,foundCAG)",foundCSG,foundCAG);
       //console.log("blockStack",blockStack);
     }
   }, 0);
