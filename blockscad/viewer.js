@@ -421,7 +421,7 @@ Blockscad.Viewer.prototype = {
       this.touch.scale = e.gesture.scale;
       return this;
   },
-  onDraw: function(takePic,angle) {
+  onDraw: function(takePic,angle,camera) {
     var gl = this.gl;
     gl.makeCurrent();
 
@@ -637,18 +637,32 @@ Blockscad.Viewer.prototype = {
       // GL.Mesh.plane({ detailX: 20, detailY: 40 });
     }
 
-    // take a pic if needed
+    // take a thumbnail pic if needed
     if (takePic) {
 
       var image = this.gl.canvas.toDataURL('image/jpeg', takePic);
       return image;
     }
+    // take a screenshot pic if needed
+    if (camera) {
+
+      var image = this.gl.canvas.toDataURL('image/jpeg', camera);
+      return image;
+    }
+
+    
   },
   // quality is the jpeg quality level (between 0 and 1).  Note that a value of 0
   // won't take a pic at all, because it is used as a true/false to take the pic.
   takePic: function(quality, angle) {
       return this.onDraw(quality, angle);
+  },
+  
+  // new function for taking a screen shot
+  takeCameraPic: function(quality) {
+      return this.onDraw(0,0,quality);
   }
+
 
 };
 

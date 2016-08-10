@@ -179,6 +179,7 @@ Blockscad.init = function() {
     Blockscad.gProcessor.viewer.onDraw();
   });
 
+
   $( '#zInButton' ).click(function() {
     Blockscad.gProcessor.viewer.zoomIn();
   });
@@ -188,6 +189,15 @@ Blockscad.init = function() {
   $( '#zResetButton' ).click(function() {
     Blockscad.gProcessor.viewer.viewReset();
   });
+
+
+  $( '#cameraButton' ).click(function() {
+    // toggle whether or not we draw the axes, then redraw
+    console.log("cameraButton clicked");
+    Blockscad.cameraPic();
+    
+  });
+  
 
   // can I bind a click to a tab?
   $( '#displayCode' ).click(  function() {
@@ -503,6 +513,20 @@ Blockscad.takePic = function() {
   if (Blockscad.gProcessor.picviewer) {
     // the parameter here is the jpeg quality - between 0 and 1.
     var image = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+    // Blockscad.gProcessor.thumbnail = image;
+
+    // console.log("image",image);
+    if (image)
+    Blockscad.savePic(image, $('#project-name').val() + '.jpg');
+  }
+}
+
+Blockscad.cameraPic = function() {
+  if (Blockscad.gProcessor.viewer) {
+    // the parameter here is the jpeg quality - between 0 and 1.
+    //var image = Blockscad.gProcessor.viewer.takePic(.95,0);
+    var image = Blockscad.gProcessor.viewer.takeCameraPic(.95);
+
     // Blockscad.gProcessor.thumbnail = image;
 
     // console.log("image",image);

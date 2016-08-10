@@ -94,6 +94,7 @@ html, body {
 	width: 100%;
 	bottom: 59px;
 	border: 1px solid #ccc;
+	overflow: hidden;
 }
 .vbut {
 	padding: 3px;
@@ -179,6 +180,20 @@ html, body {
 	z-index: 500;
 
 }
+
+/*#axesButton {
+	position:absolute;
+	bottom: 0px;
+	right: 3px;
+	z-index: 500;
+}*/
+/*#cameraButton {
+	position:absolute;
+	bottom: 0px;
+	right: 53px;
+	z-index: 500;
+}*/
+
 #picButton {
 	position: absolute;
 	bottom: 0px;

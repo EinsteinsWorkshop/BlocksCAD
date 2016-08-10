@@ -160,9 +160,13 @@ output += '                <button type="button" id="rPicButton" class="btn btn-
 output += '                  Rotating Pic';
 output += '                </button> \n';
 output += '-->';
+
 // output += '                <button type="button" id="axesButton" class="btn btn-default btn-pushed">\n';
 // output += '                  <img src="imgs/axes.png">\n';
 // output += '                </button>\n';
+
+
+
 // output += '\n';
 // output += '\n';
 output += '                <!-- <input type="text" id="colorButton"/> -->\n';
@@ -223,6 +227,10 @@ output += '                  <option value="back">' + Blockscad.Msg.DIRECTION_BA
 output += '                  <option value="bottom">' + Blockscad.Msg.DIRECTION_BOTTOM + '</option>\n';
 output += '                </select>\n';
 output += '                  </div>\n';
+output += '                <button type="button" id="cameraButton" class="btn vbut btn-default">\n';
+output += '                  <img src="imgs/cameraSmall.png">\n';
+output += '                </button>\n';
+
 output += '                </div>\n';
 output += '                <div id="renderPane">\n';
 output += '                  <button type="button" class="btn btn-default btn-lg changeable" id="renderButton">' + Blockscad.Msg.RENDER_BUTTON + '</button>\n';
