@@ -29,10 +29,8 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-
-Blockscad.version = "1.4.2";
-Blockscad.releaseDate = "2016/06/1";
-
+Blockscad.version = "1.5.0";
+Blockscad.releaseDate = "2016/08/10";
 
 Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.standalone = false; // if true, run code needed for the standalone version
@@ -55,6 +53,8 @@ Blockscad.init = function() {
   Blockscad.csg_commands = {}; // holds any converted stl file contents
   Blockscad.csg_filename = {}; // holds any converted stl file names
   Blockscad.csg_center = [0,0,0];
+
+  Blockscad.renderActions = [];
 
 
   var container = document.getElementById('main');
@@ -95,12 +95,18 @@ Blockscad.init = function() {
   Blockscad.workspace = Blockly.inject(document.getElementById('blocklyDiv'),
       {
        media: 'blockly/media/',
-       zoom: {enabled:true,
-              scaleSpeed: 1.1,
-              controls:true},
+       zoom:
+         {controls: true,
+          wheel: true,
+          startScale: 1.0,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2},
        trashcan: false,
        toolbox: Blockscad.Toolbox.adv});
 
+  // Listen to events on blocksCAD workspace.
+  Blockscad.workspace.addChangeListener(Blockscad.handleWorkspaceEvents);
 
   // set the initial color scheme
   Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
@@ -142,7 +148,8 @@ Blockscad.init = function() {
 
 
 
-  Blockly.fireUiEvent(window, 'resize');
+  Blockly.svgResize(Blockscad.workspace);
+  window.dispatchEvent(new Event('resize'));
 
   if (!Blockscad.offline) {
     // init the user auth stuff
@@ -158,8 +165,14 @@ Blockscad.init = function() {
 
 
   // undo/redo buttons should undo/redo changes
-  BSUtils.bindClick('undoButton', Blockscad.onUndo);
-  BSUtils.bindClick('redoButton', Blockscad.onRedo);
+  BSUtils.bindClick('undoButton', 
+    function() {
+      Blockscad.workspace.undo(false)
+    });
+  BSUtils.bindClick('redoButton', 
+    function() {
+      Blockscad.workspace.undo(true)
+    });
 
   $( '#axesButton' ).click(function() {
     // toggle whether or not we draw the axes, then redraw
@@ -167,6 +180,26 @@ Blockscad.init = function() {
     $( '#axesButton' ).toggleClass("btn-pushed");
     Blockscad.gProcessor.viewer.onDraw();
   });
+
+
+  $( '#zInButton' ).click(function() {
+    Blockscad.gProcessor.viewer.zoomIn();
+  });
+  $( '#zOutButton' ).click(function() {
+    Blockscad.gProcessor.viewer.zoomOut();
+  });
+  $( '#zResetButton' ).click(function() {
+    Blockscad.gProcessor.viewer.viewReset();
+  });
+
+
+  $( '#cameraButton' ).click(function() {
+    // toggle whether or not we draw the axes, then redraw
+    console.log("cameraButton clicked");
+    Blockscad.cameraPic();
+    
+  });
+  
 
   // can I bind a click to a tab?
   $( '#displayCode' ).click(  function() {
@@ -178,7 +211,7 @@ Blockscad.init = function() {
       code = prettyPrintOne(code, 'js');
       content.innerHTML = code; 
     }
-    Blockly.fireUiEvent(window, 'resize');
+    Blockly.svgResize(Blockscad.workspace);
   });
 
 
@@ -204,29 +237,29 @@ Blockscad.init = function() {
   Blockscad.gProcessor = new Blockscad.Processor(document.getElementById("renderDiv"));
 
   //render view reset button - JY
-  BSUtils.bindClick('viewReset', Blockscad.resetView); 
+  // BSUtils.bindClick('viewReset', Blockscad.resetView); 
   // $( '#viewMenu' ).change(function() {
   //   Blockscad.gProcessor.viewer.viewReset();
   // });
 
   // a bunch of stuff to support Undo/Redo
   Blockscad.undo = {
-    blockList:[], // array to hold all old blocks
-    oldBlockList:[], // array to hold old blocks
-    undoStack:[], // array to hold undo xml trees
-    redoStack:[], // array to hold redo xml trees
-    current_xml:null, // holds current blockly workspace tree
-    blockCount:0,   // how many blocks are there?
-    yesthis:0,      // has there been a real change we should undo?
-    fieldChanging:0,  // was the last change a field change?  For grouping field changes
-    blockIds:[],    // parsed field ids
-    fieldValues:[], // parsed field values
-    parentIds:[],
-    oldBlockIds:[],
-    oldFieldValues:[],
-    oldParentIds:[],
-    just_did_undo:0,
-    oldProjectName: Blockscad.Msg.PROJECT_NAME_DEFAULT
+    // blockList:[], // array to hold all old blocks
+    // oldBlockList:[], // array to hold old blocks
+    // undoStack:[], // array to hold undo xml trees
+    // redoStack:[], // array to hold redo xml trees
+    // current_xml:null, // holds current blockly workspace tree
+    // blockCount:0,   // how many blocks are there?
+    // yesthis:0,      // has there been a real change we should undo?
+    // fieldChanging:0,  // was the last change a field change?  For grouping field changes
+    // blockIds:[],    // parsed field ids
+    // fieldValues:[], // parsed field values
+    // parentIds:[],
+    // oldBlockIds:[],
+    // oldFieldValues:[],
+    // oldParentIds:[],
+    // just_did_undo:0,
+    // oldProjectName: Blockscad.Msg.PROJECT_NAME_DEFAULT
   };
 
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
@@ -236,7 +269,7 @@ Blockscad.init = function() {
 
   // Set up an event listener to see when the Blockly workspace gets a change
   // TODO: Set up some "Undo_events" in Blockly that only trigger on the good stuff
-  Blockscad.workspace.addUndoListener(Blockscad.workspaceChanged);
+  // Blockscad.workspace.addUndoListener(Blockscad.workspaceChanged);
 
     // test to see if a user is logged in - use this to populate the login-area.
   if (!Blockscad.offline) {
@@ -282,7 +315,7 @@ Blockscad.init = function() {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
       Blockscad.Toolbox.setCatColors();
       Blockscad.workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+      Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml,Blockscad.workspace);
     }
 
   });
@@ -292,7 +325,7 @@ Blockscad.init = function() {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['two']);
       Blockscad.Toolbox.setCatColors();
       Blockscad.workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
+      Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml,Blockscad.workspace);
     }
   });
 
@@ -320,7 +353,7 @@ Blockscad.init = function() {
     color: 'rgb(255,128,255)',    
     showPalette: true,
     className: "defaultColor",
-    appendTo: "#renderDiv",
+    appendTo: "#viewerButtons",
     hideAfterPaletteSelect:true,
     showPaletteOnly: true,
     change: function(color) {
@@ -328,8 +361,8 @@ Blockscad.init = function() {
 
     },
       palette: [
-          ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,0,0);', 'rgb(255,102,0);'],
-          ['rgb(255,204,0);'  , 'rgb(0,153,0);'    ,'rgb(51,102,255);' , 'rgb(204,51,204);']
+          ['rgb(255,128,255);', 'rgb(153,153,153);','rgb(238,60,60);', 'rgb(250,150,0);'],
+          ['rgb(250,214,0);'  , 'rgb(50,220,50);'    ,'rgb(20,150,255);' , 'rgb(180,85,254);']
       ]
   });
 
@@ -378,16 +411,77 @@ Blockscad.init = function() {
   });
   $('#stl_buttons').hide();
 
-  if (!Blockscad.standalone) {
-    BSUtils.loadBlocks('');
-  }
-  else {
-    // for standalone, just call restoreBlocks directly
-    // console.log("calling standalone restore");
-    BlocklyStorage.standaloneRestoreBlocks();
-  }
+// <<<<<<< HEAD
+//   if (!Blockscad.standalone) {
+//     BSUtils.loadBlocks('');
+//   }
+//   else {
+//     // for standalone, just call restoreBlocks directly
+//     // console.log("calling standalone restore");
+//     BlocklyStorage.standaloneRestoreBlocks();
+//   }
+// =======
+  // we've just initiated BlocksCAD (page was loaded).  Run block typing on all blocks.
+  // I'll do three passes - first variable setters (does that type variable getters?)
+  // then procedures, then the rest.
+  // I'm running it in a timeout to make sure any events have had time to fire.  What a pain.
+
+
+  setTimeout(Blockscad.typeWorkspace, 10);
+
 
 }; // end Blockscad.init()
+
+Blockscad.typeWorkspace = function() {
+  // I'll do three passes - first variable setters (does that type variable getters?)
+  // then procedures, then the rest. 
+  // console.log("running typeWorkspace");
+  var blocks = Blockscad.workspace.getAllBlocks();
+  for (var i = 0; i < blocks.length; i++) {
+    if (blocks[i].type == 'variables_set')
+      Blockscad.assignVarTypes(blocks[i]);
+  }
+
+  var topBlocks = Blockscad.workspace.getTopBlocks();
+
+  for (var i = 0; i < topBlocks.length; i++) {
+    if (topBlocks[i].category && topBlocks[i].category == 'PROCEDURE') {
+      // console.log("found a procedure to type");
+      Blockscad.assignBlockTypes([topBlocks[i]]);
+    }
+  }
+  for (var k = 0; k < blocks.length; k++) {
+    if (blocks[k].type != 'variables_set' && blocks[k].category != 'PROCEDURE') {
+      Blockscad.assignBlockTypes(blocks[k]);
+    }
+  }
+  Blockscad.assignBlockTypes(Blockscad.workspace.getTopBlocks());
+}
+
+// type a new block stack.  block is not guaranteed to be the top block in the stack.
+Blockscad.typeNewStack = function(block) {
+  // three passes - variables, procedures, then the rest.
+  // this is called when blocks are created (think duplicated block stacks with callers in it)
+  console.log("in typeNewStack");
+  var topBlock = block.getRootBlock();
+  var blockStack = topBlock.getDescendants();
+  for (var i = 0; blockStack && i < blockStack.length; i++) {
+    if (blockStack[i].type == 'variables_set' || blockStack[i].type == 'variables_get')
+      Blockscad.assignVarTypes(blockStack[i]);
+  }
+  for (var i = 0; blockStack && i < blockStack.length; i++) {
+    if (blockStack[i].category == 'PROCEDURE') {
+      Blockscad.assignBlockTypes([blockStack[i]]);
+    } 
+  }
+  for (var i = 0; blockStack && i < blockStack.length; i++) {
+    if (blockStack[i].category == 'SET_OP' ||
+        blockStack[i].category == 'TRANSFORM' ||
+        blockStack[i].category == 'LOOP') {
+      Blockscad.assignBlockTypes([blockStack[i]]);
+    } 
+  }
+}
 
 Blockscad.takeRPic = function() {
   if (Blockscad.gProcessor != null) {
@@ -433,6 +527,20 @@ Blockscad.takePic = function() {
   if (Blockscad.gProcessor.picviewer) {
     // the parameter here is the jpeg quality - between 0 and 1.
     var image = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+    // Blockscad.gProcessor.thumbnail = image;
+
+    // console.log("image",image);
+    if (image)
+    Blockscad.savePic(image, $('#project-name').val() + '.jpg');
+  }
+}
+
+Blockscad.cameraPic = function() {
+  if (Blockscad.gProcessor.viewer) {
+    // the parameter here is the jpeg quality - between 0 and 1.
+    //var image = Blockscad.gProcessor.viewer.takePic(.95,0);
+    var image = Blockscad.gProcessor.viewer.takeCameraPic(.95);
+
     // Blockscad.gProcessor.thumbnail = image;
 
     // console.log("image",image);
@@ -518,8 +626,8 @@ function readSingleFile(evt, replaceOld) {
 
       contents = e.target.result;  
       var xml = Blockly.Xml.textToDom(contents);
-      Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
-      Blockly.fireUiEvent(window, 'resize');
+      Blockly.Xml.domToWorkspace(xml, Blockscad.workspace); 
+      Blockly.svgResize(Blockscad.workspace);
 
       Blockscad.clearStlBlocks();
     };
@@ -614,12 +722,14 @@ Blockscad.readStlFile = function(evt) {
       else {
         // lets make some xml and load a block into the workspace.
         // console.log("making block from xml");
-        var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="10" y="10"><field name="STL_FILENAME">' +
+        var xml = '<xml xmlns="http://blockscad.einsteinsworkshop.com"><block type="stl_import" id="1" x="0" y="0"><field name="STL_FILENAME">' +
         f.name + '</field>' + '<field name="STL_BUTTON">' + Blockscad.Msg.BROWSE + '</field>' + 
         '<field name="STL_CONTENTS">'+ proj_name_use + '</field></block></xml>';
         //console.log("xml is:",xml);
         var stuff = Blockly.Xml.textToDom(xml);
         var newblock = Blockly.Xml.domToBlock(Blockscad.workspace, stuff.firstChild);
+        newblock.moveBy(20 + Blockscad.workspace.getMetrics().viewLeft / Blockscad.workspace.scale, 
+          20 + Blockscad.workspace.getMetrics().viewTop / Blockscad.workspace.scale);
         bt_input = newblock.getField('STL_BUTTON');
         bt_input.setVisible(false);
         newblock.setCommentText(f.name + '\ncenter:(' + center + ')');
@@ -733,8 +843,11 @@ Blockscad.newProject = function() {
 };
 Blockscad.createNewProject = function() {
   Blockscad.clearProject();
-  Blockscad.workspaceChanged();
-  Blockscad.clearUndo();
+  // Blockscad.workspaceChanged();
+  Blockscad.workspace.clearUndo();
+  // disable undo buttons
+  // $('#undoButton').prop('disabled', true);
+  // $('#redoButton').prop('disabled', true);  
   setTimeout(Blockscad.setNoSaveNeeded, 300);
   $('#displayBlocks').click();
   if (!Blockscad.offline)
@@ -818,7 +931,7 @@ Blockscad.getExample = function(example, name) {
   $.get(example, function( data ) {
 
     Blockscad.clearProject();
-    Blockscad.workspaceChanged();
+    // Blockscad.workspaceChanged();
     // turn xml data object into a string that Blockly can use
     var xmlString;
     //IE
@@ -832,8 +945,8 @@ Blockscad.getExample = function(example, name) {
     // console.log(xmlString);
     // load xml blocks
     var xml = Blockly.Xml.textToDom(xmlString);
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
-    Blockly.fireUiEvent(window, 'resize');
+    Blockly.Xml.domToWorkspace(xml, Blockscad.workspace); 
+    Blockly.svgResize(Blockscad.workspace);
     // update project name
     $('#project-name').val(name + ' example');
     // we just got a new project.  It doesn't need saving yet.
@@ -862,15 +975,15 @@ Blockscad.clearProject = function() {
   $('#bigsavebutton').show();
 };
 
-Blockscad.clearUndo = function() {
-  // clear the undo and redo stacks
-  while(Blockscad.undo.undoStack.length) {
-    Blockscad.undo.undoStack.pop();
-  }
-  while(Blockscad.undo.redoStack.length){
-    Blockscad.undo.redoStack.pop();
-  }
-}
+// Blockscad.clearUndo = function() {
+//   // clear the undo and redo stacks
+//   while(Blockscad.undo.undoStack.length) {
+//     Blockscad.undo.undoStack.pop();
+//   }
+//   while(Blockscad.undo.redoStack.length){
+//     Blockscad.undo.redoStack.pop();
+//   }
+// }
 
 /**
  * Discard all blocks from the workspace.
@@ -913,9 +1026,9 @@ Blockscad.resetView = function() {
     if (Blockscad.gProcessor.viewer) {
       Blockscad.gProcessor.viewer.viewReset();
     }
-    if (Blockscad.gProcessor.picviewer) {
-      Blockscad.gProcessor.picviewer.viewReset();
-    }
+    // if (Blockscad.gProcessor.picviewer) {
+    //   Blockscad.gProcessor.picviewer.viewReset();
+    // }
   } 
 };
 
@@ -1101,6 +1214,8 @@ Blockscad.renderCode = function(code) {
       { Blockscad.gProcessor.setBlockscad(csgcode); 
         // console.log("code is now",code); 
       }, 0);
+    // unbacklight all here
+    Blockscad.workspace.clearBacklight();
   }
   else {
     $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
@@ -1117,367 +1232,348 @@ Blockscad.renderCode = function(code) {
 // each possible "is_real" condition is separate (like block insert vs. delete)
 // to make it easier to configure the undo - what events trigger a real undo?
 
-Blockscad.isRealChange = function() {
-  // set up the info we need to determine a change
-  //time to parse block info.  Get ID's, parent ID's, and field values.
-  Blockscad.undo.blockIds = [];
-  Blockscad.undo.parentIds = [];
-  Blockscad.undo.fieldValues = [];
-  Blockscad.undo.isDisabled = [];
-  Blockscad.undo.varNames = [];
-  Blockscad.undo.comment = [];
-  Blockscad.undo.projectName = $('#project-name').val();
+// Blockscad.isRealChange = function() {
+//   // set up the info we need to determine a change
+//   //time to parse block info.  Get ID's, parent ID's, and field values.
+//   Blockscad.undo.blockIds = [];
+//   Blockscad.undo.parentIds = [];
+//   Blockscad.undo.fieldValues = [];
+//   Blockscad.undo.isDisabled = [];
+//   Blockscad.undo.varNames = [];
+//   Blockscad.undo.comment = [];
+//   Blockscad.undo.projectName = $('#project-name').val();
 
-  Blockscad.undo.triggerRender = false;   // should the change trigger a re-render?
+//   Blockscad.undo.triggerRender = false;   // should the change trigger a re-render?
 
-  var deletedBlockPos = null;
-  var addedBlockPos = null;
-  var deletedBlockParent = null;
-  var addedBlockParent = null;
-  var real_change = false;
+//   var deletedBlockPos = null;
+//   var addedBlockPos = null;
+//   var deletedBlockParent = null;
+//   var addedBlockParent = null;
+//   var real_change = false;
 
-
-  // I'm not going to make a project name change an undoable change, but it will trigger needing to save.
-  if (Blockscad.undo.projectName != Blockscad.undo.oldProjectName) {
-    // console.log("projname: setting needToSave to 1");
-    Blockscad.undo.needToSave = 1;
-  }
-
-  // console.log("in realChange()");
-  // console.log("in isRealChange with current",Blockscad.undo.blockList);
-  // console.log("old at RealChange",Blockscad.undo.oldBlockList);
-
-  // save field values, ids, and parent ids, and disabled state for all blocks in workspace.
-
-  // if a procedure call block has been added, it will have an UNKNOWN type.
-  // populate its type.
-  for (var i = 0; i < Blockscad.undo.blockList.length; i++) {
-    Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
-    Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
-    Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
-    Blockscad.undo.comment[i] = Blockscad.undo.blockList[i].getCommentText();
-    if (Blockscad.undo.blockList[i].type == "variables_set" || Blockscad.undo.blockList[i].type == "variables_get")
-      Blockscad.undo.varNames[i] = Blockscad.undo.blockList[i].getFieldValue('VAR');
-    else
-      Blockscad.undo.varNames[i] = null;
-    if (Blockscad.undo.blockList[i].getParent()) {
-      Blockscad.undo.parentIds[i] = Blockscad.undo.blockList[i].getParent().id;
-    }
-    else Blockscad.undo.parentIds[i] = null;
-    if (Blockscad.undo.blockList[i].category) {
-      if (Blockscad.undo.blockList[i].category == 'UNKNOWN') {
-        Blockscad.undo.blockList[i].getType();
-      }
-    }
-  }
-
-  // has the number of blocks decreased, or increased?
-  if (Blockscad.undo.blockCount > Blockscad.undo.blockList.length) {
-    // this is the "block deleted" condition
-    Blockscad.undo.fieldChanging = 0;
-    // were all the blocks deleted?
-    if (Blockscad.undo.blockList.length === 0) {
-      // All blocks were deleted.  An undo would have to restore current.xml here.
-    }
-    else {
-      deletedBlockPos = Blockscad.getExtraRootBlock(Blockscad.undo.oldBlockList, Blockscad.undo.blockList);
-      //console.log("got the deleted block postion at",deletedBlockPos);
-      var oldParentID = Blockscad.undo.oldParentIds[deletedBlockPos]; 
-      deletedBlockParent = Blockscad.getBlockFromId(oldParentID,Blockscad.undo.blockList);
-      if (deletedBlockParent) {
-        Blockscad.assignBlockTypes([deletedBlockParent]);
-        if (deletedBlockParent.type == 'variables_set')
-          Blockscad.assignVarTypes(deletedBlockParent);
-      }
-      // if the block that was deleted was a variable_set block, and the only one for that variable name, 
-      // I want to set all the instances to null.  I think I can just send all the instances to 
-      // the variable typing code.
-      if (Blockscad.undo.oldVarNames[deletedBlockPos] != null) {
-        // the deleted block had a variable name associated with it
-        // get all instances with that name? or just send the name?
-        var instances = Blockly.Variables.getInstances(Blockscad.undo.oldVarNames[deletedBlockPos],Blockscad.workspace);
-        for (var k = 0; instances && k < instances.length; k++) {
-          if (instances[k].type == 'variables_get')
-            Blockscad.assignVarTypes(instances[k]);
-        }
-      }
-    }
-    // console.log("setting needToSave to 1");
-    Blockscad.undo.needToSave = 1;
-    Blockscad.undo.triggerRender = true;
-    return true;
-  }
-  if (Blockscad.undo.blockCount < Blockscad.undo.blockList.length) {
-    // A block has been added here.  Get the new block.  If it has a category,
-    // send it to assignBlockTypes.  (might want to get parent too for undo?)
-    Blockscad.undo.fieldChanging = 0;
-    if (Blockscad.undo.oldBlockList.length === 0) {
-      // We just refreshed, loaded
-      Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
-      var allBlocks = Blockly.mainWorkspace.getAllBlocks();
-      for (var i = 0; i < allBlocks.length; i++) {
-        if (allBlocks[i].type == 'variables_set')
-          Blockscad.assignVarTypes(allBlocks[i]);
-      }
-      // console.log("whole workspace refreshed");
-    }
-    else {
-      addedBlockPos = Blockscad.getExtraRootBlock(Blockscad.undo.oldBlockList, Blockscad.undo.blockList);
-      Blockscad.assignBlockTypes([Blockscad.undo.blockList[addedBlockPos]]);
-      // if new block's or its parent is a variables_set block, do variable typing.
-      addedBlockParent = Blockscad.undo.blockList[addedBlockPos].getParent();
-      if (addedBlockParent && addedBlockParent.type == 'variables_set') {
-        // console.log("added block parent was a variables_set block, must do typing");
-        Blockscad.assignVarTypes(addedBlockParent);
-      }
-      if (Blockscad.undo.blockList[addedBlockPos].type == 'variables_set') {
-        // console.log("added block was a variables_set - type it")
-        Blockscad.assignVarTypes(Blockscad.undo.blockList[addedBlockPos]);
-      }
-    }
-    // console.log("setting needToSave to 1");
-    Blockscad.undo.needToSave = 1;
-    Blockscad.undo.triggerRender = true;
-    return true;
-  }
-
-  // I need to go through the blocks.  First, I'll check for blocks having different parents.
-  // I speculate that these are mainly plug/unplug events.  Is that true?
-  // on a plug/unplug event I run enableMathBlocks in case a math block was 
-  // plugged into something and needs to be enabled again. NOTE: I wasn't catching all
-  // the cases of math blocks needing to be enabled/disabled, so I do that on all changes,
-  // instead of here.
-
-  // after checking parents I check for field values changing.
-  // console.log("blockIds",Blockscad.undo.blockIds);
-  // console.log("oldBlockIds",Blockscad.undo.oldBlockIds);
-  // console.log("parentIds",Blockscad.undo.parentIds);
-  // console.log("oldParentIds",Blockscad.undo.oldParentIds);
-
-  // I'm also going to check if any variables have changed names.  That will trigger a type change.
-  for (var i = 0; i < Blockscad.undo.blockIds.length; i++) {
-    var myid = Blockscad.undo.blockIds[i];
-    var found_it = 0;
-    var disable_change = false;
-    for (var j = 0; j < Blockscad.undo.blockIds.length; j++) {
-      if (myid == Blockscad.undo.oldBlockIds[j]) {
-        found_it = 1;
-
-        if (Blockscad.undo.parentIds[i] != Blockscad.undo.oldParentIds[j]) {
-
-          // console.log("setting needToSave to 1");
-          Blockscad.undo.needToSave = 1;
-          Blockscad.undo.triggerRender = true;
-          // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
-
-          // determine if we had a "plug" or an "unplug" event, and 
-          // send either one or two stacks to get types evaluated.
-          // Note:  one event can be both a "plug" and an "unplug" event.
-          // console.log("plug or unplug - send block myid",myid);
-          Blockscad.assignBlockTypes([Blockscad.undo.blockList[i]]);
-          var plugParent = Blockscad.undo.blockList[i].getParent();
-          if (plugParent && plugParent.type == "variables_set") {
-            // console.log("something was plugged into a variables_set block, type it");
-            Blockscad.assignVarTypes(plugParent);
-          }
-          for (var k = 0, blk; blk = Blockscad.undo.blockList[k]; k++) {
-            if (blk.id == Blockscad.undo.oldParentIds[j]) {
-              // console.log("unplugged parent exists with id",blk.id);
-              Blockscad.assignBlockTypes([Blockscad.undo.blockList[k]]);
-              // Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
-              if (Blockscad.undo.blockList[k].type == "variables_set") {
-                // console.log("something was unplugged from var_set #" + blk.id + " ,type it");
-                Blockscad.assignVarTypes(Blockscad.undo.blockList[k]);
-              }
-              break;
-            }
-          }
-          return true; // found a real change - a plug/unplug event!
-        }
-        if (Blockscad.undo.varNames[i] != Blockscad.undo.oldVarNames[j]) {
-          Blockscad.undo.fieldChanging = 0;
-          // console.log("found a var changing name from (old): " + 
-                        // Blockscad.undo.oldVarNames[j] + " to: " + Blockscad.undo.varNames[i]);
-          Blockscad.assignVarTypes(Blockscad.undo.blockList[i]);
-
-          // console.log("setting needToSave to 1");
-          Blockscad.undo.needToSave = 1;
-          Blockscad.undo.triggerRender = true;
-        }
-        if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
-          // A field is changing.  I won't trigger undo yet to aggregate
-          // the keypresses, but I do want to enable the renderButton already.
-          $('#renderButton').prop('disabled', false); 
-          // console.log("found a field changing");
-          Blockscad.undo.fieldChanging = 1;
+//   // I'm not going to make a project name change an undoable change, but it will trigger needing to save.
+//   if (Blockscad.undo.projectName != Blockscad.undo.oldProjectName) {
+//     // console.log("projname: setting needToSave to 1");
+//     Blockscad.undo.needToSave = 1;
+//   }
 
 
+//   // console.log("in realChange()");
+//   // console.log("in isRealChange with current",Blockscad.undo.blockList);
+//   // console.log("old at RealChange",Blockscad.undo.oldBlockList);
 
-          // console.log("setting needToSave to 1");
-          Blockscad.undo.needToSave = 1;
-          // if (Blockscad.undo.fieldChanging != myid) {
-          //   Blockscad.undo.fieldChanging = myid;
-          //   console.log("triggering field-change addition to undo stack");
-          //   //return true; // found a real change - a field is changing!
-          // }
-          // if (Blockscad.undo.editorClosed) {
-          //   console.log("in isRealChange.  editor was closed.");
-          //   return true;
-          // }
-          // else return false; // this event should be ignored by undo.
-        }
-        if (Blockscad.undo.fieldChanging) {
-          // console.log("currently, blockscad thinks a field is changing");
-          if (Blockscad.undo.editorClosed) {
-            // console.log("editor was closed.  Field no longer changing.");
-            Blockscad.undo.fieldChanging = 0;
-            Blockscad.undo.triggerRender = true;
-            return true;
-          }
-          // else
-          //   console.log("editor was not closed, so the field is still changing.");
-        }
-        if (Blockscad.undo.isDisabled[i] != Blockscad.undo.oldDisabled[j]) {
-          // some block has changed from disabled to enabled, or vice-versa.  Mark this
-          // as an undoable change.
-          // don't return from here though - I might need to enable/disable more math blocks.
-          real_change = true;
-          Blockscad.undo.triggerRender = true;
-        }
-        if (Blockscad.undo.comment[i] != Blockscad.undo.oldComment[j]) {
-          // a comment has been changed.  Note that this won't trigger if the comment icon is added.
-          // detecting when a comment is finished being entered is hard.  I'll
-          // only set a need to save here, not bother to make the change undoable.
-          // console.log("setting needToSave to 1");
-          Blockscad.undo.needToSave = 1;
-        }
-      }
+//   // save field values, ids, and parent ids, and disabled state for all blocks in workspace.
 
-    }
-    if (!found_it) {
-      // this only happens after an undo when all block ids change
-      // I'm not even sure I need to have this here - I think it's redundant
-      //console.log("couldn't find a block id");
-      //console.log(Blockscad.undo.blockIds,Blockscad.undo.oldBlockIds);
-      return true;
-    }
-  }
-  if (real_change) {
+//   // if a procedure call block has been added, it will have an UNKNOWN type.
+//   // populate its type.
+//   for (var i = 0; i < Blockscad.undo.blockList.length; i++) {
+//     Blockscad.undo.fieldValues[i] = Blockscad.undo.blockList[i].getAllFieldValues();
+//     Blockscad.undo.blockIds[i] = Blockscad.undo.blockList[i].id;
+//     Blockscad.undo.isDisabled[i] = Blockscad.undo.blockList[i].disabled;
+//     Blockscad.undo.comment[i] = Blockscad.undo.blockList[i].getCommentText();
+//     if (Blockscad.undo.blockList[i].type == "variables_set" || Blockscad.undo.blockList[i].type == "variables_get")
+//       Blockscad.undo.varNames[i] = Blockscad.undo.blockList[i].getFieldValue('VAR');
+//     else
+//       Blockscad.undo.varNames[i] = null;
+//     if (Blockscad.undo.blockList[i].getParent()) {
+//       Blockscad.undo.parentIds[i] = Blockscad.undo.blockList[i].getParent().id;
+//     }
+//     else Blockscad.undo.parentIds[i] = null;
+//     if (Blockscad.undo.blockList[i].category) {
+//       if (Blockscad.undo.blockList[i].category == 'UNKNOWN') {
+//         Blockscad.undo.blockList[i].getType();
+//       }
+//     }
+//   }
 
-    // console.log("setting needToSave to 1");
-    Blockscad.undo.needToSave = 1;
+//   // has the number of blocks decreased, or increased?
+//   if (Blockscad.undo.blockCount > Blockscad.undo.blockList.length) {
+//     // this is the "block deleted" condition
+//     Blockscad.undo.fieldChanging = 0;
+//     // were all the blocks deleted?
+//     if (Blockscad.undo.blockList.length === 0) {
+//       // All blocks were deleted.  An undo would have to restore current.xml here.
+//     }
+//     else {
+//       deletedBlockPos = Blockscad.getExtraRootBlock(Blockscad.undo.oldBlockList, Blockscad.undo.blockList);
+//       //console.log("got the deleted block postion at",deletedBlockPos);
+//       var oldParentID = Blockscad.undo.oldParentIds[deletedBlockPos]; 
+//       deletedBlockParent = Blockscad.getBlockFromId(oldParentID,Blockscad.undo.blockList);
+//       if (deletedBlockParent) {
+//         Blockscad.assignBlockTypes([deletedBlockParent]);
+//         if (deletedBlockParent.type == 'variables_set')
+//           Blockscad.assignVarTypes(deletedBlockParent);
+//       }
+//       // if the block that was deleted was a variable_set block, and the only one for that variable name, 
+//       // I want to set all the instances to null.  I think I can just send all the instances to 
+//       // the variable typing code.
+//       if (Blockscad.undo.oldVarNames[deletedBlockPos] != null) {
+//         // the deleted block had a variable name associated with it
+//         // get all instances with that name? or just send the name?
+//         var instances = Blockly.Variables.getInstances(Blockscad.undo.oldVarNames[deletedBlockPos],Blockscad.workspace);
+//         for (var k = 0; instances && k < instances.length; k++) {
+//           if (instances[k].type == 'variables_get')
+//             Blockscad.assignVarTypes(instances[k]);
+//         }
+//       }
+//     }
+//     // console.log("setting needToSave to 1");
+//     Blockscad.undo.needToSave = 1;
+//     Blockscad.undo.triggerRender = true;
+//     return true;
+//   }
+//   if (Blockscad.undo.blockCount < Blockscad.undo.blockList.length) {
+//     // A block has been added here.  Get the new block.  If it has a category,
+//     // send it to assignBlockTypes.  (might want to get parent too for undo?)
+//     Blockscad.undo.fieldChanging = 0;
+//     if (Blockscad.undo.oldBlockList.length === 0) {
+//       // We just refreshed, loaded
+//       Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
+//       var allBlocks = Blockly.mainWorkspace.getAllBlocks();
+//       for (var i = 0; i < allBlocks.length; i++) {
+//         if (allBlocks[i].type == 'variables_set')
+//           Blockscad.assignVarTypes(allBlocks[i]);
+//       }
+//       // console.log("whole workspace refreshed");
+//     }
+//     else {
+//       addedBlockPos = Blockscad.getExtraRootBlock(Blockscad.undo.oldBlockList, Blockscad.undo.blockList);
+//       Blockscad.assignBlockTypes([Blockscad.undo.blockList[addedBlockPos]]);
+//       // if new block's or its parent is a variables_set block, do variable typing.
+//       addedBlockParent = Blockscad.undo.blockList[addedBlockPos].getParent();
+//       if (addedBlockParent && addedBlockParent.type == 'variables_set') {
+//         // console.log("added block parent was a variables_set block, must do typing");
+//         Blockscad.assignVarTypes(addedBlockParent);
+//       }
+//       if (Blockscad.undo.blockList[addedBlockPos].type == 'variables_set') {
+//         // console.log("added block was a variables_set - type it")
+//         Blockscad.assignVarTypes(Blockscad.undo.blockList[addedBlockPos]);
+//       }
+//     }
+//     // console.log("setting needToSave to 1");
+//     Blockscad.undo.needToSave = 1;
+//     Blockscad.undo.triggerRender = true;
+//     return true;
+//   }
+
+//   // I need to go through the blocks.  First, I'll check for blocks having different parents.
+//   // I speculate that these are mainly plug/unplug events.  Is that true?
+//   // on a plug/unplug event I run enableMathBlocks in case a math block was 
+//   // plugged into something and needs to be enabled again. NOTE: I wasn't catching all
+//   // the cases of math blocks needing to be enabled/disabled, so I do that on all changes,
+//   // instead of here.
+
+//   // after checking parents I check for field values changing.
+//   // console.log("blockIds",Blockscad.undo.blockIds);
+//   // console.log("oldBlockIds",Blockscad.undo.oldBlockIds);
+//   // console.log("parentIds",Blockscad.undo.parentIds);
+//   // console.log("oldParentIds",Blockscad.undo.oldParentIds);
+
+//   // I'm also going to check if any variables have changed names.  That will trigger a type change.
+//   for (var i = 0; i < Blockscad.undo.blockIds.length; i++) {
+//     var myid = Blockscad.undo.blockIds[i];
+//     var found_it = 0;
+//     var disable_change = false;
+//     for (var j = 0; j < Blockscad.undo.blockIds.length; j++) {
+//       if (myid == Blockscad.undo.oldBlockIds[j]) {
+//         found_it = 1;
+
+//         if (Blockscad.undo.parentIds[i] != Blockscad.undo.oldParentIds[j]) {
+
+//           // console.log("setting needToSave to 1");
+//           Blockscad.undo.needToSave = 1;
+//           Blockscad.undo.triggerRender = true;
+//           // Blockscad.enableMathBlocks(Blockscad.undo.blockList[i]);
+
+//           // determine if we had a "plug" or an "unplug" event, and 
+//           // send either one or two stacks to get types evaluated.
+//           // Note:  one event can be both a "plug" and an "unplug" event.
+//           // console.log("plug or unplug - send block myid",myid);
+//           Blockscad.assignBlockTypes([Blockscad.undo.blockList[i]]);
+//           var plugParent = Blockscad.undo.blockList[i].getParent();
+//           if (plugParent && plugParent.type == "variables_set") {
+//             // console.log("something was plugged into a variables_set block, type it");
+//             Blockscad.assignVarTypes(plugParent);
+//           }
+//           for (var k = 0, blk; blk = Blockscad.undo.blockList[k]; k++) {
+//             if (blk.id == Blockscad.undo.oldParentIds[j]) {
+//               // console.log("unplugged parent exists with id",blk.id);
+//               Blockscad.assignBlockTypes([Blockscad.undo.blockList[k]]);
+//               // Blockscad.enableMathBlocks(Blockscad.undo.blockList[k]);
+//               if (Blockscad.undo.blockList[k].type == "variables_set") {
+//                 // console.log("something was unplugged from var_set #" + blk.id + " ,type it");
+//                 Blockscad.assignVarTypes(Blockscad.undo.blockList[k]);
+//               }
+//               break;
+//             }
+//           }
+//           return true; // found a real change - a plug/unplug event!
+//         }
+//         if (Blockscad.undo.varNames[i] != Blockscad.undo.oldVarNames[j]) {
+//           Blockscad.undo.fieldChanging = 0;
+//           // console.log("found a var changing name from (old): " + 
+//                         // Blockscad.undo.oldVarNames[j] + " to: " + Blockscad.undo.varNames[i]);
+//           Blockscad.assignVarTypes(Blockscad.undo.blockList[i]);
+
+//           // console.log("setting needToSave to 1");
+//           Blockscad.undo.needToSave = 1;
+//           Blockscad.undo.triggerRender = true;
+//         }
+//         if (Blockscad.undo.fieldValues[i] != Blockscad.undo.oldFieldValues[j]) {
+//           // A field is changing.  I won't trigger undo yet to aggregate
+//           // the keypresses, but I do want to enable the renderButton already.
+//           $('#renderButton').prop('disabled', false); 
+//           // console.log("found a field changing");
+//           Blockscad.undo.fieldChanging = 1;
 
 
-    return true;
-  } 
-  return false;
-};// end Blockscad.isRealChange()
 
-Blockscad.workspaceChanged = function () {
+//           // console.log("setting needToSave to 1");
+//           Blockscad.undo.needToSave = 1;
+//           // if (Blockscad.undo.fieldChanging != myid) {
+//           //   Blockscad.undo.fieldChanging = myid;
+//           //   console.log("triggering field-change addition to undo stack");
+//           //   //return true; // found a real change - a field is changing!
+//           // }
+//           // if (Blockscad.undo.editorClosed) {
+//           //   console.log("in isRealChange.  editor was closed.");
+//           //   return true;
+//           // }
+//           // else return false; // this event should be ignored by undo.
+//         }
+//         if (Blockscad.undo.fieldChanging) {
+//           // console.log("currently, blockscad thinks a field is changing");
+//           if (Blockscad.undo.editorClosed) {
+//             // console.log("editor was closed.  Field no longer changing.");
+//             Blockscad.undo.fieldChanging = 0;
+//             Blockscad.undo.triggerRender = true;
+//             return true;
+//           }
+//           // else
+//           //   console.log("editor was not closed, so the field is still changing.");
+//         }
+//         if (Blockscad.undo.isDisabled[i] != Blockscad.undo.oldDisabled[j]) {
+//           // some block has changed from disabled to enabled, or vice-versa.  Mark this
+//           // as an undoable change.
+//           // don't return from here though - I might need to enable/disable more math blocks.
+//           real_change = true;
+//           Blockscad.undo.triggerRender = true;
+//         }
+//         if (Blockscad.undo.comment[i] != Blockscad.undo.oldComment[j]) {
+//           // a comment has been changed.  Note that this won't trigger if the comment icon is added.
+//           // detecting when a comment is finished being entered is hard.  I'll
+//           // only set a need to save here, not bother to make the change undoable.
+//           // console.log("setting needToSave to 1");
+//           Blockscad.undo.needToSave = 1;
+//         }
+//       }
+
+//     }
+//     if (!found_it) {
+//       // this only happens after an undo when all block ids change
+//       // I'm not even sure I need to have this here - I think it's redundant
+//       //console.log("couldn't find a block id");
+//       //console.log(Blockscad.undo.blockIds,Blockscad.undo.oldBlockIds);
+//       return true;
+//     }
+//   }
+//   if (real_change) {
+//     // console.log("setting needToSave to 1");
+//     Blockscad.undo.needToSave = 1;
+//     return true;
+//   } 
+//   return false;
+// };// end Blockscad.isRealChange()
+
+
+// Blockscad.workspaceChanged = function () {
 
 
 
 
-  Blockscad.undo.yesthis = 0;  // don't know if this is a change to add to the undo stack yet.
-  //console.log("workspace has changed\n");
-  // important - check to see if the change is one we want to make undoable!
-  Blockscad.undo.blockList = Blockly.mainWorkspace.getAllBlocks();
-  //console.log("here's the current blocks in the workspace:",Blockscad.undo.blockList); 
+//   Blockscad.undo.yesthis = 0;  // don't know if this is a change to add to the undo stack yet.
+//   //console.log("workspace has changed\n");
+//   // important - check to see if the change is one we want to make undoable!
+//   Blockscad.undo.blockList = Blockly.mainWorkspace.getAllBlocks();
+//   //console.log("here's the current blocks in the workspace:",Blockscad.undo.blockList); 
 
-  Blockscad.undo.yesthis = Blockscad.isRealChange();
+//   Blockscad.undo.yesthis = Blockscad.isRealChange();
 
-  // console.log("ids:",Blockscad.undo.blockIds);
-  // console.log("oldids:",Blockscad.undo.oldBlockIds);
-  // console.log("pars:",Blockscad.undo.parentIds);
-  // console.log("oldp:",Blockscad.undo.oldParentIds);
+//   // console.log("ids:",Blockscad.undo.blockIds);
+//   // console.log("oldids:",Blockscad.undo.oldBlockIds);
+//   // console.log("pars:",Blockscad.undo.parentIds);
+//   // console.log("oldp:",Blockscad.undo.oldParentIds);
 
-  //   Update all the change compare vars. for the next go round.
-  Blockscad.undo.blockCount = Blockscad.undo.blockList.length;
-  Blockscad.undo.oldBlockIds = Blockscad.undo.blockIds;
-  Blockscad.undo.oldParentIds = Blockscad.undo.parentIds;
-  Blockscad.undo.oldFieldValues = Blockscad.undo.fieldValues;
-  Blockscad.undo.oldDisabled = Blockscad.undo.isDisabled;
-  Blockscad.undo.oldComment = Blockscad.undo.comment;
-  Blockscad.undo.oldProjectName = Blockscad.undo.projectName;
-  Blockscad.undo.oldVarNames = Blockscad.undo.varNames;
-
-
-//  Blockscad.undo.oldBlockList = Blockscad.undo.blockList;
- // console.log("do I have children?",Blockscad.undo.oldBlockList);
-
-  //Blockscad.checkMathOrphans();
-
-  if (Blockscad.undo.yesthis) {
-    //console.log("yesthis");
-    // there has been a substantive change.  I need to update the
-    // undo/redo stacks, and enable the render button, and check save status.
-
-    // if no blocks in workspace, don't prompt for saves.
-    if (Blockscad.undo.needToSave && Blockscad.undo.blockCount == 0)
-      Blockscad.setNoSaveNeeded();
-
-    $('#renderButton').prop('disabled', false); 
-
-    if (Blockscad.undo.just_did_undo) {
-      // because the current undo/redo method can change all the block ids
-      // I need to reassign block types to ALL BLOCKS afterwards (grr)
-      Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
-    }
-    if (Blockscad.undo.just_did_undo === 0) {
-      // push Blockscad.current_xml onto undo stack
-      if (Blockscad.undo.current_xml !== null) {
-        Blockscad.undo.undoStack.push(Blockscad.undo.current_xml);
-      }
-      // refill current_xml with the new, changed, xml state
-      Blockscad.undo.current_xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
-      if (Blockscad.standalone) {
-        //for standalone, save blocks to localStorage
-        //lets autosave the new blocks to local storage in case of crashes.
-        BlocklyStorage.autosaveBlocks(Blockly.Xml.domToText(Blockscad.undo.current_xml));
-      }
-
-      // clear redo list
-      while(Blockscad.undo.redoStack.length > 0) {
-        Blockscad.undo.redoStack.pop();
-      }
-      // if undo.length > (some number - 50?), shift off the first element
-      if (Blockscad.undo.undoStack.length > 50) {
-        Blockscad.undo.undoStack.shift();
-      }
-    }
+//   //   Update all the change compare vars. for the next go round.
+//   Blockscad.undo.blockCount = Blockscad.undo.blockList.length;
+//   Blockscad.undo.oldBlockIds = Blockscad.undo.blockIds;
+//   Blockscad.undo.oldParentIds = Blockscad.undo.parentIds;
+//   Blockscad.undo.oldFieldValues = Blockscad.undo.fieldValues;
+//   Blockscad.undo.oldDisabled = Blockscad.undo.isDisabled;
+//   Blockscad.undo.oldComment = Blockscad.undo.comment;
+//   Blockscad.undo.oldProjectName = Blockscad.undo.projectName;
+//   Blockscad.undo.oldVarNames = Blockscad.undo.varNames;
 
 
-    // to turn on real-time render, run this command:
-    // Blockscad.doRender();
-  }
-  // even though this isn't a real change, I want to accumulate moves
-  // and field changes in the current state, which will then be pushed
-  // to the undo stack after a "real" change.
-  // refill current_xml with the new, changed, xml state
-  Blockscad.undo.current_xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
-  // copy all the blocks from blockList into oldBlockList (DOM format)
-  Blockscad.undo.oldBlockList = [];
-  for (var i = 0; i < Blockscad.undo.blockList.length; i++) {
-    Blockscad.undo.oldBlockList.push(Blockly.Xml.blockToDom_(Blockscad.undo.blockList[i]));
-  }
-  //console.log("old blocklist as dom at the end of workspace_changed", Blockscad.undo.oldBlockList);
-  //console.log("just_did_undo = 0");
-  Blockscad.undo.just_did_undo = 0;
+// //  Blockscad.undo.oldBlockList = Blockscad.undo.blockList;
+//  // console.log("do I have children?",Blockscad.undo.oldBlockList);
 
-  // should the undo or redo buttons be active?
-  if (Blockscad.undo.undoStack.length > 0) {
-    $('#undoButton').prop('disabled', false);  
-  }
-  else {
-    $('#undoButton').prop('disabled', true);  
-  }
-  if (Blockscad.undo.redoStack.length > 0) {
-    $('#redoButton').prop('disabled', false);  
-  }
-  else {
-    $('#redoButton').prop('disabled', true);  
-  }
-}; // end workspaceChanged()
+//   //Blockscad.checkMathOrphans();
+
+//   if (Blockscad.undo.yesthis) {
+//     //console.log("yesthis");
+//     // there has been a substantive change.  I need to update the
+//     // undo/redo stacks, and enable the render button, and check save status.
+
+//     // if no blocks in workspace, don't prompt for saves.
+//     if (Blockscad.undo.needToSave && Blockscad.undo.blockCount == 0)
+//       Blockscad.setNoSaveNeeded();
+
+//     $('#renderButton').prop('disabled', false); 
+
+//     if (Blockscad.undo.just_did_undo) {
+//       // because the current undo/redo method can change all the block ids
+//       // I need to reassign block types to ALL BLOCKS afterwards (grr)
+//       Blockscad.assignBlockTypes(Blockly.mainWorkspace.getTopBlocks());
+//     }
+//     if (Blockscad.undo.just_did_undo === 0) {
+//       // push Blockscad.current_xml onto undo stack
+//       if (Blockscad.undo.current_xml !== null) {
+//         Blockscad.undo.undoStack.push(Blockscad.undo.current_xml);
+//       }
+//       // refill current_xml with the new, changed, xml state
+//       Blockscad.undo.current_xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+
+//       // clear redo list
+//       while(Blockscad.undo.redoStack.length > 0) {
+//         Blockscad.undo.redoStack.pop();
+//       }
+//       // if undo.length > (some number - 50?), shift off the first element
+//       if (Blockscad.undo.undoStack.length > 50) {
+//         Blockscad.undo.undoStack.shift();
+//       }
+//     }
+
+
+//     // to turn on real-time render, run this command:
+//     // Blockscad.doRender();
+//   }
+//   // even though this isn't a real change, I want to accumulate moves
+//   // and field changes in the current state, which will then be pushed
+//   // to the undo stack after a "real" change.
+//   // refill current_xml with the new, changed, xml state
+//   Blockscad.undo.current_xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+//   // copy all the blocks from blockList into oldBlockList (DOM format)
+//   Blockscad.undo.oldBlockList = [];
+//   for (var i = 0; i < Blockscad.undo.blockList.length; i++) {
+//     Blockscad.undo.oldBlockList.push(Blockly.Xml.blockToDom_(Blockscad.undo.blockList[i]));
+//   }
+//   //console.log("old blocklist as dom at the end of workspace_changed", Blockscad.undo.oldBlockList);
+//   //console.log("just_did_undo = 0");
+//   Blockscad.undo.just_did_undo = 0;
+
+
+// }; // end workspaceChanged()
 Blockscad.getExtraRootBlock = function(old,current) {
   //console.log("starting getExtraRootBlock");
   var gotOne = 0;
@@ -1535,101 +1631,6 @@ Blockscad.getBlockFromId = function(id, blocks) {
   return null;
 };
 
-Blockscad.onUndo = function() {
-  //console.log("Undo button activated!");
-  //  if undo stack has anything on it
-  if (Blockscad.undo.undoStack.length > 0) {
-    // lets gray out the button!
-    //var btn = document.getElementById("undoButton");
-    //btn.disabled = true;
-    //console.log(btn);
-    //btn.setAttribute('class','gray');
-
-    //setTimeout(function() {
-        //long running task here
-            // push Blockscad.current_xml onto redo stack
-    Blockscad.undo.redoStack.push(Blockscad.undo.current_xml);
-    // pop undo stack into current_xml
-    Blockscad.undo.current_xml = Blockscad.undo.undoStack.pop();
-    // set actual workspace code to current_xml (I need to clear it first?)
-    // this isn't working.  Scope issues.  Argh.
-    //console.log("clearing workspace");
-    Blockly.mainWorkspace.clear();
-    //console.log("loading workspace");
-
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
-    //console.log("rendering workspace");
-    // trigger re-render
-    Blockly.mainWorkspace.render();
-    //console.log("done");
-    Blockscad.undo.just_did_undo = 1;
-    //console.log("just_did_undo = 1");
-    //btn.setAttribute('class','gray');
-    //btn.disabled = false;
-
-   //}, 0);
-
-
-  }
-}; // end onUndo()
-
-Blockscad.onRedo = function() {
-  //console.log("Redo button activated!\n");
-  // if redo stack has anything on it
-  if (Blockscad.undo.redoStack.length > 0) {
-    // push current_xml onto undo
-    Blockscad.undo.undoStack.push(Blockscad.undo.current_xml);
-    // pop redo stack into current_xml
-    Blockscad.undo.current_xml = Blockscad.undo.redoStack.pop();
-    // set workspace xml to current xml (do I need to clear it first?)
-    Blockly.mainWorkspace.clear();
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, Blockscad.undo.current_xml);
-
-    // trigger re-render
-    Blockly.mainWorkspace.render();
-    Blockscad.undo.just_did_undo = 1;
-    //console.log("just_did_undo = 1");
-  }
-}; // end onRedo()
-
-// disable any math or logic or variable blocks sitting around onthe workspace.
-// Blockscad.checkMathOrphans = function() {
-//   var topBlocks = [];
-//   topBlocks = Blockly.mainWorkspace.getTopBlocks();
-
-//   for (var i = 0; i < topBlocks.length; i++) {
-//     // my current block topBlocks[i]
-//     // is a top block a math or logic or variable block?  Disable it.
-//     //console.log(topBlocks[i].type);
-//     if ((topBlocks[i].type.lastIndexOf('math') != -1) ||
-//       (topBlocks[i].type.lastIndexOf('variables_get') != -1) ||
-//       (topBlocks[i].type.lastIndexOf('logic') != -1)) {
-//       topBlocks[i].setDisabled(true);
-//     }
-//   }
-// }; // end checkMathOrphans()
-
-// enable any disabled math blocks in an enabled parent.
-// sometimes we'll be sent a parent block, and need to check its children.
-// Blockscad.enableMathBlocks = function(block) {
-//   // console.log("in enableMathBlocksc");
-//   var blockStack = block.getDescendants();
-//   for (var i = 0; i < blockStack.length; i++) {
-//     if (blockStack[i].disabled) {
-//       if ((blockStack[i].type.lastIndexOf('math') != -1) ||
-//          (blockStack[i].type.lastIndexOf('variables_get') != -1) ||
-//          (blockStack[i].type.lastIndexOf('logic') != -1)) {
-//         var par;
-//         if (par = blockStack[i].getParent()) {
-//           //console.log("enabling children",children);
-//           if (!par.disabled)  
-//               blockStack[i].setDisabled(false);
-//         }
-//       }
-//     }
-//   }
-// };
-
 Blockscad.aCallerBlock = function(block, callers) {
   for (var i = 0; i < callers.length; i++)
     if (block == callers[i]) return true;
@@ -1637,7 +1638,7 @@ Blockscad.aCallerBlock = function(block, callers) {
 }; // end Blockscad.aCallerBlock
 
 // have a single block, and want to find out what type it's stack makes it?
-// This is for procedure call block typing.
+// This is for procedure caller block typing.
 
 Blockscad.findBlockType = function(block, callers) {
   var topBlock = block.getRootBlock();
@@ -1667,8 +1668,24 @@ Blockscad.findBlockType = function(block, callers) {
   else if (foundCAG) {
     return('CAG');
   }
-  else return('EITHER');
+  return('EITHER');
 };
+
+// this takes a block.  It checks each parent in its stack to see if it has
+// a parent of the specified block_type (like variable_set)
+// returns the parent block if it exists, otherwise null.
+Blockscad.hasParentOfType = function(block, type) {
+  if (!block)
+    return null;
+  var parent = block.getParent();
+  while (parent) {
+    // console.log("found a parent of type ", type);
+    if (parent.type == type)
+      return parent;
+    parent = parent.getParent();
+  }
+  return null;
+}
 
 // is this block attached to an actual primitive (2D or 3D)?  Needed for missing fields calc.
 // if the block has a disabled parent, it won't be rendered and doesn't count.
@@ -1691,115 +1708,230 @@ Blockscad.stackIsShape = function(block) {
 // on a refresh I will be sent an array of all blocks and need to pick
 // out the variables_set blocks.
 // I need to type the variable instances of the variables_set blocks.
-Blockscad.assignVarTypes = function(blk) {
+// name_change indicates if a variable setter has had its name changed
+// in that case, set the current type to a non-sensical value
+// to force the variable set_type to give it a new value.
+Blockscad.assignVarTypes = function(blk, name_change) {
   // console.log("in assignVarTypes with ", blk.type);
   // I need to go through the children of the variables_set block.
   // I am only interested in children that have an output connection.
   //does this block have any children?  If not, change type to null.
 
-  if (blk.type == "variables_get") {
-    // this variables_get just had its name changed.  Find out the type of this
-    // variable name and assign it only to this particular instance of the get.
-    // console.log(blk.id + " just changed name to " + blk.getFieldValue("VAR"));
-    var instances = Blockly.Variables.getInstances(blk.getFieldValue('VAR'), this.workspace);
-    var found_it = 0;
-    for (var i = 0; i < instances.length; i++) {
-      if (instances[i].type == "variables_set") {
-        blk.outputConnection.setCheck(instances[i].myType_);
-        found_it = 1;
-        break;
-      }
-      if (instances[i].type == "controls_for" || instances[i].type == "controls_for_chainhull") {
-        blk.outputConnection.setCheck(null);
-        found_it = 1;
-        break;
-      }
-    }
-    if (!found_it) {
-      // this came out of a procedure - no set_variable block to go with it.  
-      // a procedure could have any type associated, so set type to null.
-      // console.log("setting a variables_get block to type null");
-      blk.outputConnection.setCheck(null);
-    }
-    // now, if this variables_get was inside a variables_set, that variables_set needs to be retyped.
-    var parent = blk.getParent();
-    if (parent && parent.type == "variables_set") {
-      Blockscad.assignVarTypes(parent);
-    }
-  }
-  else if (blk.type == "variables_set") {
-    var children = blk.getChildren();
-    if (children.length == 0)
-      blk.setType(null);
-    else {
-      var found_one = 0;
-      for (var i = 0; i < children.length; i++) {
-        // console.log("child " + i + " has type " + children[i].type);
-        if (children[i].outputConnection) {
-          var childType = children[i].outputConnection.check_;
-          // console.log("child " + i + "has an output connection of type " + childType);
-          // console.log(childType);
-          blk.setType(childType);
-          found_one = 1;
-          // break;
-        }
-      }
-      if (found_one == 0)
-        blk.setType(null);
-    }
-  }
-}
-
-// Blockscad.assignBlockTypes
-// input: array of blocks whose trees need typing
-Blockscad.assignBlockTypes = function(blocks) {
-  // console.log("in assignBlockTypes");
-  for (var i=0; i < blocks.length; i++) {
-    var topBlock = blocks[i].getRootBlock();
-    var blockStack = topBlock.getDescendants();
-    var foundCSG = 0;
-    var foundCAG = 0;
-
-    for (var j = 0; j < blockStack.length; j++) {
-      if (blockStack[j].category) {
-        var cat = blockStack[j].category;
-        if (cat == 'PRIMITIVE_CSG' || cat == 'EXTRUDE' || cat == 'COLOR') {
-          foundCSG = 1;
+  setTimeout(function() {
+    if (blk && blk.type == "variables_get") {
+      // this variables_get just had its name changed.  Find out the type of this
+      // variable name and assign it only to this particular instance of the get.
+      // console.log(blk.id + " just changed name to " + blk.getFieldValue("VAR"));
+      var instances = Blockly.Variables.getInstances(blk.getFieldValue('VAR'), Blockscad.workspace);
+      var found_it = 0;
+      for (var i = 0; i < instances.length; i++) {
+        if (instances[i].type == "variables_set") {
+          blk.outputConnection.setCheck(instances[i].myType_);
+          found_it = 1;
           break;
         }
-        if (cat == 'PRIMITIVE_CAG') foundCAG = 1;
+        if (instances[i].type == "controls_for" || instances[i].type == "controls_for_chainhull") {
+          blk.outputConnection.setCheck(null);
+          found_it = 1;
+          break;
+        }
+      }
+      if (!found_it) {
+        // this came out of a procedure - no set_variable block to go with it.  
+        // a procedure could have any type associated, so set type to null.
+        // console.log("setting a variables_get block to type null");
+        blk.outputConnection.setCheck(null);
+      }
+      // now, if this variables_get was inside a variables_set, that variables_set needs to be retyped.
+      var parent = blk.getParent();
+      if (parent && parent.type == "variables_set") {
+        Blockscad.assignVarTypes(parent);
       }
     }
+    else if (blk && blk.type == "variables_set") {
+      // console.log("in assignVarTypes with var_set named: ", blk.getFieldValue('VAR'));
+      var children = blk.getChildren();
+      if (children.length == 0)
+        blk.setType(null);
+      else {
+        var found_one = 0;
+        var type = null;
 
-    // For assigning types, use the following algorithm:
-    // Go down the list of blocks.  if foundCSG:
-    //    if block has an EXTRUDE parent, set to CAG, otherwise CSG
-    //    else if found CAG, set to CAG
-    //    else set to EITHER.
-
-
-    for(j = 0; j < blockStack.length; j++) {
-      if (blockStack[j].category)
-        if (blockStack[j].category == 'TRANSFORM' || 
-            blockStack[j].category == 'SET_OP' ||
-            blockStack[j].category == 'PROCEDURE' ||
-            blockStack[j].category == 'LOOP')  {
-          var drawMe = !blockStack[j].collapsedParents();
-          //console.log(blockStack[j].type,"drawMe is", drawMe);
-          if (foundCSG) {
-            if (Blockscad.hasExtrudeParent(blockStack[j])) 
-              blockStack[j].setType('CAG',drawMe);
-            else blockStack[j].setType('CSG',drawMe);
+        for (var i = 0; i < children.length; i++) {
+          // console.log("child " + i + " has type " + children[i].type);
+          if (children[i].outputConnection) {
+            var childType = children[i].outputConnection.check_;
+            // console.log("child " + i + "has an output connection of type " + childType);
+            // console.log(childType + " is this type an array?: " + goog.isArray(childType));
+            if (name_change)
+              blk.myType_ = "FALSE";
+            blk.setType(childType);
+            found_one = 1;
+            // break;
           }
-          else if (foundCAG) {
-            blockStack[j].setType('CAG',drawMe);
-          }
-          else blockStack[j].setType(['CSG','CAG'],drawMe);
         }
+        if (found_one == 0)
+          blk.setType(null);
+      }
     }
-    //console.log("in assignBlockTypes(foundCSG,foundCAG)",foundCSG,foundCAG);
-    //console.log("blockStack",blockStack);
+  },0);
+}
+Blockscad.handleWorkspaceEvents = function(event) {
+  if (event.type == Blockly.Events.UI) {
+    return;  // Don't care about UI events
   }
+  if (event.type == Blockly.Events.CREATE || 
+      event.type == Blockly.Events.DELETE) {
+    // this should trigger needing to save and a type change!  I could duplicate a stack 
+    // that needs typing, or delete a setter that would set its getters to null type.
+    // console.log("create or delete event:",event);
+    Blockscad.undo.needToSave = 1; 
+
+    // set the type of newly created procedure call blocks.  
+
+    var block = Blockscad.workspace.getBlockById(event.ids[0]);
+    if (block && block.workspace && !block.workspace.isFlyout) {
+      if (block.type == 'procedures_callnoreturn' || block.type == 'procedures_callreturn')
+        block.setType();
+      // Blockscad.typeNewStack(block);
+    }
+  }
+  else if (event.type == Blockly.Events.CHANGE) {
+    // trigger a need to save
+    Blockscad.undo.needToSave = 1;
+
+    // This could be variable name changes (getter or setter), which trigger typing.
+    // console.log(event);
+    if (event.element == 'field' && event.name == 'VAR') {
+      // a variable has changed name.
+      var oldName = event.oldValue;
+      // console.log("old variable name was:", oldName);
+      // var newName = event.newValue;
+
+      var block = Blockscad.workspace.getBlockById(event.blockId);
+
+      if (block && block.type == 'variables_set') {
+        // variables_set has changed name.  Go through instances of the old name.  If there is a 
+        // variables_set, use that to type the rest.  Otherwise, type the getters individually.
+        var instances = Blockly.Variables.getInstances(oldName,Blockscad.workspace);
+        // console.log("instances:", instances);
+        var found_it = 0;
+        for (var k = 0; instances && k < instances.length; k++) {
+          if (instances[k].type == 'variables_set')
+            Blockscad.assignVarTypes(instances[k],true);
+          found_it = 1;
+        }
+        if (!found_it) {
+          for (var k = 0; instances && k < instances.length; k++) {
+            if (instances[k].type == 'variables_get')
+              Blockscad.assignVarTypes(instances[k],true);
+
+          }  
+        }
+      }
+      // also type the block associated with the new name.  If this is a getter, it gets typed.
+      // if it is a setter, it needs to be typed and have all its new getters typed.
+      Blockscad.assignVarTypes(block, true);
+    }
+    if (event.element == 'field' && event.name == 'NUM')  {
+      var block = Blockscad.workspace.getBlockById(event.blockId);
+      var parent = block.getParent();
+      if (parent && parent.type == 'cylinder')
+        parent.updateRadii();
+    }
+
+  }
+  else if (event.type == Blockly.Events.MOVE) {
+    // this holds plug/unplug events.  
+    // plug event: has newParentID.  trigger type change on new parents block stack.
+    // unplug event: has oldParentID.  trigger type change on current block and old parent's stack.
+    if (event.oldParentId) {
+      // unplug event.  call typing on old parent stack and current stack.
+      // console.log("unplug event");
+
+      var block = Blockscad.workspace.getBlockById(event.blockId);
+      var oldParent = Blockscad.workspace.getBlockById(event.oldParentId);
+      Blockscad.assignBlockTypes([block]);
+      Blockscad.assignBlockTypes([oldParent]);
+
+      if (block && block.type == 'variables_set')
+        Blockscad.assignVarTypes(block);
+      else if (oldParent && oldParent.type == 'variables_set')
+        Blockscad.assignVarTypes(oldParent);
+ 
+    }
+    else if (event.newParentId) {
+      // plug event.  call typing on the stack.
+      // console.log("plug event");
+      var block = Blockscad.workspace.getBlockById(event.blockId);
+      var newParent = Blockscad.workspace.getBlockById(event.newParentId);
+      Blockscad.assignBlockTypes([block]);
+      if (newParent && newParent.type == 'variables_set')
+        Blockscad.assignVarTypes(newParent);
+
+    }
+
+    if (event.oldParentId || event.newParentId) {
+      // either a plug or an unplug
+      Blockscad.undo.needToSave = 1;
+    }
+
+  }
+}
+// Blockscad.assignBlockTypes
+// input: array of blocks whose trees need typing
+// schedule typing to be done so that scheduled events have
+// already been fired by the time typing is done.
+Blockscad.assignBlockTypes = function(blocks) {
+  if (!goog.isArray(blocks))
+    blocks = [blocks];
+  setTimeout(function() {
+    // console.log(blocks);
+    for (var i=0; blocks && blocks[i] && i < blocks.length; i++) {
+      var topBlock = blocks[i].getRootBlock();
+      var blockStack = topBlock.getDescendants();
+      var foundCSG = 0;
+      var foundCAG = 0;
+
+      for (var j = 0; j < blockStack.length; j++) {
+        if (blockStack[j].category) {
+          var cat = blockStack[j].category;
+          if (cat == 'PRIMITIVE_CSG' || cat == 'EXTRUDE' || cat == 'COLOR') {
+            foundCSG = 1;
+            break;
+          }
+          if (cat == 'PRIMITIVE_CAG') foundCAG = 1;
+        }
+      }
+      // For assigning types, use the following algorithm:
+      // Go down the list of blocks.  if foundCSG:
+      //    if block has an EXTRUDE parent, set to CAG, otherwise CSG
+      //    else if found CAG, set to CAG
+      //    else set to EITHER.
+      for(j = 0; j < blockStack.length; j++) {
+        if (blockStack[j].category)
+          if (blockStack[j].category == 'TRANSFORM' || 
+              blockStack[j].category == 'SET_OP' ||
+              blockStack[j].category == 'PROCEDURE' ||
+              blockStack[j].category == 'LOOP')  {
+            var drawMe = !blockStack[j].collapsedParents();
+            // var drawMe = 0;
+            // console.log(blockStack[j].type,"drawMe is", drawMe);
+            if (foundCSG) {
+              if (Blockscad.hasExtrudeParent(blockStack[j])) 
+                blockStack[j].setType(['CAG'],drawMe);
+              else blockStack[j].setType(['CSG'],drawMe);
+            }
+            else if (foundCAG) {
+              blockStack[j].setType(['CAG'],drawMe);
+            }
+            else blockStack[j].setType(['CSG','CAG'],drawMe);
+          }
+      }
+      // console.log("in assignBlockTypes(foundCSG,foundCAG)",foundCSG,foundCAG);
+      //console.log("blockStack",blockStack);
+    }
+  }, 0);
 };
 Blockscad.hasExtrudeParent = function(block) {
   do {
@@ -1809,19 +1941,6 @@ Blockscad.hasExtrudeParent = function(block) {
   } while (block);
   return false;
 };
-
-
-// -- BEGIN OPENJSCAD STUFF --
-
-// function putSourceInEditor(src,fn) {
-//    editor.setValue(src); 
-//    editor.clearSelection();
-//    editor.navigateFileStart();
-
-//    previousFilename = fn;
-//    previousScript = src;
-//    gPreviousModificationTime = "";
-// }
 
 /**
  * Initialize the page language.
@@ -1877,7 +1996,7 @@ Blockscad.saveBlocksLocal = function() {
   // console.log("in SaveBlocksLocal with: ", blocks_filename);
   if (blocks_filename) {
     saveAs(blob, blocks_filename + ".xml");
-    // console.log("SAVED locally: setting needToSave to 0");
+    console.log("SAVED locally: setting needToSave to 0");
     Blockscad.setNoSaveNeeded();
   }
   else {
@@ -1910,3 +2029,40 @@ Blockscad.saveOpenscadLocal = function() {
   }
 };
 
+
+// execute_ will delay a given action until Blockly is no longer in drag mode.
+// code courtesy of miguel.ceriani@gmail.com (Miguel Ceriani)
+// released under the Apache 2.0 license
+
+Blockscad.executeAfterDrag_ = function(action, thisArg) {
+  Blockscad.renderActions.push( { action: action, thisArg: thisArg } );
+  if (Blockscad.renderActions.length === 1) {
+    var functId = window.setInterval(function() {
+      if (!Blockly.dragMode_) {
+        while (Blockscad.renderActions.length > 0) {
+          var actionItem = Blockscad.renderActions.shift();
+          actionItem.action.call(Blockscad.renderActions.thisArg);
+        }
+        window.clearInterval(functId);
+      }
+    }, 10);
+  }
+};
+
+// helper function used in typing to compare type arrays and see if they are equal.
+
+Blockscad.arraysEqual = function(arr1, arr2) {
+  if (arr1 == null && arr2 == null)
+    return true;
+  if (!arr1 || !arr2)
+    return false;
+
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
+}

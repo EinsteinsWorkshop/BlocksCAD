@@ -211,7 +211,7 @@
 	"REMOVE_HIGHLIGHTING_INSTANCES": "Hervorhebung entfernen",
 	"REMOVE_BLOCK_HIGHLIGHTING": "Block-Hervorherung entfernen",
 	"BLOCKS_BUMPED_OUT_DIMENSIONS": "%1 Blöcke wurden verschoben: 2D- und 3D-Objekte passen nicht zusammen.",
-	"BLOCKS_BUMPED_OUT_TYPES": "%1 Blöcke wurden verschoben: Zahlen und Wahrheitswerte passen nicht zusammen",
+	"BLOCKS_BUMPED_OUT_TYPES": "%1 Blöcke wurden verschoben: %2 und %3 passen nicht zusammen",
 	"VARIABLES_BUMPED_ONE": "%1 Variablen-Blöcke wurden verschoben wegen unpassenden Typen",
 	"VARIABLES_BUMPED_TWO": "Variable '%1': Typ wurde von '%2' zu '%3' geändert",
 	"EXAMPLE_CUBE_WITH_CUTOUTS": "Würfel mit Aussparungen",
@@ -219,5 +219,6 @@
 	"EXAMPLE_PARAMETRIC_BOX": "Schachtel mit veränderbarer Grösse",
 	"EXAMPLE_LOOP_SUN": "Mit Schleife erzeugte Sonne",
 	"EXAMPLE_LOOP_SINE": "Sinus-Funktion mit Schleife",
-	"EXAMPLE_PARAMETRIC_EQ_KNOT": "Kleeblattknoten aus parametrischen Gleichungen"
+	"EXAMPLE_PARAMETRIC_EQ_KNOT": "Kleeblattknoten aus parametrischen Gleichungen",
+	"GET_STARTED_VIDEO": "Erste Schritte!"
 }

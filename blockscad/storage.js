@@ -102,7 +102,7 @@ BlocklyStorage.restoreBlocks = function() {
   console.log(window.localStorage);
   if ('localStorage' in window && window.localStorage[url]) {
     var xml = Blockly.Xml.textToDom(window.localStorage[url]);
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, xml);
+    Blockly.Xml.domToWorkspace(xml, Blockscad.workspace);
 
     var blocks = Blockscad.workspace.getAllBlocks();
     for (var i = 0; i < blocks.length; i++){

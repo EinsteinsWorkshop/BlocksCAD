@@ -12,7 +12,7 @@ Blockly.Blocks['union'] = {
   init: function() {
     this.category = 'SET_OP';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
+    this.setColour(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.UNION);
     this.appendStatementInput("A")
@@ -89,7 +89,7 @@ Blockly.Blocks['difference'] = {
   init: function() {
     this.category = 'SET_OP';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
+    this.setColour(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.DIFFERENCE);
     this.appendStatementInput("A")
@@ -167,7 +167,7 @@ Blockly.Blocks['intersection'] = {
   init: function() {
     this.category = 'SET_OP';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
+    this.setColour(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.INTERSECTION);
     this.appendStatementInput("A")
@@ -245,7 +245,7 @@ Blockly.Blocks['hull'] = {
   init: function() {
     this.category = 'SET_OP';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_SETOP);
+    this.setColour(Blockscad.Toolbox.HEX_SETOP);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.CONVEX_HULL);
     this.appendStatementInput("A")

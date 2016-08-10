@@ -264,8 +264,8 @@ Blockscad.Msg.FONT_SIZE = 'size';
 Blockscad.Msg.FONT_NAME = 'font';
 /// Thickness: when letters are printed on the XY plane, 'thickness' is how high the letter model is in the Z direction. 
 Blockscad.Msg.TEXT_THICKNESS = 'thickness';
-/// Default Text:  the default text in a text block.  A conversational greeting word is a good choice.  In English this is 'hello'.
-Blockscad.Msg.TEXT_DEFAULT_VALUE = 'hello';
+/// Default Text:  the default text in a text block.  English uses the first three letters of the alphabet.
+Blockscad.Msg.TEXT_DEFAULT_VALUE = 'abc';
 /// Convex Hull: this block computes the convex hull of the set of points of all the shapes given to it.  The effect is to wrap the objects together into a single convex object (with no parts that dip inward). This is a mathematical term.  
 Blockscad.Msg.CONVEX_HULL = 'hull';
 /// Difference: takes one object and subtracts away another. This is a term from set theory in mathematics.
@@ -378,6 +378,16 @@ Blockscad.Msg.MOUSEOVER_REDO = 'Redo';
 Blockscad.Msg.MOUSEOVER_TRASHCAN = 'Delete all blocks';
 /// Delete all blocks message box: ask user if they want to delete some number of blocks
 Blockscad.Msg.DISCARD_ALL = 'Delete all %1 blocks?';
+/// Toggle display of X, Y, Z axes in the render window
+Blockscad.Msg.AXES_BUTTON = 'Toggle axes display';
+/// Set default color of rendered meshes button
+Blockscad.Msg.DEFAULT_COLOR_BUTTON = 'Set default render color';
+/// Zoom in button for render window
+Blockscad.Msg.ZOOM_IN_BUTTON = 'Zoom in';
+/// Zoom out button for render window
+Blockscad.Msg.ZOOM_OUT_BUTTON = 'Zoom out';
+/// Reset zoom and view to default diagonal view
+Blockscad.Msg.ZOOM_RESET_BUTTON = 'Reset view';
 
 // Parsing/Rendering error messages
 /// Warning: STL file block needs to re-load.  Blockscad doesn't store STL files along with projects.  When a project is loaded that had an STL file, BlocksCAD prompts the user to re-load the STL file.
@@ -478,7 +488,7 @@ Blockscad.Msg.BLOCKS_BUMPED_OUT_DIMENSIONS = '%1 calling blocks were displaced: 
 /// error message: if a function which returns a value has that value in a place where one type is expected (numbers vs booleans),
 /// the function caller will get bumped out and the function block will display a warning message:
 /// '%1 calling blocks were displaced: type mismatch between numbers and Booleans'
-Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES = '%1 calling blocks were displaced: type mismatch between numbers and Booleans';
+Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES = '%1 calling blocks were displaced: type mismatch between %2 and %3';
 /// error message: if a variable definition changes type (from a number to a true/false to a string), there may be instances of that variable that now have 
 /// an illegal type.  They are disconnected from their positions in the code and highlighted, and the variable definition displays a warning message:
 /// %1 variable blocks were displaced due to type mismatches
@@ -501,6 +511,8 @@ Blockscad.Msg.EXAMPLE_LOOP_SINE = 'sine function with loop';
 /// example project that creates a trefoil knot (3-lobed knot) by plotting parametric equations
 Blockscad.Msg.EXAMPLE_PARAMETRIC_EQ_KNOT = 'knot from parametric equations';
 
+/// Button or link to the Blockscad Get Started Video
+Blockscad.Msg.GET_STARTED_VIDEO = 'Get Started!';
  
 
 
