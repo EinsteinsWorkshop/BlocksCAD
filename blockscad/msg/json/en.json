@@ -1,7 +1,7 @@
 {
 	"@metadata": {
 		"author": "Jennie Yoder <jennie@einsteinsworkshop.com>",
-		"lastupdated": "2016-07-29 07:40:11.754000",
+		"lastupdated": "2016-08-10 11:02:15.985000",
 		"locale": "en",
 		"messagedocumentation" : "qqq"
 	},
@@ -221,5 +221,6 @@
 	"EXAMPLE_PARAMETRIC_BOX": "any size box",
 	"EXAMPLE_LOOP_SUN": "sun made with loop",
 	"EXAMPLE_LOOP_SINE": "sine function with loop",
-	"EXAMPLE_PARAMETRIC_EQ_KNOT": "knot from parametric equations"
+	"EXAMPLE_PARAMETRIC_EQ_KNOT": "knot from parametric equations",
+	"GET_STARTED_VIDEO": "Get Started!"
 }

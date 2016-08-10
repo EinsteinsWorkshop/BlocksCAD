@@ -219,5 +219,6 @@
 	"EXAMPLE_PARAMETRIC_BOX": "Schachtel mit veränderbarer Grösse",
 	"EXAMPLE_LOOP_SUN": "Mit Schleife erzeugte Sonne",
 	"EXAMPLE_LOOP_SINE": "Sinus-Funktion mit Schleife",
-	"EXAMPLE_PARAMETRIC_EQ_KNOT": "Kleeblattknoten aus parametrischen Gleichungen"
+	"EXAMPLE_PARAMETRIC_EQ_KNOT": "Kleeblattknoten aus parametrischen Gleichungen",
+	"GET_STARTED_VIDEO": "Erste Schritte!"
 }

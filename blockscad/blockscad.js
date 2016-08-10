@@ -403,14 +403,15 @@ Blockscad.init = function() {
   // then procedures, then the rest.
   // I'm running it in a timeout to make sure any events have had time to fire.  What a pain.
 
-  setTimeout(Blockscad.typeWorkspace, 1);
+
+  setTimeout(Blockscad.typeWorkspace, 10);
 
 }; // end Blockscad.init()
 
 Blockscad.typeWorkspace = function() {
   // I'll do three passes - first variable setters (does that type variable getters?)
   // then procedures, then the rest. 
-  console.log("running typeWorkspace");
+  // console.log("running typeWorkspace");
   var blocks = Blockscad.workspace.getAllBlocks();
   for (var i = 0; i < blocks.length; i++) {
     if (blocks[i].type == 'variables_set')
@@ -437,6 +438,7 @@ Blockscad.typeWorkspace = function() {
 Blockscad.typeNewStack = function(block) {
   // three passes - variables, procedures, then the rest.
   // this is called when blocks are created (think duplicated block stacks with callers in it)
+  console.log("in typeNewStack");
   var topBlock = block.getRootBlock();
   var blockStack = topBlock.getDescendants();
   for (var i = 0; blockStack && i < blockStack.length; i++) {
@@ -1746,9 +1748,14 @@ Blockscad.handleWorkspaceEvents = function(event) {
     // console.log("create or delete event:",event);
     Blockscad.undo.needToSave = 1; 
 
+    // set the type of newly created procedure call blocks.  
+
     var block = Blockscad.workspace.getBlockById(event.ids[0]);
-    if (block)
-      Blockscad.typeNewStack(block);
+    if (block && block.workspace && !block.workspace.isFlyout) {
+      if (block.type == 'procedures_callnoreturn' || block.type == 'procedures_callreturn')
+        block.setType();
+      // Blockscad.typeNewStack(block);
+    }
   }
   else if (event.type == Blockly.Events.CHANGE) {
     // trigger a need to save
@@ -1801,7 +1808,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
     // unplug event: has oldParentID.  trigger type change on current block and old parent's stack.
     if (event.oldParentId) {
       // unplug event.  call typing on old parent stack and current stack.
-      console.log("unplug event");
+      // console.log("unplug event");
 
       var block = Blockscad.workspace.getBlockById(event.blockId);
       var oldParent = Blockscad.workspace.getBlockById(event.oldParentId);
@@ -1816,7 +1823,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
     }
     else if (event.newParentId) {
       // plug event.  call typing on the stack.
-      console.log("plug event");
+      // console.log("plug event");
       var block = Blockscad.workspace.getBlockById(event.blockId);
       var newParent = Blockscad.workspace.getBlockById(event.newParentId);
       Blockscad.assignBlockTypes([block]);
@@ -2006,3 +2013,20 @@ Blockscad.executeAfterDrag_ = function(action, thisArg) {
   }
 };
 
+// helper function used in typing to compare type arrays and see if they are equal.
+
+Blockscad.arraysEqual = function(arr1, arr2) {
+  if (arr1 == null && arr2 == null)
+    return true;
+  if (!arr1 || !arr2)
+    return false;
+
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
+}

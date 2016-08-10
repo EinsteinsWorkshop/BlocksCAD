@@ -319,7 +319,7 @@ Blockly.Blocks['variables_set'] = {
       type = [type];
     }
     // console.log("in variable_set setType:  old:" + this.myType_ + "  and new:" + type);
-    if (this.myType_ == type) {
+    if (Blockscad.arraysEqual(type, this.myType_)) {
       // console.log("type didn't actually change.  Returning without doing work.");
       return;
     }

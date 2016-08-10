@@ -218,26 +218,16 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       // Block has been deleted.
       return;
     }
-    console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
-    console.log("arrays: " + goog.isArray(this.myType_) + ', ' + goog.isArray(type));
+    // console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
+    // console.log("arrays: " + goog.isArray(this.myType_) + ', ' + goog.isArray(type));
     if (!goog.isArray(type))
       type = [type];
     // compare to see if type matches this.myType_
 
-    var same = 1;
+    if (Blockscad.arraysEqual(type, this.myType_))
+      return;
 
-    if (type.length != this.myType_.length){
-      same = 0;
-    }
-    else {
-      for (var i = 0; i < type.length; i++) {
-        if (!this.myType_ || this.myType_[i] != type[i])
-          same = 0;
-      }
-    }
-    if (same) return;
-
-    console.log("in modules's setType");
+    // console.log("in modules's setType");
 
     var oldtype = this.myType_;
     var callers = Blockly.Procedures.getCallers(this.getFieldValue('NAME'), this.workspace);
@@ -261,7 +251,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         // if the stack's type doesn't match the caller's new type, bumpage!
         // mark that block that will be bumped
         if (areaType != 'EITHER' && areaType != type[0]) {
-          console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
+          // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
           numBumped.push(callers[i]);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
           var topBlock = callers[i].collapsedParents();
@@ -296,6 +286,11 @@ Blockly.Blocks['procedures_defnoreturn'] = {
             // console.log("this caller is inside a setter: ", setterParent.id);
             if (setterParent) setterParent.setType(type);
           }, 0);
+        }
+        // if the caller was inside a non setter, I still want to type that parent.
+        var parent = callers[i].getParent();
+        if (parent) {
+          Blockscad.assignBlockTypes(parent)
         }
       }
     } // end of going through all callers to set their types.
@@ -504,6 +499,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
    * @this Blockly.Block
    */
   getProcedureDef: function() {
+    // console.log("in getProcedureDef for noreturn for:",this.getFieldValue('NAME'));
     return [this.getFieldValue('NAME'), this.arguments_, false];
   },
   /**
@@ -739,7 +735,7 @@ Blockly.Blocks['procedures_defreturn'] = {
     // console.log("starting func ST with oldtype:" + this.myType_ + " and newtype:" + type);
 
     if (this.myType_ == type) {
-      console.log("in func ST.  returning because types didn't change.");
+      // console.log("in func ST.  returning because types didn't change.");
       return;
     }
     // set the function def's type to what is now connected to its output
@@ -825,6 +821,11 @@ Blockly.Blocks['procedures_defreturn'] = {
             // console.log("this caller function is inside a setter.  Set its type to: ",type);
             setterParent.setType(type);
           }, 0);
+        }
+        // if the caller was inside a non setter, I still want to type that parent.
+        var parent = callers[i].getParent();
+        if (parent) {
+          Blockscad.assignBlockTypes(parent)
         }
       }
     } // end of going through all callers to set their types.
@@ -933,20 +934,23 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     this.arguments_ = [];
     this.quarkConnections_ = {};
     this.quarkIds_ = null;
+    this.setType();
   },
   /**
    * on being added, this will be called to set the parent procedure type for BlocksCAD
    */
   setType: function() {     // for blockscad - jayod
-    var parent = Blockly.Procedures.getDefinition(this.getFieldValue('NAME'),this.workspace);
+    var parent = Blockly.Procedures.getDefinition(this.getProcedureCall(),this.workspace);
+    // console.log("in caller's setType func.  defined by: ",parent);
     if (parent) {
       var myType = parent.myType_;
+      // console.log("found a parent procedure with type: ",parent.myType_);
       if (myType) {
         this.previousConnection.setCheck(myType);
         //this.nextConnection.setCheck(myType);   // no more next connection
-        if (myType == 'CSG')
+        if (myType == 'CSG' || myType == ['CSG'])
           this.category = 'PRIMITIVE_CSG'
-        else if (myType == 'CAG')
+        else if (myType == 'CAG' || myType == ['CAG'])
           this.category = 'PRIMITIVE_CAG';
         else this.category = 'UNKNOWN'; 
       }
@@ -1290,6 +1294,8 @@ Blockly.Blocks['procedures_callreturn'] = {
     this.arguments_ = [];
     this.quarkConnections_ = {};
     this.quarkIds_ = null;
+    // set the initial type.
+    this.setType();
   },
    /**
    * on being added, this will be called to get the parent procedure type for BlocksCAD
@@ -1299,6 +1305,7 @@ Blockly.Blocks['procedures_callreturn'] = {
     if (parent) {
       var myType = parent.myType_;
       if (myType) {
+        // console.log("setting type for new function caller to:",myType);
        this.outputConnection.setCheck(myType); 
         if (myType == 'Number')
           this.category = 'NUMBER'

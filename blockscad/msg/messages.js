@@ -511,6 +511,8 @@ Blockscad.Msg.EXAMPLE_LOOP_SINE = 'sine function with loop';
 /// example project that creates a trefoil knot (3-lobed knot) by plotting parametric equations
 Blockscad.Msg.EXAMPLE_PARAMETRIC_EQ_KNOT = 'knot from parametric equations';
 
+/// Button or link to the Blockscad Get Started Video
+Blockscad.Msg.GET_STARTED_VIDEO = 'Get Started!';
  
 
 

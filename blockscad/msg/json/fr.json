@@ -218,5 +218,6 @@
 	"EXAMPLE_PARAMETRIC_BOX": "boîte paramétrée",
 	"EXAMPLE_LOOP_SUN": "coque étoile",
 	"EXAMPLE_LOOP_SINE": "fonction sinus avec boucle",
-	"EXAMPLE_PARAMETRIC_EQ_KNOT": "nœud avec équations paramétriques"
+	"EXAMPLE_PARAMETRIC_EQ_KNOT": "nœud avec équations paramétriques",
+	"GET_STARTED_VIDEO": "Commencer!"
 }

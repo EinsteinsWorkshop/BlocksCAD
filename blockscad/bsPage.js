@@ -97,6 +97,9 @@ output += '              <li><a href="#" id="examples_sine_function_with_loop">'
 output += '              <li><a href="#" id="examples_trefoil_knot_param_eq">' + Blockscad.Msg.EXAMPLE_PARAMETRIC_EQ_KNOT + '</a></li>\n';
 output += '            </ul>\n';
 output += '          </li>\n';
+// output += '          <li class="button">\n';
+output += '             <a type="button" class="btn btn-default btn-lg" style="margin-top:2px" href="https://youtu.be/5RNKVn7lijM" target="_blank">'+ Blockscad.Msg.GET_STARTED_VIDEO + '</a>';
+// output += '          </li>\n';
 output += '        </ul>\n';
 output += '        <div id="login-area" class="navbar-right">\n';
 output += '        </div>\n';
