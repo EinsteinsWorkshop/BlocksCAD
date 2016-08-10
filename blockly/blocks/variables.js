@@ -53,7 +53,7 @@ Blockly.Blocks['variables_get'] = {
     for (var i = 0; i < all_of_them.length; i++) {
       if (all_of_them[i].type == 'variables_set') {
         this.outputConnection.setCheck(all_of_them[i].myType_);
-        console.log("vars_get " + this.id + " was initialized to " + all_of_them[i].myType_);
+        // console.log("vars_get " + this.id + " was initialized to " + all_of_them[i].myType_);
         found_it = 1;
         break;
       }

@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 Blockscad.version = "1.5.0";
 Blockscad.releaseDate = "2016/08/10";
 
-Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.standalone = false; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
@@ -195,7 +195,7 @@ Blockscad.init = function() {
 
   $( '#cameraButton' ).click(function() {
     // toggle whether or not we draw the axes, then redraw
-    console.log("cameraButton clicked");
+    // console.log("cameraButton clicked");
     Blockscad.cameraPic();
     
   });
@@ -411,16 +411,14 @@ Blockscad.init = function() {
   });
   $('#stl_buttons').hide();
 
-// <<<<<<< HEAD
-//   if (!Blockscad.standalone) {
-//     BSUtils.loadBlocks('');
-//   }
-//   else {
-//     // for standalone, just call restoreBlocks directly
-//     // console.log("calling standalone restore");
-//     BlocklyStorage.standaloneRestoreBlocks();
-//   }
-// =======
+  if (!Blockscad.standalone) {
+    BSUtils.loadBlocks('');
+  }
+  else {
+    // for standalone, just call restoreBlocks directly
+    // console.log("calling standalone restore");
+    BlocklyStorage.standaloneRestoreBlocks();
+  }
   // we've just initiated BlocksCAD (page was loaded).  Run block typing on all blocks.
   // I'll do three passes - first variable setters (does that type variable getters?)
   // then procedures, then the rest.

@@ -28,22 +28,22 @@ Blockly.Blocks['sphere'] = {
   //   else this.setWarningText(null);
   // }
 };
-Blockly.Blocks['sphere'] = {
-  init: function() {
-    this.category = 'PRIMITIVE_CSG'
-    this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
-    this.appendDummyInput()
-        .appendField(Blockscad.Msg.SPHERE + "  ");
-    this.appendValueInput("RAD")
-        .setCheck("Number")
-        .appendField(Blockscad.Msg.RADIUS)
-        .setAlign(Blockly.ALIGN_RIGHT);
-    this.setInputsInline(true);
-    this.setPreviousStatement(true, 'CSG');
-    this.setTooltip(Blockscad.Msg.SPHERE_TOOLTIP);
-  }//,
-};
+// Blockly.Blocks['sphere'] = {
+//   init: function() {
+//     this.category = 'PRIMITIVE_CSG'
+//     this.setHelpUrl('http://www.example.com/');
+//     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+//     this.appendDummyInput()
+//         .appendField(Blockscad.Msg.SPHERE + "  ");
+//     this.appendValueInput("RAD")
+//         .setCheck("Number")
+//         .appendField(Blockscad.Msg.RADIUS)
+//         .setAlign(Blockly.ALIGN_RIGHT);
+//     this.setInputsInline(true);
+//     this.setPreviousStatement(true, 'CSG');
+//     this.setTooltip(Blockscad.Msg.SPHERE_TOOLTIP);
+//   }//,
+// };
 
 
 Blockly.Blocks['cylinder'] = {
