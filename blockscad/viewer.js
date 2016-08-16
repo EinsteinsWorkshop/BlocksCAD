@@ -642,6 +642,8 @@ Blockscad.Viewer.prototype = {
 
       var image = this.gl.canvas.toDataURL('image/jpeg', takePic);
       return image;
+
+
     }
     // take a screenshot pic if needed
     if (camera) {
@@ -1031,6 +1033,7 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.picdiv = null;
   this.viewer = null;
   this.picviewer = null;
+  this.rpicviewer = null;
   this.initialViewerDistance = 100;
   this.processing = false;
   this.currentObject = null;
@@ -1043,6 +1046,7 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.hasError = false;
   this.debugging = false;
   this.thumbnail = "none";
+  this.imgStrip = "none";
   this.createElements();
 };
 
@@ -1104,12 +1108,30 @@ Blockscad.Processor.prototype = {
     document.getElementById("blocklyDiv").appendChild(picdiv);
     this.picdiv = picdiv;
 
+    var rpicdiv = document.createElement("div");
+    rpicdiv.setAttribute('id','picdiv');
+    rpicdiv.style.width = Blockscad.rpicSize[0] + 'px'; 
+    rpicdiv.style.height = Blockscad.rpicSize[1] + 'px'; 
+    rpicdiv.style.top = '0px';
+    rpicdiv.style.right = '10px';
+    rpicdiv.style.position = 'absolute';
+    rpicdiv.style.zIndex = '-1';
+    document.getElementById("blocklyDiv").appendChild(rpicdiv);
+    this.rpicdiv = rpicdiv;
+
     try {
       this.picviewer = new Blockscad.Viewer(this.picdiv, picdiv.offsetWidth, picdiv.offsetHeight, this.initialViewerDistance);
     } catch(e) {
       this.picdiv.innerHTML = "<b><br><br>Error: " + e.toString() + "</b><br><br>BlocksCAD currently requires Google Chrome or Firefox with WebGL enabled";
     }
     $("#picdiv").hide();
+
+    try {
+      this.rpicviewer = new Blockscad.Viewer(this.rpicdiv, rpicdiv.offsetWidth, rpicdiv.offsetHeight, this.initialViewerDistance);
+    } catch(e) {
+      this.rpicdiv.innerHTML = "<b><br><br>Error: " + e.toString() + "</b><br><br>BlocksCAD currently requires Google Chrome or Firefox with WebGL enabled";
+    }
+    $("#rpicdiv").hide();
 
     try {
       this.viewer = new Blockscad.Viewer(this.viewerdiv, viewerdiv.offsetWidth, viewerdiv.offsetHeight, this.initialViewerDistance);
@@ -1176,6 +1198,11 @@ Blockscad.Processor.prototype = {
       this.picviewer.bsph = csg.getBoundingSphere();
       this.picviewer.setCsg(csg);
     }
+    if (this.rpicviewer)  {
+      this.rpicviewer.bbox = csg.getBounds();
+      this.rpicviewer.bsph = csg.getBoundingSphere();
+      this.rpicviewer.setCsg(csg);
+    }
 
     // console.log("trying to turn on stl_buttons");
     $('#stl_buttons').show();
@@ -1212,6 +1239,7 @@ Blockscad.Processor.prototype = {
     this.setCurrentObject(new CSG());
     this.hasValidCurrentObject = false;
     this.thumbnail = "none";
+    this.imgStrip = "none";
     // console.log('trying to hid stl_buttons');
     $('#stl_buttons').hide();
     this.enableItems();
@@ -1291,6 +1319,7 @@ Blockscad.Processor.prototype = {
             that.setCurrentObject(obj);
             // console.log(that);
             that.thumbnail = that.picviewer.takePic(Blockscad.picQuality,0);
+            that.imgStrip = that.takeRotatingPic(1,Blockscad.numRotPics);
           }
 
           if(that.onchange) that.onchange();
@@ -1455,13 +1484,23 @@ Blockscad.Processor.prototype = {
   takeRotatingPic: function(quality, numframes) {
 
     var frames = [];
+    var images = [];
+    var c = document.createElement('canvas');
+    c.width  = Blockscad.rpicSize[0] * numframes;
+    c.height = Blockscad.rpicSize[0];
+    var ctx = c.getContext("2d");
     
     for (var i = 0; i < numframes; i += 1) {
       var angle = -i * (2*Math.PI / numframes);
-      frames[i] = this.picviewer.takePic(quality,angle);
+      frames[i] = this.rpicviewer.takePic(quality,angle);
+      images[i] = new Image();
+      images[i].src = frames[i];
+      ctx.drawImage(images[i],i * Blockscad.rpicSize[0],0);
       // change angle?
     }
-      // this.picviewer.onDraw();
-    return frames;
+
+    var strip = c.toDataURL("image/jpeg");
+    console.log("have a strip - returning it");
+    return strip;
   }
 };

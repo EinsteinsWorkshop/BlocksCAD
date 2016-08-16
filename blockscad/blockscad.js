@@ -33,7 +33,7 @@ var BSUtils = BSUtils || {};
 Blockscad.version = "1.5.0";
 Blockscad.releaseDate = "2016/08/07";
 
-Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
@@ -225,8 +225,10 @@ Blockscad.init = function() {
   $('#file-menu').on('change', '#importStl', function(e) { Blockscad.readStlFile(e);});
 
   // what size should pics be taken at?
-  Blockscad.picSize = [120,120];
+  Blockscad.picSize = [450,450];
+  Blockscad.rpicSize = [250,250];
   Blockscad.picQuality = 0.85;    // JPEG quality level - must be between 0 and 1
+  Blockscad.numRotPics = 13;
   // hook up the pic-taking button
   $("#picButton").click(Blockscad.takePic);
   $("#rPicButton").click(Blockscad.takeRPic);
@@ -334,12 +336,15 @@ Blockscad.init = function() {
     if (Blockscad.gProcessor != null && Blockscad.gProcessor.viewer){
       Blockscad.gProcessor.viewer.defaultColor = [r/255,g/255,b/255,1];
       Blockscad.gProcessor.picviewer.defaultColor = [r/255,g/255,b/255,1];
+      Blockscad.gProcessor.rpicviewer.defaultColor = [r/255,g/255,b/255,1];
       if (Blockscad.gProcessor.hasSolid()) {
         // I have a solid already rendered - change its color!
         Blockscad.gProcessor.viewer.setCsg(Blockscad.gProcessor.currentObject); 
         Blockscad.gProcessor.picviewer.setCsg(Blockscad.gProcessor.currentObject); 
+        Blockscad.gProcessor.rpicviewer.setCsg(Blockscad.gProcessor.currentObject); 
         // update the thumbnail
         Blockscad.gProcessor.thumbnail = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+        Blockscad.gProcessor.imgStrip = Blockscad.gProcessor.takeRotatingPic(0.9,Blockscad.numRotPics);
       }
       Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
       $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
@@ -469,26 +474,47 @@ Blockscad.typeNewStack = function(block) {
   }
 }
 
+// Blockscad.takeRPic
+// this takes and stores a strip of jpegs showing a rotating model
+// for display with a blockscad project (either on our website or on a
+// model page, etc.)
 Blockscad.takeRPic = function() {
   if (Blockscad.gProcessor != null) {
     // takeRotatingPic(quality, numFrames)
     // leave quality at 1! 
-    var thing = Blockscad.gProcessor.takeRotatingPic(1,13);
+    // thing holds the frames from the canvas.
+
+    var strip = Blockscad.gProcessor.imgStrip;
+    if (strip)
+      Blockscad.savePic(strip, $('#project-name').val() + '.jpg');
+
+    // var imageObj1 = new Image();
+    // var imageObj2 = new Image();
+    // imageObj1.src = "1.png"
+    // imageObj1.onload = function() {
+    //    ctx.drawImage(imageObj1, 0, 0, 328, 526);
+    //    imageObj2.src = "2.png";
+    //    imageObj2.onload = function() {
+    //       ctx.drawImage(imageObj2, 15, 85, 300, 300);
+    //       var img = c.toDataURL("image/png");
+    //       document.write('<img src="' + img + '" width="328" height="526"/>');
+    //    }
+    // };
     // console.log("got rotating pic");
 
     // console.log(thing);
-    var gif = gifshot.createGIF({
-      'images': thing,
-      'interval': 0.4,
-      'gifWidth': Blockscad.picSize[0],
-      'gifHeight': Blockscad.picSize[1],
-      'sampleInterval': 1,
-    }, function(obj) {
-      if (!obj.error) {
-        var image = obj.image;
-        Blockscad.savePic(image, $('#project-name').val() + '.gif');
-      }
-    });
+    // var gif = gifshot.createGIF({
+    //   'images': thing,
+    //   'interval': 0.4,
+    //   'gifWidth': Blockscad.picSize[0],
+    //   'gifHeight': Blockscad.picSize[1],
+    //   'sampleInterval': 1,
+    // }, function(obj) {
+    //   if (!obj.error) {
+    //     var image = obj.image;
+    //     Blockscad.savePic(image, $('#project-name').val() + '.gif');
+    //   }
+    // });
   }
 }
 Blockscad.savePic = function(image, name) {
@@ -510,14 +536,11 @@ Blockscad.savePic = function(image, name) {
   }
 }
 Blockscad.takePic = function() {
-  if (Blockscad.gProcessor.picviewer) {
-    // the parameter here is the jpeg quality - between 0 and 1.
-    var image = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
-    // Blockscad.gProcessor.thumbnail = image;
+  if (Blockscad.gProcessor) {
 
     // console.log("image",image);
-    if (image)
-    Blockscad.savePic(image, $('#project-name').val() + '.jpg');
+    if (Blockscad.gProcessor.thumbnail && Blockscad.gProcessor.thumbnail != "null")
+    Blockscad.savePic(Blockscad.gProcessor.thumbnail, $('#project-name').val() + '.jpg');
   }
 }
 
