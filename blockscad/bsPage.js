@@ -153,12 +153,12 @@ output += '              <div id="renderDiv">\n';
 // output += '                <button type="button" id="viewReset" class="vreset">' + Blockscad.Msg.RESET_VIEW_BUTTON;
 // output += '                </button>\n';
 // output += '<!--';
-output += '                 <button type="button" id="picButton" class="btn btn-default btn-pushed">';
-output += '                  Pic';
-output += '                </button>\n';
-output += '                <button type="button" id="rPicButton" class="btn btn-default btn-pushed">';
-output += '                  Rotating Pic';
-output += '                </button> \n';
+// output += '                 <button type="button" id="picButton" class="btn btn-default btn-pushed">';
+// output += '                  Pic';
+// output += '                </button>\n';
+// output += '                <button type="button" id="rPicButton" class="btn btn-default btn-pushed">';
+// output += '                  Rotating Pic';
+// output += '                </button> \n';
 // output += '-->';
 
 // output += '                <button type="button" id="axesButton" class="btn btn-default btn-pushed">\n';
