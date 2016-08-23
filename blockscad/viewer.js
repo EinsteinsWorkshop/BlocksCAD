@@ -637,12 +637,29 @@ Blockscad.Viewer.prototype = {
       // GL.Mesh.plane({ detailX: 20, detailY: 40 });
     }
 
-    // take a thumbnail pic if needed
+    // take a thumbnail and large pic if needed
     if (takePic) {
 
-      var image = this.gl.canvas.toDataURL('image/jpeg', takePic);
-      return image;
+      var images = [];
+      images[0] = this.gl.canvas.toDataURL('image/jpeg', takePic);
 
+      var canv1 = document.createElement("canvas");
+      var ctx1 = canv1.getContext("2d");
+
+      canv1.height = this.gl.canvas.height * 0.5;
+      canv1.width = this.gl.canvas.height  * 0.5;
+
+      ctx1.drawImage(this.gl.canvas, 0, 0, canv1.width, canv1.height);
+
+      var canv2 = document.createElement("canvas");
+      var ctx2 = canv2.getContext("2d");
+      canv2.height = canv1.height * 0.5;
+      canv2.width = canv1.width * 0.5;
+
+      ctx2.drawImage(canv1, 0, 0, canv1.width * 0.5, canv1.height * 0.5);
+      images[1] = canv2.toDataURL('image/jpeg', takePic);
+
+      return images;
 
     }
     // take a screenshot pic if needed
@@ -1047,6 +1064,7 @@ Blockscad.Processor = function(containerdiv, onchange) {
   this.debugging = false;
   this.thumbnail = "none";
   this.imgStrip = "none";
+  this.img = "none";
   this.createElements();
 };
 
@@ -1240,6 +1258,7 @@ Blockscad.Processor.prototype = {
     this.hasValidCurrentObject = false;
     this.thumbnail = "none";
     this.imgStrip = "none";
+    this.img = "none";
     // console.log('trying to hid stl_buttons');
     $('#stl_buttons').hide();
     this.enableItems();
@@ -1318,7 +1337,9 @@ Blockscad.Processor.prototype = {
 //            console.log("no error in proc");
             that.setCurrentObject(obj);
             // console.log(that);
-            that.thumbnail = that.picviewer.takePic(Blockscad.picQuality,0);
+            var images = that.picviewer.takePic(Blockscad.picQuality,0,1);
+            that.img = images[0];
+            that.thumbnail = images[1];
             that.imgStrip = that.takeRotatingPic(1,Blockscad.numRotPics);
           }
 
@@ -1492,7 +1513,7 @@ Blockscad.Processor.prototype = {
     
     for (var i = 0; i < numframes; i += 1) {
       var angle = -i * (2*Math.PI / numframes);
-      frames[i] = this.rpicviewer.takePic(quality,angle);
+      frames[i] = this.rpicviewer.takePic(quality,angle)[0];
       images[i] = new Image();
       images[i].src = frames[i];
       ctx.drawImage(images[i],i * Blockscad.rpicSize[0],0);

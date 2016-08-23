@@ -342,9 +342,11 @@ Blockscad.init = function() {
         Blockscad.gProcessor.viewer.setCsg(Blockscad.gProcessor.currentObject); 
         Blockscad.gProcessor.picviewer.setCsg(Blockscad.gProcessor.currentObject); 
         Blockscad.gProcessor.rpicviewer.setCsg(Blockscad.gProcessor.currentObject); 
-        // update the thumbnail
-        Blockscad.gProcessor.thumbnail = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+        // update the display image, thumbnail, and picture strip for rotating views
+        var images = Blockscad.gProcessor.picviewer.takePic(Blockscad.picQuality,0);
+        Blockscad.gProcessor.img = images[0];
         Blockscad.gProcessor.imgStrip = Blockscad.gProcessor.takeRotatingPic(0.9,Blockscad.numRotPics);
+        Blockscad.gProcessor.thumbnail = images[1];
       }
       Blockscad.defaultColor = Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b);
       $("#defColor").spectrum("set", 'rgb(' + Blockscad.defaultColor + ')');
@@ -539,8 +541,8 @@ Blockscad.takePic = function() {
   if (Blockscad.gProcessor) {
 
     // console.log("image",image);
-    if (Blockscad.gProcessor.thumbnail && Blockscad.gProcessor.thumbnail != "null")
-    Blockscad.savePic(Blockscad.gProcessor.thumbnail, $('#project-name').val() + '.jpg');
+    if (Blockscad.gProcessor.img && Blockscad.gProcessor.img != "null")
+    Blockscad.savePic(Blockscad.gProcessor.img, $('#project-name').val() + '.jpg');
   }
 }
 
@@ -550,7 +552,7 @@ Blockscad.cameraPic = function() {
     //var image = Blockscad.gProcessor.viewer.takePic(.95,0);
     var image = Blockscad.gProcessor.viewer.takeCameraPic(.95);
 
-    // Blockscad.gProcessor.thumbnail = image;
+    // Blockscad.gProcessor.img = image;
 
     // console.log("image",image);
     if (image)
@@ -2077,3 +2079,4 @@ Blockscad.arraysEqual = function(arr1, arr2) {
 
     return true;
 }
+
