@@ -178,7 +178,7 @@ output += '                <div id="viewerButtons">\n';
 
 output += '                  <div class="btn-group">\n';
 output += '                    <button id="colorButton" type="button" title="' + Blockscad.Msg.DEFAULT_COLOR_BUTTON + '" class="btn vbut btn-default">\n';
-output += '                <input type="text" id="defColor"/>\n';
+output += '                    <input type="text" id="defColor"/>\n';
 output += '                    </button>\n';
 output += '                  </div>\n';
 
@@ -217,21 +217,44 @@ output += '                       <path d="M 4,15 0,15" style="stroke:#666;strok
 output += '                       <circle r="3" cy="15" cx="15" style="fill:#777;stroke:#777;stroke-width:1.6;" />\n';
 output += '                     </svg>\n';
 output += '                    </button>\n';
-output += '                <select id="viewMenu" class="btn btn-default">\n';
-output += '                  <option value="diagonal">' + Blockscad.Msg.DIRECTION_DIAGONAL + '</option>\n';
-output += '                  <option value="front">' + Blockscad.Msg.DIRECTION_FRONT + '</option>\n';
-output += '                  <option value="top">' + Blockscad.Msg.DIRECTION_TOP + '</option>\n';
-output += '                  <option value="right">' + Blockscad.Msg.DIRECTION_RIGHT + '</option>\n';
-output += '                  <option value="left">' + Blockscad.Msg.DIRECTION_LEFT + '</option>\n';
-output += '                  <option value="back">' + Blockscad.Msg.DIRECTION_BACK + '</option>\n';
-output += '                  <option value="bottom">' + Blockscad.Msg.DIRECTION_BOTTOM + '</option>\n';
-output += '                </select>\n';
+output += '                     <select id="viewMenu" class="btn btn-default">\n';
+output += '                          <option value="diagonal">' + Blockscad.Msg.DIRECTION_DIAGONAL + '</option>\n';
+output += '                         <option value="front">' + Blockscad.Msg.DIRECTION_FRONT + '</option>\n';
+output += '                         <option value="top">' + Blockscad.Msg.DIRECTION_TOP + '</option>\n';
+output += '                         <option value="right">' + Blockscad.Msg.DIRECTION_RIGHT + '</option>\n';
+output += '                         <option value="left">' + Blockscad.Msg.DIRECTION_LEFT + '</option>\n';
+output += '                         <option value="back">' + Blockscad.Msg.DIRECTION_BACK + '</option>\n';
+output += '                         <option value="bottom">' + Blockscad.Msg.DIRECTION_BOTTOM + '</option>\n';
+output += '                     </select>\n';
 output += '                  </div>\n';
-output += '                <button type="button" id="cameraButton" class="btn vbut btn-default">\n';
-output += '                  <img src="imgs/cameraSmall.png">\n';
-output += '                </button>\n';
+output += '                  <button type="button" id="cameraButton" class="btn vbut btn-default">\n';
+output += '                     <img src="imgs/cameraSmall.png">\n';
+output += '                  </button>\n';
+output += '                </div>\n';   // end of viewerButtons div
 
-output += '                </div>\n';
+
+
+
+output += '                <div id="viewerDefaults">\n';
+
+// output += '                  <div class="btn-group">\n';
+// output += '                    <button id="colorButton" type="button" title="' + Blockscad.Msg.DEFAULT_COLOR_BUTTON + '" class="btn vbut btn-default">\n';
+// output += '                    <input type="text" id="defColor"/>\n';
+// output += '                    </button>\n';
+// output += '                  </div>\n';
+output += '                 <span id="resolution_radio" class="btn btn-default"> \n';
+output += '                  <span>Smooth:&nbsp&nbsp</span>\n';
+output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="0.4">Low</label>\n';
+output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="1"checked>Medium</label>\n';
+output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="2">High</label>\n';
+output += '                 </span>\n';
+
+output += '                </div>\n';   // end of viewerDefaults div
+
+
+
+
+
 output += '                <div id="renderPane">\n';
 output += '                  <button type="button" class="btn btn-default btn-lg changeable" id="renderButton">' + Blockscad.Msg.RENDER_BUTTON + '</button>\n';
 output += '                  <button type="button" class="btn btn-default btn-lg btn-danger " id="abortButton">' + Blockscad.Msg.ABORT_BUTTON + '</button>\n';

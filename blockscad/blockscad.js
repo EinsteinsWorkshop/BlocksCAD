@@ -38,10 +38,14 @@ Blockscad.gProcessor = null;      // hold the graphics processor, including the 
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
 
+// resolution - this value will control the default returned by $fn in the parser. 
+// In theory I could just have the parser poll the value directly. Overwritten by the sides block.
+Blockscad.resolution = 1;
 
-/**
- * Initialize Blockly.  Called on page load.
- */
+
+
+// Initialize Blockscad.  Called on page load.
+ 
 Blockscad.init = function() {
   Blockscad.initLanguage();
 
@@ -1184,6 +1188,13 @@ Blockscad.doRender = function() {
     $('#renderButton').prop('disabled', false);
     return;
   }
+
+  // we haven't detected an error in the code.  On to rendering!
+
+  // detect default resolution
+  Blockscad.resolution = $('input[name="resolution"]:checked').val(); 
+
+  // load any needed fonts
   Blockscad.loadTheseFonts = Blockscad.whichFonts(code);
   // console.log(loadThese);
   $('#renderButton').html('working'); 
@@ -1893,6 +1904,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
 // schedule typing to be done so that scheduled events have
 // already been fired by the time typing is done.
 Blockscad.assignBlockTypes = function(blocks) {
+  // console.log("in assignBlockTypes");
   if (!goog.isArray(blocks))
     blocks = [blocks];
   setTimeout(function() {

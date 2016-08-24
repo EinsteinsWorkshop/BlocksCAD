@@ -763,13 +763,21 @@ Blockly.Blocks['procedures_defreturn'] = {
           // console.log("found instance with parent: ", parent.type);
           parentAccepts = callers[i].outputConnection.targetConnection.check_;
 
-          if (parentAccepts != null && goog.isArray(parentAccepts))
-            parentAccepts = parentAccepts[0];
+          // make sure that parentAccepts is an array so that we can check for a match
 
-          var callerAccepts = callers[i].outputConnection.check_;
+          if (parentAccepts == null) 
+            parentAccepts = [];
+          else if (!goog.isArray(parentAccepts)) 
+            parentAccepts = [parentAccepts];
 
-          // take care of bumps
-          if (parentAccepts != null && this.myType_ != null && parentAccepts != this.myType_) {
+          var found_match = 0;
+          // check to see if my type matches any type accepted by the parent - if so, it will bump.
+          for (var j = 0; j < parentAccepts.length; j++) {
+            if (parentAccepts[j] == this.myType_) {
+              found_match = 1;
+            }
+          }
+          if (!found_match) {
             // I have a type mismatch with this variable.  it is going to be bumped.
             // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
             numBumped.push(callers[i]);
@@ -787,23 +795,24 @@ Blockly.Blocks['procedures_defreturn'] = {
         // change caller's type - this is the command that actually prompts Blockly to bump blocks out
 
         // console.log("Set the caller's output check to ", this.myType_);
-
-        callers[i].outputConnection.setCheck(this.myType_);
-        if (this.myType_ == 'Number')
-          callers[i].category = 'NUMBER'
-        else if (this.myType_ == 'Boolean')
-          callers[i].category = 'BOOLEAN';
-        else if (this.myType_ == 'String')
-          callers[i].category == 'STRING';
-        else {
-          callers[i].category = 'UNKNOWN';
-          // console.log("function caller with type UNKNOWN");
+        if (callers[i]) {
+          callers[i].outputConnection.setCheck(this.myType_);
+          if (this.myType_ == 'Number')
+            callers[i].category = 'NUMBER'
+          else if (this.myType_ == 'Boolean')
+            callers[i].category = 'BOOLEAN';
+          else if (this.myType_ == 'String')
+            callers[i].category == 'STRING';
+          else {
+            callers[i].category = 'UNKNOWN';
+            // console.log("function caller with type UNKNOWN");
+          }
         }
         // console.log("tried to set caller type to ",this.myType_, callers[i]);
         // if it was a bumping change, fire a typing event
-        if (Blockly.Events.isEnabled() && numBumped.length) {
-          Blockly.Events.fire(new Blockly.Events.Typing(callers[i], oldtype,type));
-        }
+        // if (Blockly.Events.isEnabled() && numBumped.length) {
+        //   Blockly.Events.fire(new Blockly.Events.Typing(callers[i], oldtype,type));
+        // }
 
         // if caller is inside of another setter block, that setter's type needs to be changed.  Do so.
         // note that this can lead to an infinite loop if procedures are circularly defined - that is why
@@ -822,10 +831,14 @@ Blockly.Blocks['procedures_defreturn'] = {
             setterParent.setType(type);
           }, 0);
         }
-        // if the caller was inside a non setter, I still want to type that parent.
-        var parent = callers[i].getParent();
-        if (parent) {
-          Blockscad.assignBlockTypes(parent)
+        else {
+          // if the caller was inside a non setter, I still want to type that parent.
+          var parent = false;
+          if (callers[i])
+            parent = callers[i].getParent();
+          if (parent) {
+            Blockscad.assignBlockTypes(parent)
+          }
         }
       }
     } // end of going through all callers to set their types.
