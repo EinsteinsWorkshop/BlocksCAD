@@ -276,7 +276,7 @@ output += '      </div>\n';
 output += '      <!-- end tab content -->\n';
 output += '    </div> <!-- end of the #editView content  -->\n';
 // output += '\n';
-output += '    <div id="projectView" style="display:none">\n';
+output += '    <div id="projectView" class="hidden">\n';
 // output += '      <!-- first row - a "my projects" label, a "New" button on the right -->\n';
 output += '      <div style="width:100%; background-color:#bbbbff;">\n';
 output += '        <span class="proj-header">' + Blockscad.Msg.MY_PROJECTS + '</span>\n';

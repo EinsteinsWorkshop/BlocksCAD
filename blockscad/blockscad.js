@@ -118,7 +118,7 @@ Blockscad.init = function() {
   // color the initial toolbox
   Blockscad.Toolbox.setCatColors();
   // hide "switch to advanced toolbox" because that's where we'll start
-  $('#advancedToolbox').hide();
+  $('#advancedToolbox').addClass('hidden');
 
 
 
@@ -297,8 +297,8 @@ Blockscad.init = function() {
   // toolbox toggle handlers
   $('#simpleToolbox').on('click', function() {
     // console.log("switching to simple toolbox");
-    $('#simpleToolbox').hide();
-    $('#advancedToolbox').show();
+    $('#simpleToolbox').addClass('hidden');
+    $('#advancedToolbox').removeClass('hidden');
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.sim);
@@ -307,8 +307,8 @@ Blockscad.init = function() {
   });
   $('#advancedToolbox').on('click', function() {
     // console.log("switching to advanced toolbox");
-    $('#advancedToolbox').hide();
-    $('#simpleToolbox').show();
+    $('#advancedToolbox').addClass('hidden');
+    $('#simpleToolbox').removeClass('hidden');
     if (Blockscad.workspace) {
       Blockscad.Toolbox.catIDs = [];
       Blockscad.workspace.updateToolbox(Blockscad.Toolbox.adv);
@@ -421,10 +421,10 @@ Blockscad.init = function() {
     $(".dropdown-menu > li > a:not(.trigger)").on("click",function(){
       var root=$(this).closest('.dropdown');
       root.find('.left-caret').toggleClass('right-caret left-caret');
-      root.find('.sub-menu:visible').hide();
+      root.find('.sub-menu:visible').addClass('hidden');
     });
   });
-  $('#stl_buttons').hide();
+  $('#stl_buttons').addClass('hidden');
 
   if (!Blockscad.standalone) {
     BSUtils.loadBlocks('');
@@ -671,12 +671,13 @@ function readSingleFile(evt, replaceOld) {
     if (replaceOld)
       $('#project-name').val(proj_name);
 
-    // I should hide the projView, and show the editView.
-    $('#projView').hide();
-    $('#editView').show();
+    // I should hide the projectView
+    // , and show the editView.
+    $('#projectView').addClass('hidden');
+    $('#editView').removeClass('hidden');
     // turn the big save button back on.
 
-    if (!Blockscad.offline) $('#bigsavebutton').show();
+    if (!Blockscad.offline) $('#bigsavebutton').removeClass('hidden');
 
     // switch us back to the blocks tab in case we were on the code tabe.
     $('#displayBlocks').click();
@@ -882,7 +883,7 @@ Blockscad.createNewProject = function() {
   setTimeout(Blockscad.setNoSaveNeeded, 300);
   $('#displayBlocks').click();
   if (!Blockscad.offline)
-        $('#bigsavebutton').show(); 
+        $('#bigsavebutton').removeClass('hidden'); 
 }
 // first attempt to use promises for async stuff!
 function promptForSave() {
@@ -1000,10 +1001,10 @@ Blockscad.clearProject = function() {
   Blockscad.gProcessor.clearViewer();  
 
   $('#project-name').val(Blockscad.Msg.PROJECT_NAME_DEFAULT);
-  $('#projectView').hide();
-  $('#editView').show();
+  $('#projectView').addClass('hidden');
+  $('#editView').removeClass('hidden');
   // turn the big save button back on.
-  $('#bigsavebutton').show();
+  $('#bigsavebutton').removeClass('hidden');
 };
 
 // Blockscad.clearUndo = function() {
