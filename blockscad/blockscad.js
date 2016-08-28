@@ -251,22 +251,7 @@ Blockscad.init = function() {
 
   // a bunch of stuff to support Undo/Redo
   Blockscad.undo = {
-    // blockList:[], // array to hold all old blocks
-    // oldBlockList:[], // array to hold old blocks
-    // undoStack:[], // array to hold undo xml trees
-    // redoStack:[], // array to hold redo xml trees
-    // current_xml:null, // holds current blockly workspace tree
-    // blockCount:0,   // how many blocks are there?
-    // yesthis:0,      // has there been a real change we should undo?
-    // fieldChanging:0,  // was the last change a field change?  For grouping field changes
-    // blockIds:[],    // parsed field ids
-    // fieldValues:[], // parsed field values
-    // parentIds:[],
-    // oldBlockIds:[],
-    // oldFieldValues:[],
-    // oldParentIds:[],
-    // just_did_undo:0,
-    // oldProjectName: Blockscad.Msg.PROJECT_NAME_DEFAULT
+    needToSave = 1
   };
 
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
@@ -988,6 +973,7 @@ Blockscad.getExample = function(example, name) {
     setTimeout(Blockscad.setNoSaveNeeded, 300);
   });
 }
+
 Blockscad.setNoSaveNeeded = function() {
   // console.log("setting needToSave to 0 (on delay?)");
   Blockscad.undo.needToSave = 0;
@@ -1915,6 +1901,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
 
     if (event.oldParentId || event.newParentId) {
       // either a plug or an unplug
+      console.log("setting needToSave to 1");
       Blockscad.undo.needToSave = 1;
     }
 

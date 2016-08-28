@@ -9,11 +9,17 @@
   <title>BlocksCAD</title>
   <!-- compressed javascript files for non-debug stuff -->
 
-<!--   <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
-  <script type="text/javascript" src="blockly/blocks_compressed.js"></script> -->
+  <!-- for standalone only -->
+  <!--
+  <audio id="audio_click" src="blockly/media/click.ogg" ></audio>
+  <audio id="audio_delete" src="blockly/media/delete.ogg" ></audio>
+  -->
+
+  <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
+  <script type="text/javascript" src="blockly/blocks_compressed.js"></script>
 
   <!-- Jquery -->
-  <script src="jquery/jquery-1.11.3.js"></script>
+  <script src="jquery/jquery-1.11.3.min.js"></script>
   <script src="jquery/jquery-ui.min.js"></script> 
   <script src="jquery/jquery.hammer.js"></script>
   <script src="jquery/jquery.ui.touch-punch.min.js"></script>
@@ -31,47 +37,23 @@
   <!-- Bootbox (helper library for Bootstrap Modals) -->
   <script src="bootbox/bootbox.min.js"></script>
   <!-- uncompressed blockly and blocks  -->
-  <script type="text/javascript" src="blockly/blockly_uncompressed.js"></script>
-  <script type="text/javascript" src="blockly/blocks/colour.js"></script>
-  <script type="text/javascript" src="blockly/blocks/geom_set_ops.js"></script>
-  <script type="text/javascript" src="blockly/blocks/lists.js"></script>
-  <script type="text/javascript" src="blockly/blocks/logic.js"></script>
-  <script type="text/javascript" src="blockly/blocks/loops.js"></script>
-  <script type="text/javascript" src="blockly/blocks/math.js"></script>
-  <script type="text/javascript" src="blockly/blocks/primitives.js"></script>
-  <script type="text/javascript" src="blockly/blocks/procedures.js"></script>
-  <script type="text/javascript" src="blockly/blocks/text.js"></script>
-  <script type="text/javascript" src="blockly/blocks/variables.js"></script>
  
   <script type="text/javascript" src="blockly/openscad_compressed.js"></script>
   <script src="blockscad/sorttable.js"></script>
 
-
+  <!--
+  <script src="auth.js"></script>
+  --> 
   
+  <script type="text/javascript" src="backend_compressed.js"></script> 
+  
+  <script type="text/javascript" src="blockscad/FileSaver.min.js"></script>
 
-
-  <script type="text/javascript" src="blockscad/bsPage.js"></script>
-  <script type="text/javascript" src="blockscad/utils.js"></script>
-  <script type="text/javascript" src="blockscad/storage.js"></script>
-  <script type="text/javascript" src="blockscad/FileSaver.js"></script>
-  <script type="text/javascript" src="blockscad/deflate.js"></script>
-  <script type="text/javascript" src="blockscad/blockscad.js"></script>
-  <script type="text/javascript" src="blockscad/stl.js"></script>
-  <script type="text/javascript" src="blockscad/toolbox.js"></script>
-  <script type="text/javascript" src="blockscad/text.js"></script>
-  <script src="blockscad/lightgl.js"></script> 
-
-  <script src="auth.js"></script> 
-<!--   <script type="text/javascript" src="backend_compressed.js"></script>  -->
 
   <!-- viewer stuff -->
-<!--   <script type="text/javascript" src="blockscad/viewer_compressed.js"></script> -->
-
-  <script type="text/javascript" src="blockscad/csg.js"></script>
-  <script type="text/javascript" src="blockscad/formats.js"></script>
-  <script type="text/javascript" src="blockscad/viewer.js"></script>
+  <script type="text/javascript" src="blockscad/viewer_compressed.js"></script>
   
-<!--   <script src="blockscad/blockscad_compressed.js"></script> -->
+  <script src="blockscad/blockscad_compressed.js"></script>
   
   <script src="blockscad/underscore.js"></script>
   <script src="blockscad/openscad-openjscad-translator.js"></script>
