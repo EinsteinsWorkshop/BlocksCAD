@@ -131,7 +131,7 @@ define("Context", ["Globals", "openscad-parser-support"], function(Globals, Open
         if (r < GRID_FINE) return 0;
         if (fn > 0.0)
             return parseInt(fn);
-        var result = Math.round( Blockscad.resolution * parseInt(Math.ceil(Math.max(Math.min(360.0 / fa, r*2*Math.PI / fs), 5))));
+        var result = parseInt(Math.ceil(Math.max(Blockscad.resolution * Math.min(360.0 / fa, r*2*Math.PI / fs), 5)));
         // console.log("fn: ",result);
         return result;
     };

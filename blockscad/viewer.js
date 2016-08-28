@@ -1437,6 +1437,10 @@ Blockscad.Processor.prototype = {
       blob = this.currentObject.toDxf();
       blob = new Blob([blob],{ type: "text/plain; charset=utf-8"});
     }
+    else if (format == "obj") {
+      blob = this.currentObject.toObj();
+      blob = new Blob([blob],{type: "text/plain; charset=utf-8"});
+    }
     else {
       throw new Error("Not supported");
     }    
@@ -1448,7 +1452,7 @@ Blockscad.Processor.prototype = {
       // if safari, don't let them save stlb
       if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) 
         return ["stla", "amf", "x3d"];
-      return ["stlb", "stla", "amf", "x3d"];
+      return ["stlb", "stla", "x3d", "obj", "amf"];
     } else if (this.currentObject instanceof CAG) {
       return ["dxf"];
     } else {
@@ -1461,6 +1465,11 @@ Blockscad.Processor.prototype = {
       stla: {
         displayName: "STL (ASCII)",
         extension: "stl",
+        mimetype: "application/sla",
+        },
+      obj: {
+        displayName: "OBJ (ASCII)",
+        extension: "obj",
         mimetype: "application/sla",
         },
       stlb: {
@@ -1521,7 +1530,7 @@ Blockscad.Processor.prototype = {
     }
 
     var strip = c.toDataURL("image/jpeg");
-    console.log("have a strip - returning it");
+    // console.log("have a strip - returning it");
     return strip;
   }
 };

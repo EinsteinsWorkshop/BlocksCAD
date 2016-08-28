@@ -246,7 +246,7 @@ output += '                 <span id="resolution_radio" class="btn btn-default">
 output += '                  <span>Smooth:&nbsp&nbsp</span>\n';
 output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="0.4">Low</label>\n';
 output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="1"checked>Medium</label>\n';
-output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="2">High</label>\n';
+output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="2.25">High</label>\n';
 output += '                 </span>\n';
 
 output += '                </div>\n';   // end of viewerDefaults div
