@@ -306,10 +306,7 @@ CSG.prototype.toObj = function() {
     for (i in faces) {
         result += 'g ' + i + '\n';
         result += faces[i];
-        console.log("adding faces for:", i);
     }
-
-    console.log(result);
 
     return result;
 }
