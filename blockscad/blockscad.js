@@ -321,8 +321,10 @@ Blockscad.init = function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['one']);
       Blockscad.Toolbox.setCatColors();
+
+      var current_xml = Blockly.Xml.workspaceToDom(Blockscad.workspace);
       Blockscad.workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml,Blockscad.workspace);
+      Blockly.Xml.domToWorkspace(current_xml,Blockscad.workspace);
     }
 
   });
@@ -331,8 +333,9 @@ Blockscad.init = function() {
     if (Blockscad.workspace) {
       Blockscad.Toolbox.setColorScheme(Blockscad.Toolbox.colorScheme['two']);
       Blockscad.Toolbox.setCatColors();
+      var current_xml = Blockly.Xml.workspaceToDom(Blockscad.workspace);
       Blockscad.workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockscad.undo.current_xml,Blockscad.workspace);
+      Blockly.Xml.domToWorkspace(current_xml,Blockscad.workspace);
     }
   });
 
@@ -421,7 +424,7 @@ Blockscad.init = function() {
     $(".dropdown-menu > li > a:not(.trigger)").on("click",function(){
       var root=$(this).closest('.dropdown');
       root.find('.left-caret').toggleClass('right-caret left-caret');
-      root.find('.sub-menu:visible').addClass('hidden');
+      root.find('.sub-menu:visible').hide();
     });
   });
   $('#stl_buttons').addClass('hidden');
