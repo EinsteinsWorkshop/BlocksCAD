@@ -25,6 +25,7 @@ html, body {
     height: 100%;
     min-height: 100%;
     outline: none;
+    z-index: 400;
 }
 
 #parametersdiv {
@@ -77,7 +78,7 @@ html, body {
 	top: 0;
 	right: 0;
 	left: 0;
-	bottom: 94px;
+	bottom: 128px;
 	overflow: hidden;
 }
 #renderPane {
@@ -89,6 +90,13 @@ html, body {
 	overflow: auto;
 }
 #viewerButtons {
+	position: absolute;
+	height: 35px;
+	width: 100%;
+	bottom: 93px;
+	border: 1px solid #ccc;
+}
+#viewerDefaults {
 	position: absolute;
 	height: 35px;
 	width: 100%;
@@ -150,6 +158,10 @@ html, body {
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     -moz-transform: translateY(-50%);
+}
+
+#resolution_radio {
+	width: 300px;
 }
 .btn-over-blockly {
 	position: absolute;
