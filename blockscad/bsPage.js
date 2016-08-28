@@ -177,9 +177,9 @@ output += '              <div id="paneContainer">\n';
 output += '                <div id="viewerButtons">\n';
 
 output += '                  <div class="btn-group">\n';
-output += '                    <button id="colorButton" type="button" title="' + Blockscad.Msg.DEFAULT_COLOR_BUTTON + '" class="btn vbut btn-default">\n';
+// output += '                    <button id="colorButton" type="button" title="' + Blockscad.Msg.DEFAULT_COLOR_BUTTON + '" class="btn vbut btn-default">\n';
 output += '                    <input type="text" id="defColor"/>\n';
-output += '                    </button>\n';
+// output += '                    </button>\n';
 output += '                  </div>\n';
 
 output += '                  <div class="btn-group">\n';

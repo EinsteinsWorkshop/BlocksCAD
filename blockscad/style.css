@@ -95,6 +95,8 @@ html, body {
 	width: 100%;
 	bottom: 93px;
 	border: 1px solid #ccc;
+	z-index: 500;
+	/*overflow: auto;*/
 }
 #viewerDefaults {
 	position: absolute;
@@ -102,6 +104,7 @@ html, body {
 	width: 100%;
 	bottom: 59px;
 	border: 1px solid #ccc;
+	z-index: 400;
 }
 .vbut {
 	padding: 3px;
@@ -217,18 +220,20 @@ html, body {
 	left: 100px; 
 	z-index: 500;
 }
-.defaultColor {
+
+/*.defaultColor {
 	position:relative;
 	z-index: 500;	
-	/*border: solid 1px #666;*/
-}
+}*/
 .sp-replacer {
+	border-color:#ccc;
 	padding:0px;
 }
 .sp-preview {
 	border: none;
-	width: 22px;
-	height: 22px;
+	margin:4px;
+	width: 24px;
+	height: 24px;
 }
 
 .giant-yes {

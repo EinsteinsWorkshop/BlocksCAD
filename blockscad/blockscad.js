@@ -364,7 +364,7 @@ Blockscad.init = function() {
   $("#defColor").spectrum({
     color: 'rgb(255,128,255)',    
     showPalette: true,
-    className: "defaultColor",
+    className: "defaultColor btn btn-default",
     appendTo: "#viewerButtons",
     hideAfterPaletteSelect:true,
     showPaletteOnly: true,
@@ -377,6 +377,9 @@ Blockscad.init = function() {
           ['rgb(250,214,0);'  , 'rgb(50,220,50);'    ,'rgb(20,150,255);' , 'rgb(180,85,254);']
       ]
   });
+
+  // the color picker has a downward triangle that I don't like.  Remove it.
+  $('.sp-dd').remove();
 
   // // add color picker to help menu (for use with color rgb block)
   // $("#colorPicker").spectrum({
