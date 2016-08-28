@@ -250,9 +250,8 @@ Blockscad.init = function() {
   // });
 
   // a bunch of stuff to support Undo/Redo
-  Blockscad.undo = {
-    needToSave = 1
-  };
+  Blockscad.undo = {};
+  Blockscad.undo.needToSave = 1;
 
   // undo stack length doesn't really show when the user needs to save (after a save, for example).  
   // this should fix that.
