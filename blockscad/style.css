@@ -230,7 +230,7 @@ html, body {
 	padding:0px;
 }
 .sp-preview {
-	border: none;
+	border: 1px solid #555;
 	margin:4px;
 	width: 24px;
 	height: 24px;
