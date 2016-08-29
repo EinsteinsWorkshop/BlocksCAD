@@ -411,7 +411,7 @@ Blockscad.init = function() {
       root.find('.sub-menu:visible').hide();
     });
   });
-  $('#stl_buttons').addClass('hidden');
+  $('#stl_buttons').hide();
 
   if (!Blockscad.standalone) {
     BSUtils.loadBlocks('');

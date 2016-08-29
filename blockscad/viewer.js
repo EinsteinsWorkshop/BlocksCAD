@@ -1142,14 +1142,14 @@ Blockscad.Processor.prototype = {
     } catch(e) {
       this.picdiv.innerHTML = "<b><br><br>Error: " + e.toString() + "</b><br><br>BlocksCAD currently requires Google Chrome or Firefox with WebGL enabled";
     }
-    $("#picdiv").hide();
+    $("#picdiv").addClass('hidden');
 
     try {
       this.rpicviewer = new Blockscad.Viewer(this.rpicdiv, rpicdiv.offsetWidth, rpicdiv.offsetHeight, this.initialViewerDistance);
     } catch(e) {
       this.rpicdiv.innerHTML = "<b><br><br>Error: " + e.toString() + "</b><br><br>BlocksCAD currently requires Google Chrome or Firefox with WebGL enabled";
     }
-    $("#rpicdiv").hide();
+    $("#rpicdiv").addClass('hidden');
 
     try {
       this.viewer = new Blockscad.Viewer(this.viewerdiv, viewerdiv.offsetWidth, viewerdiv.offsetHeight, this.initialViewerDistance);
@@ -1223,7 +1223,7 @@ Blockscad.Processor.prototype = {
     }
 
     // console.log("trying to turn on stl_buttons");
-    $('#stl_buttons').show();
+    $('#stl_buttons').removeClass('hidden');
     
     while(this.formatDropdown.options.length > 0)
       this.formatDropdown.options.remove(0);
@@ -1260,7 +1260,7 @@ Blockscad.Processor.prototype = {
     this.imgStrip = "none";
     this.img = "none";
     // console.log('trying to hid stl_buttons');
-    $('#stl_buttons').hide();
+    $('#stl_buttons').addClass('hidden');
     this.enableItems();
   },
   
