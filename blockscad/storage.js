@@ -75,7 +75,7 @@ BlocklyStorage.backupBlocks_ = function() {
     window.localStorage.setItem(url2, $('#project-name').val());
     window.localStorage.setItem(url3, Blockscad.Auth.currentProject);
     window.localStorage.setItem(url4, Blockscad.Auth.currentProjectKey);
-    window.localStorage.setItem(url5, Blockscad.undo.needToSave);
+    window.localStorage.setItem(url5, Blockscad.needToSave);
   }
 };
 
@@ -99,7 +99,7 @@ BlocklyStorage.restoreBlocks = function() {
   var url4 = url + "current_project_key";
   var url5 = url + "needToSave";
 
-  console.log(window.localStorage);
+  // console.log(window.localStorage);
   if ('localStorage' in window && window.localStorage[url]) {
     var xml = Blockly.Xml.textToDom(window.localStorage[url]);
     Blockly.Xml.domToWorkspace(xml, Blockscad.workspace);
@@ -189,7 +189,8 @@ BlocklyStorage.restoreBlocks = function() {
     var needToSave = Number(window.localStorage[url5]);
     if (needToSave != "undefined" && (needToSave == 1 || needToSave == 0)) {
       setTimeout(function() {
-        Blockscad.undo.needToSave = needToSave;
+        Blockscad.needToSave = needToSave;
+        console.log("loading from storage. setting needToSave to:", needToSave);
       }, 300);
     }
 
