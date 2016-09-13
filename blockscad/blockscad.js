@@ -1449,7 +1449,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
       event.type == Blockly.Events.DELETE) {
     // this should trigger needing to save and a type change!  I could duplicate a stack 
     // that needs typing, or delete a setter that would set its getters to null type.
-    console.log("create or delete event:",event);
+    // console.log("create or delete event:",event);
     Blockscad.setSaveNeeded(true);
 
     // set the type of newly created procedure call blocks.  
@@ -1463,7 +1463,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
   }
   else if (event.type == Blockly.Events.CHANGE) {
     // trigger a need to save
-    console.log("change event - set save needed to true");
+    // console.log("change event - set save needed to true");
     Blockscad.setSaveNeeded(true);
 
     // This could be variable name changes (getter or setter), which trigger typing.
@@ -1539,7 +1539,7 @@ Blockscad.handleWorkspaceEvents = function(event) {
 
     if (event.oldParentId || event.newParentId) {
       // either a plug or an unplug
-      console.log("plug or unplug event - set save needed to true");
+      // console.log("plug or unplug event - set save needed to true");
       Blockscad.setSaveNeeded(true);
     }
 
