@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 Blockscad.version = "1.5.1";
 Blockscad.releaseDate = "2016/08/28";
 
-Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 
 Blockscad.standalone = false; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
