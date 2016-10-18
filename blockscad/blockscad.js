@@ -658,6 +658,8 @@ function readSingleFile(evt, replaceOld) {
 
     // switch us back to the blocks tab in case we were on the code tabe.
     $('#displayBlocks').click();
+    // trigger a resize so that I make sure the window redraws.
+    window.dispatchEvent(new Event('resize')); 
 
     // clear the render window
     Blockscad.gProcessor.clearViewer();
@@ -989,6 +991,8 @@ Blockscad.clearProject = function() {
   $('#editView').removeClass('hidden');
   // turn the big save button back on.
   $('#bigsavebutton').removeClass('hidden');
+    // trigger a resize so that I make sure the window redraws.
+    window.dispatchEvent(new Event('resize')); 
 };
 
 
