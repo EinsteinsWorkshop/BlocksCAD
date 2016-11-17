@@ -271,7 +271,13 @@ output += '            </div> <!-- resizable div -->\n';
 output += '          </div> <!-- blocklyDiv -->\n';
 output += '        </div>\n';
 output += '        <!-- Blockly Container (tab pane)-->\n';
-output += '        <pre class="tab-pane content" id="openScadPre"></pre>\n';
+output += '        <pre class="tab-pane content" id="openScadPre">';
+// this input is only for testing the parser.  For any user-facing work this should be commented out.
+output += '          <textarea id="textToParse" rows="15" cols="60"></textarea>';
+output += '          <div id="parsedText" style="float:right;width:300;height:100">aaaaaaaaaaa</div>';
+output += '          <button type="button" class="btn btn-default btn-lg" id="parseButton">Parse</button>';
+// end parser testing junk.  Also look in blockscad.js for interaction with these elemenets.
+output += '        </pre>\n';
 output += '      </div>\n';
 output += '      <!-- end tab content -->\n';
 output += '    </div> <!-- end of the #editView content  -->\n';

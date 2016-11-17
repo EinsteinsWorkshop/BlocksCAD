@@ -206,6 +206,7 @@ Blockscad.init = function() {
   });
   
 
+  // code tab original code - uncomment this when you're done with parser testing
   // can I bind a click to a tab?
   $( '#displayCode' ).click(  function() {
     var content = document.getElementById('openScadPre');
@@ -218,6 +219,23 @@ Blockscad.init = function() {
     }
     Blockly.svgResize(Blockscad.workspace);
   });
+
+  // FOR PARSER UPDATE: I want to use the code tab to write openscad and parse directly.
+  // this will attach a "parse button" to displaying code translated by the parser.
+  // $('#parseButton').click( function() {
+  //   console.log("you clicked the parse button.  whee!");
+
+  //   // clear previous parsed text.
+  //   $('#parsedText').text("");
+
+
+  //   // get the value of the text to be parsed
+  //   var text_to_parse = $('#textToParse').val();
+  //   var parsedText =  openscadOpenJscadParser.parse(text_to_parse);
+
+  //   $('#parsedText').text(parsedText);
+
+  // });
 
 
   // I think the render button should start out disabled.
@@ -968,11 +986,11 @@ Blockscad.getExample = function(example, name) {
 Blockscad.setSaveNeeded = function(saveNeeded) {
   if (saveNeeded) {
     Blockscad.needToSave = 1;
-    console.log("setting needToSave to 1");
+    // console.log("setting needToSave to 1");
   }
   else {
     Blockscad.needToSave = 0;
-    console.log("setting needToSave to 0");
+    // console.log("setting needToSave to 0");
   }
 }
 
@@ -1668,7 +1686,7 @@ Blockscad.saveBlocksLocal = function() {
   // console.log("in SaveBlocksLocal with: ", blocks_filename);
   if (blocks_filename) {
     saveAs(blob, blocks_filename + ".xml");
-    console.log("SAVED locally: setting needToSave to 0");
+    // console.log("SAVED locally: setting needToSave to 0");
     Blockscad.setSaveNeeded();
   }
   else {
