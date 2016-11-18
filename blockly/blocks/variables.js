@@ -188,8 +188,10 @@ Blockly.Blocks['variables_set'] = {
     });
     this.setHelpUrl(Blockly.Msg.VARIABLES_SET_HELPURL);
     this.setColour(Blockscad.Toolbox.HEX_VARIABLE);
-    this.setPreviousStatement(true,['VariableSet']);
-    this.setNextStatement(true, ['VariableSet','CAG','CSG']);
+    // this.setPreviousStatement(true,['VariableSet']);
+    // this.setNextStatement(true, ['VariableSet','CAG','CSG']);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
     this.setTooltip(Blockly.Msg.VARIABLES_SET_TOOLTIP);
     this.contextMenuMsg_ = Blockly.Msg.VARIABLES_SET_CREATE_GET;
   },

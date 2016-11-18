@@ -28,6 +28,8 @@ goog.provide('Blockly.OpenSCAD.variables');
 
 goog.require('Blockly.OpenSCAD');
 
+Blockscad = Blockscad || {};
+
 
 Blockly.OpenSCAD['variables_get'] = function(block) {
   // Variable getter.
@@ -45,6 +47,19 @@ Blockly.OpenSCAD['variables_set'] = function(block) {
       Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '0';
   var varName = Blockly.OpenSCAD.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+
+  // if the parent stack has a block that isn't a variables_set or a module definition, 
+  // then this is a hacked variable that needs to act like an assign.
+  // it will be detected by its parent and will be encoded there.
+
+  // this isn't right.  I need to check to the nearest scope.  if the first scope I hit is a transform or set-op,
+  // instead of a module definition or nothing, then I want to kick out of this code.
+
+  if (Blockscad.doVariableHack(block))
+      return '';
+ 
+
+  // this is a regular variable, just hanging out.  Code it.
   return varName + ' = ' + argument0 + ';\n';
 };
 

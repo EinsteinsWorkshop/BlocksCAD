@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 Blockscad.version = "1.5.1";
 Blockscad.releaseDate = "2016/08/28";
 
-Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 
 Blockscad.standalone = false; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
@@ -211,31 +211,35 @@ Blockscad.init = function() {
   $( '#displayCode' ).click(  function() {
     var content = document.getElementById('openScadPre');
     var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace);
-    content.textContent = code;
-    if (typeof prettyPrintOne == 'function') {
-      code = content.innerHTML;
-      code = prettyPrintOne(code, 'js');
-      content.innerHTML = code; 
-    }
+
+    // code has been run off the blocks.  It hasn't been sent to the parser yet.  It is openscad code.
+
+    // I want to keep the currint openscad code but hack the assigns.
+
+
+
+    var codeForOutput = Blockscad.processCodeForOutput(code);
+
+    content.textContent = codeForOutput;
     Blockly.svgResize(Blockscad.workspace);
   });
 
   // FOR PARSER UPDATE: I want to use the code tab to write openscad and parse directly.
   // this will attach a "parse button" to displaying code translated by the parser.
-  // $('#parseButton').click( function() {
-  //   console.log("you clicked the parse button.  whee!");
+  $('#parseButton').click( function() {
+    console.log("you clicked the parse button.  whee!");
 
-  //   // clear previous parsed text.
-  //   $('#parsedText').text("");
+    // clear previous parsed text.
+    $('#parsedText').text("");
 
 
-  //   // get the value of the text to be parsed
-  //   var text_to_parse = $('#textToParse').val();
-  //   var parsedText =  openscadOpenJscadParser.parse(text_to_parse);
+    // get the value of the text to be parsed
+    var text_to_parse = $('#textToParse').val();
+    var parsedText =  openscadOpenJscadParser.parse(text_to_parse);
 
-  //   $('#parsedText').text(parsedText);
+    $('#parsedText').text(parsedText);
 
-  // });
+  });
 
 
   // I think the render button should start out disabled.
@@ -465,6 +469,7 @@ Blockscad.typeWorkspace = function() {
   }
   Blockscad.assignBlockTypes(Blockscad.workspace.getTopBlocks());
 }
+
 
 // type a new block stack.  block is not guaranteed to be the top block in the stack.
 Blockscad.typeNewStack = function(block) {
@@ -1373,7 +1378,23 @@ Blockscad.hasParentOfType = function(block, type) {
   }
   return null;
 }
-
+// this takes a block and walks up the parent stack.
+// returns true if the first "scoping" parent is a transform or set op.
+// if it hits a module or the top of the stack first, it returns false.
+Blockscad.doVariableHack = function(block) {
+  if (!block)
+    return null;
+  var parent = block.getParent();
+  while (parent) {
+    // is the parent a transform or set op?
+    if (parent.category == 'LOOP' || parent.category == 'TRANSFORM' || parent.category == 'EXTRUDE' 
+        || parent.category == 'SET_OP' || parent.category == 'COLOR' || parent.type == 'controls_if') {
+      return true;
+    }
+    parent = parent.getParent();
+  }
+  return false;
+}
 // is this block attached to an actual primitive (2D or 3D)?  Needed for missing fields calc.
 // if the block has a disabled parent, it won't be rendered and doesn't count.
 Blockscad.stackIsShape = function(block) {
@@ -1705,7 +1726,8 @@ Blockscad.savePicLocal = function(pic) {
  * Save the openScad code for the current workspace to the local machine.
  */
 Blockscad.saveOpenscadLocal = function() {
-  var code = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace); 
+  var preCode = Blockly.OpenSCAD.workspaceToCode(Blockscad.workspace); 
+  var code = Blockscad.processCodeForOutput(preCode);
   var blob = new Blob([code], {type: "text/plain;charset=utf-8"});
 
   // pull a filename entered by the user
@@ -1755,4 +1777,85 @@ Blockscad.arraysEqual = function(arr1, arr2) {
     }
 
     return true;
+}
+
+// I want to enable variable declarations at the top of any scope, but I don't have the block
+// set up as a transformation.  So I'm hacking it with assigns();  The generators 
+// output assign statements, and this removes them for exporting code to OpenScad.
+// this is a hack because the parse is being so intractable.
+Blockscad.processCodeForOutput = function(code) {
+
+  var re0 = /( *)assign\((\$fn=.+)\){(.+)/g;
+  var output0 = code.replace(re0, "$1{\n$1  $2; $3");
+
+  var re = /( *)assign\((.+)\){/gm;
+  // var output = code.replace(re, "$1{\n$1$2;");
+  var output = output0.replace(re, "$1$2;");
+
+  // now I need to make multiple assigns on one line be separated by semicolons.
+  var re2 = /(\w+ = \w+),/g;
+  var output2 = output.replace(re2, "$1;  ");
+
+  // now I need to kill the "end assign" lines so my braces match up.
+
+  var re3 = /.+end assign\n/g;
+  var output3 = output2.replace(re3, "");
+
+  console.log(code);
+  // console.log(output3);
+
+  return output3;
+}
+Blockly.OpenSCAD.returnIfVarCode = function(block) {
+  // this is an if/else block, I have to separate it into different scopes.
+  // if (scope 1) else if (scope 2..n) ... else (scope n+1)
+
+  // can I get a list of all the "blocks" that need code for them?
+
+  if (block.type != 'controls_if') return;
+
+  var bays = [];
+  var bayIndex = 0;
+
+  for (var i = 0; i < block.inputList.length; i++) {
+    // find the DO# inputs and the ELSE input, and get them in an array.
+    // each bay needs a spot (so I don't get the scopes mixed up later)
+    // even if there is no connection to that bay.
+
+    if (block.inputList[i].name.match(/DO./) || block.inputList[i].name == "ELSE") {
+      // this is a bay that needs a scope.  
+      var b = block.getInputTargetBlock(block.inputList[i].name);
+      bays[bayIndex] = [];
+
+      if (b.type == "variables_set")
+        bays[bayIndex] = Blockly.OpenSCAD.getVariableCode(b);
+
+      bayIndex++;
+    }
+  }
+
+  var aC = [];
+  var aP = [];
+
+  for (var j = 0; j < bays.length; j++) {
+    var assignments = bays[j];
+    // console.log("bay" + j + ": " + bays[j]);
+    aC[j] = '';
+    aP[j] = '';
+    if (assignments.length) {
+      aC[j] += '  assign(';
+      for (var i = 0; i < assignments.length; i++) {
+        aC[j] += assignments[i] + ',';
+      } 
+      // trim off the last comma
+      aC[j] = aC[j].slice(0, -1);
+
+      aC[j] += '){\n';
+      aP[j] = '  }//end assign\n';
+    }
+  }
+
+  console.log(aC);
+
+  return [aC, aP];
 }

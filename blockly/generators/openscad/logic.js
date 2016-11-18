@@ -35,16 +35,22 @@ Blockly.OpenSCAD['controls_if'] = function(block) {
   var argument = Blockly.OpenSCAD.valueToCode(block, 'IF' + n,
       Blockly.OpenSCAD.ORDER_NONE) || 'false';
   var branch = Blockly.OpenSCAD.statementToCode(block, 'DO' + n);
-  var code = 'if (' + argument + ') {\n' + branch + '}';
+
+  var hiya = Blockly.OpenSCAD.returnIfVarCode(block);
+  var aC = hiya[0];
+  var aP = hiya[1];
+
+
+  var code = 'if (' + argument + ') {\n' +aC[0] + branch + '\n'  + aP[0] + '}';
   for (n = 1; n <= block.elseifCount_; n++) {
     argument = Blockly.OpenSCAD.valueToCode(block, 'IF' + n,
         Blockly.OpenSCAD.ORDER_NONE) || 'false';
     branch = Blockly.OpenSCAD.statementToCode(block, 'DO' + n);
-    code += ' else if (' + argument + ') {\n' + branch + '}';
+    code += ' else if (' + argument + ') {\n' + aC[n] + branch + '\n' + aP[n] + '}';
   }
   if (block.elseCount_) {
     branch = Blockly.OpenSCAD.statementToCode(block, 'ELSE');
-    code += ' else {\n' + branch + '}';
+    code += ' else {\n' + aC[aC.length - 1] +  branch + '\n' + aP[aP.length - 1] + '}';
   }
   return code + '\n';
 };

@@ -234,6 +234,13 @@ Blockscad.Toolbox.catTransform = '<category name="' + Blockscad.Msg.CATEGORY_TRA
           '</shadow>' +
         '</value>' +
       '</block>' +
+      // '<block type="assign">' +
+      //   '<value name="VALUE">' +
+      //     '<shadow type="math_number">' +
+      //       '<field name="NUM">8</field>' +
+      //     '</shadow>' +
+      //   '</value>' +
+      // '</block>' +
       '<block type="simplerotate">' +
         '<value name="XVAL">' +
           '<shadow type="math_angle">' +

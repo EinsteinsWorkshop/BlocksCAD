@@ -167,9 +167,14 @@ Blockly.OpenSCAD['scale'] = function(block) {
     var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
     if (statements_b != '') statements_a += statements_b + '\n';
   } 
+
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
   if (type != 'CAG')
-    var code = 'scale([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + statements_a + '}';
-  else var code = 'scale([' + value_xval + ', ' + value_yval + ', 1]){\n' + statements_a + '}';
+    var code = 'scale([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + aC + statements_a + aP + '}';
+  else var code = 'scale([' + value_xval + ', ' + value_yval + ', 1]){\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -198,11 +203,22 @@ Blockly.OpenSCAD['translate'] = function(block) {
     var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
     if (statements_b != '') statements_a += statements_b + '\n';
   } 
+
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
+
   if (type != 'CAG')
-    var code = 'translate([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + statements_a + '}';
-  else var code = 'translate([' + value_xval + ', ' + value_yval + ', 0]){\n' + statements_a + '}';
+    var code = 'translate([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + aC + statements_a + aP + '}';
+  else var code = 'translate([' + value_xval + ', ' + value_yval + ', 0]){\n' + aC + statements_a + aP + '}';
+
   return code;
 };
+
+
+
+
 
 Blockly.OpenSCAD['color'] = function(block) {
   var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
@@ -217,6 +233,10 @@ Blockly.OpenSCAD['color'] = function(block) {
   if (!value_color && Blockscad.stackIsShape(block))
     Blockscad.missingFields.push(block.id);
 
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
   var code = '';
     if (value_color) {
     var R = hexToR(value_color);
@@ -224,7 +244,7 @@ Blockly.OpenSCAD['color'] = function(block) {
     var B = hexToB(value_color);
     code += 'color([' + R +',' + G + ',' + B + ']) ';
   }
-  code += '{\n' + statements_a + '}';
+  code += '{\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -244,6 +264,10 @@ Blockly.OpenSCAD['color_rgb'] = function(block) {
     if (statements_b != '') statements_a += statements_b + '\n';
   }  
 
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
   var code = '';
 
   if (scheme == 'RGB') {
@@ -260,7 +284,7 @@ Blockly.OpenSCAD['color_rgb'] = function(block) {
       if (green > 100) green = 100;
     }
     code += 'color([ .01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')]) ';
-    code += '{\n' + statements_a + '}';
+    code += '{\n' + aC + statements_a + aP + '}';
   }
   
   // Thanks to Hypher for the implementation of hsv to rgb in openscad!
@@ -282,7 +306,7 @@ Blockly.OpenSCAD['color_rgb'] = function(block) {
         '(h, s=1, v=1,a=1)=doHsvMatrix((h%1)*6,s<0?0:s>1?1:s,v<0?0:v>1?1:v,v*(1-s),v*(1-s*((h%1)*6-floor((h%1)*6))),v*(1-s*(1-((h%1)*6-floor((h%1)*6)))),a);\n']);
 
     code += 'color(hsv(.01 * (' + red + '), .01 * (' + green +'), .01 * (' + blue  +')))';
-    code += '{\n' + statements_a + '}';
+    code += '{\n' + aC + statements_a + aP + '}';
 
   }
   else console.log("got weirdo color scheme?");
@@ -309,8 +333,33 @@ Blockly.OpenSCAD['$fn'] = function(block) {
     value_sides = Math.floor(value_sides);
     if (value_sides < 3) value_sides = 3;
   }
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
 
-  var code = 'assign($fn=' + value_sides + '){\n' + statements_a + '}';
+  console.log(statements_a);
+
+  var code = 'assign($fn=' + value_sides + '){   //set sides to ' + value_sides + '\n' + aC + statements_a + aP + '}';
+  return code;
+};
+
+Blockly.OpenSCAD['assign'] = function(block) {
+  var statements_a = Blockly.OpenSCAD.statementToCode(block, 'A');
+  var type = block.previousConnection.check_[0]; 
+  if (statements_a != '') statements_a += '\n';
+  for (var n = 0; n<= block.plusCount_; n++) {
+    var statements_b = Blockly.OpenSCAD.statementToCode(block, 'PLUS' + n); 
+    if (statements_b != '') statements_a += statements_b + '\n';
+  }  
+
+  var name = Blockly.OpenSCAD.valueToCode(block, 'NAME',Blockly.OpenSCAD.ORDER_ATOMIC);
+  var value = Blockly.OpenSCAD.valueToCode(block,'VALUE', Blockly.OpenSCAD.ORDER_ATOMIC);
+
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+  
+  var code = 'assign(' + name + '=' + value + '){\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -330,9 +379,13 @@ Blockly.OpenSCAD['fancymirror'] = function(block) {
       Blockscad.missingFields.push(block.id); 
 
   var type = block.previousConnection.check_[0]; 
+
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
   //if (type != 'CAG')
-    var code = 'mirror([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + statements_a + '}';
-  //else var code = 'mirror([' + value_xval + ', ' + value_yval + ']){\n' + statements_a + '}';
+    var code = 'mirror([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + aC + statements_a + aP + '}';
+  //else var code = 'mirror([' + value_xval + ', ' + value_yval + ']){\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -351,9 +404,14 @@ Blockly.OpenSCAD['simplerotate'] = function(block) {
   // 2D shapes get to keep all their fields.
   // if (type != 'CAG')
   // missing fields?
-    if (!value_xval || !value_yval || (!value_zval))
-      Blockscad.missingFields.push(block.id);  
-  var code = 'rotate([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + statements_a + '}';
+  if (!value_xval || !value_yval || (!value_zval))
+    Blockscad.missingFields.push(block.id);  
+
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
+  var code = 'rotate([' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + aC + statements_a + aP + '}';
   // else var code = 'rotate([0, 0, ' + value_zval + ']){\n' + statements_a + '}';
   return code;
 };
@@ -374,9 +432,13 @@ Blockly.OpenSCAD['fancyrotate'] = function(block) {
     if (!value_aval || ((!value_xval || !value_yval || !value_zval) && type == 'CSG'))
       Blockscad.missingFields.push(block.id);  
 
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
   if (type != 'CAG')
-    var code = 'rotate(a=' + value_aval + ', v=[' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + statements_a + '}';
-  else var code = 'rotate([0, 0, '+ value_aval + ']){\n' + statements_a + '}';
+    var code = 'rotate(a=' + value_aval + ', v=[' + value_xval + ', ' + value_yval + ', ' + value_zval + ']){\n' + aC + statements_a + aP + '}';
+  else var code = 'rotate([0, 0, '+ value_aval + ']){\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -391,6 +453,10 @@ Blockly.OpenSCAD['simplemirror_new'] = function(block) {
   var dropdown_mirrorplane_cag = block.getFieldValue('mirrorplane_cag');
   var vec;
   var type = block.previousConnection.check_[0]; 
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
   if (type != 'CAG') {
     if (dropdown_mirrorplane == "XY") {
         vec = "[0,0,1]";
@@ -401,7 +467,7 @@ Blockly.OpenSCAD['simplemirror_new'] = function(block) {
     else if (dropdown_mirrorplane == "XZ") {
         vec = "[0,1,0]";
     }
-    var code = 'mirror(' + vec + '){\n' + statements_a + '}';
+    var code = 'mirror(' + vec + '){\n' + aC + statements_a + aP + '}';
   }
   else {
     if (dropdown_mirrorplane_cag == "YZ") {
@@ -410,7 +476,7 @@ Blockly.OpenSCAD['simplemirror_new'] = function(block) {
     else if (dropdown_mirrorplane_cag == "XZ") {
         vec = "[0,1,0]";
     }
-    var code = 'mirror(' + vec + '){\n' + statements_a + '}'; 
+    var code = 'mirror(' + vec + '){\n' + aC + statements_a + aP + '}'; 
   }
   return code;
 };
@@ -428,6 +494,10 @@ Blockly.OpenSCAD['taper'] = function(block) {
   var factor = Blockly.OpenSCAD.valueToCode(block, 'FACTOR', Blockly.OpenSCAD.ORDER_ATOMIC);
   var type = block.previousConnection.check_[0]; 
 
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
   // missing the factor field?  just set it to one.
   if (!factor) factor = 1;
 
@@ -441,7 +511,7 @@ Blockly.OpenSCAD['taper'] = function(block) {
     else if (dropdown_axis == "Y") {
         vec = "[0,1,0]";
     }
-    var code = 'taper(' + vec + ', ' + factor + '){\n' + statements_a + '}';
+    var code = 'taper(' + vec + ', ' + factor + '){\n' + aC + statements_a + aP + '}';
   }
   else {
     if (dropdown_axis_cag == "X") {
@@ -450,7 +520,7 @@ Blockly.OpenSCAD['taper'] = function(block) {
     else if (dropdown_axis_cag == "Y") {
         vec = "[0,1,0]";
     }
-    var code = 'taper(' + vec + ', ' + factor + '){\n' + statements_a + '}'; 
+    var code = 'taper(' + vec + ', ' + factor + '){\n' + aC + statements_a + aP + '}'; 
   }
   return code;
 };
@@ -481,8 +551,11 @@ Blockly.OpenSCAD['simplemirror'] = function(block) {
       vec = "[0,-1,0]";
     }
   }
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
 
-  var code = 'mirror(' + vec + '){\n' + statements_a + '}';
+  var code = 'mirror(' + vec + '){\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -557,9 +630,13 @@ Blockly.OpenSCAD['linearextrude'] = function(block) {
   // let empty scale fields default to one
   if (!value_xscale) value_xscale = 1;
   if (!value_yscale) value_yscale = 1;
+
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
   
   var code = 'linear_extrude( height=' + value_height + ', twist=' + value_twist + 
-             ', scale=[' + value_xscale + ', ' + value_yscale + '], center=' + dropdown_center + '){\n' + statements_a + '}';
+             ', scale=[' + value_xscale + ', ' + value_yscale + '], center=' + dropdown_center + '){\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -575,7 +652,11 @@ Blockly.OpenSCAD['rotateextrude'] = function(block) {
   if (!value_faces)
     Blockscad.missingFields.push(block.id); 
 
-  var code = 'rotate_extrude($fn=' + value_faces + '){\n' + statements_a + '}';
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
+  var code = 'rotate_extrude($fn=' + value_faces + '){\n' + aC +  statements_a + aP + '}';
   return code;
 };
 
@@ -600,9 +681,12 @@ Blockly.OpenSCAD['rotateextrudetwist'] = function(block) {
     Blockscad.illegalValue.push(block.inputList[1].connection.targetBlock().id);
   }
   if (value_faces && value_faces < 3) value_faces = 3;
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
   
   var code = 'rotate_extrude($fn=' + value_faces + ',radius=' + value_r + ',twist=' + 
-             value_twist + ',tsteps=' + value_tsteps + '){\n' + statements_a + '}';
+             value_twist + ',tsteps=' + value_tsteps + '){\n' + aC + statements_a + aP + '}';
   return code;
 };
 
@@ -710,3 +794,95 @@ function hexToB(h) {
     return Math.round(100 * parseInt(h.substring(6,8),16) / 255) / 100;
 }
 
+Blockly.OpenSCAD.returnVarCode = function(block) {
+  var assignments = Blockly.OpenSCAD.getVariableCode(block);
+
+  console.log("finished getVariableCode");
+
+  var aC = '';
+  var aP = '';
+
+  if (assignments.length) {
+    aC += '  assign(';
+    for (var i = 0; i < assignments.length; i++) {
+      aC += assignments[i] + ',';
+    } 
+    // trim off the last comma
+    aC = aC.slice(0, -1);
+
+    aC += '){\n';
+    aP = '  }//end assign\n';
+  }
+  return [aC,aP];
+}
+
+
+// given a block: if that block has any children that are varSet blocks, return them.
+
+Blockly.OpenSCAD.returnVarChildren = function(block, array) {
+  // for (var i = 0; i < block.childBlocks_.length; i++) {
+  //   if (block.childBlocks_[i].type == 'variables_set') {
+  //     // this is a variable_set block.  add it to the list, then check the child recursively.
+  //     array.push(block.childBlocks_[i]);
+  //     Blockly.OpenSCAD.returnVarChildren(block.childBlocks_[i], array);
+  //   }
+  // }
+  //   console.log(block);
+  for (var i = 0; i < block.childBlocks_.length; i++) {
+    if (block.childBlocks_[i].type == 'variables_set') {
+      array.push(block.childBlocks_[i]);
+      // this is a variable block.  It might have two children, with the second being another variable, and so on.
+      var v = block.childBlocks_[i];
+      while (v.childBlocks_.length > 1 && v.childBlocks_[1].type == 'variables_set' ){
+        array.push(v.childBlocks_[1]);
+        v = v.childBlocks_[1];
+      }
+    }
+  }
+}
+
+Blockly.OpenSCAD.returnVarChain = function(block, array) {
+  var blah = 1;
+  while (blah) {
+    if (block.type == "variables_set") {
+      blah = 0;
+      array.push(block);
+      if (block.childBlocks_.length > 1 && block.childBlocks_[1].type == "variables_set") {
+        block = block.childBlocks_[1];
+        blah = 1;
+      }
+    }
+  }
+}
+
+Blockly.OpenSCAD.getVariableCode = function(block) {
+  // I have a block.  Does this block have any variable setters as children or itself?  If so, return an array of the blocks.
+
+  var blocks = [];
+  var codes = [];
+
+  // for logic blocks, I may send a variable block here.  So push block onto the top of the list.
+  if (block.type == "variables_set") {
+    Blockly.OpenSCAD.returnVarChain(block,blocks);
+
+  }
+  else {
+
+    Blockly.OpenSCAD.returnVarChildren(block, blocks);
+
+  }
+
+
+
+  for (var i = 0; i < blocks.length; i++) {
+    console.log("in getVariableCode. Have a: ",blocks[i].type);
+    var argument0 = Blockly.OpenSCAD.valueToCode(blocks[i], 'VALUE',
+        Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '0';
+    var varName = Blockly.OpenSCAD.variableDB_.getName(
+        blocks[i].getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+
+    codes[i] = varName + ' = ' + argument0;
+  }
+
+  return codes;
+}

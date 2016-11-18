@@ -1373,6 +1373,82 @@ Blockly.Blocks['$fn'] = {
     }   
   }   
 };
+Blockly.Blocks['assign'] = {
+  init: function() {
+    this.category = 'TRANSFORM';
+    this.setHelpUrl('http://www.example.com/');
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.appendValueInput('NAME')
+        .appendField("set ")
+        // .setCheck('String')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('VALUE')
+        .setCheck('Number')
+        .appendField(' = ');
+    this.appendStatementInput('A')
+        .setCheck(['CSG','CAG']);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, ['CSG','CAG']);
+    this.setTooltip(Blockscad.Msg.FN_TOOLTIP);
+    // try to set up a mutator - Jennie
+    this.setMutatorPlus(new Blockly.MutatorPlus(this));    
+    this.plusCount_ = 0;
+  },
+  mutationToDom: function() {
+    if (!this.plusCount_) {
+        return null;
+    }
+    var container = document.createElement('mutation');
+    if (this.plusCount_) {
+        container.setAttribute('plus',this.plusCount_);
+    }
+    return container;
+  },
+  domToMutation: function(xmlElement) {
+    this.plusCount_ = parseInt(xmlElement.getAttribute('plus'), 10);
+    var mytype = this.getInput('A').connection.check_;
+    for (var x = 1; x <= this.plusCount_; x++) {
+        this.appendStatementInput('PLUS' + x)
+            .setCheck(mytype);
+    }
+    if (this.plusCount_ >= 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+    }
+  }, 
+  updateShape_ : function(num) {
+    if (num == 1) {
+      this.plusCount_++;
+      var mytype = this.getInput('A').connection.check_;
+      var plusInput = this.appendStatementInput('PLUS' + this.plusCount_)
+          .setCheck(mytype); 
+    } else if (num == -1) {
+      this.removeInput('PLUS' + this.plusCount_); 
+      this.plusCount_--;
+    }
+    if (this.plusCount_ >= 1) {
+      if (this.plusCount_ == 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+        this.render();
+      }
+    } else {
+      this.mutatorMinus.dispose();
+      this.mutatorMinus = null;
+      this.render();
+    }
+  },   
+  setType: function(type) {
+    if (!this.workspace) {
+      // Block has been deleted.
+      return;
+    }
+    //console.log("setting union type to",type);
+    this.previousConnection.setCheck(type);
+    this.getInput('A').connection.setCheck(type);
+    for (var i = 1; i <= this.plusCount_; i++) {
+      this.getInput('PLUS' + i).connection.setCheck(type);
+    }   
+  }   
+};
 
 Blockly.Blocks['linearextrude'] = {
   init: function() {
