@@ -797,7 +797,7 @@ function hexToB(h) {
 Blockly.OpenSCAD.returnVarCode = function(block) {
   var assignments = Blockly.OpenSCAD.getVariableCode(block);
 
-  console.log("finished getVariableCode");
+  // console.log("finished getVariableCode");
 
   var aC = '';
   var aP = '';
@@ -875,7 +875,7 @@ Blockly.OpenSCAD.getVariableCode = function(block) {
 
 
   for (var i = 0; i < blocks.length; i++) {
-    console.log("in getVariableCode. Have a: ",blocks[i].type);
+    // console.log("in getVariableCode. Have a: ",blocks[i].type);
     var argument0 = Blockly.OpenSCAD.valueToCode(blocks[i], 'VALUE',
         Blockly.OpenSCAD.ORDER_ASSIGNMENT) || '0';
     var varName = Blockly.OpenSCAD.variableDB_.getName(

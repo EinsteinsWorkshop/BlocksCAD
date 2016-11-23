@@ -51,7 +51,19 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
         this.csgOp = args.csgOp;
         this.evaluatedChildren = [];
 
+        console.log("in loop.  args are:");
+        console.log(args);
+        console.log("this is");
+        console.log(this);
+
         this.forEval = function(parentEvaluatedChildren, inst, recurs_length, call_argnames, call_argvalues, arg_context) {
+
+            console.log("In loop forEval function.");
+            console.log(inst);
+            console.log(recurs_length);
+            console.log(call_argnames);
+            console.log(call_argvalues);
+            console.log(arg_context);
 
             this.evaluatedChildren = parentEvaluatedChildren;
 
