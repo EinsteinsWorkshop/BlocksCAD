@@ -162,7 +162,7 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
       //increment = abs(increment);
       code += 'for (' + variable0 + ' = [' + argument0 + ' : ' +
           'abs(' + increment + ') : ' + argument1 + " - " + increment  + ']';    
-      code += ') {\n' + aC + '  hull() {\n' + branch + '\n' + branch_next +'\n  }' + '\n ' + aP + '}';
+      code += ') {\n' + aC + '  hull() {\n' + branch + '\n' + branch_next +'\n  }  // end hull (in loop)' + '\n ' + aP + '} // end loop';
   } 
   return code;
 

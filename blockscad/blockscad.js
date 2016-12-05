@@ -1801,10 +1801,14 @@ Blockscad.processCodeForOutput = function(code) {
   var re3 = /.+end assign\n/g;
   var output3 = output2.replace(re3, "");
 
-  console.log(code);
+  // let's kill the duplicate newlines.
+
+  var output4 = output3.replace(/\n\s*\n\s*\n/g, '\n\n');
+
+  // console.log(code);
   // console.log(output3);
 
-  return output3;
+  return output4;
 }
 Blockly.OpenSCAD.returnIfVarCode = function(block) {
   // this is an if/else block, I have to separate it into different scopes.

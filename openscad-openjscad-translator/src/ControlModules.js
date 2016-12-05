@@ -53,21 +53,25 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
 
         console.log("in loop.  args are:");
         console.log(args);
-        console.log("this is");
+        console.log("in loop. this is");
         console.log(this);
 
         this.forEval = function(parentEvaluatedChildren, inst, recurs_length, call_argnames, call_argvalues, arg_context) {
 
-            console.log("In loop forEval function.");
-            console.log(inst);
-            console.log(recurs_length);
-            console.log(call_argnames);
-            console.log(call_argvalues);
-            console.log(arg_context);
+            console.log("*****In loop forEval function.");
+            console.log("parentEvaluatedChildren:",parentEvaluatedChildren);
+            console.log("inst:", inst);
+            console.log("recurs_length:",recurs_length);
+            console.log("call_argnames:", call_argnames);
+            console.log("call_argvalues:",call_argvalues);
+            console.log("arg_context:",arg_context);
+            console.log("done writing forEval arguments");
 
             this.evaluatedChildren = parentEvaluatedChildren;
 
             if (call_argnames.length > recurs_length) {
+                // recurs_length always starts at 0.  Argnames seems to be an array with the loop variable.
+                // for blockscad loops this array will always have length "1", and so code starts here.
                 var it_name = call_argnames[recurs_length];
                 var it_values = call_argvalues[recurs_length];
                 var context = new Context(arg_context);
@@ -75,11 +79,13 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
                 if (it_values instanceof Range) {
                     var range = it_values;
                     if (range.end < range.begin) {
+                        // if range.begin is bigger than range.end, swap the two values.
                         var t = range.begin;
                         range.begin = range.end;
                         range.end = t;
                     }
                     if (range.step > 0 && (range.begin-range.end)/range.step < 10000) {
+                        // interesting. Loops are limited to 10000 steps.  Could I raise this?  Would it be a terrible idea?
                         for (var i = range.begin; i <= range.end; i += range.step) {
                             context.setVariable(it_name, i);
                             this.forEval(this.evaluatedChildren, inst, recurs_length+1, call_argnames, call_argvalues, context);
@@ -87,12 +93,14 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
                     }
                 }
                 else if (_.isArray(it_values)) {
+                    console.log("----HELP!!!- I've got an array of values in my loop.  This shouldn't happen.");
                     for (var i = 0; i < it_values.length; i++) {
                         context.setVariable(it_name, it_values[i]);
                         this.forEval(this.evaluatedChildren, inst, recurs_length+1, call_argnames, call_argvalues, context);
                     }
                 }
             } else if (recurs_length > 0) {     
+                // this is one of my loop jobs.  the context should have the loop variable name and its value within the range.
                 var evaluatedInstanceChildren = inst.evaluateChildren(arg_context);
                 if (_.isArray(evaluatedInstanceChildren)){
                     this.evaluatedChildren = this.evaluatedChildren.concat(evaluatedInstanceChildren);
@@ -135,7 +143,9 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
             argvalues.push(Globals.convertForStrFunction(expr.evaluate(context)));
         });
 
+        console.log("JY:1");
         console.log(_.template("ECHO: <%=argvalues%>", {argvalues:argvalues}));
+        console.log("JY:2");
 
         return undefined;
     };
