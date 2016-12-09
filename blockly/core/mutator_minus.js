@@ -51,7 +51,7 @@ Blockly.MutatorMinus.prototype.createIcon = function() {
 
 Blockly.MutatorMinus.prototype.iconClick_ = function(e) {
   if (Blockly.dragMode_ == 2) {
-    // Drag operation is concluding.  Don't treat this as a mutator click.
+    // Drag operation is concluding.  Don't activate the mutator.
     return;
   }
   if (this.block_.isEditable()) {
