@@ -34,7 +34,7 @@ Blockscad.releaseDate = "2016/12/08";
 
 Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 
-Blockscad.standalone = false; // if true, run code needed for the standalone version
+Blockscad.standalone = true; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
