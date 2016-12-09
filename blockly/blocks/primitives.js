@@ -5,7 +5,7 @@ Blockly.Blocks['sphere'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.SPHERE + "  ");
     this.appendValueInput("RAD")
@@ -28,17 +28,33 @@ Blockly.Blocks['sphere'] = {
   //   else this.setWarningText(null);
   // }
 };
+// Blockly.Blocks['sphere'] = {
+//   init: function() {
+//     this.category = 'PRIMITIVE_CSG'
+//     this.setHelpUrl('http://www.example.com/');
+//     this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+//     this.appendDummyInput()
+//         .appendField(Blockscad.Msg.SPHERE + "  ");
+//     this.appendValueInput("RAD")
+//         .setCheck("Number")
+//         .appendField(Blockscad.Msg.RADIUS)
+//         .setAlign(Blockly.ALIGN_RIGHT);
+//     this.setInputsInline(true);
+//     this.setPreviousStatement(true, 'CSG');
+//     this.setTooltip(Blockscad.Msg.SPHERE_TOOLTIP);
+//   }//,
+// };
+
 
 Blockly.Blocks['cylinder'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG';
     this.prevR1 = null;
     this.prevR2 = null;
-    this.pRatio = null;
     this.pR1id = null;
     this.pR2id = null;
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.CYLINDER + '  ');
     this.appendValueInput('RAD1')
@@ -59,6 +75,9 @@ Blockly.Blocks['cylinder'] = {
           .appendField(new Blockly.FieldCheckbox("TRUE", null,
             "imgs/lock_icon.png","imgs/unlock_icon.png"), "LOCKED") ;    
     }
+    // this.appendDummyInput()
+    //     .setAlign(Blockly.ALIGN_RIGHT)
+    //     .appendField(new Blockly.FieldCheckbox("TRUE", null), "CHECK") ; 
     this.appendValueInput('RAD2')
         .setCheck('Number')
         .appendField(Blockscad.Msg.RADIUS + '2')
@@ -73,13 +92,17 @@ Blockly.Blocks['cylinder'] = {
     this.setPreviousStatement(true, 'CSG');
     this.setTooltip(Blockscad.Msg.CYLINDER_TOOLTIP);
   },
-  onchange: function() {
+  updateRadii: function() {
     if (!this.workspace) {
       // Block has been deleted.
       return;
     }
-    // console.log("calling cylinder onchange");
+    // console.log('in updateRadii');
     var locked = this.getField("LOCKED").getValue();
+
+    if (locked == 'FALSE') {
+      return;
+    }
 
     var R1 = null;
     var R2 = null;
@@ -115,7 +138,7 @@ Blockly.Blocks['simple_cylinder'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.CYLINDER + '  ');
     this.appendValueInput('RAD1')
@@ -138,7 +161,7 @@ Blockly.Blocks['cube'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.CUBE + '   ');
     this.appendValueInput('XVAL')
@@ -179,7 +202,7 @@ Blockly.Blocks['torus'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.TORUS + '  ');
     this.appendValueInput('RAD1')
@@ -223,7 +246,7 @@ Blockly.Blocks['twistytorus'] = {
   init: function() {
     this.category = 'PRIMITIVE_CSG'
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.appendDummyInput()
         .appendField('Twisty Torus  ');
     this.appendValueInput('RAD1')
@@ -271,7 +294,7 @@ Blockly.Blocks['circle'] = {
   init: function() {
     this.category = 'PRIMITIVE_CAG'
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.CIRCLE + '   ');
     this.appendValueInput('RAD')
@@ -299,7 +322,7 @@ Blockly.Blocks['square'] = {
   init: function() {
     this.category = 'PRIMITIVE_CAG'
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.SQUARE + '   ');
     this.appendValueInput('XVAL')
@@ -333,7 +356,7 @@ Blockly.Blocks['translate'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.TRANSLATE);
     this.appendValueInput('XVAL')
@@ -402,6 +425,7 @@ Blockly.Blocks['translate'] = {
    /**
    * If our parent or child is CSG or CAG, that sets our output type
    * and whether ZVAL field exists.
+   * only call the drawing routines if the type is actually changing.
    * @this Blockly.Block
    */
   setType: function(type,drawMe) {
@@ -409,22 +433,26 @@ Blockly.Blocks['translate'] = {
       // Block has been deleted.
       return;
     }
+    if (!goog.isArray(type))
+      type = [type];
+
     var zval = this.getInput('ZVAL');
     var next = this.getInput('A');
+    var myType = this.previousConnection.check_;
 
-    if (type == 'CAG') {      // parent wants a 2D shape
-      hideMyInput(zval,drawMe);
-      if (drawMe) this.render();
-    }
-    else {                    // parent wants 3D or doesn't care
-      showMyInput(zval,drawMe);
-      if (drawMe) this.render();
-    } 
     this.previousConnection.setCheck(type);
     next.connection.setCheck(type);
     for (var i = 1; i <= this.plusCount_; i++) {
       this.getInput('PLUS' + i).connection.setCheck(type);
     } 
+
+    if (type[0] == 'CAG' && myType[0] == 'CSG') {      
+        hideMyInput(zval,drawMe);
+    }
+    else if (type[0] == 'CSG' && myType[0] == 'CAG') {                    
+        showMyInput(zval,drawMe);
+    } 
+
     // console.log("translate type has become",this.previousConnection.check_);
     //console.log(this.getInput('A').connection.check_);
   }
@@ -434,7 +462,7 @@ Blockly.Blocks['scale'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.SCALE);
     this.appendValueInput('XVAL')
@@ -510,22 +538,25 @@ Blockly.Blocks['scale'] = {
       // Block has been deleted.
       return;
     }
+    if (!goog.isArray(type))
+      type = [type];
+
     var zval = this.getInput('ZVAL');
     var next = this.getInput('A');
-
-    if (type == 'CAG') {      // parent wants a 2D shape
-      hideMyInput(zval,drawMe);
-      if (drawMe) this.render();
-    }
-    else {                    // parent wants 3D or doesn't care
-      showMyInput(zval,drawMe);
-      if (drawMe) this.render();
-    } 
+    var myType = this.previousConnection.check_;
+    
     this.previousConnection.setCheck(type);
     next.connection.setCheck(type);
     for (var i = 1; i <= this.plusCount_; i++) {
       this.getInput('PLUS' + i).connection.setCheck(type);
-    }  
+    } 
+
+    if (type[0] == 'CAG' && myType[0] == 'CSG') {      
+        hideMyInput(zval,drawMe);
+    }
+    else if (type[0] == 'CSG' && myType[0] == 'CAG') {                    
+        showMyInput(zval,drawMe);
+    } 
   } 
 };
 
@@ -533,7 +564,7 @@ Blockly.Blocks['scale'] = {
 //   init: function() {
 //     this.category = 'TRANSFORM';
 //     this.setHelpUrl('http://www.example.com/');
-//     this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+//     this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
 //     this.appendDummyInput()
 //         .appendField('Resize');
 //     this.appendDummyInput()
@@ -560,7 +591,7 @@ Blockly.Blocks['fancymirror'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.MIRROR_ADVANCED);
     this.appendValueInput('XVAL')
@@ -633,15 +664,6 @@ Blockly.Blocks['fancymirror'] = {
     }
     var zval = this.getInput('ZVAL');
 
-    // if (type == 'CAG') {      // parent wants a 2D shape
-    //   hideMyInput(zval,drawMe);
-    //   if (drawMe) this.render();
-    // }
-    // else {                    // parent wants 3D or doesn't care
-    //   showMyInput(zval,drawMe);
-    //   if (drawMe) this.render();
-    // }  
-    //console.log("setting union type to",type);
     this.previousConnection.setCheck(type);
     this.getInput('A').connection.setCheck(type);
     for (var i = 1; i <= this.plusCount_; i++) {
@@ -654,7 +676,7 @@ Blockly.Blocks['simplemirror'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField('Simple Mirror');
     this.appendDummyInput()
@@ -686,7 +708,7 @@ Blockly.Blocks['simplemirror_new'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.MIRROR);
     this.appendDummyInput('3D')
@@ -757,32 +779,30 @@ Blockly.Blocks['simplemirror_new'] = {
       // Block has been deleted.
       return;
     }
+    if (!goog.isArray(type))
+      type = [type];
     // var csg = this.getField_('mirrorplane');
     // var cag = this.getField_('mirrorplane_cag');
 
     var csg = this.getInput('3D');
     var cag = this.getInput('2D');
     var next = this.getInput('A');
+    var myType = this.previousConnection.check_;
 
-    if (type == 'CAG') {      // parent wants a 2D shape
-      // csg.setVisible(false);
-      // cag.setVisible(true);
-      hideMyInput(csg,drawMe);
-      showMyInput(cag,drawMe);
-      if (drawMe) this.render();
-    }
-    else {                    // parent wants 3D or doesn't care
-      // csg.setVisible(true);
-      // cag.setVisible(false);
-      hideMyInput(cag,drawMe);
-      showMyInput(csg,drawMe);
-      if (drawMe) this.render();
-    } 
     this.previousConnection.setCheck(type);
     next.connection.setCheck(type);
     for (var i = 1; i <= this.plusCount_; i++) {
       this.getInput('PLUS' + i).connection.setCheck(type);
     }   
+
+    if (type[0] == 'CAG' && myType[0] == 'CSG') {
+      hideMyInput(csg,drawMe);
+      showMyInput(cag,drawMe);
+    }
+    else if (type[0] == 'CSG' && myType[0] == 'CAG') { 
+      hideMyInput(cag,drawMe);
+      showMyInput(csg,drawMe);
+    } 
   } 
 };
 
@@ -790,7 +810,7 @@ Blockly.Blocks['taper'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.TAPER);
     this.appendDummyInput('3D')
@@ -868,37 +888,37 @@ Blockly.Blocks['taper'] = {
       // Block has been deleted.
       return;
     }
+    if (!goog.isArray(type))
+      type = [type];
 
     var csg = this.getInput('3D');
     var cag = this.getInput('2D');
     var next = this.getInput('A');
+    var myType = this.previousConnection.check_;
 
-    if (type == 'CAG') {      // parent wants a 2D shape
-      // csg.setVisible(false);
-      // cag.setVisible(true);
-      hideMyInput(csg,drawMe);
-      showMyInput(cag,drawMe);
-      if (drawMe) this.render();
-    }
-    else {                    // parent wants 3D or doesn't care
-      // csg.setVisible(true);
-      // cag.setVisible(false);
-      hideMyInput(cag,drawMe);
-      showMyInput(csg,drawMe);
-      if (drawMe) this.render();
-    } 
     this.previousConnection.setCheck(type);
     next.connection.setCheck(type);
     for (var i = 1; i <= this.plusCount_; i++) {
       this.getInput('PLUS' + i).connection.setCheck(type);
-    }   
+    }  
+
+    if (type[0] == 'CAG' && myType[0] == 'CSG') {  
+      hideMyInput(csg,drawMe);
+      showMyInput(cag,drawMe);
+    }
+    else if (type[0] == 'CSG' && myType[0] == 'CAG') { 
+      hideMyInput(cag,drawMe);
+      showMyInput(csg,drawMe);
+      if (drawMe) this.render();
+    } 
   } 
 };
+
 Blockly.Blocks['simplerotate'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.ROTATE);
     this.appendValueInput('XVAL')
@@ -1001,7 +1021,7 @@ Blockly.Blocks['fancyrotate'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.ROTATE_ADVANCED);
     this.appendValueInput('AVAL')
@@ -1079,27 +1099,30 @@ Blockly.Blocks['fancyrotate'] = {
       // Block has been deleted.
       return;
     }
+    if (!goog.isArray(type))
+      type = [type];
+
     var zval = this.getInput('ZVAL');
     var xval = this.getInput('XVAL');
     var yval = this.getInput('YVAL');
     var next = this.getInput('A');
+    var myType = this.previousConnection.check_;
 
-    if (type == 'CAG') {      // parent wants a 2D shape
-      hideMyInput(xval,drawMe);
-      hideMyInput(yval,drawMe);
-      hideMyInput(zval,drawMe);
-      if (drawMe) this.render();
-    }
-    else {                    // parent wants 3D or doesn't care
-      showMyInput(xval,drawMe);
-      showMyInput(yval,drawMe);
-      showMyInput(zval,drawMe);
-      if (drawMe) this.render();
-    } 
     this.previousConnection.setCheck(type);
     next.connection.setCheck(type);
     for (var i = 1; i <= this.plusCount_; i++) {
       this.getInput('PLUS' + i).connection.setCheck(type);
+    } 
+
+    if (type[0] == 'CAG' && myType[0] == 'CSG') {  
+      hideMyInput(xval,drawMe);
+      hideMyInput(yval,drawMe);
+      hideMyInput(zval,drawMe);
+    }
+    else if (type[0] == 'CSG' && myType[0] == 'CAG') {  
+      showMyInput(xval,drawMe);
+      showMyInput(yval,drawMe);
+      showMyInput(zval,drawMe);
     }   
   } 
 };
@@ -1108,7 +1131,7 @@ Blockly.Blocks['color'] = {
   init: function() {
     this.category = 'COLOR';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.COLOR);
     this.appendValueInput('COLOR')
@@ -1170,7 +1193,7 @@ Blockly.Blocks['color_rgb'] = {
   init: function() {
     this.category = 'COLOR';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.COLOR + '  ');
     var dropdown = new Blockly.FieldDropdown([[Blockscad.Msg.HSV_COLOR_MODEL, 'HSV'],[Blockscad.Msg.RGB_COLOR_MODEL, 'RGB']], function(option) {
@@ -1282,10 +1305,86 @@ Blockly.Blocks['$fn'] = {
   init: function() {
     this.category = 'TRANSFORM';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendValueInput('SIDES')
         .setCheck('Number')
         .appendField(Blockscad.Msg.SIDES);
+    this.appendStatementInput('A')
+        .setCheck(['CSG','CAG']);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, ['CSG','CAG']);
+    this.setTooltip(Blockscad.Msg.FN_TOOLTIP);
+    // try to set up a mutator - Jennie
+    this.setMutatorPlus(new Blockly.MutatorPlus(this));    
+    this.plusCount_ = 0;
+  },
+  mutationToDom: function() {
+    if (!this.plusCount_) {
+        return null;
+    }
+    var container = document.createElement('mutation');
+    if (this.plusCount_) {
+        container.setAttribute('plus',this.plusCount_);
+    }
+    return container;
+  },
+  domToMutation: function(xmlElement) {
+    this.plusCount_ = parseInt(xmlElement.getAttribute('plus'), 10);
+    var mytype = this.getInput('A').connection.check_;
+    for (var x = 1; x <= this.plusCount_; x++) {
+        this.appendStatementInput('PLUS' + x)
+            .setCheck(mytype);
+    }
+    if (this.plusCount_ >= 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+    }
+  }, 
+  updateShape_ : function(num) {
+    if (num == 1) {
+      this.plusCount_++;
+      var mytype = this.getInput('A').connection.check_;
+      var plusInput = this.appendStatementInput('PLUS' + this.plusCount_)
+          .setCheck(mytype); 
+    } else if (num == -1) {
+      this.removeInput('PLUS' + this.plusCount_); 
+      this.plusCount_--;
+    }
+    if (this.plusCount_ >= 1) {
+      if (this.plusCount_ == 1) {
+        this.setMutatorMinus(new Blockly.MutatorMinus(this));
+        this.render();
+      }
+    } else {
+      this.mutatorMinus.dispose();
+      this.mutatorMinus = null;
+      this.render();
+    }
+  },   
+  setType: function(type) {
+    if (!this.workspace) {
+      // Block has been deleted.
+      return;
+    }
+    //console.log("setting union type to",type);
+    this.previousConnection.setCheck(type);
+    this.getInput('A').connection.setCheck(type);
+    for (var i = 1; i <= this.plusCount_; i++) {
+      this.getInput('PLUS' + i).connection.setCheck(type);
+    }   
+  }   
+};
+Blockly.Blocks['assign'] = {
+  init: function() {
+    this.category = 'TRANSFORM';
+    this.setHelpUrl('http://www.example.com/');
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.appendValueInput('NAME')
+        .appendField("set ")
+        // .setCheck('String')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.appendValueInput('VALUE')
+        .setCheck('Number')
+        .appendField(' = ');
     this.appendStatementInput('A')
         .setCheck(['CSG','CAG']);
     this.setInputsInline(true);
@@ -1355,7 +1454,7 @@ Blockly.Blocks['linearextrude'] = {
   init: function() {
     this.category = 'EXTRUDE';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.LINEAR_EXTRUDE + '  ');
     this.appendValueInput('HEIGHT')
@@ -1438,7 +1537,7 @@ Blockly.Blocks['rotateextrude'] = {
   init: function() {
     this.category = 'EXTRUDE';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField(Blockscad.Msg.ROTATE_EXTRUDE + '  ');
     this.appendValueInput('FACES')
@@ -1502,7 +1601,7 @@ Blockly.Blocks['rotateextrudetwist'] = {
   init: function() {
     this.category = 'EXTRUDE';
     this.setHelpUrl('http://www.example.com/');
-    this.setColourHex(Blockscad.Toolbox.HEX_TRANSFORM);
+    this.setColour(Blockscad.Toolbox.HEX_TRANSFORM);
     this.appendDummyInput()
         .appendField('Rotate Extrude Twist ');
     this.appendValueInput('RAD')
@@ -1579,7 +1678,7 @@ Blockly.Blocks['math_angle'] = {
   // Numeric value, but in an angle field.
   init: function() {
     //this.setHelpUrl(Blockly.Msg.MATH_NUMBER_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_MATH);
+    this.setColour(Blockscad.Toolbox.HEX_MATH);
     this.appendDummyInput()
         .appendField(new Blockly.FieldAngle('0'), 'NUM');
     this.setOutput(true, 'Number');
@@ -1602,7 +1701,7 @@ Blockly.Blocks['math_constant_bs'] = {
          ['sqrt(2)', 'SQRT2'],
          ['sqrt(\u00bd)', 'SQRT1_2']];
     this.setHelpUrl(Blockly.Msg.MATH_CONSTANT_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_MATH);
+    this.setColour(Blockscad.Toolbox.HEX_MATH);
     this.setOutput(true, 'Number');
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'CONSTANT');
@@ -1627,7 +1726,7 @@ Blockly.Blocks['stl_import'] = {
         .setVisible(false);
     this.setInputsInline(true);
     this.setPreviousStatement(true);
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.setTooltip('');
     this.setWarningText(Blockscad.Msg.STL_IMPORT_WARNING);
     this.setHelpUrl('http://www.example.com/');
@@ -1679,7 +1778,7 @@ Blockly.Blocks['bs_text'] = {
         .appendField(new Blockly.FieldDropdown(CONSTANTS), 'FONT');
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CAG');
-    this.setColourHex(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_2D_PRIMITIVE);
     this.setTooltip(Blockscad.Msg.BS_TEXT_TOOLTIP);
   },
   /**
@@ -1734,7 +1833,7 @@ Blockly.Blocks['bs_3dtext'] = {
 
     this.setInputsInline(true);
     this.setPreviousStatement(true, 'CSG');
-    this.setColourHex(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
+    this.setColour(Blockscad.Toolbox.HEX_3D_PRIMITIVE);
     this.setTooltip(Blockscad.Msg.BS_3DTEXT_TOOLTIP);
   },
   /**
@@ -1755,18 +1854,24 @@ Blockly.Blocks['bs_3dtext'] = {
 };
 
 function hideMyInput(value,drawMe) {
-  if (value.isVisible() && drawMe) {
-    //console.log("trying to hide input",value);
-    value.setVisible(false);
+  if (drawMe) {
+    Blockscad.executeAfterDrag_(function() {
+      if (value.isVisible()) {
+        //console.log("trying to hide input",value);
+        value.setVisible(false);
+      }
+       value.sourceBlock_.render();
+    }, value);
   }
 }
 function showMyInput(value,drawMe) {
   if (!value.isVisible() && drawMe) {
-    //console.log("trying to show input",value);
-    var blocks_to_render = value.setVisible(true);
-    if (blocks_to_render.length > 0) {
-      blocks_to_render[0].render();
-    }
+    Blockscad.executeAfterDrag_(function() {
+      // console.log(value);
+      var blocks_to_render = value.setVisible(true);
+      if (blocks_to_render.length > 0)
+        blocks_to_render[0].render();
+    }, value);
   }
 }
 
@@ -1777,7 +1882,7 @@ Blockly.Blocks['bs_text_length'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.TEXT_LENGTH_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_TEXT);
+    this.setColour(Blockscad.Toolbox.HEX_TEXT);
     this.interpolateMsg(Blockly.Msg.TEXT_LENGTH_TITLE,
                         ['VALUE', ['String', 'Array'], Blockly.ALIGN_RIGHT],
                         Blockly.ALIGN_RIGHT);

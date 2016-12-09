@@ -1,5 +1,6 @@
 /*
 ## License
+Copyright (c) 2016 yoderjen (yoderjen@gmail.com)
 Copyright (c) 2014 bebbi (elghatta@gmail.com)
 Copyright (c) 2013 Eduard Bespalov (edwbes@gmail.com)
 Copyright (c) 2012 Joost Nieuwenhuijse (joost@newhouse.nl)
@@ -235,6 +236,81 @@ CSG.Polygon.prototype.toStlString = function() {
     }
     return result;
 };
+
+//
+//  OBJ (Wavefront) ASCII Export
+//
+
+CSG.prototype.toObj = function() {
+    var result = "# OBJ file\n";
+
+    var vertices = {};
+    var vertexList = "";
+    var faces = {};
+    var count = 1;
+    var red = 0;
+    var green = 0;
+    var blue = 0;
+    var alpha = 1;
+    var p = null;
+    var vstring = "";
+    var colorString = "";
+
+
+    // I want to put different colored vertices into different groups.
+    // group names (and keys) will be a stringy version of their color.
+    // I don't want to list vertices more than once.  Hash them and be careful of the count.
+
+    for (var i = 0; i < this.polygons.length; i++) {
+        p = this.polygons[i];
+        if (p.shared && p.shared.color) {
+            red = p.shared.color[0] * 255;
+            green = p.shared.color[1] * 255;
+            blue = p.shared.color[2] * 255;
+            if (p.shared.color[3])
+                alpha = p.shared.color[3];
+        }
+        else {
+            red = 0;
+            green = 0;
+            blue = 0;
+            alpha = 0;
+        }
+        colorString = red.toFixed(0) + "-" + green.toFixed(0) + "-" + blue.toFixed(0) + "-" + alpha.toFixed(0);
+        if (!faces[colorString])
+            faces[colorString] = "";
+        faces[colorString] += 'f ';
+
+        // now deal with the vertices
+        for (var j = 0; j < this.polygons[i].vertices.length; j++) {
+            var v = p.vertices[j];
+            vstring = 'v ' + v.pos._x + ' ' + v.pos._y + ' ' + v.pos._z + '\n';
+            if (vertices[vstring]) {
+                // this vertex was already added to the list.  We can get its index in vertexList from vertices.
+                faces[colorString] += vertices[vstring] + ' ';
+            }
+            else {
+                // this is a new vertex.  Add it to the vertex list, increment count, and then add to the face.
+                // list it as "added at this index" in vertices.
+                vertices[vstring] = count.toString();
+                vertexList += vstring;
+                faces[colorString] += count.toString() + ' ';
+                count++;
+            }
+        }
+        faces[colorString] += '\n';
+    }
+
+    result += vertexList;
+
+    for (i in faces) {
+        result += 'g ' + i + '\n';
+        result += faces[i];
+    }
+
+    return result;
+}
+
 
 ////////////////////////////////////////////
 // DXF Export

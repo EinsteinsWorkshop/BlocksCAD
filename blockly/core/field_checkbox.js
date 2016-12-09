@@ -29,101 +29,95 @@ goog.provide('Blockly.FieldCheckbox');
 goog.require('Blockly.Field');
 
 // how big should toggleable images be?
-var sz = 27;
+var sz = 25;
 
 /**
  * Class for a checkbox field.
  * @param {string} state The initial state of the field ('TRUE' or 'FALSE').
- * @param {Function=} opt_changeHandler A function that is executed when a new
+ * @param {Function=} opt_validator A function that is executed when a new
  *     option is selected.  Its sole argument is the new checkbox state.  If
  *     it returns a value, this becomes the new checkbox state, unless the
  *     value is null, in which case the change is aborted.
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldCheckbox = function(state, opt_changeHandler,img1,img2) {
-  Blockly.FieldCheckbox.superClass_.constructor.call(this, '');
+Blockly.FieldCheckbox = function(state, opt_validator,img1,img2) {
+  Blockly.FieldCheckbox.superClass_.constructor.call(this, '', opt_validator);
   // do I have two images?
   if (img1 && img2) {
     this.img1 = img1;
     this.img2 = img2;
+    this.size_ = new goog.math.Size(sz, sz * 1.1);
   }
-  if (img1 && img2)
-  this.size_ = new goog.math.Size(sz, sz);
-  this.setChangeHandler(opt_changeHandler);
   // Set the initial state.
-  this.state_ = (state == 'TRUE');
+  // console.log("setting fieldCheckbox initial state to:",state);
+  this.setValue(state);
 };
 goog.inherits(Blockly.FieldCheckbox, Blockly.Field);
+
+/**
+ * Character for the checkmark.
+ */
+Blockly.FieldCheckbox.CHECK_CHAR = '\u2713';
 
 /**
  * Mouse cursor style when over the hotspot that initiates editability.
  */
 Blockly.FieldCheckbox.prototype.CURSOR = 'default';
 
-/**
- * Rectangular mask used by Firefox.
- * @type {Element}
- * @private
- */
-Blockly.FieldCheckbox.prototype.rectElement_ = null;
+Blockly.FieldCheckbox.prototype.EDITABLE = true;
 
 /**
  * Install this checkbox on a block.
- * @param {!Blockly.Block} block The block containing this text.
  */
-Blockly.FieldCheckbox.prototype.init = function(block) {
-  if (this.sourceBlock_) {
+Blockly.FieldCheckbox.prototype.init = function() {
+  if (this.fieldGroup_) {
     // Checkbox has already been initialized once.
     return;
   }
 
   if (!(this.img1 && this.img2)) {
+    Blockly.FieldCheckbox.superClass_.init.call(this);
     // The checkbox doesn't use the inherited text element.
     // Instead it uses a custom checkmark element that is either visible or not.
-    Blockly.FieldCheckbox.superClass_.init.call(this, block);
     this.checkElement_ = Blockly.createSvgElement('text',
-        {'class': 'blocklyText', 'x': -3}, this.fieldGroup_);
-    var textNode = document.createTextNode('\u2713');
+        {'class': 'blocklyText blocklyCheckbox', 'x': -3, 'y': 14},
+        this.fieldGroup_);
+    var textNode = document.createTextNode(Blockly.FieldCheckbox.CHECK_CHAR);
     this.checkElement_.appendChild(textNode);
     this.checkElement_.style.display = this.state_ ? 'block' : 'none';
   }
+
   else {
     // code from field_image and field prototype init
     // console.log("got some images");
-    this.sourceBlock_ = block;
     // Build the DOM.
     this.fieldGroup_ = Blockly.createSvgElement('g', {}, null);
-    // if (!this.visible_) {
-    //   this.fieldGroup_.style.display = 'none';
-    // }
-    // this.fieldGroup_.style.display = 'inline';
-    var offsetY = 1 - Blockly.BlockSvg.FIELD_HEIGHT;
+    if (!this.visible_) {
+      this.fieldGroup_.style.display = 'none';
+    }
 
     this.imageElement_ = Blockly.createSvgElement('image',
         {'height': sz + 'px',
-         'width': sz + 'px',
-         'y': offsetY}, this.fieldGroup_);
+         'width': sz * 1.1 + 'px',
+         'x': 5, 'y': -5}, this.fieldGroup_);
     this.imageElement_.setAttributeNS('http://www.w3.org/1999/xlink',
         'xlink:href', (this.state_)  ? this.img1 : this.img2);
-    if (goog.userAgent.GECKO) {
-      // Due to a Firefox bug which eats mouse events on image elements,
-      // a transparent rectangle needs to be placed on top of the image.
-      this.rectElement_ = Blockly.createSvgElement('rect',
-          {'height': sz + 'px',
-           'width': sz + 'px',
-           'y': offsetY,
-           'opacity':0.0}, this.fieldGroup_);
-    }
+
+    // if (goog.userAgent.GECKO) {
+    //   // Due to a Firefox bug which eats mouse events on image elements,
+    //   // a transparent rectangle needs to be placed on top of the image.
+    //   this.rectElement_ = Blockly.createSvgElement('rect',
+    //       {'height': sz + 'px',
+    //        'width': sz + 'px',
+    //        'fill-opacity': 0}, this.fieldGroup_);
+    // }
+
     this.updateEditable();
-    block.getSvgRoot().appendChild(this.fieldGroup_);
+    this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
     this.mouseUpWrapper_ =
         Blockly.bindEvent_(this.fieldGroup_, 'mouseup', this, this.onMouseUp_);
-    // Force a render.
-    // this.updateTextNode_();
-
   }
-    this.setValue(String(this.state_).toUpperCase());
 };
 
 /**
@@ -141,10 +135,12 @@ Blockly.FieldCheckbox.prototype.getValue = function() {
  */
 Blockly.FieldCheckbox.prototype.setValue = function(strBool) {
   var newState = (strBool == 'TRUE');
-  // console.log("this.state_:",this.state_);
-  // console.log("newState:",newState);
 
   if (this.state_ !== newState) {
+    if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
+      Blockly.Events.fire(new Blockly.Events.Change(
+          this.sourceBlock_, 'field', this.name, this.state_, newState));
+    }
     this.state_ = newState;
     // console.log("setting checkbox to:",this.state_);
     if (this.checkElement_) {
@@ -154,9 +150,7 @@ Blockly.FieldCheckbox.prototype.setValue = function(strBool) {
       this.imageElement_.setAttributeNS('http://www.w3.org/1999/xlink',
           'xlink:href', newState ? this.img1 : this.img2);
     }
-    if (this.sourceBlock_ && this.sourceBlock_.rendered) {
-      this.sourceBlock_.workspace.fireChangeEvent();
-    }
+
   }
 };
 
@@ -166,12 +160,9 @@ Blockly.FieldCheckbox.prototype.setValue = function(strBool) {
  */
 Blockly.FieldCheckbox.prototype.showEditor_ = function() {
   var newState = !this.state_;
-  if (this.sourceBlock_ && this.changeHandler_) {
-    // Call any change handler, and allow it to override.
-    var override = this.changeHandler_(newState);
-    if (override !== undefined) {
-      newState = override;
-    }
+  if (this.sourceBlock_) {
+    // Call any validation function, and allow it to override.
+    newState = this.callValidator(newState);
   }
   if (newState !== null) {
     this.setValue(String(newState).toUpperCase());

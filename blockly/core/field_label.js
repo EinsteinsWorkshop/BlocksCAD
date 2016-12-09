@@ -37,13 +37,14 @@ var Blockscad = Blockscad || {};
 /**
  * Class for a non-editable field.
  * @param {string} text The initial content of the field.
+ * @param {string=} opt_class Optional CSS class for the field's text.
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldLabel = function(text) {
-  this.sourceBlock_ = null;
-  this.size_ = new goog.math.Size(0, 25);
-  this.setText(text);
+Blockly.FieldLabel = function(text, opt_class) {
+  this.size_ = new goog.math.Size(0, 17.5);
+  this.class_ = opt_class;
+  this.setValue(text);
 };
 goog.inherits(Blockly.FieldLabel, Blockly.Field);
 
@@ -54,22 +55,22 @@ Blockly.FieldLabel.prototype.EDITABLE = false;
 
 /**
  * Install this text on a block.
- * @param {!Blockly.Block} block The block containing this text.
  */
-Blockly.FieldLabel.prototype.init = function(block) {
-  if (this.sourceBlock_) {
+Blockly.FieldLabel.prototype.init = function() {
+  if (this.textElement_) {
     // Text has already been initialized once.
     return;
   }
-  this.sourceBlock_ = block;
-
   // Build the DOM.
   this.textElement_ = Blockly.createSvgElement('text',
-      {'class': 'blocklyText'}, null);
+      {'class': 'blocklyText', 'y': this.size_.height - 5}, null);
+  if (this.class_) {
+    Blockly.addClass_(this.textElement_, this.class_);
+  }
   if (!this.visible_) {
     this.textElement_.style.display = 'none';
   }
-  block.getSvgRoot().appendChild(this.textElement_);
+  this.sourceBlock_.getSvgRoot().appendChild(this.textElement_);
 
   // Configure the field to be transparent with respect to tooltips.
   this.textElement_.tooltip = this.sourceBlock_;
@@ -125,12 +126,11 @@ goog.require('goog.userAgent');
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldButton = function(text, opt_changeHandler) {
-  Blockly.FieldButton.superClass_.constructor.call(this, text);
-  this.setChangeHandler(opt_changeHandler);
+Blockly.FieldButton = function(text, opt_validator) {
+  Blockly.FieldTextInput.superClass_.constructor.call(this, text,
+      opt_validator);
 };
 goog.inherits(Blockly.FieldButton, Blockly.Field);
-
 /**
  * Mouse cursor style when over the hotspot that initiates the editor.
  */
@@ -148,26 +148,27 @@ Blockly.FieldButton.prototype.dispose = function() {
   Blockly.FieldButton.superClass_.dispose.call(this);
 };
 
+
 /**
  * Set the text in this field.
  * @param {?string} text New text.
  * @override
  */
-Blockly.FieldButton.prototype.setText = function(text) {
+Blockly.FieldButton.prototype.setValue = function(text) {
   if (text === null) {
-    // No change if null.
-    return;
+    return;  // No change if null.
   }
-  if (this.sourceBlock_ && this.changeHandler_) {
-    var validated = this.changeHandler_(text);
+  if (this.sourceBlock_) {
+    var validated = this.callValidator(text);
     // If the new text is invalid, validation returns null.
     // In this case we still want to display the illegal result.
-    if (validated !== null && validated !== undefined) {
+    if (validated !== null) {
       text = validated;
     }
   }
-  Blockly.Field.prototype.setText.call(this, text);
+  Blockly.Field.prototype.setValue.call(this, text);
 };
+
 
 /**
  * Show the inline free-text editor on top of the text.
@@ -193,8 +194,8 @@ Blockly.FieldButton.prototype.widgetDispose_ = function() {
     var htmlInput = Blockly.FieldButton.htmlInput_;
     // Save the edit (if it validates).
     var text = htmlInput.value;
-    if (thisField.sourceBlock_ && thisField.changeHandler_) {
-      var text1 = thisField.changeHandler_(text);
+    if (thisField.sourceBlock_) {
+      var text1 = text;
       if (text1 === null) {
         // Invalid edit.
         text = htmlInput.defaultValue;
@@ -203,15 +204,20 @@ Blockly.FieldButton.prototype.widgetDispose_ = function() {
         text = text1;
       }
     }
-    thisField.setText(text);
+    thisField.setValue(text);
     thisField.sourceBlock_.rendered && thisField.sourceBlock_.render();
     Blockly.unbindEvent_(htmlInput.onKeyDownWrapper_);
     Blockly.unbindEvent_(htmlInput.onKeyUpWrapper_);
     Blockly.unbindEvent_(htmlInput.onKeyPressWrapper_);
-    Blockly.unbindEvent_(htmlInput.onWorkspaceChangeWrapper_);
-    Blockly.FieldButton.htmlInput_ = null;
-    // Delete the width property.
-    Blockly.WidgetDiv.DIV.style.width = 'auto';
+    thisField.workspace_.removeChangeListener(
+        htmlInput.onWorkspaceChangeWrapper_);
+    Blockly.FieldTextInput.htmlInput_ = null;
+    // Delete style properties.
+    var style = Blockly.WidgetDiv.DIV.style;
+    style.width = 'auto';
+    style.height = 'auto';
+    style.fontSize = '';
   };
 };
+
 

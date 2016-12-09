@@ -129,6 +129,10 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
 
   var code;
 
+  var varCode = Blockly.OpenSCAD.returnVarCode(block);
+  var aC = varCode[0];
+  var aP = varCode[1];
+
   if (hull == 'FALSE') {
 
     // Jennie - OpenSCAD is weird - increments can never be negative, even 
@@ -138,7 +142,7 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
     //increment = abs(increment);
     code = 'for (' + variable0 + ' = [' + argument0 + ' : ' +
         'abs(' + increment + ') : ' + argument1 + ']';    
-    code += ') {\n' + branch + '\n}';
+    code += ') {\n' + aC + branch + '\n' + aP + '}';
   }
   else {
     // in chainhull, I want to actually loop through to argument1 - (increment),
@@ -158,7 +162,7 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
       //increment = abs(increment);
       code += 'for (' + variable0 + ' = [' + argument0 + ' : ' +
           'abs(' + increment + ') : ' + argument1 + " - " + increment  + ']';    
-      code += ') {\n' +  '  hull() {\n' + branch + '\n' + branch_next + '\n  }' + '\n}';
+      code += ') {\n' + aC + '  hull() {\n' + branch + '\n' + branch_next +'\n  }  // end hull (in loop)' + '\n ' + aP + '} // end loop';
   } 
   return code;
 

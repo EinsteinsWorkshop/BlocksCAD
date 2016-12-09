@@ -11,6 +11,28 @@ Blockscad.Auth = Blockscad.Auth || {};
 var Blockly = Blockly || {};
 Blockly.Xml = Blockly.Xml || {};
 
+BlocklyStorage.autosaveBlocks = function(xml_text) {
+  if ('localStorage' in window) {
+
+    // in standalone, the "url" scheme doesn't work.  Have to name the
+    // items in localStorage directly.
+
+    localStorage.xml = xml_text;
+    localStorage.proj_name = $('#project-name').val();
+  }
+};
+BlocklyStorage.standaloneRestoreBlocks = function() {
+  if (localStorage.xml) {
+
+    var xml = Blockly.Xml.textToDom(localStorage.xml);
+    Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xml);
+    var project_name = localStorage.proj_name;
+    if (project_name != "undefined") {
+      $('#project-name').val(project_name);
+    }
+    else $('#project-name').val('Untitled');
+  }
+}
 /**
  * Backup code blocks to localStorage including stl files
  * @private
@@ -53,7 +75,7 @@ BlocklyStorage.backupBlocks_ = function() {
     window.localStorage.setItem(url2, $('#project-name').val());
     window.localStorage.setItem(url3, Blockscad.Auth.currentProject);
     window.localStorage.setItem(url4, Blockscad.Auth.currentProjectKey);
-    window.localStorage.setItem(url5, Blockscad.undo.needToSave);
+    window.localStorage.setItem(url5, Blockscad.needToSave);
   }
 };
 /**
@@ -104,10 +126,10 @@ BlocklyStorage.restoreBlocks = function() {
   var url4 = url + "current_project_key";
   var url5 = url + "needToSave";
 
-  console.log(window.localStorage);
+  // console.log(window.localStorage);
   if ('localStorage' in window && window.localStorage[url]) {
     var xml = Blockly.Xml.textToDom(window.localStorage[url]);
-    Blockly.Xml.domToWorkspace(Blockscad.workspace, xml);
+    Blockly.Xml.domToWorkspace(xml, Blockscad.workspace);
 
     var blocks = Blockscad.workspace.getAllBlocks();
     for (var i = 0; i < blocks.length; i++){
@@ -194,7 +216,8 @@ BlocklyStorage.restoreBlocks = function() {
     var needToSave = Number(window.localStorage[url5]);
     if (needToSave != "undefined" && (needToSave == 1 || needToSave == 0)) {
       setTimeout(function() {
-        Blockscad.undo.needToSave = needToSave;
+        Blockscad.needToSave = needToSave;
+        console.log("loading from storage. setting needToSave to:", needToSave);
       }, 300);
     }
 

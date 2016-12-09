@@ -41,12 +41,15 @@ define("Context", ["Globals", "openscad-parser-support"], function(Globals, Open
     };
 
     Context.prototype.lookupVariable = function(name) {
+        // console.log("in lookupVarible for:", name);
 
         if (_.has(this.vars, name)){
+            // console.log("found the variable.  It is: " + name + ": " + this.vars[name]);
             return this.vars[name];
         }
 
         if (this.parentContext !== undefined){
+            // console.log("going to lookup this variable in the parent context.");
             return this.parentContext.lookupVariable(name);
         }
         
@@ -131,7 +134,9 @@ define("Context", ["Globals", "openscad-parser-support"], function(Globals, Open
         if (r < GRID_FINE) return 0;
         if (fn > 0.0)
             return parseInt(fn);
-        return parseInt(Math.ceil(Math.max(Math.min(360.0 / fa, r*2*Math.PI / fs), 5)));
+        var result = parseInt(Math.ceil(Math.max(Blockscad.resolution * Math.min(360.0 / fa, r*2*Math.PI / fs), 5)));
+        // console.log("fn: ",result);
+        return result;
     };
 
     Context.get_font_resolution = function(context) {
@@ -141,7 +146,7 @@ define("Context", ["Globals", "openscad-parser-support"], function(Globals, Open
 
         if (fn > 0.0)
             return parseInt(fn);
-        return 3;     
+        return 2;     
     };
 
     function rad2deg(rad){

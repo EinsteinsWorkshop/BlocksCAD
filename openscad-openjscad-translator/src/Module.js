@@ -30,6 +30,7 @@ define("Module", ["Context", "Globals"], function(Context, Globals){
         context.functions_p = this.functions;
         context.modules_p = this.modules;
         _.each(this.assignments_var, function(value, key, list) {
+            // console.log("setting variable:" + key + ": " + value.evaluate(context));
             context.setVariable(key, value.evaluate(context));
         });
 

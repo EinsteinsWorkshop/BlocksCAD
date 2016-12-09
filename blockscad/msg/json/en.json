@@ -1,7 +1,7 @@
 {
 	"@metadata": {
 		"author": "Jennie Yoder <jennie@einsteinsworkshop.com>",
-		"lastupdated": "2016-05-13 11:34:32.458000",
+		"lastupdated": "2016-08-10 11:02:15.985000",
 		"locale": "en",
 		"messagedocumentation" : "qqq"
 	},
@@ -117,7 +117,7 @@
 	"FONT_SIZE": "size",
 	"FONT_NAME": "font",
 	"TEXT_THICKNESS": "thickness",
-	"TEXT_DEFAULT_VALUE": "hello",
+	"TEXT_DEFAULT_VALUE": "abc",
 	"CONVEX_HULL": "hull",
 	"DIFFERENCE": "difference",
 	"UNION": "union",
@@ -168,6 +168,11 @@
 	"MOUSEOVER_REDO": "Redo",
 	"MOUSEOVER_TRASHCAN": "Delete all blocks",
 	"DISCARD_ALL": "Delete all %1 blocks?",
+	"AXES_BUTTON": "Toggle axes display",
+	"DEFAULT_COLOR_BUTTON": "Set default render color",
+	"ZOOM_IN_BUTTON": "Zoom in",
+	"ZOOM_OUT_BUTTON": "Zoom out",
+	"ZOOM_RESET_BUTTON": "Reset view",
 	"WARNING_RELOAD_STL": "Warning: re-load your STL file block",
 	"ERROR_MESSAGE": "Error",
 	"RENDER_ERROR_EMPTY": "Nothing to Render",
@@ -208,7 +213,7 @@
 	"REMOVE_HIGHLIGHTING_INSTANCES": "Remove highlighting",
 	"REMOVE_BLOCK_HIGHLIGHTING": "Remove block highlighting",
 	"BLOCKS_BUMPED_OUT_DIMENSIONS": "%1 calling blocks were displaced: 2D and 3D shapes cannot be together",
-	"BLOCKS_BUMPED_OUT_TYPES": "%1 calling blocks were displaced: type mismatch between numbers and Booleans",
+	"BLOCKS_BUMPED_OUT_TYPES": "%1 calling blocks were displaced: type mismatch between %2 and %3",
 	"VARIABLES_BUMPED_ONE": "%1 variable blocks were displaced due to type mismatches",
 	"VARIABLES_BUMPED_TWO": "variable '%1': type changed from %2 to %3",
 	"EXAMPLE_CUBE_WITH_CUTOUTS": "cube with cutouts",
@@ -216,5 +221,6 @@
 	"EXAMPLE_PARAMETRIC_BOX": "any size box",
 	"EXAMPLE_LOOP_SUN": "sun made with loop",
 	"EXAMPLE_LOOP_SINE": "sine function with loop",
-	"EXAMPLE_PARAMETRIC_EQ_KNOT": "knot from parametric equations"
+	"EXAMPLE_PARAMETRIC_EQ_KNOT": "knot from parametric equations",
+	"GET_STARTED_VIDEO": "Get Started!"
 }

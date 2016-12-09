@@ -38,18 +38,18 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     this.category = 'PROCEDURE';        // for blocksCAD
     this.myType_ = ['CSG','CAG'];       // for blocksCAD
     this.backlightBlocks = [];            // for blocksCAD
-    this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFNORETURN_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
-    var name = Blockly.Procedures.findLegalName(
-        Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE, this);
-    var nameField = new Blockly.FieldTextInput(name,
+
+    var nameField = new Blockly.FieldTextInput(
+        Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE,
         Blockly.Procedures.rename);
-    //nameField.setSpellcheck(false);
+    nameField.setSpellcheck(false);
     this.appendDummyInput()
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE)
         .appendField(nameField, 'NAME')
         .appendField('', 'PARAMS');
     this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFNORETURN_HELPURL);
+    this.setColour(Blockscad.Toolbox.HEX_PROCEDURE);
     this.setTooltip(Blockly.Msg.PROCEDURES_DEFNORETURN_TOOLTIP);
     this.arguments_ = [];
     this.setStatements_(true, 'VariableSet');
@@ -60,107 +60,258 @@ Blockly.Blocks['procedures_defnoreturn'] = {
    * type of this procedure, then update types of any callers..
    * @this Blockly.Block
    */
-  setType: function(type,drawMe) {      // for blocksCAD
+  // setType: function(type,drawMe) {      // for blocksCAD
+  //   if (!this.workspace) {
+  //     // Block has been deleted.
+  //     return;
+  //   }
+  //   console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
+  //   if (this.myType_ == type)
+  //     return;
+
+  //   console.log("in modules's setType");
+
+  //   var oldtype = this.myType_;
+  //   var callers = Blockly.Procedures.getCallers(this.getFieldValue('NAME'), this.workspace);
+  //   var numBumped = [];
+  //   var notBumped = [];
+
+  //   // I need to find out what my caller stacks think their types are.
+  //   if (callers.length) {
+  //     for (var i = 0; i < callers.length; i++) {
+  //       var areaType = Blockscad.findBlockType(callers[i],callers);
+  //       //console.log("caller area type is",areaType);
+  //       //console.log("caller category is", callers[i].category);
+  //      // console.log("parent type is changing to",type);
+  //       if (!goog.isArray(type) && areaType != 'EITHER' && areaType != type) {
+  //         // call blocks are going to be kicked out.  
+  //         // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
+  //         numBumped.push(callers[i]);
+  //         // If the call block is in a collapsed stack, find the collapsed parent and expand them.
+  //         var topBlock = callers[i].collapsedParents();
+  //         if (topBlock)
+  //           for (var j=0; j < topBlock.length; j++) 
+  //             topBlock[j].setCollapsed(false); 
+  //       }
+  //       else notBumped.push(callers[i]);  
+  //     }
+  //   }
+
+  //   if (numBumped.length) {
+  //     var text = '';
+  //     // text += numBumped.length + " ";
+  //     // took out the name so I wouldn't have to deal with renaming the proc.
+  //     //text += this.getFieldValue('NAME') + " ";
+  //     text += Blockscad.Msg.BLOCKS_BUMPED_OUT_DIMENSIONS.replace("%1", numBumped.length);
+  //     this.setWarningText(text);
+  //   }
+
+  //   this.myType_ = type;
+
+
+
+  //   // some of my callers don't need to be bumped.  I'll set their category to "BLAH"
+  //   // temporarily (note this is NOT a valid category),
+  //   // reset the types of the blocks around them, then set them to their new type.  
+  //   // this should prevent them getting bumped out incorrectly.
+
+  //   // if (notBumped.length) {
+  //   //   for (var j = 0; j < notBumped.length; j++) {
+  //   //     notBumped[j].category = 'BLAH';
+  //   //     notBumped[j].previousConnection.setCheck(['CSG','CAG']);
+  //   //   }
+  //   //   for (j = 0; j < notBumped.length; j++) {
+  //   //     console.log("in proc set_type, calling assignBT with BLAH");
+  //   //     this.myType_ = type;
+  //   //     Blockscad.assignBlockTypes([notBumped[j]]);
+  //   //   }
+  //   // }
+
+  //   // this section actually re-sets the type that triggers the bumping.  This needs to be done before backlighting.
+  //   // to make undo work, I need to set the group of the next events.
+
+
+  //   if (numBumped.length) {
+
+  //     // console.log("firing events now - something should have been bumped");
+  //     // lets get the group event
+  //     var eventGroup = true;
+  //     if (Blockscad.workspace.undoStack_.length) 
+  //       eventGroup = Blockscad.workspace.undoStack_[Blockscad.workspace.undoStack_.length - 1].group;
+  //     // console.log("event group is: ", eventGroup);
+  //     Blockly.Events.setGroup(eventGroup);
+  //   }
+
+
+  //   if (callers.length > 0) {
+  //     for (var i = 0; i < callers.length; i++) {
+  //       callers[i].previousConnection.setCheck(type);
+  //       // if I'm bumping something, I need to put the typing event into the undoStack_
+  //       // so that on undo the caller doesn't get immediately bumped out again!
+  //       // So first I set the check (which will prompt the bump) THEN fire the type event
+  //       // so that when it is run backwards I untype first then move back into place.
+  //       if (Blockly.Events.isEnabled() && numBumped.length) {
+  //         Blockly.Events.fire(new Blockly.Events.Typing(callers[i], oldtype,type));
+  //       }
+  //       if (type == 'CSG')
+  //         callers[i].category = 'PRIMITIVE_CSG'
+  //       else if (type == 'CAG')
+  //         callers[i].category = 'PRIMITIVE_CAG';
+  //       else callers[i].category = 'UNKNOWN';
+  //       // if the top block isn't the procedure definition (recursion!), then assign their types
+  //       var topBlock = callers[i].getRootBlock();
+  //       if (!(topBlock.category && topBlock.category == 'PROCEDURE')) {
+  //         console.log("calling assignBlockTypes from proc ST (this is prob the bad one");
+  //         this.myType_ = type;
+  //         Blockscad.assignBlockTypes([callers[i]]);
+  //       }
+  //     }
+  //   }
+  //   // // the system will be done now with unplugging all the blocks that need it.  
+  //   // set the backlighting and warning message here (with a delay) so that the events that occur during the 
+  //   // bumping don't overwrite the backlighting of the caller blocks.
+
+  //   for (var k = 0; k < numBumped.length; k++) {
+  //     numBumped[k].backlight();
+  //     this.backlightBlocks.push(numBumped[k].id);
+  //   }
+
+  //   if (numBumped.length) {
+  //     // Blockly.Events.Filter
+  //     Blockly.Events.setGroup(false);
+  //   }
+
+  //   // events aren't all getting the group setting.  Walk back through the undoStack_ and make sure the group is set.
+
+  //   // for (var i = Blockscad.workspace.undoStack_.length - 1; i > 0; i--) {
+  //   //   if 
+  //   // }
+  //   this.myType_ = type;
+
+  // },        // end for blocksCAD
+  // // for BlocksCAD - check to see if my callers are still backlight?
+  // onchange: function() {
+  //   var found_it;
+  //   // go through my backlight id list, see if I have any blocks on it that are not on 
+  //   // the general backlight list (they must have been unhighlighted!)
+  //   for (var i=0; i < this.backlightBlocks.length; i++) {
+  //     found_it = 0;
+  //     for (var j=0; j<Blockly.backlight.length; j++) {
+  //       if (this.backlightBlocks[i] === Blockly.backlight[j]) {
+  //         found_it = 1;
+  //         break;
+  //       }
+  //     }
+  //     if (!found_it) {  // this block needs to come off our list
+  //       this.backlightBlocks.splice(i,1);
+  //     }
+  //   }
+  //   if (!this.backlightBlocks.length) {
+  //     // console.log("turning off warning text");
+  //     this.setWarningText(null);
+  //   } 
+  // },
+
+  // second stab at setType.
+  setType: function(type, drawMe) {
     if (!this.workspace) {
       // Block has been deleted.
       return;
     }
-    if (this.myType_ == type)
+    // console.log("starting proc ST with oldtype:" + this.myType_ + " and newtype:" + type);
+    // console.log("arrays: " + goog.isArray(this.myType_) + ', ' + goog.isArray(type));
+    if (!goog.isArray(type))
+      type = [type];
+    // compare to see if type matches this.myType_
+
+    if (Blockscad.arraysEqual(type, this.myType_))
       return;
+
+    // console.log("in modules's setType");
+
+    var oldtype = this.myType_;
     var callers = Blockly.Procedures.getCallers(this.getFieldValue('NAME'), this.workspace);
     var numBumped = [];
-    var notBumped = [];
 
-    // I need to find out what my caller stacks think their types are.
+    // first, set my type (the module definition's type)
+    this.myType_ = type;
+
+    // start grouping events in case some blocks are bumped out, so that undo will work easily.
+    var eventGroup = true;
+    if (Blockscad.workspace.undoStack_.length) 
+      eventGroup = Blockscad.workspace.undoStack_[Blockscad.workspace.undoStack_.length - 1].group;
+    // console.log("event group is: ", eventGroup);
+    Blockly.Events.setGroup(eventGroup);
+
+    // now, set my caller block's types
     if (callers.length) {
       for (var i = 0; i < callers.length; i++) {
+        // find what the type is of the stack the caller is in.
         var areaType = Blockscad.findBlockType(callers[i],callers);
-        //console.log("caller area type is",areaType);
-        //console.log("caller category is", callers[i].category);
-       // console.log("parent type is changing to",type);
-        if (!goog.isArray(type) && areaType != 'EITHER' && areaType != type) {
-          // call blocks are going to be kicked out.  
-          //console.log("warning message!  call block id", callers[i].id, "will be kicked out");
+        // if the stack's type doesn't match the caller's new type, bumpage!
+        // mark that block that will be bumped
+        if (areaType != 'EITHER' && areaType != type[0]) {
+          // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
           numBumped.push(callers[i]);
-          callers[i].backlight();
-          this.backlightBlocks.push(callers[i].id);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
           var topBlock = callers[i].collapsedParents();
           if (topBlock)
             for (var j=0; j < topBlock.length; j++) 
               topBlock[j].setCollapsed(false); 
         }
-        else notBumped.push(callers[i]);
-      }
-    }
 
-    if (numBumped.length) {
+        // change caller's type - this is the command that actually prompts Blockly to bump blocks out
+        callers[i].previousConnection.setCheck(type);
+        // if it was a bumping change, fire a typing event
+        if (Blockly.Events.isEnabled() && numBumped.length) {
+          Blockly.Events.fire(new Blockly.Events.Typing(callers[i], oldtype,type));
+        }
+        // procedure callers also have a "category" because once typed they are a shape
+        // CSG, CAG, or UNKNOWN.
+        if (type[0] == 'CSG' && type.length == 1)
+          callers[i].category = 'PRIMITIVE_CSG'
+        else if (type[0] == 'CAG')
+          callers[i].category = 'PRIMITIVE_CAG';
+        else callers[i].category = 'UNKNOWN';
+
+        // if caller is inside of another setter block, that setter's type needs to be changed.  Do so.
+        // note that this can lead to an infinite loop if procedures are circularly defined - that is why
+        // setType MUST exit immediately if it is called with the type not changing.
+
+        // what if a parent is a variables_set of a different variable?
+        // then I want to call Blockscad.assignVarTypes for that parent.
+        var setterParent = Blockscad.hasParentOfType(callers[i], "procedures_defnoreturn");
+        if (setterParent) {
+          setTimeout(function() {
+            // console.log("this caller is inside a setter: ", setterParent.id);
+            if (setterParent) setterParent.setType(type);
+          }, 0);
+        }
+        // if the caller was inside a non setter, I still want to type that parent.
+        var parent = callers[i].getParent();
+        if (parent) {
+          Blockscad.assignBlockTypes(parent)
+        }
+      }
+    } // end of going through all callers to set their types.
+
+    // turn off event grouping
+    Blockly.Events.setGroup(false);
+
+    // handle backlighting and warning text - do this later so that 
+    // the bumping process itself (which now selects and deselects the blocks) doesn't
+    // just immediately turn the backlighting off.
+
+    for (var k = 0; k < numBumped.length; k++) {
+      // console.log("backlighting a block:", numBumped[k].id);
+      numBumped[k].backlight();
+      this.backlightBlocks.push(numBumped[k].id);
+      // finally, set a warning message on the procedure definition that counts how many callers were bumped.
       var text = '';
-      // text += numBumped.length + " ";
-      // took out the name so I wouldn't have to deal with renaming the proc.
-      //text += this.getFieldValue('NAME') + " ";
       text += Blockscad.Msg.BLOCKS_BUMPED_OUT_DIMENSIONS.replace("%1", numBumped.length);
       this.setWarningText(text);
     }
-
-    this.myType_ = type;
-
-    // some of my callers don't need to be bumped.  I'll set their category to "BLAH"
-    // temporarily (note this is NOT a valid category),
-    // reset the types of the blocks around them, then set them to their new type.  
-    // this should prevent them getting bumped out incorrectly.
-
-    if (notBumped.length) {
-      for (var j = 0; j < notBumped.length; j++) {
-        notBumped[j].category = 'BLAH';
-        notBumped[j].previousConnection.setCheck(['CSG','CAG']);
-      }
-      for (j = 0; j < notBumped.length; j++) {
-        Blockscad.assignBlockTypes([notBumped[j]]);
-      }
-    }
-
-    if (callers.length > 0) {
-      for (var i = 0; i < callers.length; i++) {
-        callers[i].previousConnection.setCheck(type);
-        if (type == 'CSG')
-          callers[i].category = 'PRIMITIVE_CSG'
-        else if (type == 'CAG')
-          callers[i].category = 'PRIMITIVE_CAG';
-        else callers[i].category = 'UNKNOWN';
-        // if the top block isn't the procedure definition (recursion!), then assign their types
-        var topBlock = callers[i].getRootBlock();
-        if (!(topBlock.category && topBlock.category == 'PROCEDURE'))
-          Blockscad.assignBlockTypes([callers[i]]);
-      }
-    }
-    // the system will be done now with unplugging all the blocks that need it.  
-    // Time to fire a workspaceChanged() so our list of parentIDs will be current.
-    if (numBumped.length)
-      Blockscad.workspaceChanged();
-  },        // end for blocksCAD
-  // for BlocksCAD - check to see if my callers are still backlight?
-  onchange: function() {
-    var found_it = 0;
-    // go through my backlight id list, see if I have any blocks on it that are not on 
-    // the general backlight list (they must have been unhighlighted!)
-    for (var i=0; i < this.backlightBlocks.length; i++) {
-      found_it = 0;
-      for (var j=0; j<Blockly.backlight.length; j++) {
-        if (this.backlightBlocks[i] === Blockly.backlight[j]) {
-          found_it = 1;
-          break;
-        }
-      }
-      if (!found_it) {  // this block needs to come off our list
-        this.backlightBlocks.splice(i,1);
-      }
-    }
-    if (!this.backlightBlocks.length) {
-      this.setWarningText(null);
-    } 
   },
-
   /**
    * Add or remove the statement block from this function definition.
    * @param {boolean} hasStatements True if a statement block is needed.
@@ -209,18 +360,33 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       paramString = Blockly.Msg.PROCEDURES_BEFORE_PARAMS +
           ' ' + this.arguments_.join(', ');
     }
-    this.setFieldValue(paramString, 'PARAMS');
+    // The params field is deterministic based on the mutation,
+    // no need to fire a change event.
+    Blockly.Events.disable();
+    try {
+      this.setFieldValue(paramString, 'PARAMS');
+    } finally {
+      Blockly.Events.enable();
+    }
   },
   /**
    * Create XML to represent the argument inputs.
+   * @param {=boolean} opt_paramIds If true include the IDs of the parameter
+   *     quarks.  Used by Blockly.Procedures.mutateCallers for reconnection.
    * @return {!Element} XML storage element.
    * @this Blockly.Block
    */
-  mutationToDom: function() {
+  mutationToDom: function(opt_paramIds) {
     var container = document.createElement('mutation');
+    if (opt_paramIds) {
+      container.setAttribute('name', this.getFieldValue('NAME'));
+    }
     for (var i = 0; i < this.arguments_.length; i++) {
       var parameter = document.createElement('arg');
       parameter.setAttribute('name', this.arguments_[i]);
+      if (opt_paramIds && this.paramIds_) {
+        parameter.setAttribute('paramId', this.paramIds_[i]);
+      }
       container.appendChild(parameter);
     }
 
@@ -243,6 +409,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       }
     }
     this.updateParams_();
+    Blockly.Procedures.mutateCallers(this);
 
     // Show or hide the statement input.
     this.setStatements_(xmlElement.getAttribute('statements') !== 'false');
@@ -254,8 +421,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
    * @this Blockly.Block
    */
   decompose: function(workspace) {
-    var containerBlock = Blockly.Block.obtain(workspace,
-                                              'procedures_mutatorcontainer');
+    var containerBlock = workspace.newBlock('procedures_mutatorcontainer');
     containerBlock.initSvg();
 
     // Check/uncheck the allow statement box.
@@ -269,7 +435,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     // Parameter list.
     var connection = containerBlock.getInput('STACK').connection;
     for (var i = 0; i < this.arguments_.length; i++) {
-      var paramBlock = Blockly.Block.obtain(workspace, 'procedures_mutatorarg');
+      var paramBlock = workspace.newBlock('procedures_mutatorarg');
       paramBlock.initSvg();
       paramBlock.setFieldValue(this.arguments_[i], 'NAME');
       // Store the old location.
@@ -278,8 +444,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       connection = paramBlock.nextConnection;
     }
     // Initialize procedure's callers with blank IDs.
-    Blockly.Procedures.mutateCallers(this.getFieldValue('NAME'),
-                                     this.workspace, this.arguments_, null);
+    Blockly.Procedures.mutateCallers(this);
     return containerBlock;
   },
   /**
@@ -299,8 +464,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
           paramBlock.nextConnection.targetBlock();
     }
     this.updateParams_();
-    Blockly.Procedures.mutateCallers(this.getFieldValue('NAME'),
-        this.workspace, this.arguments_, this.paramIds_);
+    Blockly.Procedures.mutateCallers(this);
 
     // Show/hide the statement input.
     var hasStatements = containerBlock.getFieldValue('STATEMENTS');
@@ -310,40 +474,21 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         if (hasStatements) {
           this.setStatements_(true);
           // Restore the stack, if one was saved.
-          var stackConnection = this.getInput('STACK').connection;
-          if (stackConnection.targetConnection ||
-              !this.statementConnection_ ||
-              this.statementConnection_.targetConnection ||
-              this.statementConnection_.sourceBlock_.workspace !=
-              this.workspace) {
-            // Block no longer exists or has been attached elsewhere.
-            this.statementConnection_ = null;
-          } else {
-            stackConnection.connect(this.statementConnection_);
-          }
+          Blockly.Mutator.reconnect(this.statementConnection_, this, 'STACK');
+          this.statementConnection_ = null;
         } else {
           // Save the stack, then disconnect it.
           var stackConnection = this.getInput('STACK').connection;
           this.statementConnection_ = stackConnection.targetConnection;
           if (this.statementConnection_) {
             var stackBlock = stackConnection.targetBlock();
-            stackBlock.setParent(null);
+            stackBlock.unplug();
             stackBlock.bumpNeighbours_();
           }
           this.setStatements_(false);
         }
       }
     }
-  },
-  /**
-   * Dispose of any callers.
-   * @this Blockly.Block
-   */
-  dispose: function() {
-    var name = this.getFieldValue('NAME');
-    Blockly.Procedures.disposeCallers(name, this.workspace);
-    // Call parent's destructor.
-    this.constructor.prototype.dispose.apply(this, arguments);
   },
   /**
    * Return the signature of this procedure definition.
@@ -354,6 +499,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
    * @this Blockly.Block
    */
   getProcedureDef: function() {
+    // console.log("in getProcedureDef for noreturn for:",this.getFieldValue('NAME'));
     return [this.getFieldValue('NAME'), this.arguments_, false];
   },
   /**
@@ -462,16 +608,14 @@ Blockly.Blocks['procedures_defreturn'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFRETURN_HELPURL);
-    this.category = 'PROCEDURE'; // for blockscad
-    this.myType_ = null;       // for blocksCAD
+    this.category = 'PROCEDURE';    // for blockscad
+    this.myType_ = null;            // for blocksCAD
+    this.backlightBlocks = [];      // for blocksCAD
 
-    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
-    var name = Blockly.Procedures.findLegalName(
-        Blockly.Msg.PROCEDURES_DEFRETURN_PROCEDURE, this);
-    var nameField = new Blockly.FieldTextInput(name,
+    var nameField = new Blockly.FieldTextInput(
+        Blockly.Msg.PROCEDURES_DEFRETURN_PROCEDURE,
         Blockly.Procedures.rename);
-    //nameField.setSpellcheck(false);
+    nameField.setSpellcheck(false);
     this.appendDummyInput()
         .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_TITLE)
         .appendField(nameField, 'NAME')
@@ -480,7 +624,9 @@ Blockly.Blocks['procedures_defreturn'] = {
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_RETURN);
     this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
+    this.setColour(Blockscad.Toolbox.HEX_PROCEDURE);
     this.setTooltip(Blockly.Msg.PROCEDURES_DEFRETURN_TOOLTIP);
+    this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFRETURN_HELPURL);
     this.arguments_ = [];
     this.setStatements_(false);         // set false for blockscad - jayod
     this.statementConnection_ = null;
@@ -490,84 +636,236 @@ Blockly.Blocks['procedures_defreturn'] = {
    * type of this procedure, then update types of any callers..
    * @this Blockly.Block
    */
-  setType: function(type,drawMe) {      // for blocksCAD
+  // setType: function(type,drawMe) {      // for blocksCAD
+  //   if (!this.workspace) {
+  //     // Block has been deleted.
+  //     return;
+  //   }
+  //   var ret = this.getInput('RETURN');
+  //   console.log("in setType for function. here is the input:",ret);
+  //   if (ret.connection.targetConnection) {
+  //     if (ret.connection.targetConnection.check_ == 'Number')
+  //       this.myType_ = ret.connection.check_ = 'Number';
+  //     else if (ret.connection.targetConnection.check_ == 'Boolean')
+  //       this.myType_ = ret.connection.check_ = 'Boolean';
+  //   }
+  //   else this.myType_ = ret.connection.check_ = null;
+
+  //   var callers = Blockly.Procedures.getCallers(this.getFieldValue('NAME'), this.workspace);
+  //   var numBumped = [];
+  //   var conType = null;
+
+  //   // I need to find out what my caller stacks think their types are.
+  //   if (callers.length) {
+  //     for (var i = 0; i < callers.length; i++) {
+  //       // console.log("callers.length is:",callers.length);
+  //       // get caller's connection type here
+  //       if (callers[i].outputConnection.targetConnection)
+  //         conType = callers[i].outputConnection.targetConnection.check_;
+
+  //       if (!goog.isArray(conType)) conType = [conType];
+  //       // conType is an array.  
+  //       // console.log("caller type is",conType);
+  //       // console.log(this.myType_);
+  //     if (this.myType_ && conType && conType.indexOf(this.myType_) == -1) {
+
+  //         // call blocks are going to be kicked out.  
+  //         console.log("warning message!  call block id", callers[i].id, "will be kicked out");
+  //         // there is a bug here - if we add to the numBumped stack, then we get an infinite loop. ???
+  //         // if (numBumped[numBumped.length] != callers[i]) 
+  //         // numBumped.push(callers[i]);
+  //         // If the call block is in a collapsed stack, find the collapsed parent and expand them.
+  //         var topBlock = callers[i].collapsedParents();
+  //         if (topBlock)
+  //           for (var j=0; j < topBlock.length; j++)
+  //             topBlock[j].setCollapsed(false);
+  //       }
+  //     }
+  //   }
+  //   if (numBumped.length) {
+  //     // console.log("blah");
+  //     var text = '';
+  //     // text += numBumped.length + " ";
+  //     // text += this.getFieldValue('NAME') + " ";
+  //     text += Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES.replace("%1", numBumped.length + " " + this.getFieldValue('NAME'));
+
+  //     this.setWarningText(text);
+  //   }
+  //   if (callers.length > 0) {
+  //     for (var i = 0; i < callers.length; i++) {
+  //       callers[i].outputConnection.setCheck(this.myType_); 
+  //       if (this.myType_ == 'Number')
+  //         callers[i].category = 'NUMBER'
+  //       else if (this.myType_ == 'Boolean')
+  //         callers[i].category = 'BOOLEAN';
+  //       else callers[i].category = 'UNKNOWN';
+  //       // console.log("tried to set caller type to ",this.myType_, callers[i]);
+  //     }
+  //   }
+  //   // the system will be done now with unplugging all the blocks that need it.  
+  //   // Time to fire a workspaceChanged() so our list of parentIDs will be current.
+  //   if (numBumped.length)
+  //     Blockscad.workspaceChanged();
+  // },    // end for blocksCAD 
+  // second stab at setType.
+  setType: function(type, drawMe) {
     if (!this.workspace) {
       // Block has been deleted.
       return;
     }
+
+    // // compare to see if type matches this.myType_
+
+    var oldtype = this.myType_;
+
     var ret = this.getInput('RETURN');
     // console.log("in setType for function. here is the input:",ret);
     if (ret.connection.targetConnection) {
       if (ret.connection.targetConnection.check_ == 'Number')
-        this.myType_ = ret.connection.check_ = 'Number';
+        type = 'Number';
       else if (ret.connection.targetConnection.check_ == 'Boolean')
-        this.myType_ = ret.connection.check_ = 'Boolean';
+        type = 'Boolean';
+      else if (ret.connection.targetConnection.check_ == 'String')
+        type = 'String';
+      else 
+        type = null;
     }
-    else this.myType_ = ret.connection.check_ = null;
+    else type = null;
+
+    // console.log("starting func ST with oldtype:" + this.myType_ + " and newtype:" + type);
+
+    if (this.myType_ == type) {
+      // console.log("in func ST.  returning because types didn't change.");
+      return;
+    }
+    // set the function def's type to what is now connected to its output
+    this.myType_ = type;
 
     var callers = Blockly.Procedures.getCallers(this.getFieldValue('NAME'), this.workspace);
     var numBumped = [];
-    var conType = null;
+    var conType = null;     // type of a caller's output connection
+    var parentAccepts;
 
-    // I need to find out what my caller stacks think their types are.
+    // start grouping events in case some blocks are bumped out, so that undo will work easily.
+    var eventGroup = true;
+    if (Blockscad.workspace.undoStack_.length) 
+      eventGroup = Blockscad.workspace.undoStack_[Blockscad.workspace.undoStack_.length - 1].group;
+    // console.log("event group is: ", eventGroup);
+    Blockly.Events.setGroup(eventGroup);
+
+    // now, set my caller block's types
     if (callers.length) {
       for (var i = 0; i < callers.length; i++) {
-        // console.log("callers.length is:",callers.length);
+        // the caller block only gets bumped if it has a parent.
+        var parent = callers[i].getParent();
         // get caller's connection type here
-        if (callers[i].outputConnection.targetConnection)
-          conType = callers[i].outputConnection.targetConnection.check_;
+        if (parent) {
+          // console.log("found instance with parent: ", parent.type);
+          parentAccepts = callers[i].outputConnection.targetConnection.check_;
 
-        if (!goog.isArray(conType)) conType = [conType];
-        // conType is an array.  
-        // console.log("caller type is",conType);
-        // console.log(this.myType_);
-      if (this.myType_ && conType && conType.indexOf(this.myType_) == -1) {
+          // make sure that parentAccepts is an array so that we can check for a match
 
-          // call blocks are going to be kicked out.  
-          console.log("warning message!  call block id", callers[i].id, "will be kicked out");
-          // there is a bug here - if we add to the numBumped stack, then we get an infinite loop. ???
-          // if (numBumped[numBumped.length] != callers[i]) 
-          // numBumped.push(callers[i]);
-          // If the call block is in a collapsed stack, find the collapsed parent and expand them.
-          var topBlock = callers[i].collapsedParents();
-          if (topBlock)
-            for (var j=0; j < topBlock.length; j++)
-              topBlock[j].setCollapsed(false);
+          if (parentAccepts == null) 
+            parentAccepts = [];
+          else if (!goog.isArray(parentAccepts)) 
+            parentAccepts = [parentAccepts];
+
+          var found_match = 0;
+          // check to see if my type matches any type accepted by the parent - if so, it will bump.
+          for (var j = 0; j < parentAccepts.length; j++) {
+            if (parentAccepts[j] == this.myType_) {
+              found_match = 1;
+            }
+          }
+          if (!found_match) {
+            // I have a type mismatch with this variable.  it is going to be bumped.
+            // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
+            numBumped.push(callers[i]);
+            // instances[i].backlight();
+            // this.backlightBlocks.push(instances[i].id);
+            // if the instance is in a collapsed stack, find collapsed parent and expand
+            var topBlock = callers[i].collapsedParents();
+            if (topBlock)
+              for (var j = 0; j < topBlock.length; j++)
+                topBlock[j].setCollapsed(false);
+          }
+
+        }  // end if (parent)
+
+        // change caller's type - this is the command that actually prompts Blockly to bump blocks out
+
+        // console.log("Set the caller's output check to ", this.myType_);
+
+        if (callers[i]) {
+          callers[i].outputConnection.setCheck(this.myType_);
+          if (this.myType_ == 'Number')
+            callers[i].category = 'NUMBER'
+          else if (this.myType_ == 'Boolean')
+            callers[i].category = 'BOOLEAN';
+          else if (this.myType_ == 'String')
+            callers[i].category = 'STRING';
+          else {
+            callers[i].category = 'UNKNOWN';
+            // console.log("function caller with type UNKNOWN");
+          }
+        }
+        // console.log("tried to set caller type to ",this.myType_, callers[i]);
+        // if it was a bumping change, fire a typing event
+        // if (Blockly.Events.isEnabled() && numBumped.length) {
+        //   Blockly.Events.fire(new Blockly.Events.Typing(callers[i], oldtype,type));
+        // }
+
+        // if caller is inside of another setter block, that setter's type needs to be changed.  Do so.
+        // note that this can lead to an infinite loop if procedures are circularly defined - that is why
+        // setType MUST exit immediately if it is called with the type not changing.
+
+        // what if a parent is a variables_set of a different variable?
+        // then I want to call Blockscad.assignVarTypes for that parent.
+
+        // console.log("trying to call hasParentOfType",callers[i]);
+        var setterParent = Blockscad.hasParentOfType(callers[i], "procedures_defreturn");
+        if (!setterParent)
+          setterParent = Blockscad.hasParentOfType(callers[i],"variables_set");
+        if (setterParent) {
+          setTimeout(function() {
+            // console.log("this caller function is inside a setter.  Set its type to: ",type);
+            setterParent.setType(type);
+          }, 0);
+        }
+        else {
+          // if the caller was inside a non setter, I still want to type that parent.
+          var parent = false;
+          if (callers[i])
+            parent = callers[i].getParent();
+          if (parent) {
+            Blockscad.assignBlockTypes(parent)
+          }
         }
       }
-    }
-    if (numBumped.length) {
-      // console.log("blah");
-      var text = '';
-      // text += numBumped.length + " ";
-      // text += this.getFieldValue('NAME') + " ";
-      text += Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES.replace("%1", numBumped.length + " " + this.getFieldValue('NAME'));
+    } // end of going through all callers to set their types.
 
+    // turn off event grouping
+    Blockly.Events.setGroup(false);
+
+    // handle backlighting and warning text - do this later so that 
+    // the bumping process itself (which now selects and deselects the blocks) doesn't
+    // just immediately turn the backlighting off.
+
+    for (var k = 0; k < numBumped.length; k++) {
+      numBumped[k].backlight();
+      this.backlightBlocks.push(numBumped[k].id);
+      // finally, set a warning message on the procedure definition that counts how many callers were bumped.
+      var text = '';
+      text += Blockscad.Msg.BLOCKS_BUMPED_OUT_TYPES.replace("%1", numBumped.length).replace("%2", parentAccepts).replace("%3",type);
       this.setWarningText(text);
     }
-    if (callers.length > 0) {
-      for (var i = 0; i < callers.length; i++) {
-        callers[i].outputConnection.setCheck(this.myType_); 
-        if (this.myType_ == 'Number')
-          callers[i].category = 'NUMBER'
-        else if (this.myType_ == 'Boolean')
-          callers[i].category = 'BOOLEAN';
-        else callers[i].category = 'UNKNOWN';
-        // console.log("tried to set caller type to ",this.myType_, callers[i]);
-      }
-    }
-    // the system will be done now with unplugging all the blocks that need it.  
-    // Time to fire a workspaceChanged() so our list of parentIDs will be current.
-    if (numBumped.length)
-      Blockscad.workspaceChanged();
-  },    // end for blocksCAD 
+  },
   setStatements_: Blockly.Blocks['procedures_defnoreturn'].setStatements_,
   updateParams_: Blockly.Blocks['procedures_defnoreturn'].updateParams_,
   mutationToDom: Blockly.Blocks['procedures_defnoreturn'].mutationToDom,
   domToMutation: Blockly.Blocks['procedures_defnoreturn'].domToMutation,
   decompose: Blockly.Blocks['procedures_defnoreturn'].decompose,
   compose: Blockly.Blocks['procedures_defnoreturn'].compose,
-  dispose: Blockly.Blocks['procedures_defnoreturn'].dispose,
   /**
    * Return the signature of this procedure definition.
    * @return {!Array} Tuple containing three elements:
@@ -591,7 +889,7 @@ Blockly.Blocks['procedures_mutatorcontainer'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
+    this.setColour(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput()
         .appendField(Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE);
     this.appendStatementInput('STACK');
@@ -609,7 +907,7 @@ Blockly.Blocks['procedures_mutatorarg'] = {
    * @this Blockly.Block
    */
   init: function() {
-    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
+    this.setColour(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput()
         .appendField(Blockly.Msg.PROCEDURES_MUTATORARG_TITLE)
         .appendField(new Blockly.FieldTextInput('x', this.validator_), 'NAME');
@@ -641,30 +939,32 @@ Blockly.Blocks['procedures_callnoreturn'] = {
   init: function() {
     this.category = 'UNKNOWN';     // for blocksCAD
     this.setHelpUrl(Blockly.Msg.PROCEDURES_CALLNORETURN_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
+    this.setColour(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput('TOPROW')
-        .appendField(Blockly.Msg.PROCEDURES_CALLNORETURN_CALL)
-        .appendField('', 'NAME');
+        .appendField(this.id, 'NAME');
     this.setPreviousStatement(true);
     //this.setNextStatement(true);  // for Blockscad, we don't want this to have a next.  Breaks difference.
     // Tooltip is set in domToMutation.
     this.arguments_ = [];
     this.quarkConnections_ = {};
-    this.quarkArguments_ = null;
+    this.quarkIds_ = null;
+    this.setType();
   },
   /**
-   * on being added, this will be called to get the parent procedure type for BlocksCAD
+   * on being added, this will be called to set the parent procedure type for BlocksCAD
    */
-  getType: function() {     // for blockscad - jayod
-    var parent = Blockly.Procedures.getDefinition(this.getFieldValue('NAME'),this.workspace);
+  setType: function() {     // for blockscad - jayod
+    var parent = Blockly.Procedures.getDefinition(this.getProcedureCall(),this.workspace);
+    // console.log("in caller's setType func.  defined by: ",parent);
     if (parent) {
       var myType = parent.myType_;
+      // console.log("found a parent procedure with type: ",parent.myType_);
       if (myType) {
         this.previousConnection.setCheck(myType);
         //this.nextConnection.setCheck(myType);   // no more next connection
-        if (myType == 'CSG')
+        if (myType == 'CSG' || myType == ['CSG'])
           this.category = 'PRIMITIVE_CSG'
-        else if (myType == 'CAG')
+        else if (myType == 'CAG' || myType == ['CAG'])
           this.category = 'PRIMITIVE_CAG';
         else this.category = 'UNKNOWN'; 
       }
@@ -701,74 +1001,81 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    * @param {!Array.<string>} paramIds IDs of params (consistent for each
    *     parameter through the life of a mutator, regardless of param renaming),
    *     e.g. ['piua', 'f8b_', 'oi.o'].
+   * @private
    * @this Blockly.Block
    */
-  setProcedureParameters: function(paramNames, paramIds) {
+  setProcedureParameters_: function(paramNames, paramIds) {
     // Data structures:
     // this.arguments = ['x', 'y']
     //     Existing param names.
     // this.quarkConnections_ {piua: null, f8b_: Blockly.Connection}
     //     Look-up of paramIds to connections plugged into the call block.
-    // this.quarkArguments_ = ['piua', 'f8b_']
+    // this.quarkIds_ = ['piua', 'f8b_']
     //     Existing param IDs.
     // Note that quarkConnections_ may include IDs that no longer exist, but
     // which might reappear if a param is reattached in the mutator.
+    var defBlock = Blockly.Procedures.getDefinition(this.getProcedureCall(),
+        this.workspace);
+    var mutatorOpen = defBlock && defBlock.mutator &&
+        defBlock.mutator.isVisible();
+    if (!mutatorOpen) {
+      this.quarkConnections_ = {};
+      this.quarkIds_ = null;
+    }
     if (!paramIds) {
       // Reset the quarks (a mutator is about to open).
-      this.quarkConnections_ = {};
-      this.quarkArguments_ = null;
       return;
     }
     if (goog.array.equals(this.arguments_, paramNames)) {
       // No change.
-      this.quarkArguments_ = paramIds;
+      this.quarkIds_ = paramIds;
       return;
     }
-    this.setCollapsed(false);
     if (paramIds.length != paramNames.length) {
       throw 'Error: paramNames and paramIds must be the same length.';
     }
-    if (!this.quarkArguments_) {
+    this.setCollapsed(false);
+    if (!this.quarkIds_) {
       // Initialize tracking for this block.
       this.quarkConnections_ = {};
       if (paramNames.join('\n') == this.arguments_.join('\n')) {
         // No change to the parameters, allow quarkConnections_ to be
         // populated with the existing connections.
-        this.quarkArguments_ = paramIds;
+        this.quarkIds_ = paramIds;
       } else {
-        this.quarkArguments_ = [];
+        this.quarkIds_ = [];
       }
     }
     // Switch off rendering while the block is rebuilt.
     var savedRendered = this.rendered;
     this.rendered = false;
     // Update the quarkConnections_ with existing connections.
-    for (var i = this.arguments_.length - 1; i >= 0; i--) {
+    for (var i = 0; i < this.arguments_.length; i++) {
       var input = this.getInput('ARG' + i);
       if (input) {
         var connection = input.connection.targetConnection;
-        this.quarkConnections_[this.quarkArguments_[i]] = connection;
-        // Disconnect all argument blocks and remove all inputs.
-        this.removeInput('ARG' + i);
+        this.quarkConnections_[this.quarkIds_[i]] = connection;
+        if (mutatorOpen && connection &&
+            paramIds.indexOf(this.quarkIds_[i]) == -1) {
+          // This connection should no longer be attached to this block.
+          connection.disconnect();
+          connection.getSourceBlock().bumpNeighbours_();
+        }
       }
     }
     // Rebuild the block's arguments.
     this.arguments_ = [].concat(paramNames);
-    this.renderArgs_();
-    this.quarkArguments_ = paramIds;
+    this.updateShape_();
+    this.quarkIds_ = paramIds;
     // Reconnect any child blocks.
-    if (this.quarkArguments_) {
+    if (this.quarkIds_) {
       for (var i = 0; i < this.arguments_.length; i++) {
-        var input = this.getInput('ARG' + i);
-        var quarkName = this.quarkArguments_[i];
-        if (quarkName in this.quarkConnections_) {
-          var connection = this.quarkConnections_[quarkName];
-          if (!connection || connection.targetConnection ||
-              connection.sourceBlock_.workspace != this.workspace) {
+        var quarkId = this.quarkIds_[i];
+        if (quarkId in this.quarkConnections_) {
+          var connection = this.quarkConnections_[quarkId];
+          if (!Blockly.Mutator.reconnect(connection, this, 'ARG' + i)) {
             // Block no longer exists or has been attached elsewhere.
-            delete this.quarkConnections_[quarkName];
-          } else {
-            input.connection.connect(connection);
+            delete this.quarkConnections_[quarkId];
           }
         }
       }
@@ -780,28 +1087,48 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     }
   },
   /**
-   * Render the arguments.
-   * @this Blockly.Block
+   * Modify this block to have the correct number of arguments.
    * @private
+   * @this Blockly.Block
    */
-  renderArgs_: function() {
+  updateShape_: function() {
     for (var i = 0; i < this.arguments_.length; i++) {
-      var input = this.appendValueInput('ARG' + i)
-          .setAlign(Blockly.ALIGN_RIGHT)
-          .appendField(this.arguments_[i]);
-      input.init();
+      var field = this.getField('ARGNAME' + i);
+      if (field) {
+        // Ensure argument name is up to date.
+        // The argument name field is deterministic based on the mutation,
+        // no need to fire a change event.
+        Blockly.Events.disable();
+        try {
+          field.setValue(this.arguments_[i]);
+        } finally {
+          Blockly.Events.enable();
+        }
+      } else {
+        // Add new input.
+        field = new Blockly.FieldLabel(this.arguments_[i]);
+        var input = this.appendValueInput('ARG' + i)
+            .setAlign(Blockly.ALIGN_RIGHT)
+            .appendField(field, 'ARGNAME' + i);
+        input.init();
+      }
     }
-    // Add 'with:' if there are parameters.
-    var input = this.getInput('TOPROW');
-    if (input) {
+    // Remove deleted inputs.
+    while (this.getInput('ARG' + i)) {
+      this.removeInput('ARG' + i);
+      i++;
+    }
+    // Add 'with:' if there are parameters, remove otherwise.
+    var topRow = this.getInput('TOPROW');
+    if (topRow) {
       if (this.arguments_.length) {
         if (!this.getField('WITH')) {
-          input.appendField(Blockly.Msg.PROCEDURES_CALL_BEFORE_PARAMS, 'WITH');
-          input.init();
+          topRow.appendField(Blockly.Msg.PROCEDURES_CALL_BEFORE_PARAMS, 'WITH');
+          topRow.init();
         }
       } else {
         if (this.getField('WITH')) {
-          input.removeField('WITH');
+          topRow.removeField('WITH');
         }
       }
     }
@@ -828,25 +1155,16 @@ Blockly.Blocks['procedures_callnoreturn'] = {
    */
   domToMutation: function(xmlElement) {
     var name = xmlElement.getAttribute('name');
-    this.setFieldValue(name, 'NAME');
-    this.setTooltip(
-        (this.outputConnection ? Blockly.Msg.PROCEDURES_CALLRETURN_TOOLTIP :
-         Blockly.Msg.PROCEDURES_CALLNORETURN_TOOLTIP).replace('%1', name));
-    var def = Blockly.Procedures.getDefinition(name, this.workspace);
-    if (def && def.mutator && def.mutator.isVisible()) {
-      // Initialize caller with the mutator's IDs.
-      this.setProcedureParameters(def.arguments_, def.paramIds_);
-    } else {
-      var args = [];
-      for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
-        if (childNode.nodeName.toLowerCase() == 'arg') {
-          args.push(childNode.getAttribute('name'));
-        }
+    this.renameProcedure(this.getProcedureCall(), name);
+    var args = [];
+    var paramIds = [];
+    for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
+      if (childNode.nodeName.toLowerCase() == 'arg') {
+        args.push(childNode.getAttribute('name'));
+        paramIds.push(childNode.getAttribute('paramId'));
       }
-      // For the second argument (paramIds) use the arguments list as a dummy
-      // list.
-      this.setProcedureParameters(args, args);
     }
+    this.setProcedureParameters_(args, paramIds);
   },
   /**
    * Notification that a variable is renaming.
@@ -859,7 +1177,73 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     for (var i = 0; i < this.arguments_.length; i++) {
       if (Blockly.Names.equals(oldName, this.arguments_[i])) {
         this.arguments_[i] = newName;
-        this.getInput('ARG' + i).fieldRow[0].setText(newName);
+        this.getField('ARGNAME' + i).setValue(newName);
+      }
+    }
+  },
+  /**
+   * Procedure calls cannot exist without the corresponding procedure
+   * definition.  Enforce this link whenever an event is fired.
+   * @this Blockly.Block
+   */
+  onchange: function(event) {
+    if (!this.workspace || this.workspace.isFlyout) {
+      // Block is deleted or is in a flyout.
+      return;
+    }
+    if (event.type == Blockly.Events.CREATE &&
+        event.ids.indexOf(this.id) != -1) {
+      // Look for the case where a procedure call was created (usually through
+      // paste) and there is no matching definition.  In this case, create
+      // an empty definition block with the correct signature.
+      var name = this.getProcedureCall();
+      var def = Blockly.Procedures.getDefinition(name, this.workspace);
+      if (def && (def.type != this.defType_ ||
+          JSON.stringify(def.arguments_) != JSON.stringify(this.arguments_))) {
+        // The signatures don't match.
+        def = null;
+      }
+      if (!def) {
+        Blockly.Events.setGroup(event.group);
+        /**
+         * Create matching definition block.
+         * <xml>
+         *   <block type="procedures_defreturn" x="10" y="20">
+         *     <mutation name="test">
+         *       <arg name="x"></arg>
+         *     </mutation>
+         *     <field name="NAME">test</field>
+         *   </block>
+         * </xml>
+         */
+        var xml = goog.dom.createDom('xml');
+        var block = goog.dom.createDom('block');
+        block.setAttribute('type', this.defType_);
+        var xy = this.getRelativeToSurfaceXY();
+        var x = xy.x + Blockly.SNAP_RADIUS * (this.RTL ? -1 : 1);
+        var y = xy.y + Blockly.SNAP_RADIUS * 2;
+        block.setAttribute('x', x);
+        block.setAttribute('y', y);
+        var mutation = this.mutationToDom();
+        block.appendChild(mutation);
+        var field = goog.dom.createDom('field');
+        field.setAttribute('name', 'NAME');
+        field.appendChild(document.createTextNode(this.getProcedureCall()));
+        block.appendChild(field);
+        xml.appendChild(block);
+        Blockly.Xml.domToWorkspace(xml, this.workspace);
+        Blockly.Events.setGroup(false);
+      }
+    } else if (event.type == Blockly.Events.DELETE) {
+      // Look for the case where a procedure definition has been deleted,
+      // leaving this block (a procedure call) orphaned.  In this case, delete
+      // the orphan.
+      var name = this.getProcedureCall();
+      var def = Blockly.Procedures.getDefinition(name, this.workspace);
+      if (!def) {
+        Blockly.Events.setGroup(event.group);
+        this.dispose(true, false);
+        Blockly.Events.setGroup(false);
       }
     }
   },
@@ -876,7 +1260,8 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     option.callback = function() {
       var def = Blockly.Procedures.getDefinition(name, workspace);
       workspace.clearBacklight();
-      def && def.backlight();
+      // def && def.backlight();
+      def && def.select();
     };
     options.push(option);
 
@@ -903,7 +1288,8 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       }
     };
     options.push(option); 
-  }
+  },
+  defType_: 'procedures_defnoreturn'
 };
 
 Blockly.Blocks['procedures_callreturn'] = {
@@ -914,24 +1300,26 @@ Blockly.Blocks['procedures_callreturn'] = {
   init: function() {
     this.category = 'UNKNOWN';  // for blockscad - jayod
     this.setHelpUrl(Blockly.Msg.PROCEDURES_CALLRETURN_HELPURL);
-    this.setColourHex(Blockscad.Toolbox.HEX_PROCEDURE);
+    this.setColour(Blockscad.Toolbox.HEX_PROCEDURE);
     this.appendDummyInput('TOPROW')
-        .appendField(Blockly.Msg.PROCEDURES_CALLRETURN_CALL)
         .appendField('', 'NAME');
     this.setOutput(true);
     // Tooltip is set in domToMutation.
     this.arguments_ = [];
     this.quarkConnections_ = {};
-    this.quarkArguments_ = null;
+    this.quarkIds_ = null;
+    // set the initial type.
+    this.setType();
   },
    /**
    * on being added, this will be called to get the parent procedure type for BlocksCAD
    */
-  getType: function() {  // for blockscad - jayod
+  setType: function() {  // for blockscad - jayod
     var parent = Blockly.Procedures.getDefinition(this.getFieldValue('NAME'),this.workspace);
     if (parent) {
       var myType = parent.myType_;
       if (myType) {
+        // console.log("setting type for new function caller to:",myType);
        this.outputConnection.setCheck(myType); 
         if (myType == 'Number')
           this.category = 'NUMBER'
@@ -943,12 +1331,13 @@ Blockly.Blocks['procedures_callreturn'] = {
   }, 
   getProcedureCall: Blockly.Blocks['procedures_callnoreturn'].getProcedureCall,
   renameProcedure: Blockly.Blocks['procedures_callnoreturn'].renameProcedure,
-  setProcedureParameters:
-      Blockly.Blocks['procedures_callnoreturn'].setProcedureParameters,
-  renderArgs_: Blockly.Blocks['procedures_callnoreturn'].renderArgs_,
+  setProcedureParameters_:
+      Blockly.Blocks['procedures_callnoreturn'].setProcedureParameters_,
+  updateShape_: Blockly.Blocks['procedures_callnoreturn'].updateShape_,
   mutationToDom: Blockly.Blocks['procedures_callnoreturn'].mutationToDom,
   domToMutation: Blockly.Blocks['procedures_callnoreturn'].domToMutation,
   renameVar: Blockly.Blocks['procedures_callnoreturn'].renameVar,
+  onchange: Blockly.Blocks['procedures_callnoreturn'].onchange,
    /**
    * Add menu option to find the definition block for this call.
    * @param {!Array} options List of menu options to add to.
@@ -989,7 +1378,8 @@ Blockly.Blocks['procedures_callreturn'] = {
       }
     };
     options.push(option); 
-  }
+  },
+  defType_: 'procedures_defreturn'  
 };
 
 // Blockly.Blocks['procedures_ifreturn'] = {  // commented out for Blockscad
@@ -999,7 +1389,7 @@ Blockly.Blocks['procedures_callreturn'] = {
 //    */
 //   init: function() {
 //     this.setHelpUrl('http://c2.com/cgi/wiki?GuardClause');
-//     this.setColourHex(290);
+//     this.setColour(290);
 //     this.appendValueInput('CONDITION')
 //         .setCheck('Boolean')
 //         .appendField(Blockly.Msg.CONTROLS_IF_MSG_IF);

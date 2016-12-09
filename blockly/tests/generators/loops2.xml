@@ -1,6 +1,17 @@
 <xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="unittest_main" x="66" y="-2">
+    <statement name="DO">
+      <block type="procedures_callnoreturn">
+        <mutation name="test count"></mutation>
+        <next>
+          <block type="procedures_callnoreturn">
+            <mutation name="test count by"></mutation>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
   <block type="procedures_defnoreturn" x="679" y="-10">
-    <mutation></mutation>
     <field name="NAME">test count by</field>
     <statement name="STACK">
       <block type="variables_set" inline="false">
@@ -11,7 +22,7 @@
           </block>
         </value>
         <next>
-          <block type="controls_for" inline="true">
+          <block type="controls_for">
             <field name="VAR">x</field>
             <value name="FROM">
               <block type="math_number">
@@ -40,7 +51,11 @@
             </statement>
             <next>
               <block type="unittest_assertequals" inline="false">
-                <field name="MESSAGE">count up ints</field>
+                <value name="MESSAGE">
+                   <block type="text">
+                     <field name="TEXT">count up ints</field>
+                   </block>
+                 </value>
                 <value name="ACTUAL">
                   <block type="variables_get">
                     <field name="VAR">log</field>
@@ -60,7 +75,7 @@
                       </block>
                     </value>
                     <next>
-                      <block type="controls_for" inline="true">
+                      <block type="controls_for">
                         <field name="VAR">x</field>
                         <value name="FROM">
                           <block type="math_number">
@@ -89,7 +104,11 @@
                         </statement>
                         <next>
                           <block type="unittest_assertequals" inline="false">
-                            <field name="MESSAGE">count down ints</field>
+                            <value name="MESSAGE">
+                               <block type="text">
+                                 <field name="TEXT">count down ints</field>
+                               </block>
+                             </value>
                             <value name="ACTUAL">
                               <block type="variables_get">
                                 <field name="VAR">log</field>
@@ -107,7 +126,7 @@
                                   <block type="lists_create_empty"></block>
                                 </value>
                                 <next>
-                                  <block type="controls_for" inline="true">
+                                  <block type="controls_for">
                                     <field name="VAR">x</field>
                                     <value name="FROM">
                                       <block type="math_number">
@@ -125,7 +144,7 @@
                                       </block>
                                     </value>
                                     <statement name="DO">
-                                      <block type="lists_setIndex" inline="true">
+                                      <block type="lists_setIndex">
                                         <mutation at="false"></mutation>
                                         <field name="MODE">INSERT</field>
                                         <field name="WHERE">LAST</field>
@@ -143,7 +162,11 @@
                                     </statement>
                                     <next>
                                       <block type="unittest_assertequals" inline="false">
-                                        <field name="MESSAGE">count with floats</field>
+                                        <value name="MESSAGE">
+                                           <block type="text">
+                                             <field name="TEXT">count with floats</field>
+                                           </block>
+                                         </value>
                                         <value name="ACTUAL">
                                           <block type="variables_get">
                                             <field name="VAR">loglist</field>
@@ -186,10 +209,10 @@
                                               <block type="lists_create_empty"></block>
                                             </value>
                                             <next>
-                                              <block type="controls_for" inline="true">
+                                              <block type="controls_for">
                                                 <field name="VAR">x</field>
                                                 <value name="FROM">
-                                                  <block type="math_arithmetic" inline="true">
+                                                  <block type="math_arithmetic">
                                                     <field name="OP">ADD</field>
                                                     <value name="A">
                                                       <block type="math_number">
@@ -204,7 +227,7 @@
                                                   </block>
                                                 </value>
                                                 <value name="TO">
-                                                  <block type="math_arithmetic" inline="true">
+                                                  <block type="math_arithmetic">
                                                     <field name="OP">ADD</field>
                                                     <value name="A">
                                                       <block type="math_number">
@@ -219,7 +242,7 @@
                                                   </block>
                                                 </value>
                                                 <value name="BY">
-                                                  <block type="math_arithmetic" inline="true">
+                                                  <block type="math_arithmetic">
                                                     <field name="OP">MINUS</field>
                                                     <value name="A">
                                                       <block type="math_number">
@@ -234,7 +257,7 @@
                                                   </block>
                                                 </value>
                                                 <statement name="DO">
-                                                  <block type="lists_setIndex" inline="true">
+                                                  <block type="lists_setIndex">
                                                     <mutation at="false"></mutation>
                                                     <field name="MODE">INSERT</field>
                                                     <field name="WHERE">LAST</field>
@@ -252,7 +275,11 @@
                                                 </statement>
                                                 <next>
                                                   <block type="unittest_assertequals" inline="false">
-                                                    <field name="MESSAGE">count up non-trivial ints</field>
+                                                    <value name="MESSAGE">
+                                                       <block type="text">
+                                                         <field name="TEXT">count up non-trivial ints</field>
+                                                       </block>
+                                                     </value>
                                                     <value name="ACTUAL">
                                                       <block type="variables_get">
                                                         <field name="VAR">loglist</field>
@@ -310,10 +337,10 @@
                                                           <block type="lists_create_empty"></block>
                                                         </value>
                                                         <next>
-                                                          <block type="controls_for" inline="true">
+                                                          <block type="controls_for">
                                                             <field name="VAR">x</field>
                                                             <value name="FROM">
-                                                              <block type="math_arithmetic" inline="true">
+                                                              <block type="math_arithmetic">
                                                                 <field name="OP">ADD</field>
                                                                 <value name="A">
                                                                   <block type="math_number">
@@ -328,7 +355,7 @@
                                                               </block>
                                                             </value>
                                                             <value name="TO">
-                                                              <block type="math_arithmetic" inline="true">
+                                                              <block type="math_arithmetic">
                                                                 <field name="OP">ADD</field>
                                                                 <value name="A">
                                                                   <block type="math_number">
@@ -348,7 +375,7 @@
                                                               </block>
                                                             </value>
                                                             <statement name="DO">
-                                                              <block type="lists_setIndex" inline="true">
+                                                              <block type="lists_setIndex">
                                                                 <mutation at="false"></mutation>
                                                                 <field name="MODE">INSERT</field>
                                                                 <field name="WHERE">LAST</field>
@@ -366,7 +393,11 @@
                                                             </statement>
                                                             <next>
                                                               <block type="unittest_assertequals" inline="false">
-                                                                <field name="MESSAGE">count down non-trivial ints</field>
+                                                                <value name="MESSAGE">
+                                                                   <block type="text">
+                                                                     <field name="TEXT">count down non-trivial ints</field>
+                                                                   </block>
+                                                                 </value>
                                                                 <value name="ACTUAL">
                                                                   <block type="variables_get">
                                                                     <field name="VAR">loglist</field>
@@ -404,10 +435,10 @@
                                                                       <block type="lists_create_empty"></block>
                                                                     </value>
                                                                     <next>
-                                                                      <block type="controls_for" inline="true">
+                                                                      <block type="controls_for">
                                                                         <field name="VAR">x</field>
                                                                         <value name="FROM">
-                                                                          <block type="math_arithmetic" inline="true">
+                                                                          <block type="math_arithmetic">
                                                                             <field name="OP">ADD</field>
                                                                             <value name="A">
                                                                               <block type="math_number">
@@ -422,7 +453,7 @@
                                                                           </block>
                                                                         </value>
                                                                         <value name="TO">
-                                                                          <block type="math_arithmetic" inline="true">
+                                                                          <block type="math_arithmetic">
                                                                             <field name="OP">ADD</field>
                                                                             <value name="A">
                                                                               <block type="math_number">
@@ -437,7 +468,7 @@
                                                                           </block>
                                                                         </value>
                                                                         <value name="BY">
-                                                                          <block type="math_arithmetic" inline="true">
+                                                                          <block type="math_arithmetic">
                                                                             <field name="OP">ADD</field>
                                                                             <value name="A">
                                                                               <block type="math_number">
@@ -452,7 +483,7 @@
                                                                           </block>
                                                                         </value>
                                                                         <statement name="DO">
-                                                                          <block type="lists_setIndex" inline="true">
+                                                                          <block type="lists_setIndex">
                                                                             <mutation at="false"></mutation>
                                                                             <field name="MODE">INSERT</field>
                                                                             <field name="WHERE">LAST</field>
@@ -470,7 +501,11 @@
                                                                         </statement>
                                                                         <next>
                                                                           <block type="unittest_assertequals" inline="false">
-                                                                            <field name="MESSAGE">count with floats</field>
+                                                                            <value name="MESSAGE">
+                                                                               <block type="text">
+                                                                                 <field name="TEXT">count with floats</field>
+                                                                               </block>
+                                                                             </value>
                                                                             <value name="ACTUAL">
                                                                               <block type="variables_get">
                                                                                 <field name="VAR">loglist</field>
@@ -543,20 +578,7 @@
       </block>
     </statement>
   </block>
-  <block type="unittest_main" x="66" y="-2">
-    <statement name="DO">
-      <block type="procedures_callnoreturn">
-        <mutation name="test count"></mutation>
-        <next>
-          <block type="procedures_callnoreturn">
-            <mutation name="test count by"></mutation>
-          </block>
-        </next>
-      </block>
-    </statement>
-  </block>
   <block type="procedures_defnoreturn" x="29" y="184">
-    <mutation></mutation>
     <field name="NAME">test count</field>
     <statement name="STACK">
       <block type="variables_set" inline="false">
@@ -567,7 +589,7 @@
           </block>
         </value>
         <next>
-          <block type="controls_for" inline="true">
+          <block type="controls_for">
             <field name="VAR">x</field>
             <value name="FROM">
               <block type="math_number">
@@ -591,7 +613,11 @@
             </statement>
             <next>
               <block type="unittest_assertequals" inline="false">
-                <field name="MESSAGE">count up</field>
+                <value name="MESSAGE">
+                   <block type="text">
+                     <field name="TEXT">count up</field>
+                   </block>
+                 </value>
                 <value name="ACTUAL">
                   <block type="variables_get">
                     <field name="VAR">log</field>
@@ -611,7 +637,7 @@
                       </block>
                     </value>
                     <next>
-                      <block type="controls_for" inline="true">
+                      <block type="controls_for">
                         <field name="VAR">x</field>
                         <value name="FROM">
                           <block type="math_number">
@@ -635,7 +661,11 @@
                         </statement>
                         <next>
                           <block type="unittest_assertequals" inline="false">
-                            <field name="MESSAGE">count down</field>
+                            <value name="MESSAGE">
+                               <block type="text">
+                                 <field name="TEXT">count down</field>
+                               </block>
+                             </value>
                             <value name="ACTUAL">
                               <block type="variables_get">
                                 <field name="VAR">log</field>
@@ -653,10 +683,10 @@
                                   <block type="lists_create_empty"></block>
                                 </value>
                                 <next>
-                                  <block type="controls_for" inline="true">
+                                  <block type="controls_for">
                                     <field name="VAR">x</field>
                                     <value name="FROM">
-                                      <block type="math_arithmetic" inline="true">
+                                      <block type="math_arithmetic">
                                         <field name="OP">ADD</field>
                                         <value name="A">
                                           <block type="math_number">
@@ -671,7 +701,7 @@
                                       </block>
                                     </value>
                                     <value name="TO">
-                                      <block type="math_arithmetic" inline="true">
+                                      <block type="math_arithmetic">
                                         <field name="OP">ADD</field>
                                         <value name="A">
                                           <block type="math_number">
@@ -686,7 +716,7 @@
                                       </block>
                                     </value>
                                     <statement name="DO">
-                                      <block type="lists_setIndex" inline="true">
+                                      <block type="lists_setIndex">
                                         <mutation at="false"></mutation>
                                         <field name="MODE">INSERT</field>
                                         <field name="WHERE">LAST</field>
@@ -704,7 +734,11 @@
                                     </statement>
                                     <next>
                                       <block type="unittest_assertequals" inline="false">
-                                        <field name="MESSAGE">count up non-trivial</field>
+                                        <value name="MESSAGE">
+                                           <block type="text">
+                                             <field name="TEXT">count up non-trivial</field>
+                                           </block>
+                                         </value>
                                         <value name="ACTUAL">
                                           <block type="variables_get">
                                             <field name="VAR">loglist</field>
@@ -742,10 +776,10 @@
                                               <block type="lists_create_empty"></block>
                                             </value>
                                             <next>
-                                              <block type="controls_for" inline="true">
+                                              <block type="controls_for">
                                                 <field name="VAR">x</field>
                                                 <value name="FROM">
-                                                  <block type="math_arithmetic" inline="true">
+                                                  <block type="math_arithmetic">
                                                     <field name="OP">ADD</field>
                                                     <value name="A">
                                                       <block type="math_number">
@@ -760,7 +794,7 @@
                                                   </block>
                                                 </value>
                                                 <value name="TO">
-                                                  <block type="math_arithmetic" inline="true">
+                                                  <block type="math_arithmetic">
                                                     <field name="OP">ADD</field>
                                                     <value name="A">
                                                       <block type="math_number">
@@ -775,7 +809,7 @@
                                                   </block>
                                                 </value>
                                                 <statement name="DO">
-                                                  <block type="lists_setIndex" inline="true">
+                                                  <block type="lists_setIndex">
                                                     <mutation at="false"></mutation>
                                                     <field name="MODE">INSERT</field>
                                                     <field name="WHERE">LAST</field>
@@ -793,7 +827,11 @@
                                                 </statement>
                                                 <next>
                                                   <block type="unittest_assertequals" inline="false">
-                                                    <field name="MESSAGE">count down non-trivial</field>
+                                                    <value name="MESSAGE">
+                                                       <block type="text">
+                                                         <field name="TEXT">count down non-trivial</field>
+                                                       </block>
+                                                     </value>
                                                     <value name="ACTUAL">
                                                       <block type="variables_get">
                                                         <field name="VAR">loglist</field>

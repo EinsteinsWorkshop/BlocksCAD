@@ -45,6 +45,8 @@ define(["Module", "Context", "Globals", "FunctionDef", "openscad-parser-support"
 
     function stashModule(newName, newArgNames, newArgExpr){
 
+        // console.log("in stashModule with:", newName);
+
         var p_currmodule = currmodule;
         Globals.module_stack.push(currmodule);
         
@@ -57,20 +59,24 @@ define(["Module", "Context", "Globals", "FunctionDef", "openscad-parser-support"
     }
 
     function popModule(){
+        // console.log("in popModule");
         if (Globals.module_stack.length > 0){
             currmodule = Globals.module_stack.pop();
         }
     }
 
     function addModuleChild(child){
+        // console.log("in addModuleChild with:", child.name);
         currmodule.children.push(child);
     }
 
     function addModuleAssignmentVar(name, value){
+        // console.log("in addModuleAssignmentVar with:" + name + ": " + value);
         currmodule.assignments_var[name] = value; 
     }
 
     function addModuleFunction(name, expr, argnames, argexpr){
+        // console.log("in addModuleFunction with: ", name);
         var func = new FunctionDef();
         func.argnames = argnames;
         func.argexpr = argexpr;

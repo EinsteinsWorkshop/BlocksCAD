@@ -76,7 +76,7 @@ output += '          </li>\n';
 output += '          <li class="dropdown">\n';
 output += '            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' + Blockscad.Msg.HELP_MENU + '<span class="caret"></span></a>\n';
 output += '            <ul id="help-menu" class="dropdown-menu" role="menu">\n';
-output += '              <li><a href="/docs/" target="_blank">' + Blockscad.Msg.DOCUMENTATION_LINK + '</a></li>\n';
+output += '              <li><a href="docs/" target="_blank">' + Blockscad.Msg.DOCUMENTATION_LINK + '</a></li>\n';
 // output += '<!--               <li class="divider"></li>\n';
 // output += '              <li><a href="#" id="colorPicker">Color Picker</a></li> -->\n';
 output += '              <li class="divider"></li>\n';
@@ -97,6 +97,9 @@ output += '              <li><a href="#" id="examples_sine_function_with_loop">'
 output += '              <li><a href="#" id="examples_trefoil_knot_param_eq">' + Blockscad.Msg.EXAMPLE_PARAMETRIC_EQ_KNOT + '</a></li>\n';
 output += '            </ul>\n';
 output += '          </li>\n';
+// output += '          <li class="button">\n';
+output += '             <a type="button" class="btn btn-default btn-lg" style="margin-top:2px" href="https://youtu.be/5RNKVn7lijM" target="_blank">'+ Blockscad.Msg.GET_STARTED_VIDEO + '</a>';
+// output += '          </li>\n';
 output += '        </ul>\n';
 output += '        <div id="login-area" class="navbar-right">\n';
 output += '        </div>\n';
@@ -108,7 +111,8 @@ output += '    <div id="editView">\n';
 output += '      <nav class="navbar navbar-default navbar-narrow"> <!-- second nav row -->\n';
 output += '        <ul class="nav nav-pills navbar-right">\n';
 output += '          <li class="active"><a href="#blocklyContainer" data-toggle="pill" id="displayBlocks">' + Blockscad.Msg.BLOCKS_TAB + '</a></li>\n';
-output += '          <li><a href=\'#openScadPre\' data-toggle="pill" id="displayCode">' + Blockscad.Msg.CODE_TAB + '</a></li>\n';
+output += '          <li><a href="#openScadPre" data-toggle="pill" id="displayCode">' + Blockscad.Msg.CODE_TAB + '</a></li>\n';
+// output += '          <li><a href="#parsePre" data-toggle="pill" id="parseCode">' + "parse" + '</a></li>\n';
 output += '        </ul> \n';
 output += '        <div class="input-group">\n';
 output += '          <span class="input-group-addon" id="proj_name_label">' + Blockscad.Msg.PROJECT_NAME + '</span>\n';
@@ -145,29 +149,25 @@ output += '          <div id="blocklyDiv">\n';
 output += '\n';
 output += '            <div class="resizableDiv">\n';
 output += '              <div id="renderDiv">\n';
-output += '                <input type="text" id="defColor"/>\n';
-output += '                <select id="viewMenu" class="vmenu">\n';
-output += '                  <option value="diagonal">' + Blockscad.Msg.DIRECTION_DIAGONAL + '</option>\n';
-output += '                  <option value="front">' + Blockscad.Msg.DIRECTION_FRONT + '</option>\n';
-output += '                  <option value="top">' + Blockscad.Msg.DIRECTION_TOP + '</option>\n';
-output += '                  <option value="right">' + Blockscad.Msg.DIRECTION_RIGHT + '</option>\n';
-output += '                  <option value="left">' + Blockscad.Msg.DIRECTION_LEFT + '</option>\n';
-output += '                  <option value="back">' + Blockscad.Msg.DIRECTION_BACK + '</option>\n';
-output += '                  <option value="bottom">' + Blockscad.Msg.DIRECTION_BOTTOM + '</option>\n';
-output += '                </select>\n';
-output += '                <button type="button" id="viewReset" class="vreset">' + Blockscad.Msg.RESET_VIEW_BUTTON;
-output += '                </button>\n';
-output += '<!--';
-output += '                 <button type="button" id="picButton" class="btn btn-default btn-pushed">';
-output += '                  Pic';
-output += '                </button>\n';
-output += '                <button type="button" id="rPicButton" class="btn btn-default btn-pushed">';
-output += '                  Rotating Pic';
-output += '                </button> \n';
-output += '-->';
-output += '                <button type="button" id="axesButton" class="btn btn-default btn-pushed">\n';
-output += '                  <img src="imgs/axes.png">\n';
-output += '                </button>\n';
+// output += '                <input type="text" id="defColor"/>\n';
+
+// output += '                <button type="button" id="viewReset" class="vreset">' + Blockscad.Msg.RESET_VIEW_BUTTON;
+// output += '                </button>\n';
+// output += '<!--';
+// output += '                 <button type="button" id="picButton" class="btn btn-default btn-pushed">';
+// output += '                  Pic';
+// output += '                </button>\n';
+// output += '                <button type="button" id="rPicButton" class="btn btn-default btn-pushed">';
+// output += '                  Rotating Pic';
+// output += '                </button> \n';
+// output += '-->';
+
+// output += '                <button type="button" id="axesButton" class="btn btn-default btn-pushed">\n';
+// output += '                  <img src="imgs/axes.png">\n';
+// output += '                </button>\n';
+
+
+
 // output += '\n';
 // output += '\n';
 output += '                <!-- <input type="text" id="colorButton"/> -->\n';
@@ -175,6 +175,87 @@ output += '                <!-- <input type="text" id="colorButton"/> -->\n';
 output += '              </div> <!--renderDiv -->\n';
 // output += '\n';
 output += '              <div id="paneContainer">\n';
+output += '                <div id="viewerButtons">\n';
+
+output += '                  <div class="btn-group">\n';
+// output += '                    <button id="colorButton" type="button" title="' + Blockscad.Msg.DEFAULT_COLOR_BUTTON + '" class="btn vbut btn-default">\n';
+output += '                    <input type="text" id="defColor"/>\n';
+// output += '                    </button>\n';
+output += '                  </div>\n';
+
+output += '                  <div class="btn-group">\n';
+output += '                    <button id="axesButton" type="button" title="' + Blockscad.Msg.AXES_BUTTON + '" class="btn vbut btn-default">\n';
+output += '                      <svg viewbox="0 0 26 26">\n';
+output += '                           <path style="stroke:#777;stroke-width:1.6;fill:none" d="m9 0.5v15h15"/>\n';
+output += '                           <path style="stroke:#777;stroke-width:1.6;fill:none" d="m9 15-9 9"/>\n';
+output += '                      </svg>\n';
+output += '                    </button>\n';
+output += '                  </div>\n';
+
+output += '                  <div class="btn-group">\n';
+output += '                    <button id="zInButton" type="button" title="' + Blockscad.Msg.ZOOM_IN_BUTTON + '" class="btn vbut btn-default">\n';
+output += '                     <svg viewbox="0 0 30 30">\n';
+output += '                      <circle r="14" style="stroke:#777;stroke-width:1.6;fill:none" cx="15" cy="15"/>\n';
+output += '                      <path style="stroke:#555;stroke-width:1.6;fill:none" d="m15 8v14"/>\n';
+output += '                      <path style="stroke:#555;stroke-width:1.6;fill:none" d="m8 15h14"/>\n';
+output += '                     </svg>\n';
+output += '                    </button>\n';
+output += '                    <button id="zOutButton" type="button" title="' + Blockscad.Msg.ZOOM_OUT_BUTTON + '" class="btn vbut btn-default">\n';
+output += '                     <svg viewbox="0 0 30 30">\n';
+output += '                      <circle r="14" style="stroke:#777;stroke-width:1.6;fill:none" cx="15" cy="15"/>\n';
+output += '                      <path style="stroke:#555;stroke-width:1.6;fill:none" d="m8 15h14"/>\n';
+output += '                     </svg>\n';
+output += '                    </button>\n';
+output += '                  </div>\n';
+output += '                  <div class="btn-group">\n';
+output += '                    <button id="zResetButton" type="button" title="' + Blockscad.Msg.ZOOM_RESET_BUTTON + '" class="btn vbut btn-default">\n';
+output += '                     <svg viewbox="0 0 30 30">\n';
+output += '                       <circle r="11" style="fill:none;stroke:#777;stroke-width:1.6" cx="15" cy="15"/>\n';
+output += '                       <path d="M 15,4 15,0" style="stroke:#666;stroke-width:1.6;" />\n';
+output += '                       <path d="m 26,15 4,0" style="stroke:#666;stroke-width:1.6;" />\n';
+output += '                       <path d="m 15,26 0,4" style="stroke:#666;stroke-width:1.6;" />\n';
+output += '                       <path d="M 4,15 0,15" style="stroke:#666;stroke-width:1.6;" />\n';
+output += '                       <circle r="3" cy="15" cx="15" style="fill:#777;stroke:#777;stroke-width:1.6;" />\n';
+output += '                     </svg>\n';
+output += '                    </button>\n';
+output += '                     <select id="viewMenu" class="btn btn-default">\n';
+output += '                          <option value="diagonal">' + Blockscad.Msg.DIRECTION_DIAGONAL + '</option>\n';
+output += '                         <option value="front">' + Blockscad.Msg.DIRECTION_FRONT + '</option>\n';
+output += '                         <option value="top">' + Blockscad.Msg.DIRECTION_TOP + '</option>\n';
+output += '                         <option value="right">' + Blockscad.Msg.DIRECTION_RIGHT + '</option>\n';
+output += '                         <option value="left">' + Blockscad.Msg.DIRECTION_LEFT + '</option>\n';
+output += '                         <option value="back">' + Blockscad.Msg.DIRECTION_BACK + '</option>\n';
+output += '                         <option value="bottom">' + Blockscad.Msg.DIRECTION_BOTTOM + '</option>\n';
+output += '                     </select>\n';
+output += '                  </div>\n';
+output += '                  <button type="button" id="cameraButton" class="btn vbut btn-default">\n';
+output += '                     <img src="imgs/cameraSmall.png">\n';
+output += '                  </button>\n';
+output += '                </div>\n';   // end of viewerButtons div
+
+
+
+
+output += '                <div id="viewerDefaults">\n';
+
+// output += '                  <div class="btn-group">\n';
+// output += '                    <button id="colorButton" type="button" title="' + Blockscad.Msg.DEFAULT_COLOR_BUTTON + '" class="btn vbut btn-default">\n';
+// output += '                    <input type="text" id="defColor"/>\n';
+// output += '                    </button>\n';
+// output += '                  </div>\n';
+output += '                 <span id="resolution_radio" class="btn btn-default"> \n';
+output += '                  <span>Smooth:&nbsp&nbsp</span>\n';
+output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="0.4">Low</label>\n';
+output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="1"checked>Medium</label>\n';
+output += '                 <label class="radio-inline"><input type="radio" name="resolution" value="2.25">High</label>\n';
+output += '                 </span>\n';
+
+output += '                </div>\n';   // end of viewerDefaults div
+
+
+
+
+
 output += '                <div id="renderPane">\n';
 output += '                  <button type="button" class="btn btn-default btn-lg changeable" id="renderButton">' + Blockscad.Msg.RENDER_BUTTON + '</button>\n';
 output += '                  <button type="button" class="btn btn-default btn-lg btn-danger " id="abortButton">' + Blockscad.Msg.ABORT_BUTTON + '</button>\n';
@@ -191,12 +272,19 @@ output += '            </div> <!-- resizable div -->\n';
 output += '          </div> <!-- blocklyDiv -->\n';
 output += '        </div>\n';
 output += '        <!-- Blockly Container (tab pane)-->\n';
-output += '        <pre class="tab-pane content" id="openScadPre"></pre>\n';
+output += '        <pre class="tab-pane content" id="openScadPre"></pre>';
+// output += '        <pre class="tab-pane content" id="parsePre">';
+// this input is only for testing the parser.  For any user-facing work this should be commented out.
+// output += '          <textarea id="textToParse" rows="15" cols="60"></textarea>';
+// output += '          <div id="parsedText" style="float:right;width:300;height:100">aaaaaaaaaaa</div>';
+// output += '          <button type="button" class="btn btn-default btn-lg" id="parseButton">Parse</button>';
+// output += '        </pre>\n';
+// end parser testing junk.  Also look in blockscad.js for interaction with these elemenets.
 output += '      </div>\n';
 output += '      <!-- end tab content -->\n';
 output += '    </div> <!-- end of the #editView content  -->\n';
 // output += '\n';
-output += '    <div id="projectView" style="display:none">\n';
+output += '    <div id="projectView" class="hidden">\n';
 // output += '      <!-- first row - a "my projects" label, a "New" button on the right -->\n';
 output += '      <div style="width:100%; background-color:#bbbbff;">\n';
 output += '        <span class="proj-header">' + Blockscad.Msg.MY_PROJECTS + '</span>\n';
@@ -561,7 +649,7 @@ output += '      <small>Easy, Open-Source Solid CAD for Everyone!</small></h3>\n
 output += '    </div>\n';
 output += '    <div class="modal-body">\n';
 output += '      <div>\n';
-output += '        <p>Version ' + Blockscad.Version + ' (' + Blockscad.releaseDate + ')</p>\n';
+output += '        <p>Version ' + Blockscad.version + ' (' + Blockscad.releaseDate + ')</p>\n';
 output += '        <br>\n';
 output += '        <p>Want to help? <a href="https://github.com/EinsteinsWorkshop/BlocksCAD">Get involved!</a></p>\n';
 output += '        <p>Have feedback? <a href="mailto://blockscad@einsteinsworkshop.com">blockscad@einsteinsworkshop.com</a>\n';

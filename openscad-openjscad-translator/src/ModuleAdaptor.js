@@ -4,6 +4,7 @@ define("ModuleAdaptor", ["Globals", "Context"], function(Globals, Context){
 
     ModuleAdaptor.prototype.evaluate = function(parentContext, inst){
         inst.isSubmodule = true;
+        // console.log("moduleAdaptor with:", inst.name);
         return parentContext.evaluateModule(inst);
     };
 
