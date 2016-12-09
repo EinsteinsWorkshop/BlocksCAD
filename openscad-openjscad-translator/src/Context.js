@@ -41,15 +41,15 @@ define("Context", ["Globals", "openscad-parser-support"], function(Globals, Open
     };
 
     Context.prototype.lookupVariable = function(name) {
-        console.log("in lookupVarible for:", name);
+        // console.log("in lookupVarible for:", name);
 
         if (_.has(this.vars, name)){
-            console.log("found the variable.  It is: " + name + ": " + this.vars[name]);
+            // console.log("found the variable.  It is: " + name + ": " + this.vars[name]);
             return this.vars[name];
         }
 
         if (this.parentContext !== undefined){
-            console.log("going to lookup this variable in the parent context.");
+            // console.log("going to lookup this variable in the parent context.");
             return this.parentContext.lookupVariable(name);
         }
         

@@ -112,7 +112,7 @@ output += '      <nav class="navbar navbar-default navbar-narrow"> <!-- second n
 output += '        <ul class="nav nav-pills navbar-right">\n';
 output += '          <li class="active"><a href="#blocklyContainer" data-toggle="pill" id="displayBlocks">' + Blockscad.Msg.BLOCKS_TAB + '</a></li>\n';
 output += '          <li><a href="#openScadPre" data-toggle="pill" id="displayCode">' + Blockscad.Msg.CODE_TAB + '</a></li>\n';
-output += '          <li><a href="#parsePre" data-toggle="pill" id="parseCode">' + "parse" + '</a></li>\n';
+// output += '          <li><a href="#parsePre" data-toggle="pill" id="parseCode">' + "parse" + '</a></li>\n';
 output += '        </ul> \n';
 output += '        <div class="input-group">\n';
 output += '          <span class="input-group-addon" id="proj_name_label">' + Blockscad.Msg.PROJECT_NAME + '</span>\n';
@@ -273,13 +273,13 @@ output += '          </div> <!-- blocklyDiv -->\n';
 output += '        </div>\n';
 output += '        <!-- Blockly Container (tab pane)-->\n';
 output += '        <pre class="tab-pane content" id="openScadPre"></pre>';
-output += '        <pre class="tab-pane content" id="parsePre">';
+// output += '        <pre class="tab-pane content" id="parsePre">';
 // this input is only for testing the parser.  For any user-facing work this should be commented out.
-output += '          <textarea id="textToParse" rows="15" cols="60"></textarea>';
-output += '          <div id="parsedText" style="float:right;width:300;height:100">aaaaaaaaaaa</div>';
-output += '          <button type="button" class="btn btn-default btn-lg" id="parseButton">Parse</button>';
+// output += '          <textarea id="textToParse" rows="15" cols="60"></textarea>';
+// output += '          <div id="parsedText" style="float:right;width:300;height:100">aaaaaaaaaaa</div>';
+// output += '          <button type="button" class="btn btn-default btn-lg" id="parseButton">Parse</button>';
+// output += '        </pre>\n';
 // end parser testing junk.  Also look in blockscad.js for interaction with these elemenets.
-output += '        </pre>\n';
 output += '      </div>\n';
 output += '      <!-- end tab content -->\n';
 output += '    </div> <!-- end of the #editView content  -->\n';

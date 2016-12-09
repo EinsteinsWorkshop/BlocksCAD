@@ -53,14 +53,14 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
 
         this.forEval = function(parentEvaluatedChildren, inst, recurs_length, call_argnames, call_argvalues, arg_context) {
 
-            console.log("*****In loop forEval function.");
-            console.log("parentEvaluatedChildren:",parentEvaluatedChildren);
-            console.log("inst:", inst);
-            // console.log("recurs_length:",recurs_length);
-            // console.log("call_argnames:", call_argnames);
-            // console.log("call_argvalues:",call_argvalues);
-            // console.log("arg_context:",arg_context);
-            console.log("done writing forEval arguments");
+            // console.log("*****In loop forEval function.");
+            // console.log("parentEvaluatedChildren:",parentEvaluatedChildren);
+            // console.log("inst:", inst);
+            // // console.log("recurs_length:",recurs_length);
+            // // console.log("call_argnames:", call_argnames);
+            // // console.log("call_argvalues:",call_argvalues);
+            // // console.log("arg_context:",arg_context);
+            // console.log("done writing forEval arguments");
 
             this.evaluatedChildren = parentEvaluatedChildren;
 
@@ -70,8 +70,8 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
                 var it_name = call_argnames[recurs_length];
                 var it_values = call_argvalues[recurs_length];
                 var context = new Context(arg_context);
-                console.log("created new context on loop create:", context);
-                console.log("context's parent context's vars:", context.parentContext.parentContext.vars);
+                // console.log("created new context on loop create:", context);
+                // console.log("context's parent context's vars:", context.parentContext.parentContext.vars);
 
                 if (it_values instanceof Range) {
                     var range = it_values;
@@ -90,7 +90,7 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
                     }
                 }
                 else if (_.isArray(it_values)) {
-                    console.log("----HELP!!!- I've got an array of values in my loop.  This shouldn't happen.");
+                    // console.log("----HELP!!!- I've got an array of values in my loop.  This shouldn't happen.");
                     for (var i = 0; i < it_values.length; i++) {
                         context.setVariable(it_name, it_values[i]);
                         this.forEval(this.evaluatedChildren, inst, recurs_length+1, call_argnames, call_argvalues, context);
@@ -121,9 +121,9 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
     };
 
     ForLoopStatement.prototype.evaluate = function(context, inst) {
-        console.log("in forloopstatement.prototype.evaluate. ");
-        console.log(context.parentContext.vars);
-        console.log(context.parentContext.parentContext.vars);
+        // console.log("in forloopstatement.prototype.evaluate. ");
+        // console.log(context.parentContext.vars);
+        // console.log(context.parentContext.parentContext.vars);
 
             var that = this;
 
@@ -160,9 +160,9 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
             argvalues.push(Globals.convertForStrFunction(expr.evaluate(context)));
         });
 
-        console.log("JY:1");
-        console.log(_.template("ECHO: <%=argvalues%>", {argvalues:argvalues}));
-        console.log("JY:2");
+        // console.log("JY:1");
+        // console.log(_.template("ECHO: <%=argvalues%>", {argvalues:argvalues}));
+        // console.log("JY:2");
 
         return undefined;
     };

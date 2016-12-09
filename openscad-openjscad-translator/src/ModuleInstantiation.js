@@ -14,7 +14,7 @@ define("ModuleInstantiation", ["Globals", "OpenjscadSolidFactorySingleton"], fun
 
         var evaluatedModule;
 
-        console.log("in moduleInstantiation.prototype.evaluate for", this.name);
+        // console.log("in moduleInstantiation.prototype.evaluate for", this.name);
 
         // NOTE: not sure how we should handle this in javascript ... is it necessary?
         //if (this.context === null) {

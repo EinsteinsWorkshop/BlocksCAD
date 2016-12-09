@@ -337,7 +337,7 @@ Blockly.OpenSCAD['$fn'] = function(block) {
   var aC = varCode[0];
   var aP = varCode[1];
 
-  console.log(statements_a);
+  // console.log(statements_a);
 
   var code = 'assign($fn=' + value_sides + '){   //set sides to ' + value_sides + '\n' + aC + statements_a + aP + '}';
   return code;
