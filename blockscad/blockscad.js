@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 Blockscad.version = "1.6.0";
 Blockscad.releaseDate = "2016/12/08";
 
-Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 
 Blockscad.standalone = true; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
@@ -930,7 +930,7 @@ Blockscad.showExample = function(e) {
   var name = e.data.msg.split('.')[0];
   var fn = "example_" + name;
 
-  // console.log(name);
+  console.log("example name is:",name);
   // console.log(Blockscad[fn]);
 
   // console.log("in showExample");
@@ -963,30 +963,30 @@ Blockscad.getExample = function(example, name, fn) {
 
     Blockscad.clearProject();
 // <<<<<<< HEAD
-//     Blockscad.workspaceChanged();
+    // Blockscad.workspaceChanged();
 
-//     // load xml blocks
-//     var xml = Blockly.Xml.textToDom(Blockscad[ffn]);
+    // load xml blocks
+    var xml = Blockly.Xml.textToDom(Blockscad[ffn]);
 
-//     Blockly.Xml.domToWorkspace(Blockscad.workspace, xml); 
-//     Blockly.fireUiEvent(window, 'resize');
+    Blockly.Xml.domToWorkspace(xml, Blockscad.workspace); 
+    Blockly.svgResize(Blockscad.workspace);
 // =======
     // Blockscad.workspaceChanged();
     // turn xml data object into a string that Blockly can use
-    var xmlString;
-    //IE
-    if (window.ActiveXObject){
-        xmlString = data.xml;
-    }
-    // code for Mozilla, Firefox, Opera, etc.
-    else{
-        xmlString = (new XMLSerializer()).serializeToString(data);
-    }
-    // console.log(xmlString);
-    // load xml blocks
-    var xml = Blockly.Xml.textToDom(xmlString);
-    Blockly.Xml.domToWorkspace(xml, Blockscad.workspace); 
-    Blockly.svgResize(Blockscad.workspace);
+    // var xmlString;
+    // //IE
+    // if (window.ActiveXObject){
+    //     xmlString = data.xml;
+    // }
+    // // code for Mozilla, Firefox, Opera, etc.
+    // else{
+    //     xmlString = (new XMLSerializer()).serializeToString(data);
+    // }
+    // // console.log(xmlString);
+    // // load xml blocks
+    // var xml = Blockly.Xml.textToDom(xmlString);
+    // Blockly.Xml.domToWorkspace(xml, Blockscad.workspace); 
+    // Blockly.svgResize(Blockscad.workspace);
 // >>>>>>> master
     // update project name
     $('#project-name').val(name + ' example');

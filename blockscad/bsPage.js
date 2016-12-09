@@ -76,7 +76,7 @@ output += '          </li>\n';
 output += '          <li class="dropdown">\n';
 output += '            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' + Blockscad.Msg.HELP_MENU + '<span class="caret"></span></a>\n';
 output += '            <ul id="help-menu" class="dropdown-menu" role="menu">\n';
-output += '              <li><a href="docs/" target="_blank">' + Blockscad.Msg.DOCUMENTATION_LINK + '</a></li>\n';
+output += '              <li><a href="docs" target="_blank">' + Blockscad.Msg.DOCUMENTATION_LINK + '</a></li>\n';
 // output += '<!--               <li class="divider"></li>\n';
 // output += '              <li><a href="#" id="colorPicker">Color Picker</a></li> -->\n';
 output += '              <li class="divider"></li>\n';
@@ -98,7 +98,7 @@ output += '              <li><a href="#" id="examples_trefoil_knot_param_eq">' +
 output += '            </ul>\n';
 output += '          </li>\n';
 // output += '          <li class="button">\n';
-output += '             <a type="button" class="btn btn-default btn-lg" style="margin-top:2px" href="https://youtu.be/5RNKVn7lijM" target="_blank">'+ Blockscad.Msg.GET_STARTED_VIDEO + '</a>';
+// output += '             <a type="button" class="btn btn-default btn-lg" style="margin-top:2px" href="https://youtu.be/5RNKVn7lijM" target="_blank">'+ Blockscad.Msg.GET_STARTED_VIDEO + '</a>';
 // output += '          </li>\n';
 output += '        </ul>\n';
 output += '        <div id="login-area" class="navbar-right">\n';
