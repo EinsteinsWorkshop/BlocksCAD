@@ -421,6 +421,10 @@ Blockscad.init = function() {
   // I'm running it in a timeout to make sure any events have had time to fire.  What a pain.
 
 
+  // are there any messages to show?
+  $('#outage-modal').modal('show');
+
+
   setTimeout(Blockscad.typeWorkspace, 10);
 
 
