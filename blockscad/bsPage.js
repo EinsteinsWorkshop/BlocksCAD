@@ -682,6 +682,24 @@ output += '        </div>\n';
 output += '      </div>\n';
 output += '    </div>\n';
 output += '  </div>\n';
+
+
+
+output += '<div id="outage-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="outage-modal" aria-hidden="true">\n';
+output += '  <div class="modal-dialog">\n';
+output += '    <div class="modal-content">\n';
+output += '          <div class="modal-header">\n';
+output += '            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\n';
+output += '            <h3 class="modal-title">Scheduled Database Maintenance Dec. 27</h3>\n';
+output += '          </div>\n';
+output += '          <div class="modal-body">\n';
+output += '            <div>\n';
+output += '              On Dec. 27, 2016, we will be upgrading the BlocksCAD project database. During this time, login will be disabled and you won\'t have access to your account or your saved projects. ';
+output += ' <br><br>If you plan to work on specific projects that day, be sure to download them to your computer before Dec. 27. Any edits to these projects or any new creations will need to be saved to your computer that day as well. \n'; 
+output += '            </div>\n';
+output += '          </div>\n';
+output += '  </div>\n';
+output += '</div>\n';
 // output += '  <!-- end of popups -->   \n';
 
 return output;
