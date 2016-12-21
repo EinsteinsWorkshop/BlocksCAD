@@ -252,6 +252,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         // mark that block that will be bumped
         if (areaType != 'EITHER' && areaType != type[0]) {
           // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
+            // console.log("parent accepts: " + parentAccepts + ", type is:", type[0]);          
           numBumped.push(callers[i]);
           // If the call block is in a collapsed stack, find the collapsed parent and expand them.
           var topBlock = callers[i].collapsedParents();
@@ -719,7 +720,7 @@ Blockly.Blocks['procedures_defreturn'] = {
     var oldtype = this.myType_;
 
     var ret = this.getInput('RETURN');
-    // console.log("in setType for function. here is the input:",ret);
+    // console.log("in setType for function. here is the input:" + ret.connection);
     if (ret.connection.targetConnection) {
       if (ret.connection.targetConnection.check_ == 'Number')
         type = 'Number';
@@ -756,38 +757,43 @@ Blockly.Blocks['procedures_defreturn'] = {
     // now, set my caller block's types
     if (callers.length) {
       for (var i = 0; i < callers.length; i++) {
+        if (!callers[i])
+          continue;
         // the caller block only gets bumped if it has a parent.
         var parent = callers[i].getParent();
         // get caller's connection type here
         if (parent) {
           // console.log("found instance with parent: ", parent.type);
           parentAccepts = callers[i].outputConnection.targetConnection.check_;
+          // console.log(parentAccepts);
 
           // make sure that parentAccepts is an array so that we can check for a match
 
-          if (parentAccepts == null) 
-            parentAccepts = [];
-          else if (!goog.isArray(parentAccepts)) 
+          if (parentAccepts && !(goog.isArray(parentAccepts)))
             parentAccepts = [parentAccepts];
 
-          var found_match = 0;
-          // check to see if my type matches any type accepted by the parent - if so, it will bump.
-          for (var j = 0; j < parentAccepts.length; j++) {
-            if (parentAccepts[j] == this.myType_) {
-              found_match = 1;
+          if (parentAccepts) {
+            var found_match = 0;
+            // check to see if my type matches any type accepted by the parent - if so, it will bump.
+            for (var j = 0; j < parentAccepts.length; j++) {
+              if (parentAccepts[j] == this.myType_) {
+                found_match = 1;
+              }
             }
-          }
-          if (!found_match) {
-            // I have a type mismatch with this variable.  it is going to be bumped.
-            // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
-            numBumped.push(callers[i]);
-            // instances[i].backlight();
-            // this.backlightBlocks.push(instances[i].id);
-            // if the instance is in a collapsed stack, find collapsed parent and expand
-            var topBlock = callers[i].collapsedParents();
-            if (topBlock)
-              for (var j = 0; j < topBlock.length; j++)
-                topBlock[j].setCollapsed(false);
+            if (!found_match) {
+              // I have a type mismatch with this variable.  it is going to be bumped.
+              // console.log("warning message!  call block id", callers[i].id, "will be kicked out and backlit");
+              // console.log("parent accepts: " + parentAccepts + ", type is:", this.myType_);
+              numBumped.push(callers[i]);
+              // instances[i].backlight();
+              // this.backlightBlocks.push(instances[i].id);
+              // if the instance is in a collapsed stack, find collapsed parent and expand
+              var topBlock = callers[i].collapsedParents();
+              if (topBlock)
+                for (var j = 0; j < topBlock.length; j++)
+                  topBlock[j].setCollapsed(false);
+            }
+
           }
 
         }  // end if (parent)
@@ -822,7 +828,7 @@ Blockly.Blocks['procedures_defreturn'] = {
         // what if a parent is a variables_set of a different variable?
         // then I want to call Blockscad.assignVarTypes for that parent.
 
-        // console.log("trying to call hasParentOfType",callers[i]);
+
         var setterParent = Blockscad.hasParentOfType(callers[i], "procedures_defreturn");
         if (!setterParent)
           setterParent = Blockscad.hasParentOfType(callers[i],"variables_set");

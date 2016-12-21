@@ -362,7 +362,8 @@ Blockly.Blocks['variables_set'] = {
             // console.log("Test for bumping. types were: " + parentAccepts + " and " + type[0]);
             // take care of bumps
             if (parentAccepts != null && type != null && parentAccepts != type[0]) {
-              // console.log("block " + instances[i].id + " will be kicked out.");
+              // console.log(" variable block " + instances[i].id + " will be kicked out.");
+            // console.log("parent accepts: " + parentAccepts + ", type is:", type);
               numBumped.push(instances[i]);
               // if the instance is in a collapsed stack, find collapsed parent and expand
               var topBlock = instances[i].collapsedParents();
@@ -385,10 +386,22 @@ Blockly.Blocks['variables_set'] = {
         var setterParent = Blockscad.hasParentOfType(instances[i], "procedures_defreturn");
         if (!setterParent)
           setterParent = Blockscad.hasParentOfType(instances[i],"variables_set");
+
+        // Be careful here.  Even if you have a setter parent, if there is a ternary parent,
+        // it will _change_ your type from boolean to number.  Don't set your setter parent's 
+        // type to boolean!
+
+        // of course, right now ternary typing is borked anyway, because it ALWAYS returns a number.
+        // though you really should be able to have shapes, text, etc coming out of that.
+        // but for now, I'm just going to ignore setting a type if a ternary parent is involved.
+        var ternaryParent = Blockscad.hasParentOfType(instances[i], "logic_ternary");
+
         setTimeout(function() {
           // console.log("this caller function is inside a setter.  Set its type to: ",type);
-          if (setterParent) setterParent.setType(type);
+          if (setterParent && !ternaryParent) setterParent.setType(type);
         }, 0);
+
+
       }  // end looping through instances
     }  // end if instances.length > 0
 

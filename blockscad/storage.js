@@ -190,7 +190,7 @@ BlocklyStorage.restoreBlocks = function() {
     if (needToSave != "undefined" && (needToSave == 1 || needToSave == 0)) {
       setTimeout(function() {
         Blockscad.needToSave = needToSave;
-        console.log("loading from storage. setting needToSave to:", needToSave);
+        // console.log("loading from storage. setting needToSave to:", needToSave);
       }, 300);
     }
 

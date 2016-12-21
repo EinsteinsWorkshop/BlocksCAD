@@ -34,7 +34,7 @@ Blockscad.releaseDate = "2016/12/08";
 
 Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 
-Blockscad.standalone = true; // if true, run code needed for the standalone version
+Blockscad.standalone = false; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
 var _includePath = './';
 Blockscad.drawAxes = 1;       // start with axes drawn
@@ -42,6 +42,8 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 // resolution - this value will control the default returned by $fn in the parser. 
 // In theory I could just have the parser poll the value directly. Overwritten by the sides block.
 Blockscad.resolution = 1;
+
+Blockscad.showMessageModal = true;
 
 
 
@@ -422,7 +424,8 @@ Blockscad.init = function() {
 
 
   // are there any messages to show?
-  $('#outage-modal').modal('show');
+  if (Blockscad.showMessageModal)
+    $('#outage-modal').modal('show');
 
 
   setTimeout(Blockscad.typeWorkspace, 10);
@@ -432,8 +435,9 @@ Blockscad.init = function() {
 
 Blockscad.typeWorkspace = function() {
   // I'll do three passes - first variable setters (does that type variable getters?)
-  // then procedures, then the rest. 
+  // then procedures, then the rest, then the whole thing.
   // console.log("running typeWorkspace");
+
   var blocks = Blockscad.workspace.getAllBlocks();
   for (var i = 0; i < blocks.length; i++) {
     if (blocks[i].type == 'variables_set')
@@ -442,12 +446,14 @@ Blockscad.typeWorkspace = function() {
 
   var topBlocks = Blockscad.workspace.getTopBlocks();
 
+
   for (var i = 0; i < topBlocks.length; i++) {
     if (topBlocks[i].category && topBlocks[i].category == 'PROCEDURE') {
       // console.log("found a procedure to type");
       Blockscad.assignBlockTypes([topBlocks[i]]);
     }
   }
+
   for (var k = 0; k < blocks.length; k++) {
     if (blocks[k].type != 'variables_set' && blocks[k].category != 'PROCEDURE') {
       Blockscad.assignBlockTypes(blocks[k]);
@@ -461,7 +467,7 @@ Blockscad.typeWorkspace = function() {
 Blockscad.typeNewStack = function(block) {
   // three passes - variables, procedures, then the rest.
   // this is called when blocks are created (think duplicated block stacks with callers in it)
-  console.log("in typeNewStack");
+  // console.log("in typeNewStack");
   var topBlock = block.getRootBlock();
   var blockStack = topBlock.getDescendants();
   for (var i = 0; blockStack && i < blockStack.length; i++) {
@@ -1410,6 +1416,7 @@ Blockscad.assignVarTypes = function(blk, name_change) {
   // I need to go through the children of the variables_set block.
   // I am only interested in children that have an output connection.
   //does this block have any children?  If not, change type to null.
+  // console.log("in assignVarTypes");
 
   setTimeout(function() {
     if (blk && blk.type == "variables_get") {
@@ -1845,7 +1852,7 @@ Blockly.OpenSCAD.returnIfVarCode = function(block) {
     }
   }
 
-  console.log(aC);
+  // console.log(aC);
 
   return [aC, aP];
 }
