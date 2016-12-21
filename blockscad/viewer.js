@@ -1412,11 +1412,15 @@ Blockscad.Processor.prototype = {
 
     var blob;
     if(format == "stla") {      
+      // var repairedMesh = this.currentObject.meshRepair();
       blob = this.currentObject.toStlString();      
       // console.log("this format mimetype is:", this.formatInfo(format).mimetype); 
       blob = new Blob([blob],{ type: "text/plain; charset=utf-8"});
     }
-    else if(format == "stlb") {      
+    else if(format == "stlb") {    
+      console.log("about to repair mesh.  Number of polygons:", this.currentObject.polygons.length);  
+      var repairedMesh = this.currentObject.meshRepair();
+      console.log("finished repairing mesh.  Number of polygons:", this.currentObject.polygons.length);  
       blob = this.currentObject.toStlBinary({webBlob: true});     
 
       // -- binary string -> blob gives bad data, so we request cgs.js already blobbing the binary

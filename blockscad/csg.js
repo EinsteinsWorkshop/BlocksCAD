@@ -1316,6 +1316,296 @@ for solid CAD anyway.
             return cut3d.projectToOrthoNormalBasis(orthobasis);
         },
 
+        meshRepair: function() {
+
+            // what happens if I round off all the numbers first?
+
+            // this will take the CSG model, sort of convert it to a half-edge structure,
+            // find holes and non-manifold edges and gaps, and try to fix what it can,
+            // then return to the regular CSG model structure.
+
+            // go through polygons
+            var edgeList = [];
+            var neighbors = {};
+            for (var i = 0; i < this.polygons.length; i++) {
+                // how many vertices in this polygon?
+                poly = this.polygons[i];
+                var len = poly.vertices.length;
+                if (len < 3)
+                    console.log("Degenerate Poly!!!!");
+                // do rounding of all vertex positions
+                for (var m = 0; m < len; m++) {
+                    var vert = poly.vertices[m];
+                    vert.pos._x = parseFloat(vert.pos._x.toPrecision(9));
+                    vert.pos._y = parseFloat(vert.pos._y.toPrecision(9));
+                    vert.pos._z = parseFloat(vert.pos._z.toPrecision(9));
+                }
+                for (var j = 0; j < len - 1; j++) {
+                    var edge = {};
+                    edge.u = poly.vertices[j].pos;
+                    edge.v = poly.vertices[j+1].pos;
+                    // console.log('( ' + edge.u + ', ' + edge.v + ' )');
+                    edge.face = poly;
+
+                    // console.log(edge.u);
+
+                    if (!([edge.u,edge.v] in neighbors))
+                        neighbors[[edge.u,edge.v]] = [];
+
+                    neighbors[[edge.u,edge.v]].push(edge);
+
+                    edgeList.push(edge);
+                }
+                // odd in the last edge that closes the polygon
+                var edge = {};
+                edge.u = poly.vertices[poly.vertices.length - 1].pos;
+                edge.v = poly.vertices[0].pos;
+                // console.log('( ' + edge.u + ', ' + edge.v + ' )');
+                edge.face = poly;
+                if (!([edge.u,edge.v] in neighbors))
+                    neighbors[[edge.u,edge.v]] = [];
+
+                neighbors[[edge.u,edge.v]].push(edge);
+
+                edgeList.push(edge);
+
+                // console.log("***** end of a polygon: ", i);
+
+
+            }
+
+            console.log("edgeList:", edgeList);
+            console.log("neighbors:", neighbors);
+
+            // go through hedge list
+
+            var unPairedEdges = [];
+            var multiPairedEdges = [];
+            var fixedEdges = {};
+            var startsWith = {};
+            var endsWith = {};
+            var pairCount = 0;
+
+            for (var i = 0; i < edgeList.length; i++) {
+
+                var edge = edgeList[i];
+                var numberOfMes = neighbors[[edge.u, edge.v]].length;
+
+                if (numberOfMes == 1) {
+                    if (neighbors[[edge.v, edge.u]]) {
+                        var numberOfYous = neighbors[[edge.v, edge.u]].length;
+                    }
+                    else var numberOfYous = 0;
+
+                    if (numberOfYous == 1) {
+                        // console.log("found a pair!");
+                        pairCount++;
+                        continue;
+                    }
+                }
+                // else {
+                // else if (numberOfYous == 0) {
+                    // console.log("found an unpaired edge!");
+                    unPairedEdges.push(edge);
+                    if (!(edge.u in startsWith))
+                        startsWith[edge.u] = [];
+                    if (!(edge.v in endsWith))
+                        endsWith[edge.v] = [];
+
+                    startsWith[edge.u].push(edge);
+                    endsWith[edge.v].push(edge);
+
+
+                // } 
+                    // else {
+                    //     // console.log("found an edge with multiples: ", numberOfYous);
+                    //     // console.log(edge.v, edge.u);
+                    //     multiPairedEdges.push(edge);
+                    // }
+                // }
+                // else unPairedEdges.push(edge);
+                // // else {
+                // //     // console.log("I'm an edge with multiple pairs");
+                // //     multiPairedEdges.push(edge);
+                // }
+
+            }
+
+            console.log("number of paired edges: ", pairCount);
+            console.log("number of unpaired edges: ", unPairedEdges.length);
+            console.log("number of multiply paired edges: ", multiPairedEdges.length);
+
+            console.log(unPairedEdges);
+            // // go through unpaired list
+            // for (var i = 0; i < unPairedEdges.length; i++) {
+
+            //     var edge = unPairedEdges[i];
+
+            //     if (fixedEdges[[edge.u,edge.v]]) {
+            //         console.log("this edge already fixed in previous chain.  Skipping.");
+            //         continue;
+            //     }
+
+
+            //     var e = edge;
+            //     var chain = [edge];  // this is hopefully going to turn into a cycle of unpaired edges I can "pair up".
+            //     var points = [edge.u];
+            //     var count = 0;
+
+            //     while (e && e.v != edge.u && count < 6) {
+            //         count++;
+            //         var nextLink = CSG.findLink(e, startsWith, endsWith);
+            //         if (nextLink) {
+            //             // console.log("next link is:", nextLink);
+            //             chain.push(nextLink);
+            //             points.push(nextLink.u);
+            //             e = nextLink;
+            //         }
+            //     }
+
+            //     console.log("found a chain");
+            //     console.log(chain);
+
+            //     // if found, what to do? 
+            //     // the cheating way - add in a new face.
+            //     // remove all these points from the unpaired list.
+
+            //     if (chain.length > 2) {
+
+            //     var newFace = CSG.Polygon.createFromPoints(points, edge.face.shared);
+            //     this.polygons.push(newFace);
+            //     // add edges to fixedEdges so I don't try to use it again
+
+            //     for (var k = 0; k < chain.length; k++) {
+            //         // console.log("trying to strike off:", chain[k]);
+            //         fixedEdges[[chain[k].u,chain[k].v]] = 1;
+            //     }
+            //     }
+            //     else {
+            //         console.log("I got a short chain.  What is in it?",chain);
+            //     }   
+
+
+
+            // }
+
+            // go through unpaired list
+            // for each edge, look for another edge that is || and close (close?).  If it shares a vertex great, but it won't always.
+            // for a candidate "match", check all four vertices to see if they are on the line of the other edge, and add a vertex 
+            // to the polygon (in the right place in the list, and check that it lies on the line of the edge).  We'll try this and see what happens.
+
+            for (var i = 0; i < unPairedEdges.length; i++) {
+
+                var e = unPairedEdges[i];
+                console.log("working on unPairedEdge: ", i);
+
+                for (var j = i + 1; j < unPairedEdges.length; j++) {
+                    // here are all the rest of the unpaired edges to try matching with
+                    var b = unPairedEdges[j];
+                    var e1 = new CSG.Vector3D(e.u._x - e.v._x, e.u._y - e.v._y,e.u._z - e.v._z);
+                    var e2 = new CSG.Vector3D(b.u._x - b.v._x, b.u._y - b.v._y, b.u._z - b.v._z);
+
+                    var c = e1.cross(e2);
+                    if (Math.abs(c._x) < 0.001 && Math.abs(c._y) < 0.001 && Math.abs(c._z) < 0.001) {
+                        // console.log("found parallel line");
+                        // these two lines are parallel.  Are there any vertices to add?
+
+                        // check vertex 1
+                        if (CSG.diffPoints(e.u, b.u) && CSG.diffPoints(e.u,b.v) && CSG.isOn(b.u,b.v,e.u, 0.0001)) {
+                            console.log("e.u on segment b: ",j);
+                            // e.u is on the segment b.  Add the vertex.
+                            var poly = b.face;
+                            var verts = poly.vertices;
+                            for (var k = 0; k < verts.length; k++) {
+                                // console.log("foundVert: ", verts[k].pos);
+                                if (verts[k].pos._x == b.u._x && verts[k].pos._y == b.u._y && verts[k].pos._z == b.u._z) {
+                                    var vec = new CSG.Vector3D(e.u.x,e.u.y,e.u.z);
+                                    var nv = new CSG.Vertex(vec);
+                                    console.log("adding a vertex:", [e.u.x,e.u.y,e.u.z]);
+                                    // but where to add it?  I might need to go after a previously added vertex
+                                    while (verts[k+1] && (verts[k+1].pos.distanceToSquared(verts[k].pos) < vec.distanceToSquared(verts[k].pos))) {
+                                        k++;
+                                    }
+                                    if (vec.distanceToSquared(verts[k].pos) < 0.00001 || (verts[k+1] && vec.distanceToSquared(verts[k+1]) < 0.00001))
+                                        console.log("actually, don't bother.  It is too close to an existing vertex.");
+                                    else verts.splice(k + 1, 0, nv);
+
+                                    break;
+                                }
+                            }
+                            for (var k = 0; k < verts.length; k++) {
+                                console.log("vert " + k + ": " + verts[k].pos);
+                            }
+                        }
+                        // check vertex 2
+                        // if (CSG.diffPoints(e.v, b.u) && CSG.diffPoints(e.v, b.v) && CSG.isOn(b.u,b.v,e.v, 0.0001)) {
+                        //     console.log("e.v on segment b: ", j);
+                        //     // e.u is on the segment b.  Add the vertex.
+                        //     var poly = b.face;
+                        //     var verts = poly.vertices;
+                        //     for (var k = 0; k < verts.length; k++) {
+                        //         console.log("foundVert: ", verts[k].pos);
+                        //         if (verts[k].pos._x == b.u._x && verts[k].pos._y == b.u._y && verts[k].pos._z == b.u._z) {
+                        //             // if (verts[k+1].pos._x == e.v._x && verts[k+1].pos._y == e.v._y)
+                        //             //     console.log("already had a point here!");
+                        //             var nv = new CSG.Vertex(e.v.x,e.v.y,e.v.z);
+                        //             console.log("adding a vertex: ", [e.v.x,e.v.y,e.v.z]);
+                        //             // verts.splice(k + 1, 0, nv);
+                        //             // break;
+                        //         }
+                        //     }
+
+                        // }
+                        // check vertex 3
+                        if (CSG.diffPoints(b.u, e.u) && CSG.diffPoints(b.u, e.v) && CSG.isOn(e.u,e.v,b.u, 0.0001)) {
+                            console.log("b.u on segment e: ", j);
+                            // e.u is on the segment b.  Add the vertex.
+                            var poly = e.face;
+                            var verts = poly.vertices;
+                            for (var k = 0; k < verts.length; k++) {
+                                // console.log("foundVert: ", verts[k].pos);
+                                if (verts[k].pos._x == e.u._x && verts[k].pos._y == e.u._y && verts[k].pos._z == e.u._z) {
+                                    var vec = new CSG.Vector3D(b.u.x,b.u.y,b.u.z);
+                                    var nv = new CSG.Vertex(vec);
+                                    console.log("adding a vertex: ", [b.u.x,b.u.y,b.u.z]);
+                                    while (verts[k+1] && (verts[k+1].pos.distanceToSquared(verts[k].pos) < vec.distanceToSquared(verts[k].pos))) {
+                                        k++;
+                                    }                                    
+                                    verts.splice(k + 1, 0, nv);
+                                    break;
+                                }
+                            }  
+                            for (var k = 0; k < verts.length; k++) {
+                                console.log("vert " + k + ": " + verts[k].pos);
+                            }                          
+                        }
+                        // check vertex 4
+                        // if (CSG.diffPoints(b.v, e.u) && CSG.diffPoints(b.v, e.v) && CSG.isOn(e.u,e.v,b.v, 0.0001)) {
+                        //     console.log("b.v on segment e: ", j);
+                        //     // e.u is on the segment b.  Add the vertex.
+                        //     var poly = e.face;
+                        //     var verts = poly.vertices;
+                        //     for (var k = 0; k < verts.length; k++) {
+                        //         console.log("foundVert: ", verts[k].pos);
+                        //         if (verts[k].pos._x == e.u._x && verts[k].pos._y == e.u._y && verts[k].pos._z == e.u._z) {
+                        //             var nv = new CSG.Vertex(b.v.x,b.v.y,b.v.z);
+                        //             console.log("adding a vertex: ", [b.v.x,b.v.y,b.v.z]);
+                        //             // verts.splice(k + 1, 0, nv);
+                        //             // break;
+                        //         }
+                        //     }                            
+                        // }
+                    }
+                }
+            }
+
+
+
+            console.log("here are the fixedEdges");
+            console.log(fixedEdges);
+        },
+
+
         // fixTJunctionsNew
         // This TJunction fixer will add a new polygon into the TJunctions.
         // I am trying to fix solids for taper and other non-linear transforms.
@@ -8576,6 +8866,89 @@ for solid CAD anyway.
             return CAG.fromSides(newsides);
         }
     };
+
+    CSG.findLink = function(e, startsWith, endsWith) {
+            console.log("looping to find next link in chain");
+            var  start = e.u;
+            var end = e.v;
+
+
+            // go from my end and look for a chain that connects to my start.
+
+            if (end in startsWith) {
+                for (var j = 0; j < startsWith[end].length; j++) {
+                    b = startsWith[end][j];
+                    // console.log(b);
+                    // var cross = this._y * a._z - this._z * a._y, this._z * a._x - this._x * a._z, this._x * a._y - this._y * a._x
+                    var e1 = new CSG.Vector3D(e.u._x - e.v._x, e.u._y - e.v._y,e.u._z - e.v._z);
+                    var e2 = new CSG.Vector3D(b.u._x - b.v._x, b.u._y - b.v._y, b.u._z - b.v._z);
+
+                    var c = e1.cross(e2);
+
+                    if (Math.abs(c._x) < 0.001 && Math.abs(c._y) < 0.001 && Math.abs(c._z) < 0.001) {
+                        // console.log("found a parallel line");
+                        // b is || to my edge, so it is likely to be part of the cycle.  Now what?  put it on the chain!
+                        // chain.push(b);
+                        return (b);
+                    }
+                }
+            }
+
+            return null;
+    }
+
+
+
+
+CSG.isOn = function(a, b, c, threshold) {
+    // return true if and only if the point c intersects the segment between a and b.
+    // threshold is used to allow "close enough" matches for rounding errons.
+
+    // first check if it is in the right area
+    return (CSG.within(a,b,c) && CSG.collinear(a,b,c,threshold));
+}
+
+CSG.collinear = function(a,b,c,threshold) {
+    // return true if a,b,and c are all on the same line.
+    var e1 = new CSG.Vector3D(a._x - b._x, a._y - b._y, a._z - b._z);
+    var e2 = new CSG.Vector3D(b._x - c._x, b._y - c._y, b._z - c._z);
+
+    var c = e1.cross(e2);
+
+    if (Math.abs(c._x) < threshold && Math.abs(c._y) < threshold && Math.abs(c._z) < threshold)
+        return true;
+
+    return false;
+
+}
+CSG.within = function(a, b, c) {
+    // return true if c is within the range of a and b
+    if (a.x != b.x)
+        return ((a.x >= c.x && c.x >= b.x) || (a.x <= c.x && c.x <= b.x));
+    else  if (a.y != b.y)
+       return ((a.y >= c.y && c.y >= b.y) || (a.y <= c.y && c.y <= b.y));
+    else  if (a.z != b.z)
+       return ((a.z >= c.z && c.z >= b.z) || (a.z <= c.z && c.z <= b.z));
+}
+CSG.diffPoints = function(a,b) {
+    // console.log("in diffPoints");
+    // console.log(a);
+    // console.log(b);
+    if (Math.abs(a._x - b._x) > 0.00001) {
+        // console.log("x coord different");
+        return true;
+    }
+    else if (Math.abs(a._y - b._y) > 0.00001) {
+        // console.log("y coord different");
+        return true;
+    }
+    else if (Math.abs(a._z - b._z) > 0.00001) {
+        // console.log("z coord different");
+        return true;
+    }
+    // console.log("returning false from diffPoints");
+    return false;
+}
 
     //////////////////////////////////////
     CSG.addTransformationMethodsToPrototype(CSG.prototype);
