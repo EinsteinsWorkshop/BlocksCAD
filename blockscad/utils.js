@@ -90,9 +90,19 @@ BSUtils.getStringParamFromUrl = function(name, defaultValue) {
 BSUtils.getLang = function() {
   var lang = BSUtils.getStringParamFromUrl('lang', '');
   if (BSUtils.LANGUAGE_NAME[lang] === undefined) {
+    // check to see if we had a previous language stored in localStorage.
+    var pLang = Blockscad.getLangFromLS();
+
+    if (pLang && pLang != 'null') {
+      lang = pLang;
+    }
+
     // Default to English.
-    lang = 'en';
+    else lang = 'en';
   }
+
+  console.log("setting pLang in getLang to:", lang);
+  Blockscad.pLang = lang;
   return lang;
 };
 

@@ -50,6 +50,7 @@ BlocklyStorage.backupBlocks_ = function() {
     var url3 = url + "current_project";
     var url4 = url + "current_project_key";
     var url5 = url + "needToSave";
+    var url6 = url + "pLang";
 
     // do I have any stl files (converted to CSG commands) I want to save?
     // TO-DO: don't do this unless you find it in the xml you're saving.  
@@ -76,6 +77,11 @@ BlocklyStorage.backupBlocks_ = function() {
     window.localStorage.setItem(url3, Blockscad.Auth.currentProject);
     window.localStorage.setItem(url4, Blockscad.Auth.currentProjectKey);
     window.localStorage.setItem(url5, Blockscad.needToSave);
+
+    if (Blockscad.pLang)
+      window.localStorage.setItem(url6, Blockscad.pLang);
+    else
+      localStorage.removeItem(url6);
   }
 };
 
@@ -194,5 +200,15 @@ BlocklyStorage.restoreBlocks = function() {
       }, 300);
     }
 
+
+
   }
-};
+}
+
+Blockscad.getLangFromLS = function() {
+  var url = window.location.href.split('#')[0];
+  url = url.split('?lang')[0];
+  var url6 = url + "pLang"; 
+
+  return window.localStorage[url6];
+}

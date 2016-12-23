@@ -46,7 +46,6 @@ Blockscad.resolution = 1;
 Blockscad.showMessageModal = true;
 
 
-
 // Initialize Blockscad.  Called on page load.
  
 Blockscad.init = function() {
