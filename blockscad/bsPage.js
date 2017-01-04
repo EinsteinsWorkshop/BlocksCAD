@@ -100,6 +100,9 @@ output += '          </li>\n';
 // output += '          <li class="button">\n';
 output += '             <a type="button" class="btn btn-default btn-lg" style="margin-top:2px" href="https://youtu.be/5RNKVn7lijM" target="_blank">'+ Blockscad.Msg.GET_STARTED_VIDEO + '</a>';
 output += '             <button id="exportButton" type="button" class="btn btn-default btn-lg" style="margin-top:2px" >' + "export" + '</button>';
+output += '             <button id="userExportButton" type="button" class="btn btn-default btn-lg" style="margin-top:2px" >' + "userExport" + '</button>';
+
+output += '             <button id="checkAuthButton" type="button" class="btn btn-default btn-lg" style="margin-top:2px" >' + "check auth" + '</button>';
 
 // output += '          </li>\n';
 output += '        </ul>\n';
