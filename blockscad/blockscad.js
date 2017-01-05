@@ -32,7 +32,7 @@ var BSUtils = BSUtils || {};
 Blockscad.version = "1.6.1";
 Blockscad.releaseDate = "2016/12/21";
 
-Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
 
 Blockscad.standalone = false; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
@@ -43,13 +43,15 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 // In theory I could just have the parser poll the value directly. Overwritten by the sides block.
 Blockscad.resolution = 1;
 
-Blockscad.showMessageModal = true;
+Blockscad.showMessageModal = false;
 
 
 // Initialize Blockscad.  Called on page load.
  
 Blockscad.init = function() {
   Blockscad.initLanguage();
+  var pageData = blockscadpage.start();
+  $('body').append(pageData);
 
   // version of input files/projects
   Blockscad.inputVersion = Blockscad.version;
@@ -778,6 +780,7 @@ Blockscad.readStlFile = function(evt) {
 
 // Load Blockly's (and Blockscad's) language strings.
 // console.log("trying to include message strings");
+// console.log("language is: ", BSUtils.LANG);
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 document.write('<script src="blockscad/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 

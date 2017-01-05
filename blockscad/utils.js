@@ -101,7 +101,6 @@ BSUtils.getLang = function() {
     else lang = 'en';
   }
 
-  console.log("setting pLang in getLang to:", lang);
   Blockscad.pLang = lang;
   return lang;
 };
