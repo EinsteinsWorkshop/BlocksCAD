@@ -25,6 +25,15 @@ define("CSGModule", ["Globals", "Context"], function(Globals, Context){
             }
         };
 
+        // remove children that have no shape
+        for (var k = 0; k < childModules.length; k++) {
+            // console.log("do I need to throw this child out?", this.evaluatedChildren[i]);
+            if (typeof(childModules[k]) == "string" && childModules[k].charAt(0) == '.') {
+                // this should have started with a shape, not a '.'.  Take it out of the list
+                childModules.splice(k,1);
+            }
+        }  
+
         // hull should act on a single non-convex shape
         // .hull() doesn't work well.  I need to say shape.hull(shape).
         if (this.csgOperation == 'hull' && childModules.length == 1) {

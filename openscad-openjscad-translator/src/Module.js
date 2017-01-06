@@ -34,10 +34,12 @@ define("Module", ["Context", "Globals"], function(Context, Globals){
             context.setVariable(key, value.evaluate(context));
         });
 
+        // filter out echo statements
         var controlChildren = _.filter(this.children, function(child){ 
             return child && child.name == "echo"; 
         });
 
+        // handle echo statements
         _.each(controlChildren, function(child, index, list) {
             child.evaluate(context);
         });
@@ -56,6 +58,8 @@ define("Module", ["Context", "Globals"], function(Context, Globals){
             }
         });
 
+        // this handles implicit unioning of multiple things in the space.  I may want to change this
+        // to speed things up.
         var cleanedLines = _.compact(evaluatedLines);
         if (cleanedLines.length == 1){
             lines.push(cleanedLines[0]);
