@@ -29,8 +29,8 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.6.1";
-Blockscad.releaseDate = "2016/12/21";
+Blockscad.version = "1.6.2";
+Blockscad.releaseDate = "2017/01/06";
 
 Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 
@@ -1826,7 +1826,7 @@ Blockly.OpenSCAD.returnIfVarCode = function(block) {
       var b = block.getInputTargetBlock(block.inputList[i].name);
       bays[bayIndex] = [];
 
-      if (b.type == "variables_set")
+      if (b && b.type == "variables_set")
         bays[bayIndex] = Blockly.OpenSCAD.getVariableCode(b);
 
       bayIndex++;
