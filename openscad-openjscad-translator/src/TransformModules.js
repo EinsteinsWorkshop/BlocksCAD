@@ -30,27 +30,47 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
                 // and returns the appropriate function.
 		        var childAdaptor = factory.getAdaptor(childInst);
 		        var transformedChild = childAdaptor.evaluate(context, childInst);
-                if (transformedChild){
-                    transformedChild += cb();
-                    childModules.push(transformedChild);
-                }
-		    };
-            if (_.isArray(childModules)) {            
-                // remove children that have no shape
-                for (var k = 0; k < childModules.length; k++) {
-                    // console.log("do I need to throw this child out?", childModules[k]);
-                    if (typeof(childModules[k]) == "string" && childModules[k].charAt(0) == '.') {
-                        // this should have started with a shape, not a '.'.  Take it out of the list
-                        childModules.splice(k,1);
-                    }
-                }  
-            }
 
-		    if (childModules.length == 1){
-		        return childModules[0];
-		    } else if (childModules.length > 1) {
-		        return _.first(childModules)+".union([" + _.rest(childModules) + "])";
-		    }
+
+
+                if (_.isArray(transformedChild)) {
+                    if (transformedChild.length > 0) {
+                        transformedChild = _.flatten(transformedChild);
+                        for (var j = 0; j < transformedChild.length; j++) {
+                            if (transformedChild[j] && !(typeof(transformedChild[j]) == "string" && transformedChild[j].charAt(0) == '.')){
+                                transformedChild[j] += cb();
+                                childModules.push(transformedChild[j]);
+                            }                    
+                        }
+                    } 
+                }
+                else {
+                    if (transformedChild && !(typeof(transformedChild) == "string" && transformedChild.charAt(0) == '.')){
+                        transformedChild += cb();
+                        childModules.push(transformedChild);
+                    }
+                }
+                // console.log("in transformChildren.  transformedChild is:", transformedChild);
+
+		    };
+         
+            // // remove children that have no shape
+            // for (var k = 0; k < childModules.length; k++) {
+            //     console.log("do I need to throw this transform child out?", childModules[k]);
+            //     if (typeof(childModules[k]) == "string" && childModules[k].charAt(0) == '.') {
+            //         // this should have started with a shape, not a '.'.  Take it out of the list
+            //         childModules.splice(k,1);
+            //     }
+            // }  
+
+
+		    // if (childModules.length == 1){
+		    //     return childModules[0];
+		    // } else if (childModules.length > 1) {
+		    //     return _.first(childModules)+".union([" + _.rest(childModules) + "])";
+		    // }
+
+            return childModules;
 
 		}
     };
@@ -221,6 +241,8 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
     };
 
     TranslateTransform.prototype.evaluate = function(parentContext, inst){
+
+        // console.log("in translate.  inst is:", inst);
 
         inst.argvalues = [];
 

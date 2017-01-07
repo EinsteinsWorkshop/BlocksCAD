@@ -47,22 +47,27 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
             }
         }  
 
-        if (_.isEmpty(childModules)){
+        // if (_.isEmpty(childModules)){
+        //     return undefined;
+        // } else {
+        //     if (childModules.length > 1){
+        //         return _.first(childModules)+".union([" + _.rest(childModules) + "])";
+        //     } else {
+        //         return childModules[0];
+        //     }
+        // }
+        if (_.isEmpty(childModules)) {
             return undefined;
-        } else {
-            if (childModules.length > 1){
-                return _.first(childModules)+".union([" + _.rest(childModules) + "])";
-            } else {
-                return childModules[0];
-            }
         }
+        else
+            return childModules;
     };
 
     function ForLoopStatement(factory, args){
         // console.log("in ForLoopStatement");
         // console.log(this);
         // console.log(factory);
-        // ControlModule.call(this, factory);
+        ControlModule.call(this, factory);
         this.factory = factory;
         this.csgOp = args.csgOp;
         this.evaluatedChildren = [];
@@ -156,18 +161,20 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
             // }
             // console.log("end of evaluated children");
             // Note: we union here so subsequent actions (e.g. translate) can be performed on the entire result of the for loop.
-            if (_.isArray(this.evaluatedChildren) && this.evaluatedChildren.length > 1){
-                // console.log("unioning more than one child in the loop");
-                var unionedEvaluatedChildren = _.first(this.evaluatedChildren)+"."+this.csgOp+"([" + _.rest(this.evaluatedChildren) + "])";
-                this.evaluatedChildren = [unionedEvaluatedChildren];
-            }
+            // if (_.isArray(this.evaluatedChildren) && this.evaluatedChildren.length > 1){
+            //     // console.log("unioning more than one child in the loop");
+            //     var unionedEvaluatedChildren = _.first(this.evaluatedChildren)+"."+this.csgOp+"([" + _.rest(this.evaluatedChildren) + "])";
+            //     this.evaluatedChildren = [unionedEvaluatedChildren];
+            // }
             
+            this.evaluatedChildren = _.flatten(this.evaluatedChildren);
+            // console.log("in loop.  evaluated children are:", this.evaluatedChildren);
             return this.evaluatedChildren;
         };
     };
 
     ForLoopStatement.prototype.evaluate = function(context, inst) {
-        // console.log("in forloopstatement.prototype.evaluate. ");
+        // console.log("in forloopstatement.prototype.evaluate. ", inst);
         // console.log(context.parentContext.vars);
         // console.log(context.parentContext.parentContext.vars);
 
@@ -188,9 +195,15 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
 
         var evaluatedThing = that.forEval([], inst, 0, inst.argnames, inst.argvalues, that.context);
 
+        // console.log("in loop evaluate.  evaluatedThing is:", evaluatedThing);
+
 
             that.context = null;
             that.argvalues = [];        
+
+        // the loop could return an array of instances.  I want to add them to the current instance as children.  How can I do that?
+
+
         return evaluatedThing;
     };
 

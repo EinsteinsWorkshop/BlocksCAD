@@ -794,29 +794,39 @@ Blockscad.isChrome = function() {
 // and post a message to the calling thread when finished
 Blockscad.runMainInWorker = function() {
   try {
-    if(typeof(main) != 'function') throw new Error('Your file should contain a function main() which returns a CSG solid or a CAG area.');
+    if(typeof(main) != 'function') throw new Error('Your code has an error somewhere.  Parsing your blocks failed.');
   
     var result = main();
-    if( (typeof(result) != "object") || ((!(result instanceof CSG)) && (!(result instanceof CAG)))) {
+
+    // self.postMessage({cmd: 'log', txt: result});
+
+    // result will always return an array of objects. check the first object to make sure it is good.  empty stuff gets "undefined".
+
+
+
+    if( (typeof(result[0]) != "object") || ((!(result[0] instanceof CSG)) && (!(result[0] instanceof CAG)))) {
       throw new Error("Nothing to Render!");
     }
-    else if(result.length) {                   // main() return an array, we consider it a bunch of CSG not intersecting
-       var o = result[0];
-       if(o instanceof CAG) {
-          o = o.extrude({offset: [0,0,0.1]});
-       }
-       for(var i=1; i<result.length; i++) {
+    else {                  
+       // var o = result[0];
+       // if(o instanceof CAG) {
+       //    o = o.extrude({offset: [0,0,0.1]});
+       // }
+       var objs = [];
+       for(var i=0; i<result.length; i++) {
+
           var c = result[i];
           if(c instanceof CAG) {
              c = c.extrude({offset: [0,0,0.1]});
           }
-          o = o.unionForNonIntersecting(c);
+          // o = o.unionForNonIntersecting(c);
+          objs.push(c.toCompactBinary()); 
        }
-       result = o;
+       // result = c;
     } 
-    var result_compact = result.toCompactBinary();   
+    // var result_compact = result.toCompactBinary();   
     result = null; // not needed anymore
-    self.postMessage({cmd: 'rendered', result: result_compact});
+    self.postMessage({cmd: 'rendered', result: objs});
   }
   catch(e) {
     var errtxt = e.toString();
@@ -873,9 +883,10 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 // callback: should be function(error, csg)
 Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
-      "blockscad/viewer_compressed.js"
-      // "blockscad/csg.js",
-      // "blockscad/viewer.js"
+      // "blockscad/viewer_compressed.js"
+      "blockscad/csg.js",
+      "blockscad/formats.js",
+      "blockscad/viewer.js"
   ];
 
   // console.log("in parseBlockscadScriptASync");
@@ -885,38 +896,13 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
 
   var libraries = [];
 
-  // for(var i in gMemFs) {            // let's test all files and check syntax before we do anything
-  //   var src = gMemFs[i].source+"\nfunction include() { }\n";
-  //   var f;
-  //   try {
-  //      f = new Function(src);
-  //   } catch(e) {
-  //     this.setError(i+": "+e.message);
-  //     console.log(e.message);
-  //   }
-  // }
   var workerscript = "//ASYNC\n";
-  // workerscript += "var me = " + JSON.stringify(me) + ";\n";
   workerscript += "var _csg_baseurl=" + JSON.stringify(baseurl)+";\n";        // -- we need it early for include()
-  // workerscript += "var _includePath=" + JSON.stringify(_includePath)+";\n";    //        ''            ''
-  // workerscript += "var gMemFs = [];\n";
   var ignoreInclude = false;
   var mainFile;
-  // for(var fn in gMemFs) {
-  //    workerscript += "// "+gMemFs[fn].name+":\n";
-  //    //workerscript += gMemFs[i].source+"\n";
-  //    if(!mainFile) 
-  //       mainFile = fn;
-  //    if(fn=='main.jscad'||fn.match(/\/main.jscad$/)) 
-  //       mainFile = fn;
-  //    workerscript += "gMemFs[\""+gMemFs[fn].name+"\"] = "+JSON.stringify(gMemFs[fn].source)+";\n";
-  //    ignoreInclude = true;
-  // }
-  // if(ignoreInclude) {
-  //    // workerscript += "eval(gMemFs['"+mainFile+"']);\n";
-  // } else {
+
      workerscript += script;
-  // }
+
   workerscript += "\n\n\n\n//// The following code was added by OpenJsCad + OpenJSCAD.org:\n";
 
 
@@ -933,45 +919,7 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   workerscript += "  Blockscad.runMainInWorker();";
   workerscript += "}},false);\n";
 
-
-// trying to get include() somewhere: 
-// 1) XHR fails: not allowed in blobs
-// 2) importScripts() works for ASYNC <----
-// 3) _csg_libraries.push(fn) provides only 1 level include()
-
-//   if(!ignoreInclude) {
-//      workerscript += "function include(fn) {" +
-//   "if(0) {" +
-//     "_csg_libraries.push(fn);" +
-//   "} else if(1) {" +
-//    "if(gMemFs[fn]) {" +
-//       "eval(gMemFs[fn]); return;" +
-//    "}" +
-//     "var url = _csg_baseurl+_includePath;" +
-//     "var index = url.indexOf('index.html');" +
-//     "if(index!=-1) {" +
-//        "url = url.substring(0,index);" +
-//     "}" +
-//   	 "importScripts(url+fn);" +
-//   "} else {" +
-//    "var xhr = new XMLHttpRequest();" +
-//    "xhr.open('GET', _includePath+fn, true);" +
-//    "xhr.onload = function() {" +
-//       "return eval(this.responseText);" +
-//    "};" +
-//    "xhr.onerror = function() {" +
-//    "};" +
-//    "xhr.send();" +
-//   "}" +
-// "}";
-//   } else {
-//      //workerscript += "function include() {}\n";
-//      workerscript += "function include(fn) { eval(gMemFs[fn]); }\n";
-//   }
-  //workerscript += "function includePath(p) { _includePath = p; }\n";
   var blobURL = Blockscad.textToBlobUrl(workerscript);
-  // console.log("blobURL",blobURL);
-   // console.log("workerscript",workerscript);
   
   if(!window.Worker) throw new Error("Your browser doesn't support Web Workers. Please try the Chrome or Firefox browser instead.");
   var worker = new Worker(blobURL);
@@ -980,19 +928,26 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
     { 
       if(e.data.cmd == 'rendered')
       {
-        var resulttype = e.data.result.class;
-        var result;
-        if(resulttype == "CSG")
-        {
-          result = CSG.fromCompactBinary(e.data.result);
-        }
-        else if(resulttype == "CAG")
-        {
-          result = CAG.fromCompactBinary(e.data.result);
-        }
-        else
-        {
-          throw new Error("Cannot parse result");
+        console.log("got a rendered result:", e.data.result);
+        // the result is now an array of abjects.
+        var resulttype = [];
+        var result = [];
+
+        for (var i = 0; i < e.data.result.length; i++) {
+          resulttype[i] = e.data.result[i].class;
+
+          if(resulttype[i] == "CSG")
+          {
+            result[i] = CSG.fromCompactBinary(e.data.result[i]);
+          }
+          else if(resulttype[i] == "CAG")
+          {
+            result[i] = CAG.fromCompactBinary(e.data.result[i]);
+          }
+          else
+          {
+            throw new Error("Cannot parse result");
+          }
         }
         callback(null, result);
       }
@@ -1070,25 +1025,28 @@ Blockscad.Processor = function(containerdiv, onchange) {
 
 Blockscad.Processor.convertToSolid = function(obj) {
 
-  if( (typeof(obj) == "object") && ((obj instanceof CAG)) ) {
-    // convert a 2D shape to a thin solid:
-    obj = obj.extrude({offset: [0,0,0.1]});
+  // obj is an array of objects.  I'm not sure any of them can be CAGs, but I'll check for that.
+  console.log("in convertToSolid with:", obj);
 
-  } else if( (typeof(obj) == "object") && ((obj instanceof CSG)) ) {
-    // obj already is a solid, nothing to do
-    ;
-    
-  } else if(obj.length) {                   // main() return an array, we consider it a bunch of CSG not intersecting
-    console.log("putting them together");
-    var o = obj[0];
-    for(var i=1; i<obj.length; i++) {
-       o = o.unionForNonIntersecting(obj[i]);
-    }
-    obj = o;
-    
-  } else {
+  if (typeof(obj[0]) != "object" || !(  ((obj[0]) instanceof CAG) || ((obj[0]) instanceof CSG) ) )
     throw new Error("Cannot convert to solid");
+
+  for (var i = 0; i < obj.length; i++) {
+    // first check for CAGS.
+    if( (typeof(obj[i]) == "object") && ((obj[i] instanceof CAG)) ) {
+      // convert a 2D shape to a thin solid:
+      obj[i] = obj[i].extrude({offset: [0,0,0.1]});
+    }
   }
+
+  // now concatenate for display.  I'm hoping this won't break lightgl.js
+
+  var o = obj[0];
+  for(var i=1; i<obj.length; i++) {
+     o = o.unionForNonIntersecting(obj[i]);
+  }
+  obj = o;
+
   return obj;
 };
 
@@ -1206,6 +1164,7 @@ Blockscad.Processor.prototype = {
   // },
   setCurrentObject: function(obj) {
     var csg = Blockscad.Processor.convertToSolid(obj);       // enfore CSG to display
+
     this.currentObject = csg;
     this.hasValidCurrentObject = true;
 
@@ -1222,21 +1181,24 @@ Blockscad.Processor.prototype = {
       this.rpicviewer.setCsg(csg);
     }
 
+    // so, we've displayed the object.  I need to generate a really-unioned object for printing.
+    // I'll set up the worker to union the objects elsewhere, and call a function that will set up the stl buttons then.
+
     // console.log("trying to turn on stl_buttons");
-    $('#stl_buttons').removeClass('hidden');
+    // $('#stl_buttons').removeClass('hidden');
     
-    while(this.formatDropdown.options.length > 0)
-      this.formatDropdown.options.remove(0);
+    // while(this.formatDropdown.options.length > 0)
+    //   this.formatDropdown.options.remove(0);
     
-    var that = this;
-    this.supportedFormatsForCurrentObject().forEach(function(format) {
-      var option = document.createElement("option");
-      option.setAttribute("value", format);
-      option.appendChild(document.createTextNode(that.formatInfo(format).displayName));
-      that.formatDropdown.options.add(option);
-    });
+    // var that = this;
+    // this.supportedFormatsForCurrentObject().forEach(function(format) {
+    //   var option = document.createElement("option");
+    //   option.setAttribute("value", format);
+    //   option.appendChild(document.createTextNode(that.formatInfo(format).displayName));
+    //   that.formatDropdown.options.add(option);
+    // });
     
-    this.updateDownloadLink();
+    // this.updateDownloadLink();
   },
   
   selectedFormat: function() {
@@ -1254,7 +1216,7 @@ Blockscad.Processor.prototype = {
   
   clearViewer: function() {
     this.clearOutputFile();
-    this.setCurrentObject(new CSG());
+    this.setCurrentObject([new CSG()]);
     this.hasValidCurrentObject = false;
     this.thumbnail = "none";
     this.imgStrip = "none";
@@ -1341,6 +1303,11 @@ Blockscad.Processor.prototype = {
             that.img = images[0];
             that.thumbnail = images[1];
             that.imgStrip = that.takeRotatingPic(1,Blockscad.numRotPics);
+
+
+            // If I take out the unions in the first pass of the parser, I need to prepare a printable object here.
+
+            console.log("time to union the separate objects");
           }
 
           if(that.onchange) that.onchange();
