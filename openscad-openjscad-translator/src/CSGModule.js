@@ -13,7 +13,7 @@ define("CSGModule", ["Globals", "Context"], function(Globals, Context){
         // console.log("in csgmodule.prototype.evaluate.  inst.children is:", inst.children);
 
         for (var i = 0; i < inst.children.length; i++) {
-            // console.log("found child :", i);
+            // console.log("found child :" + i + ", " + inst.children[i].name);
 
             var childInst = inst.children[i];
             childInst.argvalues = [];
@@ -23,6 +23,16 @@ define("CSGModule", ["Globals", "Context"], function(Globals, Context){
             
             var childAdaptor = this.factory.getAdaptor(childInst);
             var evaluatedChild = childAdaptor.evaluate(parentContext, childInst);
+
+            // in the difference block, if the first child doesn't have anything, then I don't want to perform an operation.
+            // because nothing minus a bunch of stuff is still nothing.
+            // test with an empty procedure in the top bay showed that it evaluates to "undefined".
+
+            if (i == 0 && this.csgOperation == "subtract") {
+                // console.log("first child in a difference evaluated to:", evaluatedChild);
+                if (evaluatedChild == undefined)
+                    return [];
+            }
             if (evaluatedChild !== undefined){
                 childModules.push(evaluatedChild);
             }

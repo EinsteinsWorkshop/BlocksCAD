@@ -790,6 +790,11 @@ Blockscad.isChrome = function() {
   return (navigator.userAgent.search("Chrome") >= 0);
 };
 
+// this is called from within the web worker.  Run the parser, create the main() function, execute the main() function.
+Blockscad.parseCodeInWorker = function() {
+
+
+}
 // This is called from within the web worker. Execute the main() function of the supplied script
 // and post a message to the calling thread when finished
 Blockscad.runMainInWorker = function() {
@@ -808,25 +813,51 @@ Blockscad.runMainInWorker = function() {
       throw new Error("Nothing to Render!");
     }
     else {                  
-       // var o = result[0];
-       // if(o instanceof CAG) {
-       //    o = o.extrude({offset: [0,0,0.1]});
-       // }
-       var objs = [];
-       for(var i=0; i<result.length; i++) {
+      // just for fun, let's send a message with how many objects there were.
+      self.postMessage({cmd: 'log', txt: "number of objects: " + result.length});
 
+      // I have something to render.  If it was a single object, extrude and return it.
+
+      var o = result[0];
+      if(o instanceof CAG) {
+        o = o.extrude({offset: [0,0,0.1]});
+      }
+
+      if (result.length == 1) { 
+        var cp = o.toCompactBinary();
+        self.postMessage({cmd: 'finalMesh', result: cp}); 
+      }
+      else { 
+        // I know I have more than one object.  First make a fake union for display only.
+        for(var i=1; i<result.length; i++) {
           var c = result[i];
           if(c instanceof CAG) {
              c = c.extrude({offset: [0,0,0.1]});
           }
-          // o = o.unionForNonIntersecting(c);
-          objs.push(c.toCompactBinary()); 
-       }
-       // result = c;
-    } 
-    // var result_compact = result.toCompactBinary();   
-    result = null; // not needed anymore
-    self.postMessage({cmd: 'rendered', result: objs});
+          o = o.unionForNonIntersecting(c);
+        }
+
+        var result_compact = o.toCompactBinary();
+        self.postMessage({cmd: 'rendered', result: result_compact});
+       
+
+        // now that I've returned the display obj, do a real union and return it.
+
+        var a = result[0];
+        var rest_of_objs = result.slice(1);
+        a = a.union(rest_of_objs);
+
+        if(a instanceof CAG) {
+          a = a.extrude({offset: [0,0,0.1]});
+        }
+
+        var result_compact = a.toCompactBinary();
+        self.postMessage({cmd: 'finalMesh', result: result_compact});
+
+
+        result = null; // not needed anymore
+      } // end else (result.length > 1)
+    } // end else (have something to render)
   }
   catch(e) {
     var errtxt = e.toString();
@@ -903,7 +934,7 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
 
      workerscript += script;
 
-  workerscript += "\n\n\n\n//// The following code was added by OpenJsCad + OpenJSCAD.org:\n";
+  workerscript += "\n\n\n\n//// The following code was added by BlocksCAD:\n";
 
 
   workerscript += "var _csg_baselibraries=" + JSON.stringify(baselibraries)+";\n";
@@ -926,30 +957,21 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   worker.onmessage = function(e) {
     if(e.data)
     { 
-      if(e.data.cmd == 'rendered')
-      {
-        console.log("got a rendered result:", e.data.result);
-        // the result is now an array of abjects.
-        var resulttype = [];
-        var result = [];
-
-        for (var i = 0; i < e.data.result.length; i++) {
-          resulttype[i] = e.data.result[i].class;
-
-          if(resulttype[i] == "CSG")
-          {
-            result[i] = CSG.fromCompactBinary(e.data.result[i]);
-          }
-          else if(resulttype[i] == "CAG")
-          {
-            result[i] = CAG.fromCompactBinary(e.data.result[i]);
-          }
-          else
-          {
-            throw new Error("Cannot parse result");
-          }
+      if (e.data.cmd == 'rendered' || e.data.cmd == 'finalMesh') {
+        // console.log("got the final, unioned mesh:", e.data.result);
+        var resulttype = e.data.result.class;
+        var result;
+        if (resulttype == "CSG") {
+          result = CSG.fromCompactBinary(e.data.result);
         }
-        callback(null, result);
+        else if (resulttype == "CAG") {
+          result = CAG.fromCompactBinary(e.data.result);
+        }
+        else {
+          throw new Error("cannot parse final result");
+        }
+
+        callback(e.data.cmd, result);
       }
       else if(e.data.cmd == "error")
       {
@@ -1025,27 +1047,11 @@ Blockscad.Processor = function(containerdiv, onchange) {
 
 Blockscad.Processor.convertToSolid = function(obj) {
 
-  // obj is an array of objects.  I'm not sure any of them can be CAGs, but I'll check for that.
-  console.log("in convertToSolid with:", obj);
+  // obj is an array with one object in it.  It has already been extruded and unioned.
+  // this function really has nothing to do.
 
-  if (typeof(obj[0]) != "object" || !(  ((obj[0]) instanceof CAG) || ((obj[0]) instanceof CSG) ) )
+  if (typeof(obj) != "object" || !(  ((obj) instanceof CAG) || ((obj) instanceof CSG) ) )
     throw new Error("Cannot convert to solid");
-
-  for (var i = 0; i < obj.length; i++) {
-    // first check for CAGS.
-    if( (typeof(obj[i]) == "object") && ((obj[i] instanceof CAG)) ) {
-      // convert a 2D shape to a thin solid:
-      obj[i] = obj[i].extrude({offset: [0,0,0.1]});
-    }
-  }
-
-  // now concatenate for display.  I'm hoping this won't break lightgl.js
-
-  var o = obj[0];
-  for(var i=1; i<obj.length; i++) {
-     o = o.unionForNonIntersecting(obj[i]);
-  }
-  obj = o;
 
   return obj;
 };
@@ -1123,8 +1129,7 @@ Blockscad.Processor.prototype = {
 
     this.abortbutton.onclick = function(e) {
       that.abort();
-      // I want to turn the render button back on!
-      $('#renderButton').prop('disabled', false); 
+
 
     };
 
@@ -1162,7 +1167,7 @@ Blockscad.Processor.prototype = {
   //   return sphere;
 
   // },
-  setCurrentObject: function(obj) {
+  setCurrentObject: function(obj, forDownload) {
     var csg = Blockscad.Processor.convertToSolid(obj);       // enfore CSG to display
 
     this.currentObject = csg;
@@ -1181,24 +1186,23 @@ Blockscad.Processor.prototype = {
       this.rpicviewer.setCsg(csg);
     }
 
-    // so, we've displayed the object.  I need to generate a really-unioned object for printing.
-    // I'll set up the worker to union the objects elsewhere, and call a function that will set up the stl buttons then.
-
-    // console.log("trying to turn on stl_buttons");
-    // $('#stl_buttons').removeClass('hidden');
-    
-    // while(this.formatDropdown.options.length > 0)
-    //   this.formatDropdown.options.remove(0);
-    
-    // var that = this;
-    // this.supportedFormatsForCurrentObject().forEach(function(format) {
-    //   var option = document.createElement("option");
-    //   option.setAttribute("value", format);
-    //   option.appendChild(document.createTextNode(that.formatInfo(format).displayName));
-    //   that.formatDropdown.options.add(option);
-    // });
-    
-    // this.updateDownloadLink();
+    if (forDownload) {
+      // console.log("trying to turn on stl_buttons");
+      $('#stl_buttons').removeClass('hidden');
+      
+      while(this.formatDropdown.options.length > 0)
+        this.formatDropdown.options.remove(0);
+      
+      var that = this;
+      this.supportedFormatsForCurrentObject().forEach(function(format) {
+        var option = document.createElement("option");
+        option.setAttribute("value", format);
+        option.appendChild(document.createTextNode(that.formatInfo(format).displayName));
+        that.formatDropdown.options.add(option);
+      });
+      
+      this.updateDownloadLink();
+    }
   },
   
   selectedFormat: function() {
@@ -1216,7 +1220,7 @@ Blockscad.Processor.prototype = {
   
   clearViewer: function() {
     this.clearOutputFile();
-    this.setCurrentObject([new CSG()]);
+    this.setCurrentObject(new CSG());
     this.hasValidCurrentObject = false;
     this.thumbnail = "none";
     this.imgStrip = "none";
@@ -1230,6 +1234,14 @@ Blockscad.Processor.prototype = {
     if(this.processing)
     {
       //todo: abort
+
+      // I want to turn the render button back on!
+      $('#renderButton').prop('disabled', false); 
+
+      // I might need to change the "in progress" message too.
+
+      $( '#render-ongoing').html(Blockscad.Msg.RENDER_IN_PROGRESS + '<img id=busy src="imgs/busy2.gif">');
+
       this.processing=false;
       //this.statusspan.innerHTML = "Aborted.";
       this.worker.terminate();
@@ -1256,11 +1268,12 @@ Blockscad.Processor.prototype = {
     this.debugging = debugging;
   },
   
-  // clear the viewer, build/display a mesh
+  // build/display a mesh
   setBlockscad: function(script) {
-    this.abort();
-    this.clearViewer();
+    // this.abort();
+    // this.clearViewer();
     this.script = script;
+    console.log("script for worker is:", this.script);
     this.rebuildSolid();
   },
   
@@ -1273,10 +1286,10 @@ Blockscad.Processor.prototype = {
     this.processing = true;
     $( '#renderButton' ).html(Blockscad.Msg.RENDER_BUTTON);
     $( '#renderButton' ).prop('disabled', false);
-    //this.statusspan.innerHTML = "Rendering code <img id=busy src='imgs/busy.gif'>";
     this.enableItems();
     var that = this;
     var useSync = this.debugging;
+
 
     //useSync = true;
     if(!useSync)
@@ -1285,33 +1298,48 @@ Blockscad.Processor.prototype = {
       {
 //          console.log("trying async compute");
           this.worker = Blockscad.parseBlockscadScriptASync(this.script, function(err, obj) {
-          that.processing = false;
-          that.worker = null;
-          if(err)
-          {
-          console.log("error in proc" + err);
-          // alert(err);
-          // console.log("script was:",this.script;
-            that.setError(err);
-          }
-          else
-          {
-//            console.log("no error in proc");
-            that.setCurrentObject(obj);
-            // console.log(that);
-            var images = that.picviewer.takePic(Blockscad.picQuality,0,1);
-            that.img = images[0];
-            that.thumbnail = images[1];
-            that.imgStrip = that.takeRotatingPic(1,Blockscad.numRotPics);
 
+             if (err && err == "finalMesh") {
+                // console.log("got back final mesh that can be downloaded");
+                $( '#render-ongoing').html(Blockscad.Msg.RENDER_IN_PROGRESS + '<img id=busy src="imgs/busy2.gif">');
+                // I got back the final mesh here.  get the "ready for download" stuff ready.
+                that.processing = false;
 
-            // If I take out the unions in the first pass of the parser, I need to prepare a printable object here.
+                that.setCurrentObject(obj, true);
+                // console.log(that);
+                var images = that.picviewer.takePic(Blockscad.picQuality,0,1);
+                that.img = images[0];
+                that.thumbnail = images[1];
+                that.imgStrip = that.takeRotatingPic(1,Blockscad.numRotPics);
+                that.processing = false;
+                that.worker = null;
+              }
+              else if (err && err == "rendered")
+              {
+               // console.log("got back rendered shapes for display");
+                // change message to say "prep for final union"
 
-            console.log("time to union the separate objects");
-          }
+                $( '#render-ongoing').html("Prepare for Download..." + '<img id=busy src="imgs/busy2.gif">');
 
-          if(that.onchange) that.onchange();
-          that.enableItems();
+                that.setCurrentObject(obj, false);
+                // console.log(that);
+                var images = that.picviewer.takePic(Blockscad.picQuality,0,1);
+                that.img = images[0];
+                that.thumbnail = images[1];
+                that.imgStrip = that.takeRotatingPic(1,Blockscad.numRotPics);
+              }
+              else 
+              {
+              console.log("error in proc" + err);
+                that.processing = false;
+                that.worker = null;
+              // alert(err);
+              // console.log("script was:",this.script;
+                that.setError(err);
+              }
+
+              if(that.onchange) that.onchange();
+              that.enableItems();
         });
       }
       catch(e)

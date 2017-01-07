@@ -1231,7 +1231,7 @@ Blockscad.renderCode = function(code) {
     try {
    // console.log("code was: ",code);
    window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
-                                  console.log("final parsed code: ",csgcode);
+                                  // console.log("final parsed code: ",csgcode);
                                 }, 0);
 
 
