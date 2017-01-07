@@ -791,9 +791,38 @@ Blockscad.isChrome = function() {
 };
 
 // this is called from within the web worker.  Run the parser, create the main() function, execute the main() function.
-Blockscad.parseCodeInWorker = function() {
+Blockscad.parseCodeInWorker = function(code) {
+  // this needs to call the parser, get the main string back.  Will it be a function?  I think it will be a string.  We'll see.
+   self.postMessage({cmd: 'log', txt: "code in paresCodeInWorker: " + code});
+   self.postMessage({cmd: 'log', txt: openscadOpenJscadParser.parse('cube([10, 10, 10], center=false);')});
+
+ try {
+   var csgcode = openscadOpenJscadParser.parse('cube([10, 10, 10], center=false);'); 
+   self.postMessage({cmd: 'log', txt: "csgcode in paresCodeInWorker: " + csgcode});
 
 
+   // is the code any good? it should start with function main()
+
+   if (!csgcode || !csgcode.length) {
+    // if (!csgcode || !csgcode.length || !(csgcode.substring(0, 16) == "function main(){")){
+        // this is not good code.  What to do?
+      self.postMessage({cmd: 'errorParse', err: "bogus parse output"});
+
+    }
+
+    // now turn main into a function that can be called from the worker
+
+    var main = new Function(csgcode); 
+
+    Blockscad.runMainInWorker();
+
+
+  }
+  catch(e) {
+       self.postMessage({cmd: 'log', txt: "in catch of parseCodeInWorker: "});
+    var errtxt = e.toString();
+    self.postMessage({cmd: 'errorParse', err: errtxt});
+  }
 }
 // This is called from within the web worker. Execute the main() function of the supplied script
 // and post a message to the calling thread when finished
@@ -914,10 +943,12 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 // callback: should be function(error, csg)
 Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
-      // "blockscad/viewer_compressed.js"
+      // "blockscad/viewer_compressed.js",
+      // "blockscad/openscad-openjscad-translator.js"
       "blockscad/csg.js",
       "blockscad/formats.js",
-      "blockscad/viewer.js"
+      "blockscad/viewer.js",
+      "blockscad/openscad-openjscad-translator.js"
   ];
 
   // console.log("in parseBlockscadScriptASync");
@@ -932,7 +963,9 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var ignoreInclude = false;
   var mainFile;
 
-     workerscript += script;
+     // workerscript += script;
+
+  // workerscript += "var code = `" + script + '`;';
 
   workerscript += "\n\n\n\n//// The following code was added by BlocksCAD:\n";
 
@@ -947,7 +980,8 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   workerscript += "_csg_baselibraries.map(function(l){importScripts(l)});\n";
   workerscript += "_csg_libraries.map(function(l){importScripts(l)});\n";
   workerscript += "self.addEventListener('message', function(e) {if(e.data && e.data.cmd == 'render'){";
-  workerscript += "  Blockscad.runMainInWorker();";
+  // workerscript += "  Blockscad.runMainInWorker();";
+  workerscript += "  Blockscad.parseCodeInWorker(e.data.data);";
   workerscript += "}},false);\n";
 
   var blobURL = Blockscad.textToBlobUrl(workerscript);
@@ -977,6 +1011,12 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
       {
         callback(e.data.err, null);
       }
+      else if (e.data.cmd == "errorParse") {
+        console.log("caught parsing error:", e.data.err);
+        $( '#error-message' ).html(e.data.err);
+        $( '#error-message' ).addClass("has-error");        
+        callback(e.data.err, null);
+      }
       else if(e.data.cmd == "log")
       {
         console.log(e.data.txt);
@@ -988,7 +1028,8 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
     callback(errtxt, null);
   };
   worker.postMessage({
-    cmd: "render"
+    cmd: "render",
+    data: script
   }); // Start the worker.
   return worker;
 };
@@ -1330,7 +1371,9 @@ Blockscad.Processor.prototype = {
               }
               else 
               {
-              console.log("error in proc" + err);
+
+                console.log("what is going on?");
+                console.log("error in proc" + err);
                 that.processing = false;
                 that.worker = null;
               // alert(err);

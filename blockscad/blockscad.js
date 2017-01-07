@@ -1226,36 +1226,39 @@ Blockscad.doRender = function() {
 };
  
 Blockscad.renderCode = function(code) {
-  var csgcode = '';
-  var code_good = true;
-    try {
-   // console.log("code was: ",code);
-   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
-                                  // console.log("final parsed code: ",csgcode);
-                                }, 0);
+  // var csgcode = '';
+  // var code_good = true;
+  //   try {
+  //  // console.log("code was: ",code);
+  //  window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
+  //                                 // console.log("final parsed code: ",csgcode);
+  //                               }, 0);
 
 
-   //code = openscadOpenJscadParser.parse(code);
-   //console.log("code is now:",code);
-  }
-  catch(err) {
-    // console.log("caught parsing error");
-    $( '#error-message' ).html(err);
-    $( '#error-message' ).addClass("has-error");
-    code_good = false;
-  }
-  if (code_good) {
-    window.setTimeout(function () 
-      { Blockscad.gProcessor.setBlockscad(csgcode); 
-        // console.log("code is now",code); 
-      }, 0);
-    // unbacklight all here
-    Blockscad.workspace.clearBacklight();
-  }
-  else {
-    $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
+  //  //code = openscadOpenJscadParser.parse(code);
+  //  //console.log("code is now:",code);
+  // }
+  // catch(err) {
+  //   // console.log("caught parsing error");
+  //   $( '#error-message' ).html(err);
+  //   $( '#error-message' ).addClass("has-error");
+  //   code_good = false;
+  // }
+  // if (code_good) {
+  //   window.setTimeout(function () 
+  //     { Blockscad.gProcessor.setBlockscad(csgcode); 
+  //       // console.log("code is now",code); 
+  //     }, 0);
+  //   // unbacklight all here
+  //   Blockscad.workspace.clearBacklight();
+  // }
+  // else {
+  //   $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
 
-  }
+  // }
+
+
+  Blockscad.gProcessor.setBlockscad(code);
 };
 
 
