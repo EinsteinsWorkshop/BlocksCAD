@@ -49,9 +49,9 @@ Blockscad.showMessageModal = false;
 // Initialize Blockscad.  Called on page load.
  
 Blockscad.init = function() {
-  Blockscad.initLanguage();
   var pageData = blockscadpage.start();
   $('body').append(pageData);
+  Blockscad.initLanguage();
 
   // version of input files/projects
   Blockscad.inputVersion = Blockscad.version;
@@ -1684,6 +1684,7 @@ Blockscad.initLanguage = function() {
   for (var i = 0; i < languages.length; i++) {
     items.push('<li><a href="#" class="lang-option" data-lang="' + languages[i][1] + '"</a>' + languages[i][0] + '</li>');
   }
+
   $('#languageMenu').append( items.join('') );
 
   $('.lang-option').on("click", BSUtils.changeLanguage);
