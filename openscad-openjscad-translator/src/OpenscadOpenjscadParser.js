@@ -15,6 +15,7 @@ var us = requirejs("lib/underscore");
 
 module.exports = {
 	parse: function(text){
+		console.log("in parser's parse function");
 		if (parser.yy === undefined){
 			parser.yy = {}
 		}

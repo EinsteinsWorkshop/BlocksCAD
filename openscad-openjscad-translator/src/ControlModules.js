@@ -38,14 +38,16 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
         // if children can be pretty weird (deeply nested arrays).
         // I'm not going to check for bad children until I get a bug report with these.
         // remove children that have no shape
-        for (var k = 0; k < childModules.length; k++) {
-            // console.log("trying to remove if children that have no shape");
-            // console.log("do I need to throw this child out?", childModules[k]);
-            if (typeof(childModules[k]) == "string" && childModules[k].charAt(0) == '.') {
-                // this should have started with a shape, not a '.'.  Take it out of the list
-                childModules.splice(k,1);
-            }
-        }  
+        if (_.isArray(childModules)) {
+            for (var k = 0; k < childModules.length; k++) {
+                // console.log("trying to remove if children that have no shape");
+                // console.log("do I need to throw this child out?", childModules[k]);
+                if (typeof(childModules[k]) == "string" && childModules[k].charAt(0) == '.') {
+                    // this should have started with a shape, not a '.'.  Take it out of the list
+                    childModules.splice(k,1);
+                }
+            }  
+        }
 
         // if (_.isEmpty(childModules)){
         //     return undefined;
@@ -105,7 +107,7 @@ define("ControlModules", ["Globals", "Context", "Range"], function(Globals, Cont
                     if (range.step > 0 && (range.begin-range.end)/range.step < 10000) {
                         // interesting. Loops are limited to 10000 steps.  Could I raise this?  Would it be a terrible idea?
                         for (var i = range.begin; i <= range.end; i += range.step) {
-                            context.setVariable(it_name, i);
+                            context.setVariable(it_name, parseFloat(i.toFixed(8)));
                             this.forEval(this.evaluatedChildren, inst, recurs_length+1, call_argnames, call_argvalues, context);
                         }
                     }

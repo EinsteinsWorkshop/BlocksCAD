@@ -263,7 +263,7 @@ output += '                  <div id="stl_buttons" class="pull-right" style="pad
 output += '                    <select id="render-type" style="padding:2px 4px;"></select>\n';
 output += '                    <button type="button" class="btn btn-default btn-lg changeable" id="stlButton">' + Blockscad.Msg.GENERATE_STL + '</button>\n';
 output += '                  </div>\n';
-output += '                  <div id="render-ongoing">' + Blockscad.Msg.RENDER_IN_PROGRESS + '  <img id=busy src="imgs/busy2.gif"></div>\n';
+output += '                  <div id="render-ongoing">' + "Parsing..." + '  <img id=busy src="imgs/busy2.gif"></div>\n';
 output += '                  <div id="error-message"></div>\n';
 output += '                </div>\n';
 output += '              </div> <!-- paneContainer -->\n';

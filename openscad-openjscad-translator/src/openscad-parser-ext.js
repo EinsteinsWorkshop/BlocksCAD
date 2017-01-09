@@ -11,8 +11,8 @@ define(["Module", "Context", "Globals", "FunctionDef", "openscad-parser-support"
 
     function processModule(yy){
         var lines = [];
-        lines.push("function main(){");
-        lines.push("\n");
+        // lines.push("function main(){");
+        // lines.push("\n");
 
         var context = undefined;
         if (yy.context !== undefined){
@@ -38,7 +38,7 @@ define(["Module", "Context", "Globals", "FunctionDef", "openscad-parser-support"
 
         }
         lines.push("];");
-        lines.push('};');
+        // lines.push('};');
 
 
 

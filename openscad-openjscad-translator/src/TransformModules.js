@@ -106,7 +106,7 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
         //     color[i] = color[i].toFixed(3);
 
         return this.transformChildren(inst.children, context, function(){
-            return _.template('.setColor(<%=color%>)', {color:color});
+            return _.template('.sC(<%=color%>)', {color:color});
         });
     };
 
@@ -159,11 +159,11 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
             return this.transformChildren(inst.children, context, function(){
                 var code = "";
                 if (a[0] != 0)
-                    code += '.rotateX(' + a[0] + ')';
+                    code += '.rX(' + parseFloat(a[0].toFixed(10)) + ')';
                 if (a[1] != 0)
-                    code += '.rotateY(' + a[1] + ')';                
+                    code += '.rY(' + parseFloat(a[1].toFixed(10)) + ')';                
                 if (a[2] != 0)
-                    code += '.rotateZ(' + a[2] + ')';                
+                    code += '.rZ(' + parseFloat(a[2].toFixed(10)) + ')';                
 
                 return code;
                 // return _.template('.rotateX(<%=degreeX%>).rotateY(<%=degreeY%>).rotateZ(<%=degreeZ%>)', {degreeX:a[0],degreeY:a[1],degreeZ:a[2]});
@@ -254,9 +254,11 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
 
         var v = Context.contextVariableLookup(context, "v", [0,0,0]);
 
+
         return this.transformChildren(inst.children, context, function(){
-            if (v[0] != 0 || v[1] != 0 || v[2] != 0)
-                return _.template('.translate([<%=v%>])', {v:v});
+            if (v[0] != 0 || v[1] != 0 || v[2] != 0) {
+              return _.template('.tr([<%=v%>])', {v:v});
+            }
             else return "";
         });
 

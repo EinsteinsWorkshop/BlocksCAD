@@ -82,7 +82,7 @@ CSG.Vector class has been renamed into CSG.Vector3D
 Classes for 3D lines, 2D vectors, 2D lines, and methods to find the intersection of
 a line and a plane etc.
 
-Transformations: CSG.transform(), CSG.translate(), CSG.rotate(), CSG.scale()
+Transformations: CSG.transform(), CSG.tr(), CSG.rotate(), CSG.scale()
 
 Expanding or contracting a solid: CSG.expand() and CSG.contract(). Creates nice
 smooth corners.
@@ -448,11 +448,11 @@ for solid CAD anyway.
                 }
                 // console.log("points for polygons");
                 // console.log(pp);
-                // var thispoly = new CSG.Polygon.createFromPoints(pp).setColor(color);
+                // var thispoly = new CSG.Polygon.createFromPoints(pp).sC(color);
 
                 var np = new CSG.Polygon.createFromPoints(pp);
                 if (color)
-                    np.setColor(color);
+                    np.sC(color);
                 polygons.push(np);
             }
             // console.log("polygons");
@@ -583,7 +583,7 @@ for solid CAD anyway.
 
                         nPoly = new CSG.Polygon.createFromPoints(nVert);
                         if (color)
-                            nPoly.setColor(color);
+                            nPoly.sC(color);
                         triangPolys.push(nPoly);
                     }
                 }
@@ -624,7 +624,7 @@ for solid CAD anyway.
                 }
                 newPolys[i] = new CSG.Polygon.createFromPoints(newVert);
                 if (color)
-                    newPolys[i].setColor(color);
+                    newPolys[i].sC(color);
             }
 
             return CSG.fromPolygons(newPolys);
@@ -665,7 +665,7 @@ for solid CAD anyway.
             var midpiece = crosssect.extrudeInOrthonormalBasis(onb, length);
             var piece1 = this.cutByPlane(plane);
             var piece2 = this.cutByPlane(plane.flipped());
-            var result = piece1.union([midpiece, piece2.translate(plane.normal.times(length))]);
+            var result = piece1.union([midpiece, piece2.tr(plane.normal.times(length))]);
             return result;
         },
 
@@ -689,8 +689,8 @@ for solid CAD anyway.
             // first extrude all polygons:
             csg.polygons.map(function(polygon) {
                 var extrudevector = polygon.plane.normal.unit().times(2 * radius);
-                var translatedpolygon = polygon.translate(extrudevector.times(-0.5));
-                var extrudedface = translatedpolygon.extrude(extrudevector);
+                var trdpolygon = polygon.tr(extrudevector.times(-0.5));
+                var extrudedface = trdpolygon.extrude(extrudevector);
                 result = result.unionSub(extrudedface, false, false);
             });
 
@@ -1072,7 +1072,7 @@ for solid CAD anyway.
             return result;
         },
 
-        setColor: function(args) {
+        sC: function(args) {
             var newshared = CSG.Polygon.Shared.fromColor.apply(this, arguments);
             return this.setShared(newshared);
         },
@@ -1260,7 +1260,7 @@ for solid CAD anyway.
                         }
                     }
                     if (isbetter) {
-                        // translate the transformation around the z-axis and onto the z plane:
+                        // tr the transformation around the z-axis and onto the z plane:
                         var translation = new CSG.Vector3D([-0.5 * (bounds[1].x + bounds[0].x), -0.5 * (bounds[1].y + bounds[0].y), -bounds[0].z]);
                         transformation = transformation.multiply(CSG.Matrix4x4.translation(translation));
                         inversetransformation = CSG.Matrix4x4.translation(translation.negated()).multiply(inversetransformation);
@@ -1817,7 +1817,7 @@ for solid CAD anyway.
         options = options || {};
         var center = CSG.parseOptionAs3DVector(options, "center", [0, 0, 0]);
         var radius = CSG.parseOptionAsFloat(options, "radius", 1);
-        var resolution = CSG.parseOptionAsInt(options, "resolution", CSG.defaultResolution3D);
+        var resolution = CSG.parseOptionAsInt(options, "res", CSG.defaultResolution3D);
         var xvector, yvector, zvector;
 
         if (radius < 0) {
@@ -1922,7 +1922,7 @@ for solid CAD anyway.
             return new CSG;
         }
 
-        var slices = CSG.parseOptionAsInt(options, "resolution", CSG.defaultResolution2D);
+        var slices = CSG.parseOptionAsInt(options, "res", CSG.defaultResolution2D);
         var ray = e.minus(s);
         var axisZ = ray.unit(); //, isY = (Math.abs(axisZ.y) > 0.5);
         var axisX = axisZ.randomNonParallelVector().unit();
@@ -2123,7 +2123,7 @@ for solid CAD anyway.
         innerradius.x > EPS && (res = res.stretchAtPlane([1, 0, 0], [0, 0, 0], 2*innerradius.x));
         innerradius.y > EPS && (res = res.stretchAtPlane([0, 1, 0], [0, 0, 0], 2*innerradius.y));
         innerradius.z > EPS && (res = res.stretchAtPlane([0, 0, 1], [0, 0, 0], 2*innerradius.z));
-        res = res.translate([-innerradius.x+center.x, -innerradius.y+center.y, -innerradius.z+center.z]);
+        res = res.tr([-innerradius.x+center.x, -innerradius.y+center.y, -innerradius.z+center.z]);
         res = res.reTesselated();
         res.properties.roundedCube = new CSG.Properties();
         res.properties.roundedCube.center = new CSG.Vertex(center);
@@ -4142,7 +4142,7 @@ for solid CAD anyway.
             }
         },
 
-        setColor: function(args) {
+        sC: function(args) {
             var newshared = CSG.Polygon.Shared.fromColor.apply(this, arguments);
             this.shared = newshared;
             return this;
@@ -4195,7 +4195,7 @@ for solid CAD anyway.
                 polygon1 = polygon1.flipped();
             }
             newpolygons.push(polygon1);
-            var polygon2 = polygon1.translate(offsetvector);
+            var polygon2 = polygon1.tr(offsetvector);
             var numvertices = this.vertices.length;
             for (var i = 0; i < numvertices; i++) {
                 var sidefacepoints = [];
@@ -4212,7 +4212,7 @@ for solid CAD anyway.
             return CSG.fromPolygons(newpolygons);
         },
 
-        translate: function(offset) {
+        tr: function(offset) {
             return this.transform(CSG.Matrix4x4.translation(offset));
         },
 
@@ -4335,7 +4335,7 @@ for solid CAD anyway.
                     [0, 1, 0]
                 ]);
                 fnCallback = function(t, slice) {
-                    return t == 0 || t == 1 ? square.translate([0, 0, t]) : null;
+                    return t == 0 || t == 1 ? square.tr([0, 0, t]) : null;
                 }
             }
             for (var i = 0, iMax = numSlices - 1; i <= iMax; i++) {
@@ -6508,7 +6508,7 @@ for solid CAD anyway.
             transformation = transformation.multiply(normalsbasis.getProjectionMatrix());
             transformation = transformation.multiply(CSG.Matrix4x4.rotationZ(rotation));
             transformation = transformation.multiply(normalsbasis.getInverseProjectionMatrix());
-            // and translate to the destination point:
+            // and tr to the destination point:
             transformation = transformation.multiply(CSG.Matrix4x4.translation(other.point));
             // var usAligned = us.transform(transformation);
             return transformation;
@@ -6577,7 +6577,7 @@ for solid CAD anyway.
         var result = new CSG.ConnectorList(
             path2D.points.map(function(p2, i) {
                 return new CSG.Connector(p2.toVector3D(0),
-                    CSG.Vector3D.Create(1, 0, 0).rotateZ(getAngle(angleIsh, p2, i)),
+                    CSG.Vector3D.Create(1, 0, 0).rZ(getAngle(angleIsh, p2, i)),
                       CSG.ConnectorList.defaultNormal);
             }, this)
         );
@@ -6988,9 +6988,9 @@ for solid CAD anyway.
                 var sinphi = Math.sin(phi);
                 var minushalfdistance = startpoint.minus(endpoint).times(0.5);
                 // F.6.5.1:
-                var start_translated = new CSG.Vector2D(cosphi * minushalfdistance.x + sinphi * minushalfdistance.y, -sinphi * minushalfdistance.x + cosphi * minushalfdistance.y);
+                var start_trd = new CSG.Vector2D(cosphi * minushalfdistance.x + sinphi * minushalfdistance.y, -sinphi * minushalfdistance.x + cosphi * minushalfdistance.y);
                 // F.6.6.2:
-                var biglambda = start_translated.x * start_translated.x / (xradius * xradius) + start_translated.y * start_translated.y / (yradius * yradius);
+                var biglambda = start_trd.x * start_trd.x / (xradius * xradius) + start_trd.y * start_trd.y / (yradius * yradius);
                 if (biglambda > 1) {
                     // F.6.6.3:
                     var sqrtbiglambda = Math.sqrt(biglambda);
@@ -6998,14 +6998,14 @@ for solid CAD anyway.
                     yradius *= sqrtbiglambda;
                 }
                 // F.6.5.2:
-                var multiplier1 = Math.sqrt((xradius * xradius * yradius * yradius - xradius * xradius * start_translated.y * start_translated.y - yradius * yradius * start_translated.x * start_translated.x) / (xradius * xradius * start_translated.y * start_translated.y + yradius * yradius * start_translated.x * start_translated.x));
+                var multiplier1 = Math.sqrt((xradius * xradius * yradius * yradius - xradius * xradius * start_trd.y * start_trd.y - yradius * yradius * start_trd.x * start_trd.x) / (xradius * xradius * start_trd.y * start_trd.y + yradius * yradius * start_trd.x * start_trd.x));
                 if (sweep_flag == largearc) multiplier1 = -multiplier1;
-                var center_translated = new CSG.Vector2D(xradius * start_translated.y / yradius, -yradius * start_translated.x / xradius).times(multiplier1);
+                var center_trd = new CSG.Vector2D(xradius * start_trd.y / yradius, -yradius * start_trd.x / xradius).times(multiplier1);
                 // F.6.5.3:
-                var center = new CSG.Vector2D(cosphi * center_translated.x - sinphi * center_translated.y, sinphi * center_translated.x + cosphi * center_translated.y).plus((startpoint.plus(endpoint)).times(0.5));
+                var center = new CSG.Vector2D(cosphi * center_trd.x - sinphi * center_trd.y, sinphi * center_trd.x + cosphi * center_trd.y).plus((startpoint.plus(endpoint)).times(0.5));
                 // F.6.5.5:
-                var vec1 = new CSG.Vector2D((start_translated.x - center_translated.x) / xradius, (start_translated.y - center_translated.y) / yradius);
-                var vec2 = new CSG.Vector2D((-start_translated.x - center_translated.x) / xradius, (-start_translated.y - center_translated.y) / yradius);
+                var vec1 = new CSG.Vector2D((start_trd.x - center_trd.x) / xradius, (start_trd.y - center_trd.y) / yradius);
+                var vec2 = new CSG.Vector2D((-start_trd.x - center_trd.x) / xradius, (-start_trd.y - center_trd.y) / yradius);
                 var theta1 = vec1.angleRadians();
                 var theta2 = vec2.angleRadians();
                 var deltatheta = theta2 - theta1;
@@ -7055,7 +7055,7 @@ for solid CAD anyway.
             return this.mirrored(plane);
         };
 
-        prot.translate = function(v) {
+        prot.tr = function(v) {
             return this.transform(CSG.Matrix4x4.translation(v));
         };
 
@@ -7063,15 +7063,15 @@ for solid CAD anyway.
             return this.transform(CSG.Matrix4x4.scaling(f));
         };
 
-        prot.rotateX = function(deg) {
+        prot.rX = function(deg) {
             return this.transform(CSG.Matrix4x4.rotationX(deg));
         };
 
-        prot.rotateY = function(deg) {
+        prot.rY = function(deg) {
             return this.transform(CSG.Matrix4x4.rotationY(deg));
         };
 
-        prot.rotateZ = function(deg) {
+        prot.rZ = function(deg) {
             return this.transform(CSG.Matrix4x4.rotationZ(deg));
         };
 
@@ -7091,7 +7091,7 @@ for solid CAD anyway.
                 cAxes = axes.slice();
             }
             var b = this.getBounds();
-            return this.translate(axes.map(function(a) {
+            return this.tr(axes.map(function(a) {
                 return cAxes.indexOf(a) > -1 ?
                     -(b[0][a] + b[1][a])/2 : 0;
             }));
@@ -7380,7 +7380,7 @@ for solid CAD anyway.
             // reference connector for transformation
             var origin = [0, 0, 0], defaultAxis = [0, 0, 1], defaultNormal = [0, 1, 0];
             var thisConnector = new CSG.Connector(origin, defaultAxis, defaultNormal);
-            // translated connector per options
+            // trd connector per options
             var translation = options.translation || origin;
             var axisVector = options.axisVector || defaultAxis;
             var normalVector = options.normalVector || defaultNormal;
@@ -7782,13 +7782,13 @@ for solid CAD anyway.
             polygons = polygons.concat(this._toPlanePolygons({translation: [0, 0, 0],
                 normalVector: normalVector, flipped: !(offsetVector.z < 0)}));
             polygons = polygons.concat(this._toPlanePolygons({translation: offsetVector,
-                normalVector: normalVector.rotateZ(twistangle), flipped: offsetVector.z < 0}));
+                normalVector: normalVector.rZ(twistangle), flipped: offsetVector.z < 0}));
             // walls
             for (var i = 0; i < twiststeps; i++) {
                 var c1 = new CSG.Connector(offsetVector.times(i / twiststeps), [0, 0, offsetVector.z],
-                    normalVector.rotateZ(i * twistangle/twiststeps));
+                    normalVector.rZ(i * twistangle/twiststeps));
                 var c2 = new CSG.Connector(offsetVector.times((i + 1) / twiststeps), [0, 0, offsetVector.z],
-                    normalVector.rotateZ((i + 1) * twistangle/twiststeps));
+                    normalVector.rZ((i + 1) * twistangle/twiststeps));
                 polygons = polygons.concat(this._toWallPolygons({toConnector1: c1, toConnector2: c2}));
             }
 
@@ -7833,7 +7833,7 @@ for solid CAD anyway.
             if (alpha > 0 && alpha < 360) {
                 // we need to rotate negative to satisfy wall function condition of
                 // building in the direction of axis vector
-                var connE = new CSG.Connector(origin, axisV.rotateZ(-alpha), normalV);
+                var connE = new CSG.Connector(origin, axisV.rZ(-alpha), normalV);
                 polygons = polygons.concat(
                     this._toPlanePolygons({toConnector: connS, flipped: true}));
                 polygons = polygons.concat(
@@ -7842,7 +7842,7 @@ for solid CAD anyway.
             var connT1 = connS, connT2;
             var step = alpha/resolution;
             for (var a = step; a <= alpha + EPS; a += step) {
-                connT2 = new CSG.Connector(origin, axisV.rotateZ(-a), normalV);
+                connT2 = new CSG.Connector(origin, axisV.rZ(-a), normalV);
                 polygons = polygons.concat(this._toWallPolygons(
                     {toConnector1: connT1, toConnector2: connT2}));
                 connT1 = connT2;
@@ -7878,11 +7878,11 @@ for solid CAD anyway.
 
         var fn = CSG.parseOptionAsInt(options, "faces", 10);
         var twist = CSG.parseOptionAsInt(options, "twist", 0);
-        var xTranslate = Math.abs(CSG.parseOptionAsInt(options, "radius", 0));
+        var xtr = Math.abs(CSG.parseOptionAsInt(options, "radius", 0));
         var twist_steps = CSG.parseOptionAsInt(options, "tsteps", 0);
 
 
-        //console.log("faces twist radius twist_steps",fn,", ",twist,", ",xTranslate,", ",twist_steps);
+        //console.log("faces twist radius twist_steps",fn,", ",twist,", ",xtr,", ",twist_steps);
         if(fn < 3) fn = 3;  // 3 is the fewest possible number of faces - a triangle
 
         // figure out how many twist steps per face (side) - must be an integer that is at least one
@@ -7897,8 +7897,8 @@ for solid CAD anyway.
         var good_square = CAG.fromPoints(good_square_pts);
         var baad_square = CAG.fromPoints(baad_square_pts);
 
-        // to find out what the bad and good shape are, I should first translate the original shape.
-        var startshape = this.translate([xTranslate,0,0]);
+        // to find out what the bad and good shape are, I should first tr the original shape.
+        var startshape = this.tr([xtr,0,0]);
 
         var badshape = startshape.subtract(good_square);        // is there anything left of the x-axis?
         var safeshape = startshape.subtract(baad_square);       // here is a shape that can be rotated!
@@ -7913,21 +7913,21 @@ for solid CAD anyway.
 
         // console.log(o);
         // console.log(orig_shape);
-        // now translate it back to the center for getting the rotated copies.
+        // now tr it back to the center for getting the rotated copies.
 
-        o = o.translate([-xTranslate,0,0]);
+        o = o.tr([-xtr,0,0]);
 
         var shape_stage = [];
         for (var i=0; i < fn + 2; i++) {
           n = new CSG.Matrix4x4.rotationZ((twist/360) * i/fn*360); // attempting to add twist - JY
           shape_stage[i] = o.transform(n);
-          shape_stage[i] = shape_stage[i].translate([xTranslate, 0, 0]);
+          shape_stage[i] = shape_stage[i].tr([xtr, 0, 0]);
           shape_stage[i] = shape_stage[i].canonicalized();
         }
         // shape_stage[i] = shape_stage[0];
 
         // Now that I've calculated the twisted shapes, do I move the original shape over?
-        o = o.translate([xTranslate,0,0]);
+        o = o.tr([xtr,0,0]);
 
 
 

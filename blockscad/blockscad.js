@@ -1225,13 +1225,13 @@ Blockscad.doRender = function() {
   }
 };
  
-Blockscad.renderCode = function(code) {
+Blockscad.renderCode = function(code, resolution) {
   // var csgcode = '';
   // var code_good = true;
   //   try {
-  //  // console.log("code was: ",code);
+   // console.log("code was: ",code);
   //  window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
-  //                                 // console.log("final parsed code: ",csgcode);
+  //                                 console.log("final parsed code: ",csgcode);
   //                               }, 0);
 
 
@@ -1245,10 +1245,10 @@ Blockscad.renderCode = function(code) {
   //   code_good = false;
   // }
   // if (code_good) {
-  //   window.setTimeout(function () 
-  //     { Blockscad.gProcessor.setBlockscad(csgcode); 
+  //   // window.setTimeout(function () 
+  //     // { Blockscad.gProcessor.setBlockscad(csgcode); 
   //       // console.log("code is now",code); 
-  //     }, 0);
+  //     // }, 0);
   //   // unbacklight all here
   //   Blockscad.workspace.clearBacklight();
   // }
@@ -1256,7 +1256,6 @@ Blockscad.renderCode = function(code) {
   //   $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
 
   // }
-
 
   Blockscad.gProcessor.setBlockscad(code);
 };
@@ -1803,10 +1802,14 @@ Blockscad.processCodeForOutput = function(code) {
 
   var output4 = output3.replace(/\n\s*\n\s*\n/g, '\n\n');
 
-  // console.log(code);
-  // console.log(output3);
+  // I need to change all "group" commands to "unions"
 
-  return output4;
+  var output5 = output4.replace(/group()/g, 'union()');
+
+  // console.log(code);
+  // console.log(output5);
+
+  return output5;
 }
 Blockly.OpenSCAD.returnIfVarCode = function(block) {
   // this is an if/else block, I have to separate it into different scopes.

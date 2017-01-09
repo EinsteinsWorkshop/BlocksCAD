@@ -791,42 +791,44 @@ Blockscad.isChrome = function() {
 };
 
 // this is called from within the web worker.  Run the parser, create the main() function, execute the main() function.
-Blockscad.parseCodeInWorker = function(code) {
+Blockscad.parseCodeInWorker = function(code, fontkeys, fontdata) {
   // this needs to call the parser, get the main string back.  Will it be a function?  I think it will be a string.  We'll see.
-   self.postMessage({cmd: 'log', txt: "code in paresCodeInWorker: " + code});
-   self.postMessage({cmd: 'log', txt: openscadOpenJscadParser.parse('cube([10, 10, 10], center=false);')});
-
- try {
-   var csgcode = openscadOpenJscadParser.parse('cube([10, 10, 10], center=false);'); 
-   self.postMessage({cmd: 'log', txt: "csgcode in paresCodeInWorker: " + csgcode});
+   // self.postMessage({cmd: 'log', txt: "code in paresCodeInWorker: " + code});
 
 
-   // is the code any good? it should start with function main()
 
-   if (!csgcode || !csgcode.length) {
-    // if (!csgcode || !csgcode.length || !(csgcode.substring(0, 16) == "function main(){")){
-        // this is not good code.  What to do?
-      self.postMessage({cmd: 'errorParse', err: "bogus parse output"});
+  try {
 
+    // I want to convert a font buffer to an actual font file using opentype.
+
+    var csgcode = openscadOpenJscadParser.parse(code); 
+    // self.postMessage({cmd: 'log', txt: "csgcode in paresCodeInWorker: " + csgcode});
+
+
+    // is the code any good? it should start with function main()
+
+    if (!csgcode || !csgcode.length) {
+        // I don't expect this to actually happen.  I think the catch method would get it.
+      // self.postMessage({cmd: 'errorParse', err: "parser failed during execution"});
+      throw new Error('parser produced no output at all');
     }
-
-    // now turn main into a function that can be called from the worker
-
-    var main = new Function(csgcode); 
-
-    Blockscad.runMainInWorker();
-
-
+    // we think we have good code.  Try to run it in the worker now.
+    self.postMessage({cmd: 'parsed', err: "haha"});
+    Blockscad.runMainInWorker(csgcode);
   }
   catch(e) {
-       self.postMessage({cmd: 'log', txt: "in catch of parseCodeInWorker: "});
+       // self.postMessage({cmd: 'log', txt: "in catch of parseCodeInWorker: "});
+
     var errtxt = e.toString();
     self.postMessage({cmd: 'errorParse', err: errtxt});
   }
 }
 // This is called from within the web worker. Execute the main() function of the supplied script
 // and post a message to the calling thread when finished
-Blockscad.runMainInWorker = function() {
+Blockscad.runMainInWorker = function(csgcode) {
+   // var code = csgcode.substring(csgcode.indexOf("{")+1, csgcode.lastIndexOf("}"));
+   var main = new Function(csgcode);
+
   try {
     if(typeof(main) != 'function') throw new Error('Your code has an error somewhere.  Parsing your blocks failed.');
   
@@ -843,7 +845,8 @@ Blockscad.runMainInWorker = function() {
     }
     else {                  
       // just for fun, let's send a message with how many objects there were.
-      self.postMessage({cmd: 'log', txt: "number of objects: " + result.length});
+      // self.postMessage({cmd: 'log', txt: "number of objects: " + result.length});
+      var numPolys = 0;
 
       // I have something to render.  If it was a single object, extrude and return it.
 
@@ -853,21 +856,25 @@ Blockscad.runMainInWorker = function() {
       }
 
       if (result.length == 1) { 
+        // if (o.polygons) self.postMessage({cmd: 'log', txt: "number of polys final: " + o.polygons.length});
         var cp = o.toCompactBinary();
         self.postMessage({cmd: 'finalMesh', result: cp}); 
       }
       else { 
-        // I know I have more than one object.  First make a fake union for display only.
-        for(var i=1; i<result.length; i++) {
-          var c = result[i];
-          if(c instanceof CAG) {
-             c = c.extrude({offset: [0,0,0.1]});
-          }
-          o = o.unionForNonIntersecting(c);
-        }
+        // // I know I have more than one object.  First make a fake union for display only.
+        // for(var i=1; i<result.length; i++) {
+        //   var c = result[i];
+        //   if(c instanceof CAG) {
+        //      c = c.extrude({offset: [0,0,0.1]});
+        //   }
+        //   o = o.unionForNonIntersecting(c);
+        //   numPolys += c.polygons.length;
+        // }
 
-        var result_compact = o.toCompactBinary();
-        self.postMessage({cmd: 'rendered', result: result_compact});
+
+        // var result_compact = o.toCompactBinary();
+        // self.postMessage({cmd: 'log', txt: "number of polys: " + numPolys});
+        // self.postMessage({cmd: 'rendered', result: result_compact});
        
 
         // now that I've returned the display obj, do a real union and return it.
@@ -876,9 +883,13 @@ Blockscad.runMainInWorker = function() {
         var rest_of_objs = result.slice(1);
         a = a.union(rest_of_objs);
 
+
         if(a instanceof CAG) {
           a = a.extrude({offset: [0,0,0.1]});
         }
+        self.postMessage({cmd: 'log', txt: "number of polys final: " + a.polygons.length});
+
+
 
         var result_compact = a.toCompactBinary();
         self.postMessage({cmd: 'finalMesh', result: result_compact});
@@ -943,11 +954,15 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 // callback: should be function(error, csg)
 Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
+      // "opentype/dist/opentype.min.js",
       // "blockscad/viewer_compressed.js",
+      // "blockscad/underscore.js",
       // "blockscad/openscad-openjscad-translator.js"
       "blockscad/csg.js",
       "blockscad/formats.js",
+      "opentype/dist/opentype.min.js",
       "blockscad/viewer.js",
+      "blockscad/underscore.js",
       "blockscad/openscad-openjscad-translator.js"
   ];
 
@@ -981,8 +996,20 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   workerscript += "_csg_libraries.map(function(l){importScripts(l)});\n";
   workerscript += "self.addEventListener('message', function(e) {if(e.data && e.data.cmd == 'render'){";
   // workerscript += "  Blockscad.runMainInWorker();";
+  workerscript += "Blockscad.resolution = " + Blockscad.resolution + ';';
+  workerscript += "Blockscad.csg_filename = e.data.csg_filename;";
+  workerscript += "Blockscad.csg_commands = e.data.csg_commands;";
+  workerscript += "Blockscad.fonts = {};";
+  workerscript += "var fontkeys = e.data.fontkeys;";
+  workerscript += "var fontdata = e.data.fontdata;";
+  // can I actually parse the font buffers here?
+
+  workerscript += "for (var i = 0; i < fontkeys.length; i++) {";
+  workerscript += "  Blockscad.fonts[fontkeys[i]] = opentype.parse(fontdata[i]); }";
+
   workerscript += "  Blockscad.parseCodeInWorker(e.data.data);";
   workerscript += "}},false);\n";
+
 
   var blobURL = Blockscad.textToBlobUrl(workerscript);
   
@@ -1017,6 +1044,10 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
         $( '#error-message' ).addClass("has-error");        
         callback(e.data.err, null);
       }
+      else if (e.data.cmd == "parsed") {
+        $( '#render-ongoing').html(Blockscad.Msg.RENDER_IN_PROGRESS + '<img id=busy src="imgs/busy2.gif">');
+
+      }
       else if(e.data.cmd == "log")
       {
         console.log(e.data.txt);
@@ -1027,9 +1058,20 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
     var errtxt = "Error in line "+e.lineno+": "+e.message;
     callback(errtxt, null);
   };
+  var fontKeys = [];
+  var fontData = [];
+  for (buf in Blockscad.fonts) {
+    fontKeys.push(buf);
+    fontData.push(Blockscad.fonts[buf]);
+  }
+
   worker.postMessage({
     cmd: "render",
-    data: script
+    data: script,
+    fontkeys: fontKeys,
+    fontdata: fontData,
+    csg_filename: Blockscad.csg_filename,
+    csg_commands: Blockscad.csg_commands 
   }); // Start the worker.
   return worker;
 };
@@ -1281,7 +1323,7 @@ Blockscad.Processor.prototype = {
 
       // I might need to change the "in progress" message too.
 
-      $( '#render-ongoing').html(Blockscad.Msg.RENDER_IN_PROGRESS + '<img id=busy src="imgs/busy2.gif">');
+      $( '#render-ongoing').html("Parsing..." + '<img id=busy src="imgs/busy2.gif">');
 
       this.processing=false;
       //this.statusspan.innerHTML = "Aborted.";
@@ -1314,7 +1356,7 @@ Blockscad.Processor.prototype = {
     // this.abort();
     // this.clearViewer();
     this.script = script;
-    console.log("script for worker is:", this.script);
+    // console.log("script for worker is:", this.script);
     this.rebuildSolid();
   },
   
@@ -1342,7 +1384,7 @@ Blockscad.Processor.prototype = {
 
              if (err && err == "finalMesh") {
                 // console.log("got back final mesh that can be downloaded");
-                $( '#render-ongoing').html(Blockscad.Msg.RENDER_IN_PROGRESS + '<img id=busy src="imgs/busy2.gif">');
+                $( '#render-ongoing').html("Parsing..." + '<img id=busy src="imgs/busy2.gif">');
                 // I got back the final mesh here.  get the "ready for download" stuff ready.
                 that.processing = false;
 
@@ -1369,6 +1411,7 @@ Blockscad.Processor.prototype = {
                 that.thumbnail = images[1];
                 that.imgStrip = that.takeRotatingPic(1,Blockscad.numRotPics);
               }
+
               else 
               {
 
@@ -1571,4 +1614,113 @@ Blockscad.Processor.prototype = {
     // console.log("have a strip - returning it");
     return strip;
   }
+};
+
+// pathToPoints() takes a Path object created by opentype.js
+// resolution is a number used for the number of points used
+// to approximate a curve in the font path
+// returns an array of points and an array of paths
+// NOTE: web svg coordinates have flipped Y coordinates
+// (increasing positive as you move down)
+// so all Y coordinates are multiplied by -1
+Blockscad.pathToPoints = function(path,resolution) {
+
+  var points = [];
+  var paths = [];
+  var new_path = [];
+  var fn = 2;   // default resolution in case resolution is not >= 2
+  var to, c1,c2,nx,ny,a; //for curve approximation
+
+  if (resolution > 2) fn = resolution; 
+
+  if (fn > 10) fn = 10;  // cap the resolution for performance
+
+  // console.log(path.commands);
+
+  if (path && path.commands && path.commands.length > 0) {
+    // hopefully got a legal path
+    var point_index = 0;  
+    var prev = [];  // save the previous point for curves
+    for (var i = 0; i < path.commands.length; i++) {
+      switch(path.commands[i].type) {
+        case 'M':
+          // save, then clear, the last path
+          if (new_path.length>2) {
+            paths.push(new_path);
+          }
+          new_path = [];
+          // load up the new point
+          points.push([path.commands[i].x, -1 * path.commands[i].y]);
+          new_path.push(point_index++);
+          prev = [path.commands[i].x, -1 * path.commands[i].y];
+          break;
+        case 'L':
+          // load up the new point
+          points.push([path.commands[i].x, -1 * path.commands[i].y]);
+          new_path.push(point_index++);
+          prev = [path.commands[i].x, -1 * path.commands[i].y];
+          break;
+        case 'C':
+
+          // Cubic Bezier curve
+          // uses two control points c1(x1,y1) and c2(x2,y2)
+          // the previous point prev[x,y], and current point to[x,y]
+          to = [path.commands[i].x, -1 * path.commands[i].y]; 
+          c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
+          c2 = [path.commands[i].x2, -1 * path.commands[i].y2];
+
+          // approximate the curve with fn points
+          for (var k=1;k<=fn;k++) {
+            a = k / fn;
+            nx = prev[0] * Math.pow(1-a,3) + 
+                     c1[0] * 3 * Math.pow(1-a,2) * a +
+                     c2[0] * 3 * Math.pow(1-a,1) * a * a +
+                     to[0] * Math.pow(a,3); 
+            nx = prev[1] * Math.pow(1-a,3) + 
+                     c1[1] * 3 * Math.pow(1-a,2) * a +
+                     c2[1] * 3 * Math.pow(1-a,1) * a * a +
+                     to[1] * Math.pow(a,3); 
+            // load up this new point
+            points.push([nx,ny]);
+            new_path.push(point_index++);
+          }
+
+          prev = to;
+          break;
+        case 'Q':
+          // Quadratic Bezier curve
+          // uses one control point c1[x1,y1]
+          // the previous point prev[x,y], and current point to[x,y]
+          to = [path.commands[i].x, -1 * path.commands[i].y]; 
+          c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
+          for (var k=1;k<=fn;k++) {
+            a = k / fn; 
+            nx = prev[0] * Math.pow(1-a,2) + 
+                     c1[0] * 2 * Math.pow(1-a,1) * a +
+                     to[0] * Math.pow(a,2); 
+            ny = prev[1] * Math.pow(1-a,2) + 
+                     c1[1] * 2 * Math.pow(1-a,1) * a +
+                     to[1] * Math.pow(a,2); 
+            // load up this new point
+            points.push([nx,ny]);
+            new_path.push(point_index++);
+          }
+
+          prev = to;
+          break;
+        case 'Z':
+          // log the old path
+          if (new_path.length>2) {
+            paths.push(new_path);
+            new_path = [];
+          }
+          break;
+      }  // end switch commands
+    }
+  }
+  // else console.log("no path found");
+  // fix case with a Path with just an MZ
+  if (points.length < 3) points = [];
+  return [points,paths];
+
 };
