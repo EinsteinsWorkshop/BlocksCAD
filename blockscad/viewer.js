@@ -1323,7 +1323,7 @@ Blockscad.Processor.prototype = {
 
       // I might need to change the "in progress" message too.
 
-      $( '#render-ongoing').html("Parsing..." + '<img id=busy src="imgs/busy2.gif">');
+      $( '#render-ongoing').html(Blockscad.Msg.PARSE_IN_PROGRESS + '<img id=busy src="imgs/busy2.gif">');
 
       this.processing=false;
       //this.statusspan.innerHTML = "Aborted.";
@@ -1384,7 +1384,7 @@ Blockscad.Processor.prototype = {
 
              if (err && err == "finalMesh") {
                 // console.log("got back final mesh that can be downloaded");
-                $( '#render-ongoing').html("Parsing..." + '<img id=busy src="imgs/busy2.gif">');
+                $( '#render-ongoing').html(Blockscad.Msg.PARSE_IN_PROGRESS + '<img id=busy src="imgs/busy2.gif">');
                 // I got back the final mesh here.  get the "ready for download" stuff ready.
                 that.processing = false;
 

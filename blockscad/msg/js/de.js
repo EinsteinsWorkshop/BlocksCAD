@@ -144,6 +144,7 @@ Blockscad.Msg.NOT_COMPATIBLE_WITH_OPENSCAD = "Nicht mit OpenSCAD kompatibel!";
 Blockscad.Msg.OLD_PASSWORD = "Altes Passwort";
 Blockscad.Msg.OPTIONS_MENU = "Erweitert";
 Blockscad.Msg.PALE_COLORS = "Hell";
+Blockscad.Msg.PARSE_IN_PROGRESS = "Analysieren...";
 Blockscad.Msg.PARSING_ERROR_ILLEGAL_VALUE = "Bei %1 Blöcken sind ungültige Werte eingetragen (negativ oder null)";
 Blockscad.Msg.PARSING_ERROR_MISSING_FIELDS = "Bei %1 Blöcken wurden nicht alle Felder ausgefüllt.";
 Blockscad.Msg.PASSWORD_FIELD = "Passwort";

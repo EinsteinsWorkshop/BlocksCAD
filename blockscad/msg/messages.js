@@ -178,6 +178,7 @@ Blockscad.Msg.ABORT_BUTTON = 'Abort!';
 Blockscad.Msg.GENERATE_STL = 'Generate';
 /// Rendering in progress informational text
 Blockscad.Msg.RENDER_IN_PROGRESS = 'Rendering...';
+Blockscad.Msg.PARSE_IN_PROGRESS = 'Parsing...';
 // need to add in error messages
 // switch the reset view to pictures?
 
