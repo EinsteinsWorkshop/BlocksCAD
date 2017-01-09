@@ -29,8 +29,8 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.7.0";
-Blockscad.releaseDate = "2017/01/08";
+Blockscad.version = "1.7.1";
+Blockscad.releaseDate = "2017/01/09";
 
 Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 
@@ -1783,6 +1783,8 @@ Blockscad.arraysEqual = function(arr1, arr2) {
 // this is a hack because the parse is being so intractable.
 Blockscad.processCodeForOutput = function(code) {
 
+  // console.log("code before processing:", code);
+
   var re0 = /( *)assign\((\$fn=.+)\){(.+)/g;
   var output0 = code.replace(re0, "$1{\n$1  $2; $3");
 
@@ -1805,7 +1807,7 @@ Blockscad.processCodeForOutput = function(code) {
 
   // I need to change all "group" commands to "unions"
 
-  var output5 = output4.replace(/group()/g, 'union()');
+  var output5 = output4.replace(/group\(\)\{/g, 'union(){');
 
   // console.log(code);
   // console.log(output5);

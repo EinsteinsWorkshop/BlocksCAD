@@ -67,8 +67,9 @@ Blockly.OpenSCAD['procedures_defnoreturn'] = function(block) {
   var code = 'module ' + funcName + '(' + args.join(', ') + ') {\n';
   code += 'union() { //end assign\n';
 
-  code += branch + '\n}';
+  code += branch + '\n' 
   code += '} //end assign\n';
+  code += '}\n';
   code = Blockly.OpenSCAD.scrub_(block, code);
   Blockly.OpenSCAD.definitions_[funcName] = code;
   return null;
