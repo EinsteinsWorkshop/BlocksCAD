@@ -1060,7 +1060,7 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   };
   var fontKeys = [];
   var fontData = [];
-  for (buf in Blockscad.fonts) {
+  for (var buf in Blockscad.fonts) {
     fontKeys.push(buf);
     fontData.push(Blockscad.fonts[buf]);
   }
