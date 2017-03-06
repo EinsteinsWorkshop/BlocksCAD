@@ -28,6 +28,8 @@ define("OpenjscadSolidFactory", ["Context", "Globals",  "PrimitiveModules", "Tra
                 return new CSGModule(this, "subtract");
             case "hull":
                 return new CSGModule(this, "hull");
+            case "group":
+                return new CSGModule(this, "group");
             case "intersect":
             case "intersection":
                 return new CSGModule(this, "intersect");

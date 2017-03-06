@@ -80,6 +80,7 @@
 	"ABORT_BUTTON": "Abbrechen!",
 	"GENERATE_STL": "Generieren",
 	"RENDER_IN_PROGRESS": "Rendern...",
+	"PARSE_IN_PROGRESS": "Analysieren...",
 	"SPHERE": "kugel",
 	"RADIUS": "radius",
 	"CENTERED": "zentriert",

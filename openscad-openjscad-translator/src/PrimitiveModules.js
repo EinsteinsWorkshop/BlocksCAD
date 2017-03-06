@@ -16,11 +16,13 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         
         var r = Context.contextVariableLookup(context, "r", 1);
 
+        r = parseFloat(r.toFixed(10));
+
         var resolution = Context.get_fragments_from_r(r, context);
 
         var openjscadParameters = {center:[0,0,0], resolution:resolution, radius:r};
                    
-        return _.template('CSG.sphere({center: [<%=String(center)%>], radius: <%= radius %>, resolution: <%= resolution%>})', openjscadParameters);
+        return _.template('CSG.sphere({center: [<%=String(center)%>], radius: <%= radius %>, res: <%= resolution%>})', openjscadParameters);
     }
 
     function Cylinder(a){
@@ -42,7 +44,8 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         var r = Context.contextVariableLookup(context, "r", 1);
         var r1 = Context.contextVariableLookup(context, "r1", undefined);
         var r2 = Context.contextVariableLookup(context, "r2", undefined);
-                    
+
+                   
         var startZ = isCentered? -(h/2) : 0;
         var endZ = isCentered? h/2 : h;
 
@@ -72,8 +75,13 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         if (openjscadArgs.radiusStart == 0 && openjscadArgs.radiusEnd == 0){
             return undefined;
         }
+
+        openjscadArgs.radiusStart = parseFloat(openjscadArgs.radiusStart.toFixed(10));
+        openjscadArgs.radiusEnd = parseFloat(openjscadArgs.radiusEnd.toFixed(10));
+        openjscadArgs.start[2] = parseFloat(openjscadArgs.start[2].toFixed(10));
+        openjscadArgs.end[2] = parseFloat(openjscadArgs.end[2].toFixed(10));
         
-        return _.template('CSG.cylinder({start: [<%=start%>], end: [<%=end%>],radiusStart: <%=radiusStart%>, radiusEnd: <%=radiusEnd%>, resolution: <%=resolution%>})', openjscadArgs);    
+        return _.template('CSG.cylinder({start: [<%=start%>], end: [<%=end%>],radiusStart: <%=radiusStart%>, radiusEnd: <%=radiusEnd%>, res: <%=resolution%>})', openjscadArgs);    
     };
 
 
@@ -84,7 +92,8 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
     Cube.prototype.evaluate = function(parentContext, inst) {
         var context = Context.newContext(parentContext, ["size", "center"], [], inst);
 
-        var openjscadArgs = {resolution:Globals.DEFAULT_RESOLUTION};
+        // var openjscadArgs = {resolution:Globals.DEFAULT_RESOLUTION}; // why does this cube have resolution?  csg.js doesn't use it.
+        var openjscadArgs = {};
         var isCentered = Context.contextVariableLookup(context, "center", false);
         var size = Context.contextVariableLookup(context, "size", 1);
         
@@ -100,7 +109,7 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
             openjscadArgs.centerVector = [openjscadArgs.radius[0],openjscadArgs.radius[1],openjscadArgs.radius[2]];
         }
 
-        return _.template('CSG.cube({center: [<%=String(centerVector)%>],radius: [<%= radius %>], resolution: <%= resolution%>})', openjscadArgs);
+        return _.template('CSG.cube({center: [<%=String(centerVector)%>],radius: [<%= radius %>]})', openjscadArgs);
     };
 
 
@@ -155,6 +164,7 @@ define("PrimitiveModules", ["Globals", "Context"], function(Globals, Context){
         // Blockscad font library expects size in pixels units, not points (like openscad).
         // so we convert.
         size *= 1.33333333333333333333333333;
+
 
         if (Blockscad.fonts[font]) {
             // Use your font here.

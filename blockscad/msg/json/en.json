@@ -77,6 +77,7 @@
 	"ABORT_BUTTON": "Abort!",
 	"GENERATE_STL": "Generate",
 	"RENDER_IN_PROGRESS": "Rendering...",
+	"PARSE_IN_PROGRESS": "Parsing...",
 	"SPHERE": "sphere",
 	"RADIUS": "radius",
 	"CENTERED": "centered",

@@ -15,7 +15,12 @@ define("ModuleInstantiation", ["Globals", "OpenjscadSolidFactorySingleton"], fun
         var evaluatedModule;
 
         // console.log("in moduleInstantiation.prototype.evaluate for", this.name);
+        // console.log("m  context:", context.vars);
+        // if (context.parentContext)
+        //     console.log("p  context:",context.parentContext.vars);
 
+        // if (context.parentContext && context.parentContext.parentContext)
+        //     console.log("pp context:",context.parentContext.parentContext.vars);
         // NOTE: not sure how we should handle this in javascript ... is it necessary?
         //if (this.context === null) {
         //    console.log("WARNING: Ignoring recursive module instantiation of ", this.name);

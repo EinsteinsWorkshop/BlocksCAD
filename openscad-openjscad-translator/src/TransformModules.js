@@ -5,6 +5,16 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
 
 		this.transformChildren = function (children, context, cb) {
 		  var childModules = []
+          // console.log("in this.transformChildren");
+          //       console.log("m  context:", context.vars);
+          //       if (context.parentContext)
+          //           console.log("p  context:",context.parentContext.vars);
+
+          //       if (context.parentContext && context.parentContext.parentContext)
+          //           console.log("pp context:",context.parentContext.parentContext.vars);
+
+          // the "children" are different objects in one transform.  
+          // corresponds to separate bays in a transform block, for example.
 
 		    for (var i = 0; i < children.length; i++) {
 
@@ -12,21 +22,55 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
 		        childInst.argvalues = [];
 
 		        _.each(childInst.argexpr, function(expr,index,list) {
+                    // console.log("adding an argvalue:", expr.evaluate(context));
 		            childInst.argvalues.push(expr.evaluate(context));
 		        });
+                // childAdaptor looks at the name of what needs to be called
+                // translate, rotate, loop, module, etc
+                // and returns the appropriate function.
 		        var childAdaptor = factory.getAdaptor(childInst);
 		        var transformedChild = childAdaptor.evaluate(context, childInst);
-                if (transformedChild){
-                    transformedChild += cb();
-                    childModules.push(transformedChild);
-                }
-		    };
 
-		    if (childModules.length == 1){
-		        return childModules[0];
-		    } else if (childModules.length > 1) {
-		        return _.first(childModules)+".union([" + _.rest(childModules) + "])";
-		    }
+
+
+                if (_.isArray(transformedChild)) {
+                    if (transformedChild.length > 0) {
+                        transformedChild = _.flatten(transformedChild);
+                        for (var j = 0; j < transformedChild.length; j++) {
+                            if (transformedChild[j] && !(typeof(transformedChild[j]) == "string" && transformedChild[j].charAt(0) == '.')){
+                                transformedChild[j] += cb();
+                                childModules.push(transformedChild[j]);
+                            }                    
+                        }
+                    } 
+                }
+                else {
+                    if (transformedChild && !(typeof(transformedChild) == "string" && transformedChild.charAt(0) == '.')){
+                        transformedChild += cb();
+                        childModules.push(transformedChild);
+                    }
+                }
+                // console.log("in transformChildren.  transformedChild is:", transformedChild);
+
+		    };
+         
+            // // remove children that have no shape
+            // for (var k = 0; k < childModules.length; k++) {
+            //     console.log("do I need to throw this transform child out?", childModules[k]);
+            //     if (typeof(childModules[k]) == "string" && childModules[k].charAt(0) == '.') {
+            //         // this should have started with a shape, not a '.'.  Take it out of the list
+            //         childModules.splice(k,1);
+            //     }
+            // }  
+
+
+		    // if (childModules.length == 1){
+		    //     return childModules[0];
+		    // } else if (childModules.length > 1) {
+		    //     return _.first(childModules)+".union([" + _.rest(childModules) + "])";
+		    // }
+
+            return childModules;
 
 		}
     };
@@ -57,8 +101,12 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
             color[3] = alpha;
         }
 
+        // // I don't want ridiculous color values.  
+        // for (var i = 0; i < color.length; i++)
+        //     color[i] = color[i].toFixed(3);
+
         return this.transformChildren(inst.children, context, function(){
-            return _.template('.setColor(<%=color%>)', {color:color});
+            return _.template('.sC(<%=color%>)', {color:color});
         });
     };
 
@@ -109,7 +157,16 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
 
         if (_.isArray(a)){
             return this.transformChildren(inst.children, context, function(){
-                return _.template('.rotateX(<%=degreeX%>).rotateY(<%=degreeY%>).rotateZ(<%=degreeZ%>)', {degreeX:a[0],degreeY:a[1],degreeZ:a[2]});
+                var code = "";
+                if (a[0] != 0)
+                    code += '.rX(' + parseFloat(a[0].toFixed(10)) + ')';
+                if (a[1] != 0)
+                    code += '.rY(' + parseFloat(a[1].toFixed(10)) + ')';                
+                if (a[2] != 0)
+                    code += '.rZ(' + parseFloat(a[2].toFixed(10)) + ')';                
+
+                return code;
+                // return _.template('.rotateX(<%=degreeX%>).rotateY(<%=degreeY%>).rotateZ(<%=degreeZ%>)', {degreeX:a[0],degreeY:a[1],degreeZ:a[2]});
             });
         } else {
             var v = Context.contextVariableLookup(context, "v", undefined);
@@ -145,7 +202,9 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
         }
 
         return this.transformChildren(inst.children, context, function(){
-            return _.template('.scale([<%=v%>])', {v:v});
+            if (v[0] != 1 || v[1] != 1 || v[2] != 1)
+                return _.template('.scale([<%=v%>])', {v:v});
+            else return "";
         });
     };
 
@@ -183,6 +242,8 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
 
     TranslateTransform.prototype.evaluate = function(parentContext, inst){
 
+        // console.log("in translate.  inst is:", inst);
+
         inst.argvalues = [];
 
         _.each(inst.argexpr, function(expr,index,list) {
@@ -193,8 +254,12 @@ define("TransformModules", ["Globals", "Context"], function(Globals, Context){
 
         var v = Context.contextVariableLookup(context, "v", [0,0,0]);
 
+
         return this.transformChildren(inst.children, context, function(){
-            return _.template('.translate([<%=v%>])', {v:v});
+            if (v[0] != 0 || v[1] != 0 || v[2] != 0) {
+              return _.template('.tr([<%=v%>])', {v:v});
+            }
+            else return "";
         });
 
     };

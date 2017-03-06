@@ -144,6 +144,7 @@ Blockscad.Msg.NOT_COMPATIBLE_WITH_OPENSCAD = "Not compatible with OpenSCAD";
 Blockscad.Msg.OLD_PASSWORD = "Old Password";
 Blockscad.Msg.OPTIONS_MENU = "Options";
 Blockscad.Msg.PALE_COLORS = "Pale";
+Blockscad.Msg.PARSE_IN_PROGRESS = "Parsing...";
 Blockscad.Msg.PARSING_ERROR_ILLEGAL_VALUE = "%1 blocks have an illegal value (negative or zero)";
 Blockscad.Msg.PARSING_ERROR_MISSING_FIELDS = "%1 blocks are missing fields.";
 Blockscad.Msg.PASSWORD_FIELD = "Password";

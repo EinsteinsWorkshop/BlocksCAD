@@ -66,8 +66,13 @@ Blockly.OpenSCAD['controls_repeat_ext'] = function(block) {
         'repeat_end', Blockly.Variables.NAME_TYPE);
     code += 'var ' + endVar + ' = ' + repeats + ';\n';
   }
+
+
+  // it was too hard to make union work correctly in the parser.  Union after a loop to collect objects.
+  code += 'union() { //end assign\n';
   code += 'for (' + loopVar + ' = [0 : ' + endVar + ']) ' + ' {\n' +
       branch + '}\n';
+  code += '} //end assign\n';
   return code;
 };
 
@@ -127,7 +132,7 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
   if (miss)
     Blockscad.missingFields.push(block.id); 
 
-  var code;
+  var code = '';
 
   var varCode = Blockly.OpenSCAD.returnVarCode(block);
   var aC = varCode[0];
@@ -140,9 +145,14 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
     // given to make it make sense
 
     //increment = abs(increment);
-    code = 'for (' + variable0 + ' = [' + argument0 + ' : ' +
+  // it was too hard to make union work correctly in the parser.  Union after a loop to collect objects.
+    code += 'union() { //end assign\n';
+
+    code += 'for (' + variable0 + ' = [' + argument0 + ' : ' +
         'abs(' + increment + ') : ' + argument1 + ']';    
-    code += ') {\n' + aC + branch + '\n' + aP + '}';
+    code += ') {\n' + aC + branch + '\n' + aP + '}\n';
+
+    code += '} //end assign\n';
   }
   else {
     // in chainhull, I want to actually loop through to argument1 - (increment),
@@ -160,9 +170,12 @@ Blockly.OpenSCAD['controls_for'] = function(block) {
       // given to make it make sense
 
       //increment = abs(increment);
+  // it was too hard to make union work correctly in the parser.  Union after a loop to collect objects.
+    code += 'union() { //end assign\n';
       code += 'for (' + variable0 + ' = [' + argument0 + ' : ' +
           'abs(' + increment + ') : ' + argument1 + " - " + increment  + ']';    
-      code += ') {\n' + aC + '  hull() {\n' + branch + '\n' + branch_next +'\n  }  // end hull (in loop)' + '\n ' + aP + '} // end loop';
+      code += ') {\n' + aC + '  hull() {\n' + branch + '\n' + branch_next +'\n  }  // end hull (in loop)' + '\n ' + aP + '} // end loop\n';
+    code += '} //end assign\n';
   } 
   return code;
 

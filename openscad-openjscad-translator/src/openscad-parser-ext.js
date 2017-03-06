@@ -11,8 +11,8 @@ define(["Module", "Context", "Globals", "FunctionDef", "openscad-parser-support"
 
     function processModule(yy){
         var lines = [];
-        lines.push("function main(){");
-        lines.push("\n");
+        // lines.push("function main(){");
+        // lines.push("\n");
 
         var context = undefined;
         if (yy.context !== undefined){
@@ -28,14 +28,28 @@ define(["Module", "Context", "Globals", "FunctionDef", "openscad-parser-support"
         var res = currmodule.evaluate(context);
 
         var evaluatedLines = _.flatten(res);
-        if (evaluatedLines.length == 1){
-            lines.push("return "+evaluatedLines[0] + ';');
-        } else if (evaluatedLines.length > 1){
-            lines.push("return "+_.first(evaluatedLines)+".union([");
-            lines.push(_.rest(evaluatedLines));
-            lines.push("]);");
+
+
+
+        lines.push ("return [" + evaluatedLines[0]);
+
+        for (var i = 1; i < evaluatedLines.length; i++) {
+            lines.push(',' + evaluatedLines[i]);
+
         }
-        lines.push("};");
+        lines.push("];");
+        // lines.push('};');
+
+
+
+        // if (evaluatedLines.length == 1){
+        //     lines.push("return ["+evaluatedLines[0] + '];');
+        // } else if (evaluatedLines.length > 1){
+        //     lines.push("return "+_.first(evaluatedLines)+".union([");
+        //     lines.push(_.rest(evaluatedLines));
+        //     lines.push("]);");
+        // }
+        // lines.push("};");
 
         var x = {lines:lines, context:Globals.context_stack[Globals.context_stack.length-1]};
         resetModule();

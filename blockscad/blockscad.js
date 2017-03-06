@@ -29,10 +29,10 @@ BlocklyStorage = BlocklyStorage || {};
 var Blockly = Blockly || {};
 var BSUtils = BSUtils || {};
 
-Blockscad.version = "1.6.1";
-Blockscad.releaseDate = "2016/12/21";
+Blockscad.version = "1.7.1";
+Blockscad.releaseDate = "2017/01/09";
 
-Blockscad.offline = false;  // if true, won't attempt to contact the Blockscad cloud backend.
+Blockscad.offline = true;  // if true, won't attempt to contact the Blockscad cloud backend.
 
 Blockscad.standalone = false; // if true, run code needed for the standalone version
 Blockscad.gProcessor = null;      // hold the graphics processor, including the mesh generator and viewer.
@@ -43,12 +43,14 @@ Blockscad.drawAxes = 1;       // start with axes drawn
 // In theory I could just have the parser poll the value directly. Overwritten by the sides block.
 Blockscad.resolution = 1;
 
-Blockscad.showMessageModal = true;
+Blockscad.showMessageModal = false;
 
 
 // Initialize Blockscad.  Called on page load.
  
 Blockscad.init = function() {
+  var pageData = blockscadpage.start();
+  $('body').append(pageData);
   Blockscad.initLanguage();
 
   // version of input files/projects
@@ -778,6 +780,7 @@ Blockscad.readStlFile = function(evt) {
 
 // Load Blockly's (and Blockscad's) language strings.
 // console.log("trying to include message strings");
+// console.log("language is: ", BSUtils.LANG);
 document.write('<script src="blockly/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 document.write('<script src="blockscad/msg/js/' + BSUtils.LANG + '.js"></script>\n');
 
@@ -1222,37 +1225,39 @@ Blockscad.doRender = function() {
   }
 };
  
-Blockscad.renderCode = function(code) {
-  var csgcode = '';
-  var code_good = true;
-    try {
+Blockscad.renderCode = function(code, resolution) {
+  // var csgcode = '';
+  // var code_good = true;
+  //   try {
    // console.log("code was: ",code);
-   window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
-                                  // console.log(csgcode);
-                                }, 0);
+  //  window.setTimeout(function (){ csgcode = openscadOpenJscadParser.parse(code); 
+  //                                 console.log("final parsed code: ",csgcode);
+  //                               }, 0);
 
 
-   //code = openscadOpenJscadParser.parse(code);
-   //console.log("code is now:",code);
-  }
-  catch(err) {
-    // console.log("caught parsing error");
-    $( '#error-message' ).html(err);
-    $( '#error-message' ).addClass("has-error");
-    code_good = false;
-  }
-  if (code_good) {
-    window.setTimeout(function () 
-      { Blockscad.gProcessor.setBlockscad(csgcode); 
-        // console.log("code is now",code); 
-      }, 0);
-    // unbacklight all here
-    Blockscad.workspace.clearBacklight();
-  }
-  else {
-    $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
+  //  //code = openscadOpenJscadParser.parse(code);
+  //  //console.log("code is now:",code);
+  // }
+  // catch(err) {
+  //   // console.log("caught parsing error");
+  //   $( '#error-message' ).html(err);
+  //   $( '#error-message' ).addClass("has-error");
+  //   code_good = false;
+  // }
+  // if (code_good) {
+  //   // window.setTimeout(function () 
+  //     // { Blockscad.gProcessor.setBlockscad(csgcode); 
+  //       // console.log("code is now",code); 
+  //     // }, 0);
+  //   // unbacklight all here
+  //   Blockscad.workspace.clearBacklight();
+  // }
+  // else {
+  //   $('#renderButton').html(Blockscad.Msg.RENDER_BUTTON); 
 
-  }
+  // }
+
+  Blockscad.gProcessor.setBlockscad(code);
 };
 
 
@@ -1679,6 +1684,7 @@ Blockscad.initLanguage = function() {
   for (var i = 0; i < languages.length; i++) {
     items.push('<li><a href="#" class="lang-option" data-lang="' + languages[i][1] + '"</a>' + languages[i][0] + '</li>');
   }
+
   $('#languageMenu').append( items.join('') );
 
   $('.lang-option').on("click", BSUtils.changeLanguage);
@@ -1777,6 +1783,8 @@ Blockscad.arraysEqual = function(arr1, arr2) {
 // this is a hack because the parse is being so intractable.
 Blockscad.processCodeForOutput = function(code) {
 
+  // console.log("code before processing:", code);
+
   var re0 = /( *)assign\((\$fn=.+)\){(.+)/g;
   var output0 = code.replace(re0, "$1{\n$1  $2; $3");
 
@@ -1797,10 +1805,14 @@ Blockscad.processCodeForOutput = function(code) {
 
   var output4 = output3.replace(/\n\s*\n\s*\n/g, '\n\n');
 
-  // console.log(code);
-  // console.log(output3);
+  // I need to change all "group" commands to "unions"
 
-  return output4;
+  var output5 = output4.replace(/group\(\)\{/g, 'union(){');
+
+  // console.log(code);
+  // console.log(output5);
+
+  return output5;
 }
 Blockly.OpenSCAD.returnIfVarCode = function(block) {
   // this is an if/else block, I have to separate it into different scopes.
@@ -1823,7 +1835,7 @@ Blockly.OpenSCAD.returnIfVarCode = function(block) {
       var b = block.getInputTargetBlock(block.inputList[i].name);
       bays[bayIndex] = [];
 
-      if (b.type == "variables_set")
+      if (b && b.type == "variables_set")
         bays[bayIndex] = Blockly.OpenSCAD.getVariableCode(b);
 
       bayIndex++;

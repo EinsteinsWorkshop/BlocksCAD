@@ -66,139 +66,49 @@ Blockscad.loadFont = function(index) {
   });
 };
 
+
 Blockscad.loadFontThenRender = function(i,code) {
   try {
     var name = Blockscad.fontName[Blockscad.loadTheseFonts[i]];
-    opentype.load(Blockscad.fontList[Blockscad.loadTheseFonts[i]], function(err, font) {
-      if (err) {
-        console.log('Could not load font: ', font + ":" + err);
-        // I'm not going to be rendering because of a lack of font.
-        // need an error message in the render pane and set the render button active and "render"y.
-        $( '#error-message' ).html("Error: Failed to load font: " + name);
-        $( '#error-message' ).addClass("has-error");
-        $('#renderButton').html('Render'); 
-        $('#renderButton').prop('disabled', false);
-      } else {
-        Blockscad.fonts[Blockscad.fontName[Blockscad.loadTheseFonts[i]]] = font; // save the loaded fonts
+    var url = Blockscad.fontList[Blockscad.loadTheseFonts[i]];
+
+    var request = new XMLHttpRequest();
+    request.open('get', url, true);
+    request.responseType = 'arraybuffer';
+    request.onload = function() {
+        if (request.status !== 200) {
+            throw new Error('failed to load font in loadRawFont:' + url + request.statusText);
+        }
+        Blockscad.fonts[Blockscad.fontName[Blockscad.loadTheseFonts[i]]] = request.response; // save the loaded fonts
         Blockscad.numloaded++;
-        if (Blockscad.numloaded == Blockscad.loadTheseFonts.length) Blockscad.renderCode(code);       
-      }
-    });    
+        if (Blockscad.numloaded == Blockscad.loadTheseFonts.length) Blockscad.renderCode(code);  
+    };
+
+    request.send();
+
+    // opentype.load(Blockscad.fontList[Blockscad.loadTheseFonts[i]], function(err, font) {
+    //   if (err) {
+    //     console.log('Could not load font: ', font + ":" + err);
+    //     // I'm not going to be rendering because of a lack of font.
+    //     // need an error message in the render pane and set the render button active and "render"y.
+    //     $( '#error-message' ).html("Error: Failed to load font: " + name);
+    //     $( '#error-message' ).addClass("has-error");
+    //     $('#renderButton').html('Render'); 
+    //     $('#renderButton').prop('disabled', false);
+    //   } else {
+    //     Blockscad.fonts[Blockscad.fontName[Blockscad.loadTheseFonts[i]]] = font; // save the loaded fonts
+    //     Blockscad.numloaded++;
+    //     if (Blockscad.numloaded == Blockscad.loadTheseFonts.length) Blockscad.renderCode(code);       
+    //   }
+    // });    
   }
   catch(err) {
-    console.log("network error loading font");
+    console.log("network error loading font in loadFontThenRender with: ", err);
   }
 };
 
 
-// pathToPoints() takes a Path object created by opentype.js
-// resolution is a number used for the number of points used
-// to approximate a curve in the font path
-// returns an array of points and an array of paths
-// NOTE: web svg coordinates have flipped Y coordinates
-// (increasing positive as you move down)
-// so all Y coordinates are multiplied by -1
-Blockscad.pathToPoints = function(path,resolution) {
 
-  var points = [];
-  var paths = [];
-  var new_path = [];
-  var fn = 2;   // default resolution in case resolution is not >= 2
-  var to, c1,c2,nx,ny,a; //for curve approximation
-
-  if (resolution > 2) fn = resolution; 
-
-  if (fn > 10) fn = 10;  // cap the resolution for performance
-
-  // console.log(path.commands);
-
-  if (path && path.commands && path.commands.length > 0) {
-    // hopefully got a legal path
-    var point_index = 0;  
-    var prev = [];  // save the previous point for curves
-    for (var i = 0; i < path.commands.length; i++) {
-      switch(path.commands[i].type) {
-        case 'M':
-          // save, then clear, the last path
-          if (new_path.length>2) {
-            paths.push(new_path);
-          }
-          new_path = [];
-          // load up the new point
-          points.push([path.commands[i].x, -1 * path.commands[i].y]);
-          new_path.push(point_index++);
-          prev = [path.commands[i].x, -1 * path.commands[i].y];
-          break;
-        case 'L':
-          // load up the new point
-          points.push([path.commands[i].x, -1 * path.commands[i].y]);
-          new_path.push(point_index++);
-          prev = [path.commands[i].x, -1 * path.commands[i].y];
-          break;
-        case 'C':
-
-          // Cubic Bezier curve
-          // uses two control points c1(x1,y1) and c2(x2,y2)
-          // the previous point prev[x,y], and current point to[x,y]
-          to = [path.commands[i].x, -1 * path.commands[i].y]; 
-          c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
-          c2 = [path.commands[i].x2, -1 * path.commands[i].y2];
-
-          // approximate the curve with fn points
-          for (var k=1;k<=fn;k++) {
-            a = k / fn;
-            nx = prev[0] * Math.pow(1-a,3) + 
-                     c1[0] * 3 * Math.pow(1-a,2) * a +
-                     c2[0] * 3 * Math.pow(1-a,1) * a * a +
-                     to[0] * Math.pow(a,3); 
-            nx = prev[1] * Math.pow(1-a,3) + 
-                     c1[1] * 3 * Math.pow(1-a,2) * a +
-                     c2[1] * 3 * Math.pow(1-a,1) * a * a +
-                     to[1] * Math.pow(a,3); 
-            // load up this new point
-            points.push([nx,ny]);
-            new_path.push(point_index++);
-          }
-
-          prev = to;
-          break;
-        case 'Q':
-          // Quadratic Bezier curve
-          // uses one control point c1[x1,y1]
-          // the previous point prev[x,y], and current point to[x,y]
-          to = [path.commands[i].x, -1 * path.commands[i].y]; 
-          c1 = [path.commands[i].x1, -1 * path.commands[i].y1];
-          for (var k=1;k<=fn;k++) {
-            a = k / fn; 
-            nx = prev[0] * Math.pow(1-a,2) + 
-                     c1[0] * 2 * Math.pow(1-a,1) * a +
-                     to[0] * Math.pow(a,2); 
-            ny = prev[1] * Math.pow(1-a,2) + 
-                     c1[1] * 2 * Math.pow(1-a,1) * a +
-                     to[1] * Math.pow(a,2); 
-            // load up this new point
-            points.push([nx,ny]);
-            new_path.push(point_index++);
-          }
-
-          prev = to;
-          break;
-        case 'Z':
-          // log the old path
-          if (new_path.length>2) {
-            paths.push(new_path);
-            new_path = [];
-          }
-          break;
-      }  // end switch commands
-    }
-  }
-  // else console.log("no path found");
-  // fix case with a Path with just an MZ
-  if (points.length < 3) points = [];
-  return [points,paths];
-
-};
 
 Blockscad.whichFonts = function(code) {
   var loadThisIndex = [];
