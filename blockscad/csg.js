@@ -93,7 +93,7 @@ for solid CAD anyway.
 */
 
 (function(module) {
-
+    
     var _CSGDEBUG = false;
 
     function fnNumberSort(a, b) {
@@ -139,7 +139,8 @@ for solid CAD anyway.
             return CSG.Polygon.fromObject(p);
         });
         var csg = CSG.fromPolygons(polygons);
-        csg = csg.canonicalized();
+        csg.isCanonicalized = obj.isCanonicalized;
+        csg.isRetesselated  = obj.isRetesselated;
         return csg;
     };
 
@@ -1206,7 +1207,8 @@ for solid CAD anyway.
         // So that it is in an orientation suitable for CNC milling
         getTransformationAndInverseTransformationToFlatLying: function() {
             if (this.polygons.length === 0) {
-                return new CSG.Matrix4x4(); // unity
+                var m = new CSG.Matrix4x4(); // unity
+                return [m,m];
             } else {
                 // get a list of unique planes in the CSG:
                 var csg = this.canonicalized();
@@ -1260,7 +1262,7 @@ for solid CAD anyway.
                         }
                     }
                     if (isbetter) {
-                        // tr the transformation around the z-axis and onto the z plane:
+                        // translate the transformation around the z-axis and onto the z plane:
                         var translation = new CSG.Vector3D([-0.5 * (bounds[1].x + bounds[0].x), -0.5 * (bounds[1].y + bounds[0].y), -bounds[0].z]);
                         transformation = transformation.multiply(CSG.Matrix4x4.translation(translation));
                         inversetransformation = CSG.Matrix4x4.translation(translation.negated()).multiply(inversetransformation);
@@ -2241,11 +2243,11 @@ for solid CAD anyway.
                                 this._z = 0;
                             }
                         }
-                    } else if (('x' in x) && ('y' in x)) {
-                        this._x = parseFloat(x.x);
-                        this._y = parseFloat(x.y);
-                        if ('z' in x) {
-                            this._z = parseFloat(x.z);
+                    } else if (('_x' in x) && ('_y' in x)) {
+                        this._x = parseFloat(x._x);
+                        this._y = parseFloat(x._y);
+                        if ('_z' in x) {
+                            this._z = parseFloat(x._z);
                         } else {
                             this._z = 0;
                         }
@@ -5266,7 +5268,10 @@ for solid CAD anyway.
         var nz = plane.normal.z;
         var w = plane.w;
         var els = [
-            (1.0 - 2.0 * nx * nx), (-2.0 * ny * nx), (-2.0 * nz * nx), 0, (-2.0 * nx * ny), (1.0 - 2.0 * ny * ny), (-2.0 * nz * ny), 0, (-2.0 * nx * nz), (-2.0 * ny * nz), (1.0 - 2.0 * nz * nz), 0, (-2.0 * nx * w), (-2.0 * ny * w), (-2.0 * nz * w), 1
+            (1.0 - 2.0 * nx * nx), (-2.0 * ny * nx), (-2.0 * nz * nx), 0,
+            (-2.0 * nx * ny), (1.0 - 2.0 * ny * ny), (-2.0 * nz * ny), 0,
+            (-2.0 * nx * nz), (-2.0 * ny * nz), (1.0 - 2.0 * nz * nz), 0,
+            (2.0 * nx * w), (2.0 * ny * w), (2.0 * nz * w), 1
         ];
         return new CSG.Matrix4x4(els);
     };
@@ -6508,7 +6513,7 @@ for solid CAD anyway.
             transformation = transformation.multiply(normalsbasis.getProjectionMatrix());
             transformation = transformation.multiply(CSG.Matrix4x4.rotationZ(rotation));
             transformation = transformation.multiply(normalsbasis.getInverseProjectionMatrix());
-            // and tr to the destination point:
+            // and translate to the destination point:
             transformation = transformation.multiply(CSG.Matrix4x4.translation(other.point));
             // var usAligned = us.transform(transformation);
             return transformation;
@@ -6944,6 +6949,7 @@ for solid CAD anyway.
          http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
          */
         appendArc: function(endpoint, options) {
+            var decimals = 100000;
             if (arguments.length < 2) {
                 options = {};
             }
@@ -6971,6 +6977,10 @@ for solid CAD anyway.
             var largearc = CSG.parseOptionAsBool(options, "large", false);
             var startpoint = this.points[this.points.length - 1];
             endpoint = new CSG.Vector2D(endpoint);
+            // round to precision in order to have determinate calculations
+            xradius = Math.round(xradius*decimals)/decimals;
+            yradius = Math.round(yradius*decimals)/decimals;
+            endpoint = new CSG.Vector2D(Math.round(endpoint.x*decimals)/decimals,Math.round(endpoint.y*decimals)/decimals);
 
             var sweep_flag = !clockwise;
             var newpoints = [];
@@ -6988,14 +6998,20 @@ for solid CAD anyway.
                 var sinphi = Math.sin(phi);
                 var minushalfdistance = startpoint.minus(endpoint).times(0.5);
                 // F.6.5.1:
-                var start_trd = new CSG.Vector2D(cosphi * minushalfdistance.x + sinphi * minushalfdistance.y, -sinphi * minushalfdistance.x + cosphi * minushalfdistance.y);
+                // round to precision in order to have determinate calculations
+                var x = Math.round((cosphi * minushalfdistance.x + sinphi * minushalfdistance.y)*decimals)/decimals;
+                var y = Math.round((-sinphi * minushalfdistance.x + cosphi * minushalfdistance.y)*decimals)/decimals;
+                var start_trd = new CSG.Vector2D(x,y);
                 // F.6.6.2:
-                var biglambda = start_trd.x * start_trd.x / (xradius * xradius) + start_trd.y * start_trd.y / (yradius * yradius);
-                if (biglambda > 1) {
+                var biglambda = (start_trd.x * start_trd.x) / (xradius * xradius) + (start_trd.y * start_trd.y) / (yradius * yradius);
+                if (biglambda > 1.0) {
                     // F.6.6.3:
                     var sqrtbiglambda = Math.sqrt(biglambda);
                     xradius *= sqrtbiglambda;
                     yradius *= sqrtbiglambda;
+                    // round to precision in order to have determinate calculations
+                    xradius = Math.round(xradius*decimals)/decimals;
+                    yradius = Math.round(yradius*decimals)/decimals;
                 }
                 // F.6.5.2:
                 var multiplier1 = Math.sqrt((xradius * xradius * yradius * yradius - xradius * xradius * start_trd.y * start_trd.y - yradius * yradius * start_trd.x * start_trd.x) / (xradius * xradius * start_trd.y * start_trd.y + yradius * yradius * start_trd.x * start_trd.x));
@@ -7078,6 +7094,17 @@ for solid CAD anyway.
         prot.rotate = function(rotationCenter, rotationAxis, degrees) {
             return this.transform(CSG.Matrix4x4.rotation(rotationCenter, rotationAxis, degrees));
         };
+
+        prot.rotateEulerAngles = function(alpha, beta, gamma, position) {
+            position = position || [0,0,0];
+
+            var Rz1 = CSG.Matrix4x4.rotationZ(alpha);
+            var Rx  = CSG.Matrix4x4.rotationX(beta);
+            var Rz2 = CSG.Matrix4x4.rotationZ(gamma);
+            var T   = CSG.Matrix4x4.translation(new CSG.Vector3D(position));
+
+            return this.transform(Rz2.multiply(Rx).multiply(Rz1).multiply(T));
+        };
     };
 
     // TODO: consider generalization and adding to addTransformationMethodsToPrototype
@@ -7104,7 +7131,17 @@ for solid CAD anyway.
     // Each side is a line between 2 points
     var CAG = function() {
         this.sides = [];
+        this.isCanonicalized = false;
     };
+
+    // create from an untyped object with identical property names:
+    CAG.fromObject = function(obj) {
+        var sides = obj.sides.map(function(s) {
+            return CAG.Side.fromObject(s);
+        });
+        var cag = CAG.fromSides(sides);
+        return cag;
+    }
 
     // Construct a CAG from a list of `CAG.Side` instances.
     CAG.fromSides = function(sides) {
@@ -7224,6 +7261,41 @@ for solid CAD anyway.
             prevvertex = vertex;
         }
         return CAG.fromSides(sides);
+    };
+
+    /* Construct an ellispe
+    options:
+      center: a 2D center point
+      radius: a 2D vector with width and height
+      resolution: number of sides per 360 degree rotation
+    returns a CAG object
+    */
+    CAG.ellipse = function(options) {
+        options = options || {};
+        var c = CSG.parseOptionAs2DVector(options, "center", [0, 0]);
+        var r = CSG.parseOptionAs2DVector(options, "radius", [1, 1]);
+        r = r.abs(); // negative radii make no sense
+        var res = CSG.parseOptionAsInt(options, "resolution", CSG.defaultResolution2D);
+
+        var e2 = new CSG.Path2D([[c.x,c.y + r.y]]);
+        e2 = e2.appendArc([c.x,c.y - r.y], {
+            xradius: r.x,
+            yradius: r.y,
+            xaxisrotation: 0,
+            resolution: res,
+            clockwise: true,
+            large: false,
+        });
+        e2 = e2.appendArc([c.x,c.y + r.y], {
+            xradius: r.x,
+            yradius: r.y,
+            xaxisrotation: 0,
+            resolution: res,
+            clockwise: true,
+            large: false,
+        });
+        e2 = e2.close();
+        return e2.innerToCAG();
     };
 
     /* Construct a rectangle
@@ -7380,7 +7452,7 @@ for solid CAD anyway.
             // reference connector for transformation
             var origin = [0, 0, 0], defaultAxis = [0, 0, 1], defaultNormal = [0, 1, 0];
             var thisConnector = new CSG.Connector(origin, defaultAxis, defaultNormal);
-            // trd connector per options
+            // translated connector per options
             var translation = options.translation || origin;
             var axisVector = options.axisVector || defaultAxis;
             var normalVector = options.normalVector || defaultNormal;
@@ -8437,6 +8509,10 @@ for solid CAD anyway.
         this.pos = pos;
     };
 
+    CAG.Vertex.fromObject = function(obj) {
+        return new CAG.Vertex(new CSG.Vector2D(obj.pos._x,obj.pos._y));
+    };
+
     CAG.Vertex.prototype = {
         toString: function() {
             return "(" + this.pos.x.toFixed(2) + "," + this.pos.y.toFixed(2) + ")";
@@ -8456,6 +8532,12 @@ for solid CAD anyway.
         if (!(vertex1 instanceof CAG.Vertex)) throw new Error("Assertion failed");
         this.vertex0 = vertex0;
         this.vertex1 = vertex1;
+    };
+
+    CAG.Side.fromObject = function(obj) {
+        var vertex0 = CAG.Vertex.fromObject(obj.vertex0);
+        var vertex1 = CAG.Vertex.fromObject(obj.vertex1);
+        return new CAG.Side(vertex0,vertex1);
     };
 
     CAG.Side._fromFakePolygon = function(polygon) {
@@ -8604,6 +8686,7 @@ for solid CAD anyway.
 
     But we'll keep CSG.Polygon2D as a stub for backwards compatibility
     */
+    
     CSG.Polygon2D = function(points) {
         var cag = CAG.fromPoints(points);
         this.sides = cag.sides;
@@ -8611,7 +8694,9 @@ for solid CAD anyway.
     CSG.Polygon2D.prototype = CAG.prototype;
 
 
-
+    //console.log('module', module)
     module.CSG = CSG;
     module.CAG = CAG;
 })(this); //module to export to
+
+// module.exports = {CSG,CAG}//({})(module)
