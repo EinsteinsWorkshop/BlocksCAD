@@ -12,6 +12,7 @@ BSUtils.LANGUAGE_NAME = {
   'de': 'Deutsch',
   'fr': 'Français',
   'zh-hans': '簡體中文',
+   'sl' : 'Slovenščina'
   // 'es': 'Español'
 };
 // BSUtils.LANGUAGE_NAME = {
