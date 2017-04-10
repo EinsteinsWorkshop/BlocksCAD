@@ -64,7 +64,6 @@ Code.LANGUAGE_NAME = {
   'ru': 'Русский',
   'sc': 'Sardu',
   'sk': 'Slovenčina',
-  'sk': 'Slovenčina',
   'sr': 'Српски',
   'sv': 'Svenska',
   'ta': 'தமிழ்',
